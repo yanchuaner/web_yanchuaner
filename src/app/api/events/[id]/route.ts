@@ -6,8 +6,8 @@ export async function GET(req: NextRequest) {
     const id = req.url.split("/").pop();
     if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
-    const event = await prisma.event.findUnique({
-      where: { id },
+    const event = await prisma.event.findFirst({
+      where: { id, status: "PUBLISHED" },
       select: {
         id: true, title: true, summary: true, content: true,
         location: true, eventDate: true, endDate: true,
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
 
     if (!name) return NextResponse.json({ error: "Name is required" }, { status: 400 });
 
-    const event = await prisma.event.findUnique({ where: { id } });
+    const event = await prisma.event.findFirst({ where: { id, status: "PUBLISHED" } });
     if (!event) return NextResponse.json({ error: "Event not found" }, { status: 404 });
     if (event.maxAttendees) {
       const count = await prisma.eventRegistration.count({ where: { eventId: id } });

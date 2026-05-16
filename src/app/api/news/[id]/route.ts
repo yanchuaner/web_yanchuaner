@@ -6,12 +6,12 @@ export async function GET(req: NextRequest) {
     const id = req.url.split("/").pop();
     if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
-    const article = await prisma.news.findUnique({
-      where: { id },
+    const article = await prisma.news.findFirst({
+      where: { id, status: "PUBLISHED" },
       select: { id: true, title: true, summary: true, content: true, imageUrl: true, publishedAt: true, createdAt: true },
     });
 
-    if (!article || !article.publishedAt) {
+    if (!article) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 

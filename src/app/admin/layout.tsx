@@ -1,11 +1,13 @@
 import Link from 'next/link';
-import { BarChart3, Users, FileText, Home } from 'lucide-react';
+import { BarChart3, Users, FileText, Newspaper, CalendarDays, Home } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const navItems = [
     { href: '/admin', label: '控制面板', icon: BarChart3 },
     { href: '/admin/users', label: '用户审核', icon: Users },
     { href: '/admin/posts', label: '内容审核', icon: FileText },
+    { href: '/admin/news', label: '新闻管理', icon: Newspaper },
+    { href: '/admin/events', label: '活动管理', icon: CalendarDays },
     { href: '/', label: '返回母港', icon: Home },
   ];
 

@@ -7,8 +7,8 @@ import prisma from "@/lib/db";
 import EventRegistrationForm from "@/components/EventRegistrationForm";
 
 export default async function EventDetailPage({ params }: { params: { id: string } }) {
-  const event = await prisma.event.findUnique({
-    where: { id: params.id },
+  const event = await prisma.event.findFirst({
+    where: { id: params.id, status: "PUBLISHED" },
     include: {
       _count: {
         select: { registrations: true },

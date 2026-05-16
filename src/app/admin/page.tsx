@@ -1,4 +1,4 @@
-import { BarChart3, Users, FileText, TrendingUp } from 'lucide-react';
+import { BarChart3, Users, FileText, TrendingUp, Newspaper, CalendarDays, Plus } from 'lucide-react';
 import prisma from '@/lib/db';
 import { getCachedOrFetch } from '@/lib/cache';
 
@@ -85,6 +85,30 @@ export default async function AdminDashboard() {
           >
             <FileText size={16} />
             查看待审核内容
+          </a>
+          <a href="/admin/news"
+            className="inline-flex items-center gap-2 rounded-xl border border-[#7C3AED]/20 bg-[#7C3AED]/5 px-4 py-2.5 text-sm text-[#7C3AED] transition hover:bg-[#7C3AED]/10 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+          >
+            <Newspaper size={16} />
+            新闻管理
+          </a>
+          <a href="/admin/news/new"
+            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 text-sm text-[#4C1D95]/60 transition hover:border-[#7C3AED]/30 hover:text-[#7C3AED] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+          >
+            <Plus size={16} />
+            发布新闻
+          </a>
+          <a href="/admin/events"
+            className="inline-flex items-center gap-2 rounded-xl border border-[#7C3AED]/20 bg-[#7C3AED]/5 px-4 py-2.5 text-sm text-[#7C3AED] transition hover:bg-[#7C3AED]/10 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+          >
+            <CalendarDays size={16} />
+            活动管理
+          </a>
+          <a href="/admin/events/new"
+            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 text-sm text-[#4C1D95]/60 transition hover:border-[#7C3AED]/30 hover:text-[#7C3AED] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+          >
+            <Plus size={16} />
+            创建活动
           </a>
         </div>
       </div>

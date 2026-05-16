@@ -6,8 +6,8 @@ import { ArrowLeft, Calendar } from "lucide-react";
 import prisma from "@/lib/db";
 
 export default async function NewsDetailPage({ params }: { params: { id: string } }) {
-  const article = await prisma.news.findUnique({
-    where: { id: params.id },
+  const article = await prisma.news.findFirst({
+    where: { id: params.id, status: "PUBLISHED" },
   });
 
   if (!article) {
