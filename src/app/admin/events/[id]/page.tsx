@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { CalendarDays, ArrowLeft, Upload } from 'lucide-react';
+import { CalendarDays, ArrowLeft, Upload, Users } from 'lucide-react';
 import Link from 'next/link';
 
 function toLocalDatetime(isoString: string): string {
@@ -34,6 +34,7 @@ export default function AdminEventsEditPage() {
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [registrationCount, setRegistrationCount] = useState(0);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -53,6 +54,7 @@ export default function AdminEventsEditPage() {
           maxAttendees: e.maxAttendees ? String(e.maxAttendees) : '',
           status: e.status || 'DRAFT',
         });
+        setRegistrationCount(e._count?.registrations ?? 0);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -147,6 +149,25 @@ export default function AdminEventsEditPage() {
           {error}
         </div>
       )}
+
+      <div className="mb-6 rounded-2xl border border-[#7C3AED]/10 bg-white/50 p-4 backdrop-blur-sm">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm text-[#4C1D95]/80">
+            <Users size={18} className="text-[#7C3AED]" />
+            <span>
+              当前报名人数：{registrationCount}
+              {form.maxAttendees ? ` / ${form.maxAttendees} 人` : " / 不限"}
+            </span>
+          </div>
+          <Link
+            href={`/admin/events/${params.id}/registrations`}
+            className="inline-flex items-center gap-1 rounded-lg border border-[#7C3AED]/20 bg-[#7C3AED]/5 px-2.5 py-1 text-xs text-[#7C3AED] transition hover:bg-[#7C3AED]/10 cursor-pointer"
+          >
+            <Users size={14} />
+            查看报名名单
+          </Link>
+        </div>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-[#7C3AED]/10 bg-white/50 p-6 backdrop-blur-sm">
         <div>
@@ -246,11 +267,20 @@ export default function AdminEventsEditPage() {
             )}
           </div>
           {form.coverImage && (
-            <img
-              src={form.coverImage}
-              alt="封面预览"
-              className="mt-2 h-32 w-48 rounded-lg border border-[#7C3AED]/10 object-cover"
-            />
+            <div className="flex items-center gap-4">
+              <img
+                src={form.coverImage}
+                alt="封面预览"
+                className="h-32 w-48 rounded-lg border border-[#7C3AED]/10 object-cover"
+              />
+              <button
+                type="button"
+                onClick={() => setForm((prev) => ({ ...prev, coverImage: '' }))}
+                className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs text-rose-600 transition hover:bg-rose-100 cursor-pointer"
+              >
+                移除封面
+              </button>
+            </div>
           )}
         </div>
 

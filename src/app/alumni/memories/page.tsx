@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import fs from "node:fs";
 import path from "node:path";
 import Image from "next/image";
 import Link from "next/link";
 import { Camera, House, Landmark, LibraryBig, Mountain, Trees } from "lucide-react";
 import memoryItemsData from "@/data/memoriesGallery.json";
+
+export const metadata: Metadata = {
+  title: "燕中记忆",
+  description: "燕川中学校园风景、毕业合影与时代记录 — 燕中校友数字母港文化记忆展区",
+};
 
 type MemoryIcon = "house" | "landmark" | "library" | "mountain" | "trees" | "camera";
 

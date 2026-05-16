@@ -2,8 +2,32 @@ export const revalidate = 60;
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { ArrowLeft, Calendar } from "lucide-react";
 import prisma from "@/lib/db";
+
+const SITE_URL = process.env.SITE_URL || "https://yanchuaner.cn";
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const article = await prisma.news.findFirst({
+    where: { id: params.id, status: "PUBLISHED" },
+    select: { title: true, summary: true },
+  });
+
+  if (!article) {
+    return { title: "新闻未找到" };
+  }
+
+  return {
+    title: article.title,
+    description: article.summary || article.title,
+    openGraph: {
+      title: article.title,
+      description: article.summary || article.title,
+      url: `${SITE_URL}/news/${params.id}`,
+    },
+  };
+}
 
 export default async function NewsDetailPage({ params }: { params: { id: string } }) {
   const article = await prisma.news.findFirst({

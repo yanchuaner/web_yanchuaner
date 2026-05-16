@@ -2,9 +2,33 @@ export const revalidate = 60;
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { ArrowLeft, CalendarDays, Clock, MapPin, Users } from "lucide-react";
 import prisma from "@/lib/db";
 import EventRegistrationForm from "@/components/EventRegistrationForm";
+
+const SITE_URL = process.env.SITE_URL || "https://yanchuaner.cn";
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const event = await prisma.event.findFirst({
+    where: { id: params.id, status: "PUBLISHED" },
+    select: { title: true, summary: true },
+  });
+
+  if (!event) {
+    return { title: "活动未找到" };
+  }
+
+  return {
+    title: event.title,
+    description: event.summary || event.title,
+    openGraph: {
+      title: event.title,
+      description: event.summary || event.title,
+      url: `${SITE_URL}/events/${params.id}`,
+    },
+  };
+}
 
 export default async function EventDetailPage({ params }: { params: { id: string } }) {
   const event = await prisma.event.findFirst({

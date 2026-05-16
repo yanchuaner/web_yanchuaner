@@ -22,7 +22,7 @@ type DraftState = {
   contact: string;
 };
 
-const STORY_EMAIL = "alumni@aeroschool.edu.cn";
+const STORY_EMAIL = "yanchuan_alumni@163.com";
 
 const initialDraft: DraftState = {
   title: "",

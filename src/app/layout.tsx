@@ -34,8 +34,8 @@ const SITE_URL = process.env.SITE_URL || "https://yanchuaner.cn";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "\u71d5\u5ddd\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
-    template: "%s | \u71d5\u5ddd\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
+    default: "\u71d5\u4e2d\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
+    template: "%s | \u71d5\u4e2d\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
   },
   description:
     "\u6df1\u5733\u5e02\u71d5\u5ddd\u4e2d\u5b66\u6821\u53cb\u4f1a\u5b98\u7f51 \u2014 \u8fde\u63a5\u6bd5\u4e1a\u6821\u53cb\u3001\u5728\u6821\u5b66\u751f\u4e0e\u8001\u5e08\u7684\u516c\u76ca\u6570\u5b57\u5e73\u53f0\u3002\u63d0\u4f9b\u6821\u53cb\u901a\u8baf\u5f55\u3001\u6821\u56ed\u8bb0\u5fc6\u3001\u6821\u53cb\u6545\u4e8b\u3001\u6d3b\u52a8\u516c\u544a\u7b49\u670d\u52a1\u3002",
@@ -44,19 +44,19 @@ export const metadata: Metadata = {
     "\u6821\u53cb\u4f1a",
     "\u6821\u53cb\u7f51",
     "\u6df1\u5733\u6821\u53cb",
-    "\u71d5\u5ddd\u6821\u53cb",
+    "\u71d5\u4e2d\u6821\u53cb",
     "\u6bd5\u4e1a\u6821\u53cb",
     "\u6821\u53cb\u901a\u8baf\u5f55",
   ],
-  authors: [{ name: "\u71d5\u5ddd\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f" }],
-  creator: "\u71d5\u5ddd\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
-  publisher: "\u71d5\u5ddd\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
+  authors: [{ name: "\u71d5\u4e2d\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f" }],
+  creator: "\u71d5\u4e2d\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
+  publisher: "\u71d5\u4e2d\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
   openGraph: {
     type: "website",
     locale: "zh_CN",
     url: SITE_URL,
-    siteName: "\u71d5\u5ddd\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
-    title: "\u71d5\u5ddd\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
+    siteName: "\u71d5\u4e2d\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
+    title: "\u71d5\u4e2d\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
     description:
       "\u6df1\u5733\u5e02\u71d5\u5ddd\u4e2d\u5b66\u6821\u53cb\u4f1a\u5b98\u7f51 \u2014 \u8fde\u63a5\u6bd5\u4e1a\u6821\u53cb\u3001\u5728\u6821\u5b66\u751f\u4e0e\u8001\u5e08\u7684\u516c\u76ca\u6570\u5b57\u5e73\u53f0",
     images: [
@@ -64,13 +64,13 @@ export const metadata: Metadata = {
         url: `${SITE_URL}/card-bg.jpg`,
         width: 2752,
         height: 1536,
-        alt: "\u71d5\u5ddd\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
+        alt: "\u71d5\u4e2d\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "\u71d5\u5ddd\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
+    title: "\u71d5\u4e2d\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
     description: "\u6df1\u5733\u5e02\u71d5\u5ddd\u4e2d\u5b66\u6821\u53cb\u4f1a\u5b98\u7f51 \u2014 \u8fde\u63a5\u6bd5\u4e1a\u6821\u53cb\u3001\u5728\u6821\u5b66\u751f\u4e0e\u8001\u5e08\u7684\u516c\u76ca\u6570\u5b57\u5e73\u53f0",
     images: [`${SITE_URL}/card-bg.jpg`],
   },
@@ -106,7 +106,7 @@ export default function RootLayout({
               <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-8">
                 <Link
                   href="/"
-                  aria-label="返回首页：燕川数字母港"
+                  aria-label="返回首页：燕中数字母港"
                   tabIndex={0}
                   className="group relative text-lg font-bold tracking-wide text-[#7C3AED] transition-colors duration-300 hover:text-[#5B21B6] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF5FF] rounded-sm cursor-pointer font-heading"
                 >

@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { CalendarDays, Plus, Edit2, Users } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { CalendarDays, Plus, Edit2, Users, Search } from 'lucide-react';
 import Link from 'next/link';
 
 type EventItem = {
@@ -20,6 +20,13 @@ export default function AdminEventsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [search, setSearch] = useState('');
+
+  const filteredEvents = useMemo(() => {
+    if (!search.trim()) return events;
+    const q = search.trim().toLowerCase();
+    return events.filter((item) => item.title.toLowerCase().includes(q) || (item.location || '').toLowerCase().includes(q));
+  }, [events, search]);
 
   const fetchEvents = async () => {
     setLoading(true);
@@ -72,20 +79,32 @@ export default function AdminEventsPage() {
         </Link>
       </div>
 
-      <div className="mb-4 flex gap-2">
-        {filters.map((f) => (
-          <button
-            key={f}
-            onClick={() => setStatusFilter(f)}
-            className={`rounded-lg border px-3 py-1.5 text-xs transition cursor-pointer ${
-              statusFilter === f
-                ? 'border-[#7C3AED]/50 bg-[#7C3AED]/10 text-[#7C3AED]'
-                : 'border-gray-200 text-[#4C1D95]/60 hover:border-[#7C3AED]/30'
-            }`}
-          >
-            {f === 'ALL' ? '全部' : statusLabel[f]}
-          </button>
-        ))}
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <div className="flex gap-2">
+          {filters.map((f) => (
+            <button
+              key={f}
+              onClick={() => setStatusFilter(f)}
+              className={`rounded-lg border px-3 py-1.5 text-xs transition cursor-pointer ${
+                statusFilter === f
+                  ? 'border-[#7C3AED]/50 bg-[#7C3AED]/10 text-[#7C3AED]'
+                  : 'border-gray-200 text-[#4C1D95]/60 hover:border-[#7C3AED]/30'
+              }`}
+            >
+              {f === 'ALL' ? '全部' : statusLabel[f]}
+            </button>
+          ))}
+        </div>
+        <div className="relative ml-auto">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4C1D95]/40" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="搜索标题或地点..."
+            className="input w-48 py-1.5 pl-8 pr-3 text-sm"
+          />
+        </div>
       </div>
 
       {error && (
@@ -101,6 +120,11 @@ export default function AdminEventsPage() {
           <CalendarDays size={40} className="mb-3 opacity-30" />
           <p>暂无活动记录</p>
         </div>
+      ) : filteredEvents.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-[#4C1D95]/60">
+          <CalendarDays size={40} className="mb-3 opacity-30" />
+          <p>未找到匹配的活动</p>
+        </div>
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-[#7C3AED]/10 bg-white/50 backdrop-blur-sm">
           <table className="w-full text-left text-sm">
@@ -115,7 +139,7 @@ export default function AdminEventsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#7C3AED]/5">
-              {events.map((item) => (
+              {filteredEvents.map((item) => (
                 <tr key={item.id} className="text-[#4C1D95]/70 transition hover:bg-[#7C3AED]/5">
                   <td className="px-4 py-3 font-medium text-[#4C1D95]">{item.title}</td>
                   <td className="px-4 py-3">{item.location || '-'}</td>

@@ -29,7 +29,7 @@ const resources = [
   {
     icon: MessageCircle,
     title: "学长问答",
-    desc: "有什么问题想问学长学姐？通过燕川故事投稿提出问题，我们将邀请对应领域的校友回答。",
+    desc: "有什么问题想问学长学姐？通过燕中故事投稿提出问题，我们将邀请对应领域的校友回答。",
     highlight: "互动社区",
   },
   {
@@ -83,7 +83,7 @@ export default function StudentsPage() {
         <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-6 text-center">
           <h3 className="font-heading text-lg font-semibold text-[#4C1D95]">想贡献内容？</h3>
           <p className="mt-2 text-sm leading-6 text-gray-700">
-            欢迎各位校友通过<a href="/alumni/stories" className="text-[#7C3AED] underline hover:text-[#4C1D95] focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus:outline-none">燕川故事</a>投稿，分享你的大学经历、学习方法或给学弟学妹的建议。
+            欢迎各位校友通过<a href="/alumni/stories" className="text-[#7C3AED] underline hover:text-[#4C1D95] focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus:outline-none">燕中故事</a>投稿，分享你的大学经历、学习方法或给学弟学妹的建议。
           </p>
           <p className="mt-1 text-xs text-gray-500">
             所有内容经站长审核后发布。
