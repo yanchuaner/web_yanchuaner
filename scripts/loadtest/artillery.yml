@@ -1,0 +1,33 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 60
+      arrivalRate: 30
+      name: "Sustained load"
+  defaults:
+    headers:
+      Accept: "text/html,application/json"
+
+scenarios:
+  - name: "Homepage + APIs"
+    weight: 4
+    flow:
+      - get:
+          url: "/"
+      - think: 1
+      - get:
+          url: "/api/alumni/search?q=张"
+      - think: 0.5
+      - get:
+          url: "/api/alumni/map"
+      - think: 0.5
+
+  - name: "Admin panel"
+    weight: 1
+    flow:
+      - get:
+          url: "/admin"
+      - think: 1
+      - get:
+          url: "/api/admin/stats"
+      - think: 0.5

@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String?
+  contact      String?
+  identityCode String?
+  role         String   @default("GUEST")
+  status       String   @default("PENDING")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  posts        Post[]
+
+  @@index([status])
+  @@index([role])
+}
+
+model WhitelistRoster {
+  id              String   @id @default(uuid())
+  name            String
+  graduationClass String?
+  tags            String?
+  createdAt       DateTime @default(now())
+}
+
+model Post {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  type      String
+  status    String   @default("DRAFT")
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+}
+
+model News {
+  id          String   @id @default(uuid())
+  title       String
+  summary     String?
+  content     String
+  imageUrl    String?
+  status      String   @default("DRAFT")
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  title       String
+  summary     String?
+  content     String
+  location    String?
+  eventDate   DateTime
+  endDate     DateTime?
+  coverImage  String?
+  maxAttendees Int?
+  status      String   @default("DRAFT")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  registrations EventRegistration[]
+
+  @@index([status])
+}
+
+model EventRegistration {
+  id        String   @id @default(uuid())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id])
+  name      String
+  contact   String?
+  message   String?
+  createdAt DateTime @default(now())
+}

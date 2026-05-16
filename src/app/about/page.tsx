@@ -1,0 +1,119 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { Globe2, GraduationCap, MapPin, Rocket, Users, Building2, History } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "学校介绍 — 深圳市燕川中学",
+  description: "深圳市新安中学（集团）燕川中学 — 航天科技特色高中，广东省智慧教育标杆校。了解燕川中学的办学历史、航天特色与校园文化。",
+};
+
+const features = [
+  {
+    icon: Rocket,
+    title: "航天科技特色",
+    desc: "全国首批航天科技教育特色高中。建有深圳市中小学唯一的航天科技教育体验馆、太空探索工程实践室和航天卫星工程实践室。学生团队自主研发探空火箭“前海·宝安·飞燕一号”成功发射。",
+  },
+  {
+    icon: Globe2,
+    title: "区位优势",
+    desc: "坐落于粤港澳大湾区核心区域——宝安区燕罗街道广田路108号，地处国际智能制造生态城，中共宝安县第一次党代会会址所在地。",
+  },
+  {
+    icon: GraduationCap,
+    title: "办学理念",
+    desc: "以“立德树人、创新发展”为核心办学理念，构建航天科技教育、智慧教育、个性教育三位一体的办学特色。",
+  },
+  {
+    icon: MapPin,
+    title: "校园规模",
+    desc: "占地面积8.7万平方米，建筑面积11万平方米，总投资11亿元。ARCHINA 2023年度最佳教育建筑TOP10。办学规模60个班，可提供3000个高中学位。",
+  },
+  {
+    icon: Building2,
+    title: "集团办学",
+    desc: "隶属深圳市新安中学（集团），是该优质教育集团的核心成员校。校名“燕川”寓意“马踏飞燕，海纳百川”。",
+  },
+  {
+    icon: Users,
+    title: "师资力量",
+    desc: "拥有正高级教师1名、高级教师25名、博士教师3名。获评广东省中小学智慧教育应用标杆校、宝安区首批教育数字化转型标杆学校。",
+  },
+];
+
+const timelineEvents = [
+  { year: "2021", event: "学校事业单位登记成立，筹建名称为\"深圳市第十三高级中学\"" },
+  { year: "2022", event: "9月1日正式开学，首届高一年级招收20个班共1000人；同年加入新安中学（集团）" },
+  { year: "2022", event: "与中国航天科技国际交流中心合作，建成航天科技教育体验馆" },
+  { year: "2023", event: "航天科技特色项目列入宝安区重点工作；参与中国航天大会并获奖" },
+  { year: "2023", event: "获评ARCHINA年度最佳教育建筑TOP10" },
+  { year: "2024", event: "获评广东省中小学智慧教育应用标杆校、宝安区首批教育数字化转型标杆学校" },
+  { year: "2025", event: "校友数字母港平台正式上线运营" },
+];
+
+export default function AboutPage() {
+  return (
+    <section className="mx-auto w-full max-w-6xl px-4 py-12 md:px-8">
+      {/* Hero */}
+      <div className="glass-card-base p-8 text-center">
+        <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-[#7C3AED]/20 bg-[#7C3AED]/10 px-4 py-1.5 text-sm text-[#7C3AED]">
+          <History size={14} />
+          深圳市新安中学（集团）成员校
+        </div>
+        <h1 className="font-heading text-3xl font-bold text-[#4C1D95] md:text-5xl">深圳市燕川中学</h1>
+        <p className="mt-4 text-lg text-[#7C3AED] md:text-xl">马踏飞燕 · 海纳百川 · 航天科技特色高中</p>
+        <p className="mt-6 max-w-3xl mx-auto text-sm leading-7 text-gray-700 md:text-base">
+          深圳市新安中学（集团）燕川中学是深圳市委市政府高起点、高规格、高标准重点建设的现代化全寄宿制公办优质高中。学校坐落于粤港澳大湾区核心地带，以航天科技教育、智慧教育、个性教育三位一体的办学特色，致力于打造“中国一流航天科技高中”。
+        </p>
+        <div className="mt-6 flex justify-center gap-2">
+          <Link href="/alumni/radar" className="btn-primary">
+            查看校友通讯录
+          </Link>
+          <Link href="/" className="btn-secondary">
+            返回首页
+          </Link>
+        </div>
+      </div>
+
+      {/* Features Grid */}
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {features.map(({ icon: Icon, title, desc }) => (
+          <article key={title} className="card group p-5 transition hover:border-[#7C3AED]/30 hover:shadow-md hover:-translate-y-1">
+            <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#7C3AED]/10">
+              <Icon size={20} className="text-[#7C3AED]" />
+            </div>
+            <h3 className="font-heading mt-4 text-base font-semibold text-[#4C1D95]">{title}</h3>
+            <p className="mt-2 text-sm leading-6 text-gray-700">{desc}</p>
+          </article>
+        ))}
+      </div>
+
+      {/* Timeline */}
+      <div className="glass-card-base mt-6 p-6">
+        <h2 className="font-heading text-xl font-bold text-[#4C1D95] md:text-2xl">发展历程</h2>
+        <div className="mt-6 space-y-0">
+          {timelineEvents.map(({ year, event }, idx) => (
+            <div key={`${year}-${idx}`} className="relative flex gap-4 pb-6">
+              {idx < timelineEvents.length - 1 && (
+                <div className="absolute left-[19px] top-10 h-full w-0.5 bg-[#7C3AED]/20" />
+              )}
+              <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#7C3AED]/30 bg-[#7C3AED]/10">
+                <span className="text-xs font-bold text-[#7C3AED]">{year.slice(2)}</span>
+              </div>
+              <div className="pt-2">
+                <span className="text-xs font-semibold text-[#7C3AED]">{year}</span>
+                <p className="mt-1 text-sm text-gray-700">{event}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Disclaimer */}
+      <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-center">
+        <p className="text-sm leading-7 text-amber-800">
+          声明：本页面内容由校友志愿者基于公开资料整理，力求准确。如有更新或修正需求，请联系站长。
+        </p>
+      </div>
+    </section>
+  );
+}

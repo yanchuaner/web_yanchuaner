@@ -1,0 +1,902 @@
+[
+  {
+    "name": "左佳维",
+    "className": "2022级20班",
+    "fixedID": "YC-ALUM-zjw",
+    "message": "",
+    "university": "江西科技师范大学",
+    "major": "动画",
+    "city": "南昌"
+  },
+  {
+    "name": "赖盈燕",
+    "className": "2022级15班",
+    "fixedID": "YC-ALUM-lyy",
+    "message": "",
+    "university": "广州华商学院",
+    "major": "行政管理",
+    "city": "广州"
+  },
+  {
+    "name": "张正朋",
+    "className": "2022级1班",
+    "fixedID": "YC-ALUM-zzp",
+    "message": "",
+    "university": "海南大学",
+    "major": "应用物理学",
+    "city": "海口"
+  },
+  {
+    "name": "吴桐",
+    "className": "2022级17班",
+    "fixedID": "YC-ALUM-wt",
+    "message": "",
+    "university": "香港树仁大学",
+    "major": "中文系",
+    "city": "香港"
+  },
+  {
+    "name": "张一鸣",
+    "className": "2022级3班",
+    "fixedID": "YC-ALUM-zym",
+    "message": "",
+    "university": "齐齐哈尔医学院",
+    "major": "医学影像",
+    "city": "齐齐哈尔"
+  },
+  {
+    "name": "杨菁",
+    "className": "2022级14班",
+    "fixedID": "YC-ALUM-yj",
+    "message": "",
+    "university": "广东海洋大学",
+    "major": "动物科学",
+    "city": "湛江"
+  },
+  {
+    "name": "朱国震",
+    "className": "2022级1班",
+    "fixedID": "YC-ALUM-zgz",
+    "message": "",
+    "university": "深圳技术大学",
+    "major": "智能感知",
+    "city": "深圳"
+  },
+  {
+    "name": "黄湘林",
+    "className": "2022级1班",
+    "fixedID": "YC-ALUM-hxl",
+    "message": "",
+    "university": "华南理工大学",
+    "major": "计算机科学与技术",
+    "city": "广州"
+  },
+  {
+    "name": "俞羡唯",
+    "className": "2022级10班",
+    "fixedID": "YC-ALUM-0001",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "郑潇恬",
+    "className": "2022级10班",
+    "fixedID": "YC-ALUM-0002",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "陈文婕",
+    "className": "2022级10班",
+    "fixedID": "YC-ALUM-0003",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "张艺鸿",
+    "className": "2022级11班",
+    "fixedID": "YC-ALUM-0004",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "彭钟鑫",
+    "className": "2022级11班",
+    "fixedID": "YC-ALUM-0005",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "杨雅婷",
+    "className": "2022级11班",
+    "fixedID": "YC-ALUM-0006",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "林涣涛",
+    "className": "2022级11班",
+    "fixedID": "YC-ALUM-0007",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "黄晨轩",
+    "className": "2022级11班",
+    "fixedID": "YC-ALUM-0008",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "尹炫城",
+    "className": "2022级12班",
+    "fixedID": "YC-ALUM-0009",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "李宗泽",
+    "className": "2022级12班",
+    "fixedID": "YC-ALUM-0010",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "蔡悦崎",
+    "className": "2022级12班",
+    "fixedID": "YC-ALUM-0011",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "邓文浩",
+    "className": "2022级12班",
+    "fixedID": "YC-ALUM-0012",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "陈汶杰",
+    "className": "2022级12班",
+    "fixedID": "YC-ALUM-0013",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "杨希",
+    "className": "2022级13班",
+    "fixedID": "YC-ALUM-0014",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "熊伟良",
+    "className": "2022级13班",
+    "fixedID": "YC-ALUM-0015",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "王一诺",
+    "className": "2022级13班",
+    "fixedID": "YC-ALUM-0016",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "许耀基",
+    "className": "2022级14班",
+    "fixedID": "YC-ALUM-0017",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "陈浩",
+    "className": "2022级14班",
+    "fixedID": "YC-ALUM-0018",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "冯嘉雯",
+    "className": "2022级15班",
+    "fixedID": "YC-ALUM-0019",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "张咏聪",
+    "className": "2022级15班",
+    "fixedID": "YC-ALUM-0020",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "彭晓敏",
+    "className": "2022级15班",
+    "fixedID": "YC-ALUM-0021",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "李子豪",
+    "className": "2022级15班",
+    "fixedID": "YC-ALUM-0022",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "陈依琳",
+    "className": "2022级15班",
+    "fixedID": "YC-ALUM-0023",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "唐宇轩",
+    "className": "2022级16班",
+    "fixedID": "YC-ALUM-0024",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "廖馨钰",
+    "className": "2022级16班",
+    "fixedID": "YC-ALUM-0025",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "曾梓洲",
+    "className": "2022级16班",
+    "fixedID": "YC-ALUM-0026",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "朱彦霖",
+    "className": "2022级16班",
+    "fixedID": "YC-ALUM-0027",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "林星慧",
+    "className": "2022级16班",
+    "fixedID": "YC-ALUM-0028",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "王鸿霖",
+    "className": "2022级16班",
+    "fixedID": "YC-ALUM-0029",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "翁韵涵",
+    "className": "2022级16班",
+    "fixedID": "YC-ALUM-0030",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "许竣淇",
+    "className": "2022级16班",
+    "fixedID": "YC-ALUM-0031",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "郭奕锋",
+    "className": "2022级16班",
+    "fixedID": "YC-ALUM-0032",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "陈诗瑶",
+    "className": "2022级16班",
+    "fixedID": "YC-ALUM-0033",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "文晓峰",
+    "className": "2022级17班",
+    "fixedID": "YC-ALUM-0034",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "李旭洋",
+    "className": "2022级17班",
+    "fixedID": "YC-ALUM-0035",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "陈浩钧",
+    "className": "2022级17班",
+    "fixedID": "YC-ALUM-0036",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "黄诗怡",
+    "className": "2022级17班",
+    "fixedID": "YC-ALUM-0037",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "于深科",
+    "className": "2022级18班",
+    "fixedID": "YC-ALUM-0038",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "刘文娟",
+    "className": "2022级18班",
+    "fixedID": "YC-ALUM-0039",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "彭琪",
+    "className": "2022级18班",
+    "fixedID": "YC-ALUM-0040",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "杨璐",
+    "className": "2022级18班",
+    "fixedID": "YC-ALUM-0041",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "王欣瑜",
+    "className": "2022级18班",
+    "fixedID": "YC-ALUM-0042",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "石睿",
+    "className": "2022级18班",
+    "fixedID": "YC-ALUM-0043",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "罗靖尧",
+    "className": "2022级18班",
+    "fixedID": "YC-ALUM-0044",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "曾琳惠",
+    "className": "2022级19班",
+    "fixedID": "YC-ALUM-0045",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "郑好",
+    "className": "2022级19班",
+    "fixedID": "YC-ALUM-0046",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "何俊贤",
+    "className": "2022级1班",
+    "fixedID": "YC-ALUM-0047",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "刘泽鑫",
+    "className": "2022级1班",
+    "fixedID": "YC-ALUM-0048",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "吴贤春",
+    "className": "2022级1班",
+    "fixedID": "YC-ALUM-0049",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "周子渝",
+    "className": "2022级1班",
+    "fixedID": "YC-ALUM-0050",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "张晴宜",
+    "className": "2022级1班",
+    "fixedID": "YC-ALUM-0051",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "林亿楠",
+    "className": "2022级1班",
+    "fixedID": "YC-ALUM-0052",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "陈泽铭",
+    "className": "2022级1班",
+    "fixedID": "YC-ALUM-0053",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "刘鹏博",
+    "className": "2022级20班",
+    "fixedID": "YC-ALUM-0054",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "唐子牧",
+    "className": "2022级2班",
+    "fixedID": "YC-ALUM-0055",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "彭映钦",
+    "className": "2022级2班",
+    "fixedID": "YC-ALUM-0056",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "谢逸轩",
+    "className": "2022级2班",
+    "fixedID": "YC-ALUM-0057",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "伍嘉榆",
+    "className": "2022级3班",
+    "fixedID": "YC-ALUM-0058",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "刘晓淳",
+    "className": "2022级3班",
+    "fixedID": "YC-ALUM-0059",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "梁文瀚",
+    "className": "2022级3班",
+    "fixedID": "YC-ALUM-0060",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "罗嘉敏",
+    "className": "2022级3班",
+    "fixedID": "YC-ALUM-0061",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "范鑫绿",
+    "className": "2022级3班",
+    "fixedID": "YC-ALUM-0062",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "蔡俊绅",
+    "className": "2022级3班",
+    "fixedID": "YC-ALUM-0063",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "陈思颖",
+    "className": "2022级3班",
+    "fixedID": "YC-ALUM-0064",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "吴浩东",
+    "className": "2022级4班",
+    "fixedID": "YC-ALUM-0065",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "张微",
+    "className": "2022级4班",
+    "fixedID": "YC-ALUM-0066",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "江啸涵",
+    "className": "2022级4班",
+    "fixedID": "YC-ALUM-0067",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "温涛磊",
+    "className": "2022级4班",
+    "fixedID": "YC-ALUM-0068",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "许烁琪",
+    "className": "2022级4班",
+    "fixedID": "YC-ALUM-0069",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "刘文峰",
+    "className": "2022级5班",
+    "fixedID": "YC-ALUM-0070",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "孙博文",
+    "className": "2022级5班",
+    "fixedID": "YC-ALUM-0071",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "徐梓茗",
+    "className": "2022级5班",
+    "fixedID": "YC-ALUM-0072",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "王鸿宇",
+    "className": "2022级5班",
+    "fixedID": "YC-ALUM-0073",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "金敬轩",
+    "className": "2022级5班",
+    "fixedID": "YC-ALUM-0074",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "陈起仲",
+    "className": "2022级5班",
+    "fixedID": "YC-ALUM-0075",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "周鑫阳",
+    "className": "2022级6班",
+    "fixedID": "YC-ALUM-0076",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "林子琪",
+    "className": "2022级6班",
+    "fixedID": "YC-ALUM-0077",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "陈泓宇",
+    "className": "2022级6班",
+    "fixedID": "YC-ALUM-0078",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "马星辉",
+    "className": "2022级6班",
+    "fixedID": "YC-ALUM-0079",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "黄鹏诚",
+    "className": "2022级6班",
+    "fixedID": "YC-ALUM-0080",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "尹祯逸",
+    "className": "2022级7班",
+    "fixedID": "YC-ALUM-0081",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "庄简楷",
+    "className": "2022级7班",
+    "fixedID": "YC-ALUM-0082",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "母珺睿",
+    "className": "2022级7班",
+    "fixedID": "YC-ALUM-0083",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "郭欣逸",
+    "className": "2022级7班",
+    "fixedID": "YC-ALUM-0084",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "尹泰轩",
+    "className": "2022级8班",
+    "fixedID": "YC-ALUM-0085",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "姚景琦",
+    "className": "2022级8班",
+    "fixedID": "YC-ALUM-0086",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "陈温敏",
+    "className": "2022级8班",
+    "fixedID": "YC-ALUM-0087",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "张琪冰",
+    "className": "2022级9班",
+    "fixedID": "YC-ALUM-0088",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "陈丽婷",
+    "className": "2022级9班",
+    "fixedID": "YC-ALUM-0089",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "陈奕伟",
+    "className": "2022级9班",
+    "fixedID": "YC-ALUM-0090",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "陈志毅",
+    "className": "2022级9班",
+    "fixedID": "YC-ALUM-0091",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  },
+  {
+    "name": "黎姿彤",
+    "className": "2022级9班",
+    "fixedID": "YC-ALUM-0092",
+    "message": "",
+    "university": "",
+    "major": "",
+    "city": ""
+  }
+]

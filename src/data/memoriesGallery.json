@@ -1,0 +1,56 @@
+[
+  {
+    "id": "memory-gate",
+    "title": "\u6821\u95e8\u4e0e\u6668\u66e6",
+    "subtitle": "\u5165\u5b66\u7b2c\u4e00\u5f20\u7167\u7247",
+    "description": "\u9002\u5408\u653e\u7f6e\u6821\u95e8\u3001\u6668\u8dd1\u96c6\u5408\u6216\u4e3b\u5e72\u9053\u6444\u5f71\u3002",
+    "imagePath": "/memories/campus/main-gate.jpg",
+    "imageAlt": "\u6821\u95e8\u6668\u5149",
+    "icon": "house"
+  },
+  {
+    "id": "memory-building",
+    "title": "\u6559\u5b66\u697c\u65f6\u5149",
+    "subtitle": "\u6211\u4eec\u4e0a\u8fc7\u7684\u90a3\u8282\u8bfe",
+    "description": "\u5efa\u8bae\u4f7f\u7528\u5e26\u6709\u5b66\u751f\u6d3b\u52a8\u75d5\u8ff9\u7684\u6559\u5b66\u697c\u89d2\u5ea6\u3002",
+    "imagePath": "/memories/campus/teaching-building.jpg",
+    "imageAlt": "\u6559\u5b66\u697c\u5916\u666f",
+    "icon": "landmark"
+  },
+  {
+    "id": "memory-library",
+    "title": "\u56fe\u4e66\u9986\u89d2\u843d",
+    "subtitle": "\u9762\u5411\u68a6\u60f3\u7684\u5b89\u9759\u65f6\u95f4",
+    "description": "\u53ef\u653e\u7f6e\u9605\u89c8\u5ba4\u3001\u9ec4\u660f\u5e8a\u7a97\u3001\u4e66\u67b6\u957f\u5eca\u7b49\u7167\u7247\u3002",
+    "imagePath": "/memories/campus/library-corner.jpg",
+    "imageAlt": "\u56fe\u4e66\u9986\u5185\u666f",
+    "icon": "library"
+  },
+  {
+    "id": "memory-playground",
+    "title": "\u64cd\u573a\u4e0e\u770b\u53f0",
+    "subtitle": "\u6d41\u6c57\u4e0e\u5450\u558a\u90fd\u5728\u8fd9\u91cc",
+    "description": "\u5efa\u8bae\u653e\u7f6e\u8fd0\u52a8\u4f1a\u3001\u5347\u65d7\u4eea\u5f0f\u6216\u6bd5\u4e1a\u5408\u7167\u6253\u7801\u7248\u3002",
+    "imagePath": "/memories/campus/playground-stage.jpg",
+    "imageAlt": "\u64cd\u573a\u770b\u53f0",
+    "icon": "mountain"
+  },
+  {
+    "id": "memory-garden",
+    "title": "\u6821\u56ed\u6797\u835f\u6563\u8bb0",
+    "subtitle": "\u8bfe\u95f4\u7684\u5fae\u98ce\u548c\u95f2\u804a",
+    "description": "\u9002\u5408\u653e\u7f6e\u6821\u56ed\u5c0f\u9053\u3001\u6797\u835f\u3001\u82b1\u575b\u6216\u5b63\u8282\u98ce\u666f\u7167\u7247\u3002",
+    "imagePath": "/memories/campus/garden-walk.jpg",
+    "imageAlt": "\u6821\u56ed\u5c0f\u9053",
+    "icon": "trees"
+  },
+  {
+    "id": "memory-album",
+    "title": "\u5386\u5c4a\u5408\u5f71\u6863\u6848",
+    "subtitle": "\u6253\u7801\u540e\u7684\u73cd\u8d35\u540c\u6846",
+    "description": "\u8bf7\u786e\u4fdd\u4eba\u50cf\u5df2\u505a\u9690\u79c1\u5904\u7406\uff0c\u4ec5\u4f5c\u60c5\u611f\u5c55\u793a\u3002",
+    "imagePath": "/memories/albums/graduation-group-blurred.jpg",
+    "imageAlt": "\u6bd5\u4e1a\u5408\u5f71\u6863\u6848",
+    "icon": "camera"
+  }
+]
