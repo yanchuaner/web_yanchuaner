@@ -168,11 +168,20 @@ export default function AdminNewsEditPage() {
             )}
           </div>
           {form.imageUrl && (
-            <img
-              src={form.imageUrl}
-              alt="封面预览"
-              className="mt-2 h-32 w-48 rounded-lg border border-[#7C3AED]/10 object-cover"
-            />
+            <div className="flex items-center gap-4">
+              <img
+                src={form.imageUrl}
+                alt="封面预览"
+                className="h-32 w-48 rounded-lg border border-[#7C3AED]/10 object-cover"
+              />
+              <button
+                type="button"
+                onClick={() => setForm((prev) => ({ ...prev, imageUrl: '' }))}
+                className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs text-rose-600 transition hover:bg-rose-100 cursor-pointer"
+              >
+                移除封面
+              </button>
+            </div>
           )}
         </div>
 

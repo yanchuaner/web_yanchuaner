@@ -2,17 +2,18 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Menu, X, GalleryVerticalEnd, MessageSquareText, Radar, Newspaper, School, CalendarDays, GraduationCap, BookOpen } from 'lucide-react';
+import { Menu, X, GalleryVerticalEnd, MessageSquareText, Radar, Newspaper, School, CalendarDays, GraduationCap, BookOpen, Mail } from 'lucide-react';
 
 const navItems = [
   { href: '/alumni/radar', label: '星空通讯录', icon: Radar },
-  { href: '/alumni/stories', label: '燕川故事', icon: MessageSquareText },
+  { href: '/alumni/stories', label: '燕中故事', icon: MessageSquareText },
   { href: '/alumni/memories', label: '燕中记忆', icon: GalleryVerticalEnd },
   { href: '/news', label: '新闻公告', icon: Newspaper },
   { href: '/events', label: '校友活动', icon: CalendarDays },
   { href: '/teachers', label: '教师频道', icon: GraduationCap },
   { href: '/students', label: '在校生', icon: BookOpen },
   { href: '/about', label: '学校介绍', icon: School },
+  { href: '/contact', label: '联系我们', icon: Mail },
 ];
 
 export default function MobileNav() {

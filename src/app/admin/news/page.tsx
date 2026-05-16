@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Newspaper, Plus, Edit2 } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Newspaper, Plus, Edit2, Search } from 'lucide-react';
 import Link from 'next/link';
 
 type NewsItem = {
@@ -19,6 +19,13 @@ export default function AdminNewsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [search, setSearch] = useState('');
+
+  const filteredNews = useMemo(() => {
+    if (!search.trim()) return news;
+    const q = search.trim().toLowerCase();
+    return news.filter((item) => item.title.toLowerCase().includes(q));
+  }, [news, search]);
 
   const fetchNews = async () => {
     setLoading(true);
@@ -71,20 +78,32 @@ export default function AdminNewsPage() {
         </Link>
       </div>
 
-      <div className="mb-4 flex gap-2">
-        {filters.map((f) => (
-          <button
-            key={f}
-            onClick={() => setStatusFilter(f)}
-            className={`rounded-lg border px-3 py-1.5 text-xs transition cursor-pointer ${
-              statusFilter === f
-                ? 'border-[#7C3AED]/50 bg-[#7C3AED]/10 text-[#7C3AED]'
-                : 'border-gray-200 text-[#4C1D95]/60 hover:border-[#7C3AED]/30'
-            }`}
-          >
-            {f === 'ALL' ? '全部' : statusLabel[f]}
-          </button>
-        ))}
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <div className="flex gap-2">
+          {filters.map((f) => (
+            <button
+              key={f}
+              onClick={() => setStatusFilter(f)}
+              className={`rounded-lg border px-3 py-1.5 text-xs transition cursor-pointer ${
+                statusFilter === f
+                  ? 'border-[#7C3AED]/50 bg-[#7C3AED]/10 text-[#7C3AED]'
+                  : 'border-gray-200 text-[#4C1D95]/60 hover:border-[#7C3AED]/30'
+              }`}
+            >
+              {f === 'ALL' ? '全部' : statusLabel[f]}
+            </button>
+          ))}
+        </div>
+        <div className="relative ml-auto">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4C1D95]/40" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="搜索新闻标题..."
+            className="input w-48 py-1.5 pl-8 pr-3 text-sm"
+          />
+        </div>
       </div>
 
       {error && (
@@ -95,10 +114,10 @@ export default function AdminNewsPage() {
 
       {loading ? (
         <div className="flex items-center justify-center py-20 text-[#4C1D95]/60">加载中...</div>
-      ) : news.length === 0 ? (
+      ) : filteredNews.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-[#4C1D95]/60">
           <Newspaper size={40} className="mb-3 opacity-30" />
-          <p>暂无新闻记录</p>
+          <p>{search.trim() ? '未找到匹配的新闻' : '暂无新闻记录'}</p>
         </div>
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-[#7C3AED]/10 bg-white/50 backdrop-blur-sm">
@@ -112,11 +131,11 @@ export default function AdminNewsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#7C3AED]/5">
-              {news.map((item) => (
+              {filteredNews.map((item) => (
                 <tr key={item.id} className="text-[#4C1D95]/70 transition hover:bg-[#7C3AED]/5">
                   <td className="px-4 py-3 font-medium text-[#4C1D95]">{item.title}</td>
                   <td className="px-4 py-3">{statusBadge(item.status)}</td>
-                  <td className="px-4 py-3">{new Date(item.updatedAt).toLocaleString('zh-CN')}</td>
+                  <td className="px-4 py-3">{new Date(item.updatedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}</td>
                   <td className="px-4 py-3">
                     <Link
                       href={`/admin/news/${item.id}`}

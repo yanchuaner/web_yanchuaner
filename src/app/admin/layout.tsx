@@ -1,7 +1,19 @@
+'use client';
+
+import { useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { BarChart3, Users, FileText, Newspaper, CalendarDays, Home } from 'lucide-react';
+import { BarChart3, Users, FileText, Newspaper, CalendarDays, Home, Menu, X, LogOut } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const handleLogout = useCallback(async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/admin/login');
+  }, [router]);
+
   const navItems = [
     { href: '/admin', label: '控制面板', icon: BarChart3 },
     { href: '/admin/users', label: '用户审核', icon: Users },
@@ -12,35 +24,76 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   return (
-    <div className="flex min-h-screen bg-slate-950">
+    <div className="flex min-h-screen bg-[#FAF5FF]">
+      {/* Mobile backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-[#4C1D95]/20 backdrop-blur-sm md:hidden"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col border-r border-cyan-300/10 bg-slate-900/80 backdrop-blur-xl">
-        <div className="border-b border-cyan-300/10 px-6 py-5">
-          <h1 className="text-lg font-bold tracking-wide text-cyan-200">
-            燕川数字母港
-          </h1>
-          <p className="mt-1 text-xs text-slate-300">控制中心</p>
+      <aside
+        className={`fixed left-0 top-0 z-40 flex h-screen w-64 flex-col border-r border-[#7C3AED]/10 bg-white/95 backdrop-blur-xl transition-transform duration-300 md:translate-x-0 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="flex items-center justify-between border-b border-[#7C3AED]/10 px-6 py-5">
+          <div>
+            <h1 className="text-lg font-bold tracking-wide text-[#4C1D95] font-heading">
+              燕中数字母港
+            </h1>
+            <p className="mt-1 text-xs text-[#4C1D95]/60">控制中心</p>
+          </div>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="text-[#4C1D95]/50 hover:text-[#4C1D95] md:hidden cursor-pointer"
+            aria-label="关闭侧边栏"
+          >
+            <X size={18} />
+          </button>
         </div>
 
         <nav className="flex-1 space-y-1 px-3 py-4">
           {navItems.map((item) => (
             <Link key={item.href}
               href={item.href}
-              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-300 transition hover:bg-cyan-400/10 hover:text-cyan-200 cursor-pointer transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]"
+              onClick={() => setSidebarOpen(false)}
+              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-[#4C1D95]/70 transition hover:bg-[#7C3AED]/10 hover:text-[#7C3AED] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
             >
-              <item.icon size={18} className="shrink-0 text-cyan-400/70" />
+              <item.icon size={18} className="shrink-0 text-[#7C3AED]/70" />
               {item.label}
             </Link>
           ))}
         </nav>
 
-        <div className="border-t border-cyan-300/10 px-6 py-4">
-          <p className="text-xs text-slate-300">Aerospace Alumni v0.1</p>
+        <div className="border-t border-[#7C3AED]/10 px-3 py-3">
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-[#4C1D95]/50 transition hover:bg-rose-50 hover:text-rose-600 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+          >
+            <LogOut size={18} className="shrink-0" />
+            退出登录
+          </button>
+          <p className="mt-1 px-3 text-xs text-[#4C1D95]/40">Aerospace Alumni v0.1</p>
         </div>
       </aside>
 
       {/* Main content */}
-      <main className="ml-64 flex-1 p-8">
+      <main className="flex-1 p-4 md:ml-64 md:p-8">
+        {/* Mobile header with hamburger */}
+        <div className="mb-4 flex items-center md:hidden">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#7C3AED]/30 bg-[#7C3AED]/10 text-[#7C3AED] cursor-pointer"
+            aria-label="打开侧边栏"
+          >
+            <Menu size={20} />
+          </button>
+          <span className="ml-3 text-sm font-semibold text-[#4C1D95] font-heading">控制中心</span>
+        </div>
         {children}
       </main>
     </div>

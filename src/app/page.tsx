@@ -99,7 +99,7 @@ const coBuilders: TeamMember[] = [
 ];
 
 const HOME_ANNOUNCEMENT_TEXT =
-  "📢 欢迎来到燕川校友数字母港！本站为个人公益平台，致力于连接校友、在校生与老师，打造温暖的燕川社区。";
+  "📢 欢迎来到燕中校友数字母港！本站为个人公益平台，致力于连接校友、在校生与老师，打造温暖的燕中社区。";
 
 async function computeDashboardStats() {
   try {
@@ -156,10 +156,10 @@ export default async function HomePage() {
         <header className="relative flex flex-col items-center justify-center text-center gap-6 mt-8 animate-fade-in-up">
           <div className="inline-flex items-center gap-2 rounded-full border border-[#A78BFA]/30 bg-white/80 px-4 py-2 text-sm text-[#7C3AED] shadow-sm backdrop-blur-sm">
             <Rocket size={18} className="animate-bounce" />
-            <span className="font-medium">燕川校友数字母港</span>
+            <span className="font-medium">燕中校友数字母港</span>
           </div>
           <h1 className="font-heading text-4xl font-extrabold tracking-tight text-[#4C1D95] md:text-6xl lg:text-7xl drop-shadow-sm">
-            连接燕川人的<br className="md:hidden" />温暖社区
+            连接燕中人的<br className="md:hidden" />温暖社区
           </h1>
           <p className="max-w-2xl text-lg text-slate-600 md:text-xl">
             在这里，我们跨越山海，重温青春记忆。寻找同窗挚友，探索校友足迹，共建属于我们的精神家园。
@@ -256,7 +256,7 @@ export default async function HomePage() {
                 <MessageSquareText size={24} />
               </span>
               <h3 className="mt-4 font-heading text-lg font-bold text-slate-800">
-                燕川故事
+                燕中故事
               </h3>
               <p className="mt-2 text-sm text-slate-500">
                 倾听校友们的奋斗与成长
@@ -383,7 +383,7 @@ export default async function HomePage() {
             声明：本站为个人发起的公益站点，非任何官方机构。全站无盈利、不收费，仅供情感连接、记忆留存与校友社区服务。
           </div>
           <div className="mt-6 flex flex-col items-center justify-between gap-4 text-sm text-slate-500 sm:flex-row">
-            <p>© 2025-2026 燕川校友数字母港（个人公益版）</p>
+            <p>© 2025-2026 燕中校友数字母港（个人公益版）</p>
             <a
               href="https://beian.miit.gov.cn/"
               target="_blank"
