@@ -36,12 +36,14 @@ export async function POST(req: NextRequest) {
     const filename = `${Date.now()}-${hash}.${ext}`;
 
     // 确保上传目录存在
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+    const uploadDir = process.env.UPLOAD_DIR || path.join(process.cwd(), 'public', 'uploads');
     await mkdir(uploadDir, { recursive: true });
 
     const filePath = path.join(uploadDir, filename);
     await writeFile(filePath, buffer);
 
+    // 如果是自定义目录，可能需要通过另外的路由或 Nginx 代理访问
+    // 默认回退路径仍为 /uploads/...
     const url = `/uploads/${filename}`;
 
     return NextResponse.json({ url, filename }, { status: 201 });
