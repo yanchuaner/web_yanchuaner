@@ -5,6 +5,7 @@ import { MapPin } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { getCityCoords } from '@/data/cityCoordinates';
 
 // Fix default marker icons in bundler
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -16,52 +17,6 @@ L.Icon.Default.mergeOptions({
 
 type AlumniPoint = { name: string; graduationClass: string; city: string; lat: number; lng: number };
 
-// Simple city → coords mapping for Chinese cities common in alumni data
-function getCoords(city: string): { lat: number; lng: number } | null {
-  const c = city.trim();
-  const map: Record<string, [number, number]> = {
-    '北京': [39.9, 116.4],
-    '上海': [31.2, 121.5],
-    '广州': [23.1, 113.3],
-    '深圳': [22.5, 114.1],
-    '杭州': [30.3, 120.2],
-    '南京': [32.1, 118.8],
-    '成都': [30.6, 104.1],
-    '武汉': [30.6, 114.3],
-    '西安': [34.3, 108.9],
-    '重庆': [29.6, 106.5],
-    '天津': [39.1, 117.2],
-    '长沙': [28.2, 113.0],
-    '合肥': [31.8, 117.2],
-    '郑州': [34.8, 113.6],
-    '济南': [36.7, 117.0],
-    '青岛': [36.1, 120.4],
-    '大连': [38.9, 121.6],
-    '哈尔滨': [45.8, 126.5],
-    '沈阳': [41.8, 123.4],
-    '长春': [43.9, 125.3],
-    '厦门': [24.5, 118.1],
-    '苏州': [31.3, 120.6],
-    '宁波': [29.9, 121.6],
-    '兰州': [36.1, 103.8],
-    '南昌': [28.7, 115.9],
-    '昆明': [25.0, 102.7],
-    '贵阳': [26.6, 106.7],
-    '福州': [26.1, 119.3],
-    '石家庄': [38.0, 114.5],
-    '太原': [37.9, 112.5],
-    '南宁': [22.8, 108.3],
-    '海口': [20.0, 110.3],
-    '呼和浩特': [40.8, 111.8],
-    '拉萨': [29.7, 91.1],
-    '乌鲁木齐': [43.8, 87.6],
-    '银川': [38.5, 106.2],
-    '西宁': [36.6, 101.8],
-  };
-  const match = map[c];
-  return match ? { lat: match[0], lng: match[1] } : null;
-}
-
 export default function AlumniMap() {
   const [points, setPoints] = useState<AlumniPoint[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,7 +27,7 @@ export default function AlumniMap() {
       .then((data) => {
         const mapped = (data.alumni || [])
           .map((a: any) => {
-            const coords = getCoords(a.city);
+            const coords = getCityCoords(a.city);
             return coords ? { ...a, ...coords } : null;
           })
           .filter(Boolean) as AlumniPoint[];
