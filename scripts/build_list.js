@@ -104,7 +104,7 @@ function main() {
 
   fs.writeFileSync(TARGET_FILE, targetContent, "utf8");
 
-  const okMessage = `\u5171\u5904\u7406\u4e86 ${records.length} \u6761\u6821\u53cb\u6570\u636e\uff0c\u5df2\u6210\u529f\u5199\u5165\uff01`;
+  const okMessage = `共处理了 ${records.length} 条校友数据，已成功写入！`;
   console.log(`\x1b[32m${okMessage}\x1b[0m`);
 }
 

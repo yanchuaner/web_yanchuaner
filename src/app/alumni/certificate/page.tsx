@@ -10,14 +10,14 @@ const CANVAS_HEIGHT = 1536;
 const PANEL_LEFT = 1740;
 const PANEL_RIGHT = 2427;
 const PANEL_CENTER_X = Math.round((PANEL_LEFT + PANEL_RIGHT) / 2);
-const FALLBACK_NAME = "\u71d5\u5ddd\u6821\u53cb";
-const FALLBACK_CLASS = "2025\u5c4a | \u521b\u59cb\u6821\u53cb";
+const FALLBACK_NAME = "燕川校友";
+const FALLBACK_CLASS = "2025届 | 创始校友";
 const FALLBACK_CERTIFICATE_NO = "YC-ALUM-PENDING";
-const EMOTIONAL_TEXT = "\u5341\u5e74\u4e4b\u7ea6 \u00b7 2035 \u89c1";
-const YC_LOGO_TEXT = "\u71d5\u5ddd\u6821\u53cb\u6570\u5b57\u7eaa\u5ff5\u5361";
+const EMOTIONAL_TEXT = "十年之约 · 2035 见";
+const YC_LOGO_TEXT = "燕川校友数字纪念卡";
 const YC_LOGO_SUBTEXT = "YANCHUAN ALUMNI MEMORIAL";
 const CARD_DISCLAIMER_TEXT =
-  "*** \u672c\u5361\u7247\u4ec5\u4e3a\u4e2a\u4eba\u516c\u76ca\u5e73\u53f0\u751f\u6210\u4e4b\u7eaa\u5ff5\u51ed\u8bc1\uff0c\u4e0d\u5177\u5907\u4efb\u4f55\u5b98\u65b9\u6548\u529b\u3002**";
+  "*** 本卡片仅为个人公益平台生成之纪念凭证，不具备任何官方效力。**";
 const AVATAR_CENTER_Y = 430;
 const AVATAR_RADIUS = 170;
 
@@ -132,22 +132,22 @@ async function drawAvatarArea(
 
 function normalizeYear(raw: string) {
   const source = raw.replace(/\s+/g, "");
-  if (source.includes("\u9ad8\u4e09")) {
+  if (source.includes("高三")) {
     return "2022";
   }
-  if (source.includes("\u9ad8\u4e8c")) {
+  if (source.includes("高二")) {
     return "2024";
   }
-  if (source.includes("\u9ad8\u4e00")) {
+  if (source.includes("高一")) {
     return "2025";
   }
 
-  const fullYear = source.match(/(20\d{2})\s*\u7ea7?/);
+  const fullYear = source.match(/(20\d{2})\s*级?/);
   if (fullYear) {
     return fullYear[1];
   }
 
-  const shortYear = source.match(/(^|\D)(\d{2})\s*\u7ea7/);
+  const shortYear = source.match(/(^|\D)(\d{2})\s*级/);
   if (shortYear) {
     return `20${shortYear[2]}`;
   }
@@ -157,7 +157,7 @@ function normalizeYear(raw: string) {
 
 function normalizeClassNo(raw: string) {
   const source = raw.replace(/\s+/g, "");
-  const explicitClass = source.match(/[\uFF08(]?(\d{1,2})[\uFF09)]?\u73ed/);
+  const explicitClass = source.match(/[（(]?(\d{1,2})[）)]?班/);
   if (explicitClass) {
     return String(Number(explicitClass[1]));
   }
@@ -165,7 +165,7 @@ function normalizeClassNo(raw: string) {
 }
 
 function parseClassText(raw: string): ParsedClass {
-  const compact = raw.replace(/[\s\uFF08()\uFF09\u3010\u3011\[\]{}<>\u300A\u300B,\uFF0C\u3001._-]/g, "").toLowerCase();
+  const compact = raw.replace(/[\s（()）【】\[\]{}<>《》,，、._-]/g, "").toLowerCase();
   return {
     year: normalizeYear(raw),
     classNo: normalizeClassNo(raw),
@@ -201,7 +201,7 @@ function randomCaptchaNumber() {
   return Math.floor(Math.random() * 10) + 1;
 }
 
-const CORE_MEMBERS = ["\u9ec4\u6e58\u6797", "\u5de6\u4f73\u7ef4", "\u5f20\u6b63\u670b", "\u5434\u6850", "\u6768\u83c1", "\u8d56\u76c8\u71d5", "\u6731\u56fd\u9707", "\u5f20\u4e00\u9e23"];
+const CORE_MEMBERS = ["黄湘林", "左佳维", "张正朋", "吴桐", "杨菁", "赖盈燕", "朱国震", "张一鸣"];
 
 function getHonorLevel(name: string): "core" | null {
   if (CORE_MEMBERS.includes(name)) {
@@ -336,7 +336,7 @@ export default function AlumniCertificatePage() {
     }
 
     if (!selectedFile.type.startsWith("image/")) {
-      alert("\u8bf7\u4e0a\u4f20\u56fe\u7247\u683c\u5f0f\u6587\u4ef6");
+      alert("请上传图片格式文件");
       event.target.value = "";
       return;
     }
@@ -345,7 +345,7 @@ export default function AlumniCertificatePage() {
     reader.onload = () => {
       const nextDataUrl = typeof reader.result === "string" ? reader.result : "";
       if (!nextDataUrl) {
-        alert("\u5f71\u50cf\u8bfb\u53d6\u5931\u8d25\uff0c\u8bf7\u91cd\u8bd5");
+        alert("影像读取失败，请重试");
         return;
       }
 
@@ -353,7 +353,7 @@ export default function AlumniCertificatePage() {
       setAvatarFileName(selectedFile.name);
     };
     reader.onerror = () => {
-      alert("\u5f71\u50cf\u8bfb\u53d6\u5931\u8d25\uff0c\u8bf7\u91cd\u8bd5");
+      alert("影像读取失败，请重试");
     };
     reader.readAsDataURL(selectedFile);
     event.target.value = "";
@@ -483,7 +483,7 @@ export default function AlumniCertificatePage() {
   const handleGenerate = async () => {
     const userAnswer = Number(captchaInput.trim());
     if (!Number.isInteger(userAnswer) || userAnswer !== numA + numB) {
-      alert("\u7b97\u672f\u9a8c\u8bc1\u7801\u9519\u8bef\uff0c\u8bf7\u91cd\u65b0\u8ba1\u7b97");
+      alert("算术验证码错误，请重新计算");
       regenerateCaptcha();
       return;
     }
@@ -492,7 +492,7 @@ export default function AlumniCertificatePage() {
     const trimmedClass = className.trim();
 
     if (!trimmedName || !trimmedClass) {
-      alert("\u8bf7\u8f93\u5165\u5b8c\u6574\u7684\u6821\u53cb\u4fe1\u606f");
+      alert("请输入完整的校友信息");
       return;
     }
 
@@ -501,13 +501,13 @@ export default function AlumniCertificatePage() {
       const data = await res.json();
 
       if (!data.found || !data.match) {
-        alert("\u62b1\u6b49\uff0c\u672a\u5728\u5df2\u767b\u8bb0\u540d\u5355\u4e2d\u627e\u5230\u5339\u914d\u4fe1\u606f\u3002\u8bf7\u6838\u5bf9\u59d3\u540d\u4e0e\u73ed\u7ea7\uff08\u9700\u4e0e\u767b\u8bb0\u4fe1\u606f\u5b8c\u5168\u4e00\u81f4\uff09\u3002");
+        alert("抱歉，未在已登记名单中找到匹配信息。请核对姓名与班级（需与登记信息完全一致）。");
         return;
       }
 
       const match = data.match;
       if (!isClassMatch(trimmedClass, match.graduationClass)) {
-        alert("\u62b1\u6b49\uff0c\u73ed\u7ea7\u4e0d\u5339\u914d\u3002\u8bf7\u6838\u5bf9\u73ed\u7ea7\u4fe1\u606f\uff08\u9700\u4e0e\u767b\u8bb0\u4fe1\u606f\u4e00\u81f4\uff09\u3002");
+        alert("抱歉，班级不匹配。请核对班级信息（需与登记信息一致）。");
         return;
       }
 
@@ -523,7 +523,7 @@ export default function AlumniCertificatePage() {
       setCertificateNo(verifiedFixedID);
       await drawCertificate(verifiedName, verifiedClassName, verifiedFixedID, avatarDataUrl);
       handleDownload();
-      console.log(`\u8eab\u4efd\u6838\u9a8c\u901a\u8fc7\uff1a${verifiedName} - ${verifiedFixedID}`);
+      console.log(`身份核验通过：${verifiedName} - ${verifiedFixedID}`);
       await new Promise((resolve) => window.setTimeout(resolve, 900));
       setIsPreviewVisible(true);
       setIsRendering(false);
@@ -533,7 +533,7 @@ export default function AlumniCertificatePage() {
         setIsSuccess(false);
       }, 1200);
     } catch {
-      alert("\u9a8c\u8bc1\u670d\u52a1\u6682\u65f6\u4e0d\u53ef\u7528\uff0c\u8bf7\u7a0d\u540e\u91cd\u8bd5\u3002");
+      alert("验证服务暂时不可用，请稍后重试。");
     }
   };
 
@@ -542,15 +542,15 @@ export default function AlumniCertificatePage() {
       <div className="rounded-3xl p-1 bg-white shadow-sm border border-gray-200">
         <div className="glass-card-base rounded-3xl border-0 p-5 md:p-8">
           <header className="mb-6 md:mb-8">
-            <h1 className="font-heading text-3xl font-bold text-[#4C1D95] md:text-4xl">{"\u6570\u5b57\u7eaa\u5ff5\u5361\u751f\u6210\u4ed3"}</h1>
-            <p className="mt-2 text-sm text-gray-700 md:text-base">{"\u8f93\u5165\u59d3\u540d\uff0c\u70b9\u51fb\u70b9\u706b\u8d77\u822a\uff0c\u5373\u53ef\u751f\u6210\u4f60\u7684\u4e13\u5c5e\u6570\u5b57\u7eaa\u5ff5\u5361\u3002"}</p>
-            <p className="mt-2 text-[#7C3AED]">{"\u5341\u5e74\u4e4b\u7ea6 \u00b7 2035 \u89c1"}</p>
+            <h1 className="font-heading text-3xl font-bold text-[#4C1D95] md:text-4xl">{"数字纪念卡生成仓"}</h1>
+            <p className="mt-2 text-sm text-gray-700 md:text-base">{"输入姓名，点击点火起航，即可生成你的专属数字纪念卡。"}</p>
+            <p className="mt-2 text-[#7C3AED]">{"十年之约 · 2035 见"}</p>
           </header>
 
           <div className="grid gap-6 lg:grid-cols-[360px_1fr] lg:items-start">
             <div className="space-y-4 rounded-2xl border border-gray-200 bg-white p-4 md:p-5 shadow-sm">
               <label htmlFor="alumni-name" className="block text-sm font-medium text-gray-700">
-                {"\u59d3\u540d"}
+                {"姓名"}
               </label>
               <input
                 id="alumni-name"
@@ -559,12 +559,12 @@ export default function AlumniCertificatePage() {
                 aria-label="姓名"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
-                placeholder="\u8bf7\u8f93\u5165\u59d3\u540d"
+                placeholder="请输入姓名"
                 className="input w-full"
               />
 
               <label htmlFor="alumni-class" className="block text-sm font-medium text-gray-700">
-                {"\u73ed\u7ea7"}
+                {"班级"}
               </label>
               <input
                 id="alumni-class"
@@ -573,7 +573,7 @@ export default function AlumniCertificatePage() {
                 aria-label="班级"
                 value={className}
                 onChange={(event) => setClassName(event.target.value)}
-                placeholder="\u8bf7\u8f93\u5165\u73ed\u7ea7"
+                placeholder="请输入班级"
                 className="input w-full"
               />
 
@@ -591,7 +591,7 @@ export default function AlumniCertificatePage() {
                 className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#7C3AED]/30 bg-[#7C3AED]/5 px-4 py-3 text-sm font-medium text-[#7C3AED] transition hover:bg-[#7C3AED]/10"
               >
                 <ImagePlus size={17} />
-                <span>{"\u4e0a\u4f20\u771f\u4eba\u5f71\u50cf (\u53ef\u9009)"}</span>
+                <span>{"上传真人影像 (可选)"}</span>
               </button>
 
               <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600">
@@ -599,17 +599,17 @@ export default function AlumniCertificatePage() {
                   <div className="flex items-center gap-3">
                     <NextImage
                       src={avatarDataUrl}
-                      alt={"\u5934\u50cf\u9884\u89c8"}
+                      alt={"头像预览"}
                       width={44}
                       height={44}
                       unoptimized
                       className="h-11 w-11 rounded-full border border-[#7C3AED]/40 object-cover"
                     />
-                    <p className="min-w-0 flex-1 truncate text-[#4C1D95]">{avatarFileName || "\u5df2\u8f7d\u5165\u81ea\u5b9a\u4e49\u5f71\u50cf"}</p>
+                    <p className="min-w-0 flex-1 truncate text-[#4C1D95]">{avatarFileName || "已载入自定义影像"}</p>
                     <button type="button"
                       onClick={clearAvatar}
                       className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-rose-200 text-rose-500 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2"
-                      aria-label={"\u79fb\u9664\u5f71\u50cf"}
+                      aria-label={"移除影像"}
                       tabIndex={0}
                     >
                       <X size={14} aria-hidden="true" />
@@ -617,12 +617,12 @@ export default function AlumniCertificatePage() {
                     </button>
                   </div>
                 ) : (
-                  <p>{"\u672a\u4e0a\u4f20\u5f71\u50cf\u65f6\uff0c\u5c06\u81ea\u52a8\u4f7f\u7528\u661f\u6e2f\u9ed8\u8ba4\u5fbd\u6807\u3002"}</p>
+                  <p>{"未上传影像时，将自动使用星港默认徽标。"}</p>
                 )}
               </div>
 
               <label htmlFor="alumni-captcha" className="block text-sm font-medium text-gray-700">
-                {`\u5b89\u5168\u6821\u9a8c\uff1a${numA} + ${numB} = ?`}
+                {`安全校验：${numA} + ${numB} = ?`}
               </label>
               <input
                 id="alumni-captcha"
@@ -632,12 +632,12 @@ export default function AlumniCertificatePage() {
                 inputMode="numeric"
                 value={captchaInput}
                 onChange={(event) => setCaptchaInput(event.target.value)}
-                placeholder="\u8bf7\u8f93\u5165\u7b54\u6848"
+                placeholder="请输入答案"
                 className="input w-full"
               />
 
               <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600">
-                <p>{"\u5f53\u524d\u7f16\u53f7"}</p>
+                <p>{"当前编号"}</p>
                 <p className="mt-1 font-semibold text-[#7C3AED] truncate">{certificateNo}</p>
               </div>
 
@@ -654,23 +654,23 @@ export default function AlumniCertificatePage() {
                 {isSuccess ? <CheckCircle2 size={18} /> : <Rocket size={18} />}
                 <span>
                   {isRendering
-                    ? "\u8eab\u4efd\u6838\u9a8c\u4e2d..."
+                    ? "身份核验中..."
                     : isSuccess
-                      ? "\u751f\u6210\u6210\u529f" 
-                      : "\u70b9\u706b\u751f\u6210"}
+                      ? "生成成功" 
+                      : "点火生成"}
                 </span>
               </button>
 
               <Link href="/" className="btn-secondary w-full justify-center">
-                {"\u8fd4\u56de\u9996\u9875"}
+                {"返回首页"}
               </Link>
             </div>
 
             <div className="rounded-2xl border border-gray-200 bg-white p-4 md:p-5 shadow-sm">
               <p className="mb-3 text-sm text-gray-600">
                 {isSuccess
-                  ? "\u7eaa\u5ff5\u5361\u751f\u6210\u5b8c\u6bd5\uff01\u672c\u5361\u4ec5\u4f9b\u4e2a\u4eba\u7559\u5ff5\u5c55\u793a\u3002"
-                  : "\u8bf7\u957f\u6309\u4e0a\u65b9\u5361\u7247\u4fdd\u5b58\u81f3\u76f8\u518c"}
+                  ? "纪念卡生成完毕！本卡仅供个人留念展示。"
+                  : "请长按上方卡片保存至相册"}
               </p>
 
               <div
@@ -681,7 +681,7 @@ export default function AlumniCertificatePage() {
                 {previewDataUrl ? (
                   <NextImage
                     src={previewDataUrl}
-                    alt="\u6570\u5b57\u7eaa\u5ff5\u5361\u9884\u89c8"
+                    alt="数字纪念卡预览"
                     width={CANVAS_WIDTH}
                     height={CANVAS_HEIGHT}
                     unoptimized

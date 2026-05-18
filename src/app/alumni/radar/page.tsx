@@ -17,19 +17,19 @@ interface SearchResultItem {
 }
 
 const CORE_MEMBERS = new Set([
-  "\u9ec4\u6e58\u6797",
-  "\u5de6\u4f73\u7ef4",
-  "\u5f20\u6b63\u670b",
-  "\u5434\u6850",
-  "\u6768\u83c1",
-  "\u8d56\u76c8\u71d5",
-  "\u6731\u56fd\u9707",
-  "\u5f20\u4e00\u9e23",
+  "黄湘林",
+  "左佳维",
+  "张正朋",
+  "吴桐",
+  "杨菁",
+  "赖盈燕",
+  "朱国震",
+  "张一鸣",
 ]);
 
 function safeMeta(value?: string) {
   const text = (value || "").trim();
-  return text || "\u5f85\u5b8c\u5584";
+  return text || "待完善";
 }
 
 function maskName(name: string) {
@@ -57,13 +57,13 @@ function maskName(name: string) {
 function parseIdentity(record: SearchResultItem) {
   if (CORE_MEMBERS.has(record.name)) {
     return {
-      label: "\u6781\u5149\u84dd \u00b7 \u9aa8\u5e72",
+      label: "极光蓝 · 骨干",
       className: "border-blue-200 bg-blue-50 text-blue-700",
     };
   }
 
   return {
-    label: "\u661f\u6e2f\u6210\u5458",
+    label: "星港成员",
     className: "border-purple-200 bg-purple-50 text-purple-700",
   };
 }
@@ -76,18 +76,18 @@ export default function AlumniRadarPage() {
 
   const statusText = (() => {
     if (!scannedKeyword.trim()) {
-      return "\u8f93\u5165\u59d3\u540d\u3001\u73ed\u7ea7\u3001\u5927\u5b66\u3001\u4e13\u4e1a\u6216\u57ce\u5e02\uff0c\u5f00\u542f\u661f\u7a7a\u901a\u8baf\u5f55\u68c0\u7d22\u3002";
+      return "输入姓名、班级、大学、专业或城市，开启星空通讯录检索。";
     }
 
     if (loading) {
-      return "\u6b63\u5728\u68c0\u7d22\u4e2d...";
+      return "正在检索中...";
     }
 
     if (results.length === 0) {
-      return "\u672a\u627e\u5230\u5339\u914d\u7ed3\u679c\uff0c\u8bf7\u5c1d\u8bd5\u66f4\u77ed\u5173\u952e\u8bcd\u6216\u7ec4\u5408\u641c\u7d22\u3002";
+      return "未找到匹配结果，请尝试更短关键词或组合搜索。";
     }
 
-    return `\u5df2\u5b8c\u6210\u591a\u7ef4\u626b\u63cf\uff1a${results.length} \u4f4d\u6821\u53cb\u4e0e\u5173\u952e\u8bcd\u201c${scannedKeyword}\u201d\u5339\u914d\u3002`;
+    return `已完成多维扫描：${results.length} 位校友与关键词“${scannedKeyword}”匹配。`;
   })();
 
   const handleScan = async (event: FormEvent<HTMLFormElement>) => {
@@ -118,10 +118,10 @@ export default function AlumniRadarPage() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.28em] text-[#7C3AED]/80">STAR DIRECTORY</p>
-            <h1 className="font-heading mt-2 text-3xl font-bold text-[#4C1D95] md:text-4xl">{"\u661f\u7a7a\u901a\u8baf\u5f55\u00a0/\u00a0\u591a\u7ef4\u68c0\u7d22\u5f15\u64ce"}</h1>
+            <h1 className="font-heading mt-2 text-3xl font-bold text-[#4C1D95] md:text-4xl">{"星空通讯录 / 多维检索引擎"}</h1>
           </div>
           <Link href="/" className="btn-secondary">
-            {"\u8fd4\u56de\u9996\u9875"}
+            {"返回首页"}
           </Link>
         </div>
 
@@ -142,7 +142,7 @@ export default function AlumniRadarPage() {
             aria-label="多维检索引擎"
             tabIndex={0}
             onChange={(event) => setKeyword(event.target.value)}
-            placeholder="\u4f8b\uff1a\u5f20\u4e00\u9e23 / 2022\u7ea73\u73ed / \u6df1\u5733 / \u8ba1\u7b97\u673a"
+            placeholder="例：张一鸣 / 2022级3班 / 深圳 / 计算机"
             className="input w-full"
           />
           <button type="submit"
@@ -152,7 +152,7 @@ export default function AlumniRadarPage() {
             className="btn-primary inline-flex items-center justify-center gap-2 px-5 py-3 font-semibold"
           >
             <Search size={18} />
-            {loading ? "\u641c\u7d22\u4e2d..." : "\u5f00\u542f\u901a\u8baf\u5f55\u626b\u63cf"}
+            {loading ? "搜索中..." : "开启通讯录扫描"}
           </button>
         </form>
 
@@ -176,7 +176,7 @@ export default function AlumniRadarPage() {
                 >
                   <div className="inline-flex items-center gap-2 rounded-full border border-[#7C3AED]/20 bg-[#7C3AED]/10 px-3 py-1 text-xs text-[#7C3AED]">
                     <UsersRound size={13} />
-                    {"\u5df2\u5bf9\u63a5"}
+                    {"已对接"}
                   </div>
 
                   <div className="mt-2">
@@ -190,13 +190,13 @@ export default function AlumniRadarPage() {
 
                   <div className="mt-3 flex flex-wrap gap-2">
                     <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs text-emerald-700">
-                      {`\ud83d\udccd ${safeMeta(record.city)}`}
+                      {`📍 ${safeMeta(record.city)}`}
                     </span>
                     <span className="rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs text-indigo-700">
-                      {`\ud83c\udfdb\ufe0f ${safeMeta(record.university)}`}
+                      {`🏛️ ${safeMeta(record.university)}`}
                     </span>
                     <span className="rounded-full border border-purple-200 bg-purple-50 px-2.5 py-1 text-xs text-purple-700">
-                      {`\ud83d\udcbb ${safeMeta(record.major)}`}
+                      {`💻 ${safeMeta(record.major)}`}
                     </span>
                   </div>
                 </article>
