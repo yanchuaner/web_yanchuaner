@@ -85,6 +85,21 @@ async function verifyTokenEdge(
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  // 静态资源直接放行，不参与任何认证检查
+  if (
+    pathname.startsWith("/_next/static") ||
+    pathname.startsWith("/_next/image") ||
+    pathname.startsWith("/uploads") ||
+    pathname === "/favicon.ico" ||
+    pathname === "/icon.svg" ||
+    pathname === "/robots.txt" ||
+    pathname === "/sitemap.xml" ||
+    pathname === "/access" ||
+    pathname === "/admin/login"
+  ) {
+    return NextResponse.next();
+  }
+
   if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
     const token = req.cookies.get("yc_access_token")?.value;
     const payload = token ? await verifyTokenEdge(token) : null;

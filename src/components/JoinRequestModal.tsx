@@ -128,14 +128,14 @@ export default function JoinRequestModal() {
         <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#7C3AED]/10 text-[#7C3AED] shadow-[0_0_20px_rgba(124,58,237,0.25)] transition group-hover:shadow-[0_0_28px_rgba(124,58,237,0.4)]">
           <Send size={24} />
         </span>
-        <p className="mt-4 text-base font-semibold text-[#4C1D95] font-heading">{"\u5165\u8f68\u8054\u7edc\u8231"}</p>
-        <p className="mt-1 text-xs text-[#4C1D95]/60">{"\u65b0\u589e\u5165\u7ad9\u6216\u66f4\u65b0\u5927\u5b66 / \u57ce\u5e02\u4fe1\u606f"}</p>
+        <p className="mt-4 text-base font-semibold text-[#4C1D95] font-heading">{"入轨联络舱"}</p>
+        <p className="mt-1 text-xs text-[#4C1D95]/60">{"新增入站或更新大学 / 城市信息"}</p>
       </button>
 
       {open && (
         <div className="mobile-modal-shell fixed inset-0 z-[60] flex items-center justify-center px-4 py-10">
           <button type="button"
-            aria-label={"\u5173\u95ed\u5f39\u7a97"}
+            aria-label={"关闭弹窗"}
             tabIndex={-1}
             className="absolute inset-0 bg-[#4C1D95]/20 backdrop-blur-xl cursor-pointer transition-all duration-300 focus:outline-none"
             onClick={closeModal}
@@ -144,7 +144,7 @@ export default function JoinRequestModal() {
           <div ref={modalRef} role="dialog" aria-modal="true" aria-label="入轨联络舱"
             className="mobile-modal-panel safe-modal-panel relative z-10 w-full max-w-lg rounded-3xl border border-[#7C3AED]/20 bg-white/95 p-6 shadow-[0_0_60px_rgba(124,58,237,0.15)] backdrop-blur-xl">
             <div className="flex items-center justify-between gap-2">
-              <h3 className="text-xl font-semibold text-[#4C1D95] font-heading">{"\u5165\u8f68\u8054\u7edc\u8231"}</h3>
+              <h3 className="text-xl font-semibold text-[#4C1D95] font-heading">{"入轨联络舱"}</h3>
               <button type="button"
                 onClick={closeModal}
                 aria-label="关闭弹窗"
@@ -163,7 +163,7 @@ export default function JoinRequestModal() {
             {!submitted ? (
               <form className="mt-5 space-y-4" onSubmit={onSubmit}>
                 <label className="block">
-                  <span className="mb-1.5 block text-sm text-[#4C1D95]">{"\u59d3\u540d"}</span>
+                  <span className="mb-1.5 block text-sm text-[#4C1D95]">{"姓名"}</span>
                   <input
                     required
                     aria-label="姓名"
@@ -175,7 +175,7 @@ export default function JoinRequestModal() {
                 </label>
 
                 <label className="block">
-                  <span className="mb-1.5 block text-sm text-[#4C1D95]">{"\u5c4a\u522b / \u73ed\u7ea7"}</span>
+                  <span className="mb-1.5 block text-sm text-[#4C1D95]">{"届别 / 班级"}</span>
                   <input
                     required
                     aria-label="届别或班级"
@@ -187,20 +187,20 @@ export default function JoinRequestModal() {
                 </label>
 
                 <label className="block">
-                  <span className="mb-1.5 block text-sm text-[#4C1D95]">{"\u8054\u7cfb\u65b9\u5f0f"}</span>
+                  <span className="mb-1.5 block text-sm text-[#4C1D95]">{"联系方式"}</span>
                   <input
                     required
                     aria-label="联系方式"
                     tabIndex={0}
                     value={form.contact}
                     onChange={(event) => setForm((prev) => ({ ...prev, contact: event.target.value }))}
-                    placeholder={"\u5982\uff1a\u5fae\u4fe1 / QQ / \u624b\u673a\u53f7"}
+                    placeholder={"如：微信 / QQ / 手机号"}
                     className="input w-full"
                   />
                 </label>
 
                 <label className="block">
-                  <span className="mb-1.5 block text-sm text-[#4C1D95]">{"\u7533\u8bf7\u6216\u4fe1\u606f\u66f4\u65b0\u5185\u5bb9"}</span>
+                  <span className="mb-1.5 block text-sm text-[#4C1D95]">{"申请或信息更新内容"}</span>
                   <textarea
                     required
                     rows={4}

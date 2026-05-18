@@ -34,44 +34,44 @@ const SITE_URL = process.env.SITE_URL || "https://yanchuaner.cn";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "\u71d5\u4e2d\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
-    template: "%s | \u71d5\u4e2d\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
+    default: "燕中校友数字母港",
+    template: "%s | 燕中校友数字母港",
   },
   description:
-    "\u6df1\u5733\u5e02\u71d5\u5ddd\u4e2d\u5b66\u6821\u53cb\u4f1a\u5b98\u7f51 \u2014 \u8fde\u63a5\u6bd5\u4e1a\u6821\u53cb\u3001\u5728\u6821\u5b66\u751f\u4e0e\u8001\u5e08\u7684\u516c\u76ca\u6570\u5b57\u5e73\u53f0\u3002\u63d0\u4f9b\u6821\u53cb\u901a\u8baf\u5f55\u3001\u6821\u56ed\u8bb0\u5fc6\u3001\u6821\u53cb\u6545\u4e8b\u3001\u6d3b\u52a8\u516c\u544a\u7b49\u670d\u52a1\u3002",
+    "深圳市燕川中学校友会官网 — 连接毕业校友、在校学生与老师的公益数字平台。提供校友通讯录、校园记忆、校友故事、活动公告等服务。",
   keywords: [
-    "\u71d5\u5ddd\u4e2d\u5b66",
-    "\u6821\u53cb\u4f1a",
-    "\u6821\u53cb\u7f51",
-    "\u6df1\u5733\u6821\u53cb",
-    "\u71d5\u4e2d\u6821\u53cb",
-    "\u6bd5\u4e1a\u6821\u53cb",
-    "\u6821\u53cb\u901a\u8baf\u5f55",
+    "燕川中学",
+    "校友会",
+    "校友网",
+    "深圳校友",
+    "燕中校友",
+    "毕业校友",
+    "校友通讯录",
   ],
-  authors: [{ name: "\u71d5\u4e2d\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f" }],
-  creator: "\u71d5\u4e2d\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
-  publisher: "\u71d5\u4e2d\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
+  authors: [{ name: "燕中校友数字母港" }],
+  creator: "燕中校友数字母港",
+  publisher: "燕中校友数字母港",
   openGraph: {
     type: "website",
     locale: "zh_CN",
     url: SITE_URL,
-    siteName: "\u71d5\u4e2d\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
-    title: "\u71d5\u4e2d\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
+    siteName: "燕中校友数字母港",
+    title: "燕中校友数字母港",
     description:
-      "\u6df1\u5733\u5e02\u71d5\u5ddd\u4e2d\u5b66\u6821\u53cb\u4f1a\u5b98\u7f51 \u2014 \u8fde\u63a5\u6bd5\u4e1a\u6821\u53cb\u3001\u5728\u6821\u5b66\u751f\u4e0e\u8001\u5e08\u7684\u516c\u76ca\u6570\u5b57\u5e73\u53f0",
+      "深圳市燕川中学校友会官网 — 连接毕业校友、在校学生与老师的公益数字平台",
     images: [
       {
         url: `${SITE_URL}/card-bg.jpg`,
         width: 2752,
         height: 1536,
-        alt: "\u71d5\u4e2d\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
+        alt: "燕中校友数字母港",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "\u71d5\u4e2d\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f",
-    description: "\u6df1\u5733\u5e02\u71d5\u5ddd\u4e2d\u5b66\u6821\u53cb\u4f1a\u5b98\u7f51 \u2014 \u8fde\u63a5\u6bd5\u4e1a\u6821\u53cb\u3001\u5728\u6821\u5b66\u751f\u4e0e\u8001\u5e08\u7684\u516c\u76ca\u6570\u5b57\u5e73\u53f0",
+    title: "燕中校友数字母港",
+    description: "深圳市燕川中学校友会官网 — 连接毕业校友、在校学生与老师的公益数字平台",
     images: [`${SITE_URL}/card-bg.jpg`],
   },
   robots: {
@@ -110,7 +110,7 @@ export default function RootLayout({
                   tabIndex={0}
                   className="group relative text-lg font-bold tracking-wide text-[#7C3AED] transition-colors duration-300 hover:text-[#5B21B6] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF5FF] rounded-sm cursor-pointer font-heading"
                 >
-                  {"\u71d5\u4e2d\u6570\u5b57\u6bcd\u6e2f"}
+                  {"燕中数字母港"}
                   <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-[#7C3AED] shadow-[0_0_8px_rgba(124,58,237,0.5)] transition-all duration-300 group-hover:w-full"></span>
                 </Link>
                 <MobileNav />
@@ -124,9 +124,9 @@ export default function RootLayout({
               <div className="mx-auto max-w-6xl px-4 py-5 md:px-8">
                 <div className="flex flex-col items-center justify-between gap-2 text-sm text-[#7C3AED]/70 md:flex-row">
                   <p>
-                    \u00a9 2025-2026 \u71d5\u4e2d\u6821\u53cb\u6570\u5b57\u6bcd\u6e2f\uff08\u4e2a\u4eba\u516c\u76ca\u7248\uff09
+                    © 2025-2026 燕中校友数字母港（个人公益版）
                   </p>
-                  <p>{"\u58f0\u660e\uff1a\u4e2a\u4eba\u516c\u76ca\u3001\u975e\u5b98\u65b9\u3001\u65e0\u76c8\u5229"}</p>
+                  <p>{"声明：个人公益、非官方、无盈利"}</p>
                 </div>
                 <div className="mt-2 flex justify-center">
                   <a
@@ -137,7 +137,7 @@ export default function RootLayout({
                     tabIndex={0}
                     className="text-xs text-[#7C3AED]/40 transition hover:text-[#7C3AED]/60 focus:outline-none focus:ring-2 focus:ring-[#7C3AED] focus:ring-offset-2 focus:ring-offset-[#FAF5FF] cursor-pointer transition-all duration-300"
                   >
-                    {"\u7ca4ICP\u59072026024784\u53f7-2"}
+                    {"粤ICP备2026024784号-2"}
                   </a>
                 </div>
               </div>

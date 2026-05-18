@@ -27,7 +27,7 @@ const STORY_EMAIL = "yanchuan_alumni@163.com";
 const initialDraft: DraftState = {
   title: "",
   author: "",
-  tag: "\u4e13\u4e1a\u771f\u76f8",
+  tag: "专业真相",
   content: "",
   contact: "",
 };
@@ -42,7 +42,7 @@ function formatDate(isoDate: string) {
 
 export default function AlumniStoriesPage() {
   const stories = storiesData as StoryRecord[];
-  const [activeTag, setActiveTag] = useState("\u5168\u90e8");
+  const [activeTag, setActiveTag] = useState("全部");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [draft, setDraft] = useState<DraftState>(initialDraft);
   const [hasTriggeredMail, setHasTriggeredMail] = useState(false);
@@ -54,11 +54,11 @@ export default function AlumniStoriesPage() {
         tagSet.add(tag);
       }
     }
-    return ["\u5168\u90e8", ...Array.from(tagSet)];
+    return ["全部", ...Array.from(tagSet)];
   }, [stories]);
 
   const filteredStories = useMemo(() => {
-    if (activeTag === "\u5168\u90e8") {
+    if (activeTag === "全部") {
       return stories;
     }
     return stories.filter((story) => story.tags.includes(activeTag));
@@ -68,24 +68,24 @@ export default function AlumniStoriesPage() {
     event.preventDefault();
 
     const subject = encodeURIComponent(
-      `[\u71d5\u5ddd\u6545\u4e8b\u6295\u7a3f] ${draft.title.trim() || "\u672a\u547d\u540d\u7a3f\u4ef6"}`
+      `[燕川故事投稿] ${draft.title.trim() || "未命名稿件"}`
     );
 
     const bodyText = [
-      "\u3010\u6295\u7a3f\u4eba\u3011",
-      draft.author.trim() || "\u672a\u586b\u5199",
+      "【投稿人】",
+      draft.author.trim() || "未填写",
       "",
-      "\u3010\u6807\u7b7e\u3011",
-      draft.tag.trim() || "\u672a\u586b\u5199",
+      "【标签】",
+      draft.tag.trim() || "未填写",
       "",
-      "\u3010\u8054\u7cfb\u65b9\u5f0f\u3011",
-      draft.contact.trim() || "\u672a\u586b\u5199",
+      "【联系方式】",
+      draft.contact.trim() || "未填写",
       "",
-      "\u3010\u7a3f\u4ef6\u6b63\u6587\u3011",
-      draft.content.trim() || "\u672a\u586b\u5199",
+      "【稿件正文】",
+      draft.content.trim() || "未填写",
       "",
-      "\u3010\u5907\u6ce8\u3011",
-      "\u672c\u7a3f\u4ef6\u4ec5\u5728\u7ad9\u957f\u4eba\u5de5\u5ba1\u6838\u540e\u624d\u4f1a\u53d1\u5e03\u5230\u9759\u6001\u7ad9\u70b9\u3002",
+      "【备注】",
+      "本稿件仅在站长人工审核后才会发布到静态站点。",
     ].join("\n");
 
     const mailtoUrl = `mailto:${STORY_EMAIL}?subject=${subject}&body=${encodeURIComponent(bodyText)}`;
@@ -102,14 +102,14 @@ export default function AlumniStoriesPage() {
               <Feather size={14} />
               STORY COLUMN
             </p>
-            <h1 className="font-heading mt-3 text-3xl font-bold text-[#4C1D95] md:text-4xl">{"\u71d5\u5ddd\u6545\u4e8b\u00a0\u00b7\u00a0\u8f7b\u8bba\u575b\u4e13\u680f"}</h1>
+            <h1 className="font-heading mt-3 text-3xl font-bold text-[#4C1D95] md:text-4xl">{"燕川故事 · 轻论坛专栏"}</h1>
             <p className="mt-2 max-w-3xl text-sm leading-7 text-gray-700 md:text-base">
-              {"\u6240\u6709\u7a3f\u4ef6\u5747\u4e3a\u524d\u7aef\u9759\u6001\u5c55\u793a\uff0c\u53ea\u901a\u8fc7\u201c\u90ae\u4ef6\u6295\u9012 + \u4eba\u5de5\u5ba1\u6838\u201d\u4e0a\u7ebf\u3002\u4e0d\u8bbe\u767b\u5f55\u3001\u4e0d\u8bbe\u7ad9\u5185\u53d1\u5e03\uff0c\u5b8c\u5168\u5408\u89c4\u3002"}
+              {"所有稿件均为前端静态展示，只通过“邮件投递 + 人工审核”上线。不设登录、不设站内发布，完全合规。"}
             </p>
           </div>
 
           <Link href="/" className="btn-secondary">
-            {"\u8fd4\u56de\u6307\u6325\u4e2d\u5fc3"}
+            {"返回指挥中心"}
           </Link>
         </header>
 
@@ -178,13 +178,13 @@ export default function AlumniStoriesPage() {
         className="btn-primary fixed bottom-6 right-4 z-40 px-5 py-3 shadow-lg md:bottom-8 md:right-8"
       >
         <PenSquare size={16} />
-        {"\u5199\u4fe1\u7ed9\u6bcd\u6e2f"}
+        {"写信给母港"}
       </button>
 
       {isModalOpen ? (
         <div className="mobile-modal-shell fixed inset-0 z-[90] flex items-center justify-center px-4 py-8">
           <button type="button"
-            aria-label={"\u5173\u95ed\u6295\u7a3f\u7a97\u53e3"}
+            aria-label={"关闭投稿窗口"}
             tabIndex={-1}
             className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm focus:outline-none"
             onClick={() => setIsModalOpen(false)}
@@ -192,7 +192,7 @@ export default function AlumniStoriesPage() {
 
           <div className="mobile-modal-panel safe-modal-panel relative z-10 w-full max-w-2xl rounded-3xl border border-[#7C3AED]/20 bg-white p-5 shadow-xl md:p-6">
             <div className="mb-4 flex items-center justify-between gap-3 border-b border-gray-100 pb-3">
-              <h3 className="font-heading text-xl font-semibold text-[#4C1D95] md:text-2xl">{"\u6295\u7a3f\u6295\u9012\u8231"}</h3>
+              <h3 className="font-heading text-xl font-semibold text-[#4C1D95] md:text-2xl">{"投稿投递舱"}</h3>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
@@ -206,7 +206,7 @@ export default function AlumniStoriesPage() {
             </div>
 
             <p className="text-sm leading-7 text-gray-600 md:text-base">
-              {"\u6295\u7a3f\u4e0d\u4f1a\u5199\u5165\u4efb\u4f55\u6570\u636e\u5e93\u3002\u70b9\u51fb\u201c\u4ee5\u90ae\u4ef6\u6295\u9012\u201d\u540e\uff0c\u5c06\u8c03\u8d77\u672c\u5730\u90ae\u7bb1\u53d1\u9001\u7ed9\u7ad9\u957f\u3002\u7a3f\u4ef6\u4ec5\u5728\u5ba1\u6838\u5408\u89c4\u540e\u624d\u4f1a\u6536\u5f55\u3002"}
+              {"投稿不会写入任何数据库。点击“以邮件投递”后，将调起本地邮箱发送给站长。稿件仅在审核合规后才会收录。"}
             </p>
 
             <form className="mt-4 space-y-3" onSubmit={submitByMail}>
@@ -216,7 +216,7 @@ export default function AlumniStoriesPage() {
                 tabIndex={0}
                 value={draft.title}
                 onChange={(event) => setDraft((prev) => ({ ...prev, title: event.target.value }))}
-                placeholder={"\u6807\u9898\uff08\u4f8b\uff1a\u5927\u5b66\u907f\u5751\u6307\u5357\uff09"}
+                placeholder={"标题（例：大学避坑指南）"}
                 className="input w-full"
               />
 
@@ -227,7 +227,7 @@ export default function AlumniStoriesPage() {
                   tabIndex={0}
                   value={draft.author}
                   onChange={(event) => setDraft((prev) => ({ ...prev, author: event.target.value }))}
-                  placeholder={"\u4f5c\u8005\uff08\u59d3\u540d / \u5c4a\u522b\uff09"}
+                  placeholder={"作者（姓名 / 届别）"}
                   className="input w-full"
                 />
 
@@ -238,10 +238,10 @@ export default function AlumniStoriesPage() {
                   onChange={(event) => setDraft((prev) => ({ ...prev, tag: event.target.value }))}
                   className="input w-full"
                 >
-                  <option value="\u4e13\u4e1a\u771f\u76f8">{"\u4e13\u4e1a\u771f\u76f8"}</option>
-                  <option value="\u907f\u5751\u6307\u5357">{"\u907f\u5751\u6307\u5357"}</option>
-                  <option value="\u6821\u56ed\u56de\u5fc6">{"\u6821\u56ed\u56de\u5fc6"}</option>
-                  <option value="\u9752\u6625\u5bc4\u8bed">{"\u9752\u6625\u5bc4\u8bed"}</option>
+                  <option value="专业真相">{"专业真相"}</option>
+                  <option value="避坑指南">{"避坑指南"}</option>
+                  <option value="校园回忆">{"校园回忆"}</option>
+                  <option value="青春寄语">{"青春寄语"}</option>
                 </select>
               </div>
 
@@ -252,7 +252,7 @@ export default function AlumniStoriesPage() {
                 tabIndex={0}
                 value={draft.content}
                 onChange={(event) => setDraft((prev) => ({ ...prev, content: event.target.value }))}
-                placeholder={"\u8bf7\u8f93\u5165\u7a3f\u4ef6\u6b63\u6587"}
+                placeholder={"请输入稿件正文"}
                 className="input w-full resize-y"
               />
 
@@ -261,7 +261,7 @@ export default function AlumniStoriesPage() {
                 aria-label="联系方式"
                 tabIndex={0}
                 onChange={(event) => setDraft((prev) => ({ ...prev, contact: event.target.value }))}
-                placeholder={"\u8054\u7cfb\u65b9\u5f0f\uff08\u53ef\u9009\uff09"}
+                placeholder={"联系方式（可选）"}
                 className="input w-full"
               />
 
@@ -269,13 +269,13 @@ export default function AlumniStoriesPage() {
                 className="btn-primary w-full justify-center"
               >
                 <Mail size={17} />
-                {"\u4ee5\u90ae\u4ef6\u6295\u9012\u7ed9\u7ad9\u957f"}
+                {"以邮件投递给站长"}
               </button>
             </form>
 
             {hasTriggeredMail ? (
               <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-800">
-                {`\u5982\u679c\u672a\u6210\u529f\u5524\u8d77\u90ae\u4ef6\u5e94\u7528\uff0c\u8bf7\u5c06\u7a3f\u4ef6\u76f4\u63a5\u53d1\u9001\u81f3 ${STORY_EMAIL}\u3002\u6240\u6709\u7a3f\u4ef6\u5747\u4f1a\u7ecf\u7ad9\u957f\u4eba\u5de5\u5ba1\u6838\u540e\u518d\u5c55\u793a\u3002`}
+                {`如果未成功唤起邮件应用，请将稿件直接发送至 ${STORY_EMAIL}。所有稿件均会经站长人工审核后再展示。`}
               </div>
             ) : null}
           </div>
