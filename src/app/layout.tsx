@@ -61,9 +61,9 @@ export const metadata: Metadata = {
       "深圳市燕川中学校友会官网 — 连接毕业校友、在校学生与老师的公益数字平台",
     images: [
       {
-        url: `${SITE_URL}/card-bg.jpg`,
+        url: `${SITE_URL}/card.jpg`,
         width: 2752,
-        height: 1536,
+        height: 1548,
         alt: "燕中校友数字母港",
       },
     ],
@@ -72,7 +72,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "燕中校友数字母港",
     description: "深圳市燕川中学校友会官网 — 连接毕业校友、在校学生与老师的公益数字平台",
-    images: [`${SITE_URL}/card-bg.jpg`],
+    images: [`${SITE_URL}/card.jpg`],
   },
   robots: {
     index: true,
