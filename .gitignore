@@ -19,3 +19,5 @@ prod.db-wal
 .claude/
 prod.db
 public/uploads/
+data/
+data/backups/
