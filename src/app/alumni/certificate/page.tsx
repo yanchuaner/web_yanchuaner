@@ -6,7 +6,7 @@ import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { CheckCircle2, ImagePlus, Rocket, X } from "lucide-react";
 
 const CANVAS_WIDTH = 2752;
-const CANVAS_HEIGHT = 1536;
+const CANVAS_HEIGHT = 1548;
 const PANEL_LEFT = 1740;
 const PANEL_RIGHT = 2427;
 const PANEL_CENTER_X = Math.round((PANEL_LEFT + PANEL_RIGHT) / 2);
@@ -310,6 +310,7 @@ function drawHonorBadge(context: CanvasRenderingContext2D, type: "founder" | "co
 export default function AlumniCertificatePage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
+  const bgInputRef = useRef<HTMLInputElement | null>(null);
   const [name, setName] = useState("");
   const [className, setClassName] = useState("");
   const [certificateNo, setCertificateNo] = useState(FALLBACK_CERTIFICATE_NO);
@@ -318,6 +319,9 @@ export default function AlumniCertificatePage() {
   const [captchaInput, setCaptchaInput] = useState("");
   const [avatarDataUrl, setAvatarDataUrl] = useState("");
   const [avatarFileName, setAvatarFileName] = useState("");
+  const [bgUrl, setBgUrl] = useState("");
+  const [bgFileName, setBgFileName] = useState("");
+  const [bgUploading, setBgUploading] = useState(false);
   const [previewDataUrl, setPreviewDataUrl] = useState("");
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
   const [isRendering, setIsRendering] = useState(false);
@@ -367,7 +371,54 @@ export default function AlumniCertificatePage() {
     }
   }, []);
 
-  const drawCertificate = useCallback(async (inputName: string, inputClassName: string, serialNo: string, avatarSource: string) => {
+  const handleBgUpload = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) {
+      return;
+    }
+    if (!selectedFile.type.startsWith("image/")) {
+      alert("请上传图片格式文件");
+      event.target.value = "";
+      return;
+    }
+    if (selectedFile.size > 10 * 1024 * 1024) {
+      alert("背景图过大，请使用 10MB 以内的文件");
+      event.target.value = "";
+      return;
+    }
+
+    setBgUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", selectedFile);
+      const res = await fetch("/api/alumni/certificate/upload-bg", {
+        method: "POST",
+        body: fd,
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.url) {
+        alert(data?.error || "背景上传失败，请重试");
+        return;
+      }
+      setBgUrl(data.url);
+      setBgFileName(selectedFile.name);
+    } catch {
+      alert("背景上传失败，请检查网络后重试");
+    } finally {
+      setBgUploading(false);
+      event.target.value = "";
+    }
+  }, []);
+
+  const clearBg = useCallback(() => {
+    setBgUrl("");
+    setBgFileName("");
+    if (bgInputRef.current) {
+      bgInputRef.current.value = "";
+    }
+  }, []);
+
+  const drawCertificate = useCallback(async (inputName: string, inputClassName: string, serialNo: string, avatarSource: string, bgSource: string) => {
     const canvas = canvasRef.current;
     if (!canvas) {
       return;
@@ -384,7 +435,7 @@ export default function AlumniCertificatePage() {
     context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     try {
-      const bgImage = await loadCanvasImage("/card-bg.jpg");
+      const bgImage = await loadCanvasImage(bgSource || "/card.jpg");
       context.drawImage(bgImage, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     } catch {
       const fallbackBg = context.createLinearGradient(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -463,7 +514,7 @@ export default function AlumniCertificatePage() {
     const syncPreview = async () => {
       const activeName = name.trim() || FALLBACK_NAME;
       const activeClassName = className.trim() || FALLBACK_CLASS;
-      await drawCertificate(activeName, activeClassName, certificateNo, avatarDataUrl);
+      await drawCertificate(activeName, activeClassName, certificateNo, avatarDataUrl, bgUrl);
       if (isMounted) {
         setIsPreviewVisible(true);
       }
@@ -474,7 +525,7 @@ export default function AlumniCertificatePage() {
     return () => {
       isMounted = false;
     };
-  }, [name, className, certificateNo, avatarDataUrl, drawCertificate]);
+  }, [name, className, certificateNo, avatarDataUrl, bgUrl, drawCertificate]);
 
   useEffect(() => {
     regenerateCaptcha();
@@ -521,7 +572,7 @@ export default function AlumniCertificatePage() {
       setName(verifiedName);
       setClassName(verifiedClassName);
       setCertificateNo(verifiedFixedID);
-      await drawCertificate(verifiedName, verifiedClassName, verifiedFixedID, avatarDataUrl);
+      await drawCertificate(verifiedName, verifiedClassName, verifiedFixedID, avatarDataUrl, bgUrl);
       handleDownload();
       console.log(`身份核验通过：${verifiedName} - ${verifiedFixedID}`);
       await new Promise((resolve) => window.setTimeout(resolve, 900));
@@ -618,6 +669,50 @@ export default function AlumniCertificatePage() {
                   </div>
                 ) : (
                   <p>{"未上传影像时，将自动使用星港默认徽标。"}</p>
+                )}
+              </div>
+
+              <input
+                ref={bgInputRef}
+                id="alumni-bg"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleBgUpload}
+              />
+              <button
+                type="button"
+                onClick={() => bgInputRef.current?.click()}
+                disabled={bgUploading}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#7C3AED]/30 bg-[#7C3AED]/5 px-4 py-3 text-sm font-medium text-[#7C3AED] transition hover:bg-[#7C3AED]/10 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <ImagePlus size={17} />
+                <span>{bgUploading ? "背景处理中..." : "上传专属背景 16:9 (可选)"}</span>
+              </button>
+              <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600">
+                {bgUrl ? (
+                  <div className="flex items-center gap-3">
+                    <NextImage
+                      src={bgUrl}
+                      alt={"背景预览"}
+                      width={56}
+                      height={32}
+                      unoptimized
+                      className="h-8 w-14 rounded border border-[#7C3AED]/30 object-cover"
+                    />
+                    <p className="min-w-0 flex-1 truncate text-[#4C1D95]">{bgFileName || "已载入个人背景"}</p>
+                    <button type="button"
+                      onClick={clearBg}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-rose-200 text-rose-500 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2"
+                      aria-label={"移除背景"}
+                      tabIndex={0}
+                    >
+                      <X size={14} aria-hidden="true" />
+                      <span className="sr-only">移除背景</span>
+                    </button>
+                  </div>
+                ) : (
+                  <p>{"未上传背景时，将使用站点默认 16:9 底图。"}</p>
                 )}
               </div>
 
