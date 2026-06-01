@@ -69,6 +69,7 @@ export default function AdminAlumniPage() {
   const [formName, setFormName] = useState('');
   const [formClass, setFormClass] = useState('');
   const [formTags, setFormTags] = useState('');
+  const [formCertNo, setFormCertNo] = useState('');
   const [formError, setFormError] = useState('');
   const [formSaving, setFormSaving] = useState(false);
 
@@ -120,6 +121,7 @@ export default function AdminAlumniPage() {
     setFormName('');
     setFormClass('');
     setFormTags('');
+    setFormCertNo('');
     setFormError('');
     setShowForm(true);
   };
@@ -130,6 +132,7 @@ export default function AdminAlumniPage() {
     setFormName(item.name);
     setFormClass(item.graduationClass || '');
     setFormTags(item.tags || '');
+    setFormCertNo((item as any).certificateNo || '');
     setFormError('');
     setShowForm(true);
   };
@@ -162,7 +165,7 @@ export default function AdminAlumniPage() {
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, graduationClass: gradClass || null, tags: tags || null }),
+        body: JSON.stringify({ name, graduationClass: gradClass || null, tags: tags || null, certificateNo: formCertNo.trim() || null }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -492,6 +495,20 @@ export default function AdminAlumniPage() {
                 />
                 <p className="mt-1 text-xs text-[#4C1D95]/40">
                   格式建议：大学名 | 专业名 | 城市名（用 | 分隔）
+                </p>
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-[#4C1D95]">证书编号</label>
+                <input
+                  type="text"
+                  value={formCertNo}
+                  onChange={(e) => setFormCertNo(e.target.value)}
+                  className="input w-full"
+                  placeholder="可选，如 YC-2022-001"
+                  disabled={formSaving}
+                />
+                <p className="mt-1 text-xs text-[#4C1D95]/40">
+                  留空则自动使用系统 ID
                 </p>
               </div>
 

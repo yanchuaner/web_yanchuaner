@@ -564,7 +564,7 @@ export default function AlumniCertificatePage() {
 
       const verifiedName = match.name;
       const verifiedClassName = match.graduationClass;
-      const verifiedFixedID = match.id;
+      const verifiedFixedID = match.certificateNo || match.id;
 
       setIsRendering(true);
       setIsSuccess(false);

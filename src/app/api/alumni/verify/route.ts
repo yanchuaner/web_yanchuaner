@@ -31,6 +31,7 @@ export async function GET(req: NextRequest) {
         id: record.id,
         name: record.name,
         graduationClass: record.graduationClass || '',
+        certificateNo: record.certificateNo || null,
       },
     });
   } catch (error) {

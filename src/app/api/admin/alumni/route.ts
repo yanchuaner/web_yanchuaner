@@ -66,6 +66,7 @@ export async function POST(req: NextRequest) {
     const name = (body.name || "").trim();
     const graduationClass = (body.graduationClass || "").trim() || null;
     const tags = (body.tags || "").trim() || null;
+    const certificateNo = (body.certificateNo || "").trim() || null;
 
     if (!name || name.length > 50) {
       return NextResponse.json(
@@ -87,7 +88,7 @@ export async function POST(req: NextRequest) {
     }
 
     const alumni = await prisma.whitelistRoster.create({
-      data: { name, graduationClass, tags },
+      data: { name, graduationClass, tags, certificateNo },
     });
 
     return NextResponse.json({ alumni }, { status: 201 });
