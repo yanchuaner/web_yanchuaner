@@ -44,6 +44,8 @@ cp -a .next/standalone/. deploy/
 cp -a .next/static deploy/.next/static
 cp -a public deploy/public
 cp -a prisma deploy/prisma
+cp prisma.config.ts deploy/
+cp -a scripts deploy/scripts
 
 # ========== 8. 恢复 DATABASE_URL 为生产路径 ==========
 sed -i 's|file:./prisma/dev.db|file:/var/www/alumni-site/data/prod.db|' .env

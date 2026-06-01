@@ -252,6 +252,12 @@ export default defineConfig({
 DATABASE_URL="file:/var/www/alumni-site/data/prod.db" npx prisma db push
 ```
 
+**注意**：`prisma.config.ts` 在项目根目录，部署打包时别忘了 `cp prisma.config.ts deploy/`（部署指南已包含此步骤）。
+
+```bash
+DATABASE_URL="file:/var/www/alumni-site/data/prod.db" npx prisma db push
+```
+
 ### 17. 端口冲突（多个站点）
 
 **现象**：服务启动失败 `EADDRINUSE: address already in use 0.0.0.0:3000`
