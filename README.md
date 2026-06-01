@@ -83,6 +83,7 @@ npm run dev
 | `npm run lint` | ESLint 静态检查 |
 | `node scripts/smoke-test.js` | 关键路径回归测试（认证、后台流程） |
 | `node scripts/set-credentials.js` | 一键更新访问口令和管理员账号密码 |
+| `node scripts/gen_cert_numbers.js` | 批量生成校友证书编号 |
 | `npx prisma db push` | 同步数据库 schema |
 | `npx prisma studio` | 打开 Prisma 数据库浏览器 |
 

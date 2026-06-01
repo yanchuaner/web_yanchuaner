@@ -186,6 +186,7 @@ cp /var/www/alumni-site/data/prod.db "/var/www/alumni-site/backups/prod.db.$(dat
 | `scripts/sync_roster.js` | 同步校友名单 | 数据同步 |
 | `scripts/build_list.js` | 构建列表文件 | 生成静态数据文件 |
 | `scripts/clean.sh` | 清理构建产物 | 清除 `.next`、缓存等 |
+| `scripts/gen_cert_numbers.js` | 批量生成证书编号 | 新增校友后统一编号 |
 
 ### 烟雾测试（smoke-test.js）
 
@@ -199,6 +200,24 @@ node scripts/smoke-test.js
 ```
 
 测试覆盖：普通口令验证 → 管理员登录 → 后台 API 访问 → 校友数据 API 访问。
+
+### 证书编号管理（gen_cert_numbers.js）
+
+电子校友证上的编号来自数据库 `WhitelistRoster.certificateNo` 字段。留空则回退显示 UUID。
+
+```bash
+node scripts/gen_cert_numbers.js
+```
+
+脚本逻辑：
+
+- 8 位核心成员（黄湘林、左佳维等）→ 编号置空，由管理员手动填写
+- 其余成员 → 按姓名排序生成 `YC-2022-0001` ~ `YC-2022-0096`
+
+两种方式修改编号：
+
+- 后台 → 校友名单 → 编辑 → 证书编号输入框
+- 数据库 → `npx prisma studio` → WhitelistRoster → certificateNo 列
 
 ---
 
