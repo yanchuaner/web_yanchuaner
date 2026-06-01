@@ -45,6 +45,7 @@ export async function PUT(
     const name = (body.name || "").trim();
     const graduationClass = (body.graduationClass || "").trim() || null;
     const tags = (body.tags || "").trim() || null;
+    const certificateNo = (body.certificateNo || "").trim() || null;
 
     if (!name || name.length > 50) {
       return NextResponse.json(
@@ -67,7 +68,7 @@ export async function PUT(
 
     const alumni = await prisma.whitelistRoster.update({
       where: { id: params.id },
-      data: { name, graduationClass, tags },
+      data: { name, graduationClass, tags, certificateNo },
     });
 
     return NextResponse.json({ alumni });

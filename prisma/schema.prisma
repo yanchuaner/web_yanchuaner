@@ -29,6 +29,7 @@ model WhitelistRoster {
   name            String
   graduationClass String?
   tags            String?
+  certificateNo   String?
   createdAt       DateTime @default(now())
 }
 
