@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { requireAccessOrAdmin } from '@/lib/admin-auth';
 import { getCityCoords } from '@/data/cityCoordinates';
+import { parseTags } from '@/lib/tags';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,10 +31,7 @@ export async function GET(req: NextRequest) {
     let uncounted = 0;
 
     for (const r of records) {
-      const parts = (r.tags || '').split('|').map(p => p.trim());
-      const university = parts[0] || '';
-      const major = parts[1] || '';
-      const city = parts[2] || '';
+      const { university, major, city } = parseTags(r.tags);
 
       if (!city) { uncounted++; continue; }
 

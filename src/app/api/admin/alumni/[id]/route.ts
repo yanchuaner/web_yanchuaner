@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
+import { normalizeTags } from "@/lib/tags";
 
 export async function GET(
   req: NextRequest,
@@ -44,7 +45,7 @@ export async function PUT(
     const body = await req.json();
     const name = (body.name || "").trim();
     const graduationClass = (body.graduationClass || "").trim() || null;
-    const tags = (body.tags || "").trim() || null;
+    const tags = normalizeTags((body.tags || "").trim()) || null;
     const certificateNo = (body.certificateNo || "").trim() || null;
 
     if (!name || name.length > 50) {

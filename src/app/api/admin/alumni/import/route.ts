@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
+import { normalizeTags } from "@/lib/tags";
 
 function parseCSVLine(text: string): string[] {
   const fields: string[] = [];
@@ -115,8 +116,9 @@ export async function POST(req: NextRequest) {
         }
         const graduationClass =
           classIdx >= 0 ? (fields[classIdx] || "").trim() || null : null;
-        const tags =
+        const rawTags =
           tagsIdx >= 0 ? (fields[tagsIdx] || "").trim() || null : null;
+        const tags = rawTags ? normalizeTags(rawTags) : null;
 
         if (name.length > 50) {
           errors.push(`第 ${i + 1} 行：姓名过长`);
