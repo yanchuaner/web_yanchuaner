@@ -7,12 +7,12 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { getCityCoords } from '@/data/cityCoordinates';
 
-// Fix default marker icons in bundler
+// Fix default marker icons in bundler — 使用本地图标，避免 cdnjs 国内不可达
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+  iconRetinaUrl: '/leaflet/marker-icon-2x.png',
+  iconUrl: '/leaflet/marker-icon.png',
+  shadowUrl: '/leaflet/marker-shadow.png',
 });
 
 type AlumniPoint = { name: string; graduationClass: string; city: string; lat: number; lng: number };
