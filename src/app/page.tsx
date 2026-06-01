@@ -21,6 +21,7 @@ import LatestUpdatesSection, {
 import storiesData from "@/data/stories.json";
 import { getCachedOrFetch } from "@/lib/cache";
 import prisma from "@/lib/db";
+import { parseTags } from "@/lib/tags";
 
 const AlumniMap = nextDynamic(() => import("@/components/AlumniMap"), {
   ssr: false,
@@ -113,8 +114,7 @@ async function computeDashboardStats() {
       const unknownCitySet = new Set(["", "待完善", "待补充", "未知城市", "未知"]);
       const citySet = new Set<string>();
       for (const row of rows) {
-        const parts = (row.tags || "").split("|").map((p) => p.trim());
-        const city = parts[2] || "";
+        const { city } = parseTags(row.tags || "");
         if (city && !unknownCitySet.has(city)) {
           citySet.add(city);
         }

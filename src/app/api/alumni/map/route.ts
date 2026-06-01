@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { getCachedOrFetch } from '@/lib/cache';
 import { requireAccessOrAdmin } from '@/lib/admin-auth';
+import { parseTags } from '@/lib/tags';
 
 export async function GET(req: NextRequest) {
   const auth = requireAccessOrAdmin(req);
@@ -13,14 +14,12 @@ export async function GET(req: NextRequest) {
         orderBy: { name: 'asc' },
       });
 
-      // Extract city info from tags (format: "大学名 | 专业 | 城市")
       const alumni = records.map((r) => {
-        const parts = (r.tags || '').split('|').map((p) => p.trim());
-        const city = parts[2] || parts[0] || '';
+        const { city } = parseTags(r.tags);
         return {
           name: r.name,
           graduationClass: r.graduationClass,
-          city: city.length > 0 ? city : '未知',
+          city: city || '未知',
         };
       });
 

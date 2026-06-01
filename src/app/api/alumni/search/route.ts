@@ -1,18 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { requireAccessOrAdmin } from '@/lib/admin-auth';
+import { parseTags } from '@/lib/tags';
 
 export const dynamic = "force-dynamic";
-
-function parseTags(tags: string | null): { university: string; major: string; city: string } {
-  if (!tags) return { university: '', major: '', city: '' };
-  const parts = tags.split('|').map((p) => p.trim());
-  return {
-    university: parts[0] || '',
-    major: parts[1] || '',
-    city: parts[2] || '',
-  };
-}
 
 export async function GET(req: NextRequest) {
   const auth = requireAccessOrAdmin(req);
