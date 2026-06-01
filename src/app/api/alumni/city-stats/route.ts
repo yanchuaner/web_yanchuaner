@@ -20,6 +20,12 @@ export async function GET(req: NextRequest) {
       universities: Set<string>;
       majors: Set<string>;
       classes: Set<string>;
+      members: Array<{
+        name: string;
+        university: string;
+        major: string;
+        graduationClass: string;
+      }>;
     }>();
     let uncounted = 0;
 
@@ -35,13 +41,25 @@ export async function GET(req: NextRequest) {
       if (!coords) { uncounted++; continue; }
 
       if (!cityMap.has(city)) {
-        cityMap.set(city, { count: 0, universities: new Set(), majors: new Set(), classes: new Set() });
+        cityMap.set(city, {
+          count: 0,
+          universities: new Set(),
+          majors: new Set(),
+          classes: new Set(),
+          members: [],
+        });
       }
       const entry = cityMap.get(city)!;
       entry.count++;
       if (university) entry.universities.add(university);
       if (major) entry.majors.add(major);
       if (r.graduationClass) entry.classes.add(r.graduationClass);
+      entry.members.push({
+        name: r.name,
+        university,
+        major,
+        graduationClass: r.graduationClass || '',
+      });
     }
 
     const allUniversities = new Set<string>();
@@ -60,6 +78,7 @@ export async function GET(req: NextRequest) {
           universities: Array.from(entry.universities).sort(),
           majors: Array.from(entry.majors).sort(),
           classes: Array.from(entry.classes).sort(),
+          members: entry.members,
         };
       })
       .sort((a, b) => b.count - a.count);

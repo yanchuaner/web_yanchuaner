@@ -18,6 +18,12 @@ type CityStats = {
   universities: string[];
   majors: string[];
   classes: string[];
+  members: Array<{
+    name: string;
+    university: string;
+    major: string;
+    graduationClass: string;
+  }>;
 };
 
 type StatsData = {
@@ -172,38 +178,33 @@ export default function UniversityMapPage() {
 
                     {expandedCity === city.city && (
                       <div className="border-t border-[#7C3AED]/5 bg-white/30 px-4 py-4 md:px-5">
-                        <div className="grid gap-4 sm:grid-cols-3">
-                          <div>
-                            <p className="text-xs font-medium uppercase tracking-wide text-gray-500">大学</p>
-                            <ul className="mt-2 space-y-1">
-                              {city.universities.length > 0
-                                ? city.universities.map((u) => (
-                                    <li key={u} className="text-sm text-gray-700">{u}</li>
-                                  ))
-                                : <li className="text-sm text-gray-400">暂无数据</li>}
-                            </ul>
+                        {city.members.length > 0 ? (
+                          <div className="overflow-hidden rounded-xl border border-[#7C3AED]/10 bg-white/70">
+                            <div className="grid grid-cols-[1.05fr_1.25fr_1fr_0.9fr] gap-3 border-b border-[#7C3AED]/10 bg-[#FAF5FF]/80 px-4 py-3 text-xs font-medium text-gray-500">
+                              <span>姓名</span>
+                              <span>大学</span>
+                              <span>专业</span>
+                              <span>班级</span>
+                            </div>
+                            <div className="divide-y divide-[#7C3AED]/5">
+                              {city.members.map((member) => (
+                                <div
+                                  key={`${member.name}-${member.graduationClass}-${member.university}-${member.major}`}
+                                  className="grid grid-cols-[1.05fr_1.25fr_1fr_0.9fr] gap-3 px-4 py-3 text-sm text-gray-700"
+                                >
+                                  <span className="font-medium text-[#4C1D95]">{member.name}</span>
+                                  <span>{member.university || '暂无'}</span>
+                                  <span>{member.major || '暂无'}</span>
+                                  <span>{member.graduationClass || '暂无'}</span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-xs font-medium uppercase tracking-wide text-gray-500">专业</p>
-                            <ul className="mt-2 space-y-1">
-                              {city.majors.length > 0
-                                ? city.majors.map((m) => (
-                                    <li key={m} className="text-sm text-gray-700">{m}</li>
-                                  ))
-                                : <li className="text-sm text-gray-400">暂无数据</li>}
-                            </ul>
+                        ) : (
+                          <div className="rounded-xl border border-dashed border-[#7C3AED]/10 bg-white/70 px-4 py-4 text-sm text-gray-400">
+                            暂无明细数据
                           </div>
-                          <div>
-                            <p className="text-xs font-medium uppercase tracking-wide text-gray-500">班级</p>
-                            <ul className="mt-2 space-y-1">
-                              {city.classes.length > 0
-                                ? city.classes.map((c) => (
-                                    <li key={c} className="text-sm text-gray-700">{c}</li>
-                                  ))
-                                : <li className="text-sm text-gray-400">暂无数据</li>}
-                            </ul>
-                          </div>
-                        </div>
+                        )}
                       </div>
                     )}
                   </div>
