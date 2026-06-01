@@ -109,3 +109,16 @@ model EventRegistration {
   message   String?
   createdAt DateTime @default(now())
 }
+
+model MemoryItem {
+  id          String   @id @default(uuid())
+  title       String
+  subtitle    String   @default("")
+  description String   @default("")
+  imagePath   String   @default("")
+  imageAlt    String   @default("")
+  icon        String   @default("camera")
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
