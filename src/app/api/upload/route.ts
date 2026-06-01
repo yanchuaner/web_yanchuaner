@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
-import { createHash } from 'crypto';
 import { requireAdmin } from '@/lib/admin-auth';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
@@ -30,8 +29,10 @@ export async function POST(req: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // 生成唯一文件名
-    const hash = createHash('md5').update(buffer).digest('hex').slice(0, 8);
+    // 生成可读文件名：时间戳-原始文件名（去除非ASCII安全字符）
+    const safeName = (file as any).name
+      ? (file as any).name.replace(/[^a-zA-Z0-9._\-一-鿿]/g, '_').replace(/_{2,}/g, '_')
+      : 'upload';
     const MIME_EXT: Record<string, string> = {
       'image/jpeg': 'jpg',
       'image/png': 'png',
@@ -39,7 +40,9 @@ export async function POST(req: NextRequest) {
       'image/gif': 'gif',
     };
     const ext = MIME_EXT[file.type] || 'jpg';
-    const filename = `${Date.now()}-${hash}.${ext}`;
+    // 确保扩展名正确
+    const baseName = safeName.replace(/\.[^.]+$/, '');
+    const filename = `${Date.now()}-${baseName}.${ext}`;
 
     // 确保上传目录存在
     const uploadDir = process.env.UPLOAD_DIR || path.join(process.cwd(), 'public', 'uploads');

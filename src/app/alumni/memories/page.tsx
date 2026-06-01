@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import fs from "node:fs";
-import path from "node:path";
 import Image from "next/image";
 import Link from "next/link";
 import { Camera, House, Landmark, LibraryBig, Mountain, Trees } from "lucide-react";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "燕中记忆",
@@ -35,7 +35,7 @@ function pickIcon(iconName: MemoryIcon) {
 async function getMemories(): Promise<MemoryItem[]> {
   try {
     const baseUrl = process.env.SITE_URL || 'http://localhost:3000';
-    const res = await fetch(`${baseUrl}/api/memories`, { next: { revalidate: 300 } });
+    const res = await fetch(`${baseUrl}/api/memories`);
     const data = await res.json();
     return data.items || [];
   } catch {
