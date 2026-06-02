@@ -79,7 +79,7 @@
 | `/api/news/[id]` | 公开 | GET | 新闻详情 |
 | `/api/events` | 公开 | GET | 公开活动列表 |
 | `/api/events/[id]` | 公开 | GET | 活动详情 |
-| `/api/posts` | 公开 | GET | 公开投稿列表 |
+| `/api/posts` | 公开 | POST | 故事/投稿提交 |
 | `/api/memories` | 公开 | GET | 燕中记忆展品列表（含图片存在性检查） |
 
 ### 校友 API（需普通口令或管理员）

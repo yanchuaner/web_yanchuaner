@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const checks: Record<string, string> = {
     server: "ok",
-    timestamp: new Date().toISOString(),
+    database: "",
   };
 
   // 数据库连接检查
@@ -32,14 +32,16 @@ export async function GET() {
   }
 
   const allHealthy = Object.values(checks).every((v) =>
-    v === "ok" || v === "connected" || v === "not_configured" || v === "disconnected"
+    typeof v === 'number' || v === "ok" || v === "connected" || v === "not_configured" || v === "disconnected"
   );
 
+  const response: Record<string, string> = {
+    ...checks,
+    timestamp: new Date().toISOString(),
+  };
+
   return NextResponse.json(
-    {
-      status: allHealthy ? "healthy" : "degraded",
-      checks,
-    },
+    { status: allHealthy ? "healthy" : "degraded", checks: response },
     { status: allHealthy ? 200 : 503 }
   );
 }
