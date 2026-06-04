@@ -20,25 +20,32 @@
 
 ```bash
 # ========== 1. 拉取最新代码 ==========
+# 首次使用：git clone https://github.com/yanchuaner/web_yanchuaner.git ~/alumni-site
 cd ~/alumni-site
-git pull origin main
+git checkout main && git pull origin main
 
-# ========== 2. 安装依赖 ==========
-npm ci
+# ========== 2. 安装依赖（首次用 npm install，后续可用 npm ci 加速） ==========
+rm -rf node_modules
+npm install --registry=https://registry.npmmirror.com
 
 # ========== 3. 生成 Prisma Client ==========
 npx prisma generate
 
-# ========== 4. 【关键】临时改 DATABASE_URL 为本地库，否则 pre-rendering 会失败 ==========
-sed -i 's|file:/var/www/alumni-site/data/prod.db|file:./prisma/dev.db|' .env
+# ========== 4. 创建 .env（如果不存在）并改 DATABASE_URL ==========
+test -f .env || cp .env.example .env
+# ⚠️ 打开 .env 填入真实凭据（ACCESS_PASSWORD / ADMIN_USERNAME / SESSION_SECRET 等）
+sed -i 's|DATABASE_URL=.*|DATABASE_URL="file:./prisma/dev.db"|' .env
 
-# ========== 5. 构建 ==========
+# ========== 5. 初始化本地数据库 ==========
+DATABASE_URL="file:./prisma/dev.db" npx prisma db push
+
+# ========== 6. 构建 ==========
 npm run build
 
-# ========== 6. 确认 standalone 产物存在 ==========
+# ========== 7. 确认 standalone 产物存在 ==========
 ls .next/standalone/server.js   # 必须看到这个文件
 
-# ========== 7. 准备部署目录 ==========
+# ========== 8. 准备部署目录 ==========
 rm -rf deploy && mkdir -p deploy
 cp -a .next/standalone/. deploy/
 cp -a .next/static deploy/.next/static
@@ -47,10 +54,10 @@ cp -a prisma deploy/prisma
 cp prisma.config.ts deploy/
 cp -a scripts deploy/scripts
 
-# ========== 8. 恢复 DATABASE_URL 为生产路径 ==========
-sed -i 's|file:./prisma/dev.db|file:/var/www/alumni-site/data/prod.db|' .env
+# ========== 9. 恢复 DATABASE_URL 为生产路径 ==========
+sed -i 's|DATABASE_URL=.*|DATABASE_URL="file:/var/www/alumni-site/data/prod.db"|' .env
 
-# ========== 9. 打包 ==========
+# ========== 10. 打包 ==========
 tar -czf deploy.tar.gz deploy/
 ls -lh deploy.tar.gz   # 约 29MB
 ```
