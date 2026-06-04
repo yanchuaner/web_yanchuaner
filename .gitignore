@@ -1,6 +1,8 @@
 node_modules
 # Keep environment variables out of version control
 .env
+.env.local
+.env.production
 .env.bak.*
 
 # Local credential rotation file (real values; never commit)
@@ -9,6 +11,8 @@ credentials.local.json
 # Build output
 .next/
 *.tsbuildinfo
+deploy/
+dist/
 
 # Development database
 dev.db
@@ -19,6 +23,8 @@ prod.db-wal
 
 # Editor tooling
 .opencode/
+.vscode/
+.idea/
 
 # Generated code
 /src/generated/prisma
@@ -31,6 +37,14 @@ data/
 data/backups/
 alumni_roster.csv
 source_alumni.json
+
+# Archives and logs
+*.zip
+logs/
+*.log
+
+# Test coverage
+coverage/
 
 # Allow source code data directory
 !src/data/

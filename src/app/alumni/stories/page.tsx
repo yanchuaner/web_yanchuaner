@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Feather, Filter, Mail, PenSquare, X } from "lucide-react";
-import storiesData from "@/data/stories.json";
 
 type StoryRecord = {
   id: string;
@@ -41,11 +40,20 @@ function formatDate(isoDate: string) {
 }
 
 export default function AlumniStoriesPage() {
-  const stories = storiesData as StoryRecord[];
+  const [stories, setStories] = useState<StoryRecord[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeTag, setActiveTag] = useState("全部");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [draft, setDraft] = useState<DraftState>(initialDraft);
   const [hasTriggeredMail, setHasTriggeredMail] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/stories')
+      .then(r => r.json())
+      .then(d => setStories(d.stories || []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
   const allTags = useMemo(() => {
     const tagSet = new Set<string>();
@@ -140,7 +148,14 @@ export default function AlumniStoriesPage() {
         </div>
 
         <div className="story-waterfall mt-6">
-          {filteredStories.map((story) => (
+          {filteredStories.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 py-12 text-center">
+              <p className="text-sm text-gray-400">
+                {activeTag === "全部" ? "暂无故事，敬请期待。" : `没有找到标签为"${activeTag}"的故事`}
+              </p>
+            </div>
+          ) : (
+            filteredStories.map((story) => (
             <article
               key={story.id}
               className="story-waterfall-item card p-4 transition hover:-translate-y-1 hover:shadow-md md:p-5"
@@ -165,7 +180,7 @@ export default function AlumniStoriesPage() {
 
               <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-gray-700 md:text-[15px]">{story.body}</p>
             </article>
-          ))}
+          )))}
         </div>
       </div>
 

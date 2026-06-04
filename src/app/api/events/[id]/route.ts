@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function GET(req: NextRequest) {
   try {
@@ -29,6 +30,13 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  // 限流：每 30 秒 3 次
+  const ip = getClientIp(req);
+  const limit = await rateLimit(`event-reg:${ip}`, 3, 30);
+  if (!limit.ok) {
+    return NextResponse.json({ error: '报名过于频繁，请稍后再试' }, { status: 429 });
+  }
+
   try {
     const id = req.url.split("/").pop();
     if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
@@ -40,19 +48,25 @@ export async function POST(req: NextRequest) {
 
     const event = await prisma.event.findFirst({ where: { id, status: "PUBLISHED" } });
     if (!event) return NextResponse.json({ error: "Event not found" }, { status: 404 });
-    if (event.maxAttendees) {
-      const count = await prisma.eventRegistration.count({ where: { eventId: id } });
-      if (count >= event.maxAttendees) {
-        return NextResponse.json({ error: "报名已满" }, { status: 400 });
-      }
-    }
 
-    const registration = await prisma.eventRegistration.create({
-      data: { eventId: id, name: name.trim(), contact: contact?.trim() || null, message: message?.trim() || null },
+    // 事务保护：防止并发报名超限
+    const registration = await prisma.$transaction(async (tx) => {
+      if (event.maxAttendees) {
+        const count = await tx.eventRegistration.count({ where: { eventId: id } });
+        if (count >= event.maxAttendees) {
+          throw new Error("FULL");
+        }
+      }
+      return tx.eventRegistration.create({
+        data: { eventId: id, name: name.trim(), contact: contact?.trim() || null, message: message?.trim() || null },
+      });
     });
 
     return NextResponse.json({ success: true, registration }, { status: 201 });
-  } catch {
+  } catch (e: any) {
+    if (e.message === "FULL") {
+      return NextResponse.json({ error: "报名已满" }, { status: 400 });
+    }
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

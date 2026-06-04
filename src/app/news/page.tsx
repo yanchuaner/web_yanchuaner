@@ -1,8 +1,14 @@
 export const revalidate = 60;
 
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Newspaper, Calendar, ArrowRight } from "lucide-react";
 import prisma from "@/lib/db";
+
+export const metadata: Metadata = {
+  title: "新闻公告",
+  description: "燕川中学校友会新闻公告 — 了解母校与校友会的最新动态与通知",
+};
 
 export default async function NewsPage() {
   const news = await prisma.news.findMany({
