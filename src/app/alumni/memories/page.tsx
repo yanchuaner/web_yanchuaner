@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Camera, House, Landmark, LibraryBig, Mountain, Trees } from "lucide-react";
+import prisma from "@/lib/db";
+import fs from "node:fs";
+import path from "node:path";
 
 export const dynamic = "force-dynamic";
 
@@ -34,11 +37,18 @@ function pickIcon(iconName: MemoryIcon) {
 
 async function getMemories(): Promise<MemoryItem[]> {
   try {
-    // 内部调用 localhost 避免公网往返，生产环境 Nginx 无需参与
-    const baseUrl = `http://localhost:${process.env.PORT || 3000}`;
-    const res = await fetch(`${baseUrl}/api/memories`);
-    const data = await res.json();
-    return data.items || [];
+    const items = await prisma.memoryItem.findMany({
+      orderBy: { sortOrder: 'asc' },
+    });
+
+    return items.map((item) => {
+      let hasImage = false;
+      if (item.imagePath && item.imagePath.startsWith('/')) {
+        const absPath = path.join(process.cwd(), 'public', item.imagePath.replace(/^\/+/, ''));
+        hasImage = fs.existsSync(absPath);
+      }
+      return { ...item, hasImage, icon: item.icon as MemoryIcon };
+    });
   } catch {
     return [];
   }
@@ -81,7 +91,7 @@ export default async function AlumniMemoriesPage() {
                   key={item.id}
                   className="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
                 >
-                  <div className="relative aspect-[4/3] overflow-hidden border-b border-gray-100 bg-[#F3E8FF]/30">
+                  <div className="relative aspect-video overflow-hidden border-b border-gray-100 bg-[#F3E8FF]/30">
                     {item.hasImage ? (
                       <Image
                         src={item.imagePath}
@@ -105,9 +115,11 @@ export default async function AlumniMemoriesPage() {
                       {item.subtitle}
                     </div>
 
-                    <div className="absolute bottom-3 left-3 right-3 rounded-lg bg-white/90 px-3 py-2 text-[11px] text-gray-700 shadow-sm backdrop-blur-sm">
-                      {item.hasImage ? "已加载实际图片" : `待上传：${item.imagePath}`}
-                    </div>
+                    {!item.hasImage && (
+                      <div className="absolute bottom-3 left-3 right-3 rounded-lg bg-white/90 px-3 py-2 text-[11px] text-gray-500 shadow-sm backdrop-blur-sm">
+                        暂无图片，等待管理员上传
+                      </div>
+                    )}
                   </div>
 
                   <div className="p-4 md:p-5">

@@ -15,14 +15,14 @@
 | 路由 | 权限 | 说明 |
 |------|------|------|
 | `/` | 普通口令 | 首页（最新动态、校友寄语） |
-| `/about` | 公开 | 学校介绍（航天特色、办学理念、校园规模） |
+| `/about` | 公开 | 学校介绍（航天特色、办学理念、时间线，数据库驱动） |
 | `/news` | 公开 | 新闻列表 |
 | `/news/[id]` | 公开 | 新闻详情 |
-| `/events` | 公开 | 活动列表 |
+| `/events` | 公开 | 活动列表（含封面图） |
 | `/events/[id]` | 公开 | 活动详情与在线报名 |
-| `/contact` | 公开 | 联系我们（邮箱引导、投稿说明、免责声明） |
-| `/teachers` | 公开 | 教师频道（教师名录、名师风采、教研成果、校友联络） |
-| `/students` | 公开 | 在校生资源站首页 |
+| `/contact` | 公开 | 联系我们（数据库驱动，管理员可编辑） |
+| `/teachers` | 公开 | 教师频道（数据库驱动，管理员可编辑版块） |
+| `/students` | 公开 | 在校生资源站首页（数据库驱动，管理员可编辑卡片） |
 | `/students/application-guide` | 公开 | 志愿填报参考 |
 | `/students/university-insights` | 公开 | 大学与专业观察 |
 | `/students/senior-qa` | 公开 | 学长问答 |
@@ -31,8 +31,8 @@
 | `/alumni/certificate` | 普通口令 | 电子校友纪念卡（姓名+班级验证，生成专属卡片） |
 | `/alumni/university-map` | 普通口令 | 校友大学城市分布地图（Leaflet + 城市聚合 + 校友明细） |
 | `/alumni/radar` | 普通口令 | 重定向至 `/alumni/university-map` |
-| `/alumni/memories` | 普通口令 | 燕中记忆文化长廊（数据库驱动，管理员后台可视化维护） |
-| `/alumni/stories` | 普通口令 | 燕中故事（浏览 + 邮箱投稿） |
+| `/alumni/memories` | 普通口令 | 燕中记忆文化长廊（数据库驱动，16:9 图片展示） |
+| `/alumni/stories` | 普通口令 | 燕中故事（数据库驱动 + 邮箱投稿） |
 | `/alumni/correction` | 普通口令 | 校友信息修改申请（搜索姓名 → 提交修改） |
 
 > 标记为普通口令的页面，其数据 API 通过 `requireAccessOrAdmin()` 保护。未验证时 API 返回 401。
@@ -55,6 +55,9 @@
 | `/admin/alumni` | 管理员 | 校友名单管理（CRUD + CSV 导入/导出） |
 | `/admin/alumni-corrections` | 管理员 | 校友信息修改申请审核（筛选、通过/驳回） |
 | `/admin/memories` | 管理员 | 燕中记忆管理（CRUD、排序、图片上传） |
+| `/admin/stories` | 管理员 | 燕中故事管理（CRUD） |
+| `/admin/teachers` | 管理员 | 教师频道管理（版块 CRUD、排序） |
+| `/admin/content` | 管理员 | 页面内容管理（about/contact/students/teachers 统一管理） |
 | `/admin/posts` | 管理员 | 投稿管理 |
 | `/admin/users` | 管理员 | 用户管理 |
 
@@ -81,6 +84,7 @@
 | `/api/events/[id]` | 公开 | GET | 活动详情 |
 | `/api/posts` | 公开 | POST | 故事/投稿提交 |
 | `/api/memories` | 公开 | GET | 燕中记忆展品列表（含图片存在性检查） |
+| `/api/stories` | 公开 | GET | 燕中故事列表 |
 
 ### 校友 API（需普通口令或管理员）
 
@@ -118,6 +122,12 @@
 | `/api/admin/posts` | 管理员 | GET / POST | 投稿管理 |
 | `/api/admin/memories` | 管理员 | GET / POST | 燕中记忆列表 / 新建展品 |
 | `/api/admin/memories/[id]` | 管理员 | PUT / DELETE | 编辑展品（支持部分更新） / 删除展品 |
+| `/api/admin/stories` | 管理员 | GET / POST | 燕中故事列表 / 新建故事 |
+| `/api/admin/stories/[id]` | 管理员 | PUT / DELETE | 编辑故事 / 删除故事 |
+| `/api/admin/content` | 管理员 | GET / POST | 页面内容列表（?page=xxx）/ 新建内容 |
+| `/api/admin/content/[id]` | 管理员 | PUT / DELETE | 编辑内容 / 删除内容 |
+| `/api/admin/teachers` | 管理员 | GET / POST | 教师频道列表 / 新建版块 |
+| `/api/admin/teachers/[id]` | 管理员 | PUT / DELETE | 编辑版块 / 删除版块 |
 | `/api/admin/posts/[id]` | 管理员 | PUT / DELETE | 单个投稿操作 |
 | `/api/admin/users` | 管理员 | GET | 用户列表 |
 
@@ -145,8 +155,26 @@
 
 ---
 
-## 燕中记忆管理说明
+## 页面内容管理说明
 
-`/alumni/memories` 页面需普通口令验证。展品数据来自 `MemoryItem` 数据库表，由管理员通过 `/admin/memories` 后台可视化维护（CRUD、排序、图片上传）。前台页面标记为 `force-dynamic`，管理员更新后刷新即生效。
+### 统一内容管理（`/admin/content`）
 
-上传的展品图片存入 `public/uploads/`，保存时自动按 `{板块英文名}{排序号}.jpg` 格式重命名（板块映射：house→campus, landmark→building, library→library, mountain→playground, trees→garden, camera→album）。
+通过 `/admin/content` 页面可以管理以下前端页面的内容：
+
+| 页面标识 | 对应页面 | 内容类型 |
+|----------|----------|----------|
+| `about_features` | `/about` 学校介绍 | 特色卡片（icon + 标题 + 描述） |
+| `about_timeline` | `/about` 学校介绍 | 发展历程时间线（年份 + 事件描述） |
+| `contact` | `/contact` 联系我们 | 联系信息区块（icon + 标题 + 描述 + 链接） |
+| `students` | `/students` 在校生资源站 | 资源卡片（icon + 标题 + 描述 + 跳转链接） |
+| `teachers` | `/teachers` 教师频道 | 版块卡片（icon + 标题 + 描述 + 备注 + 链接） |
+
+所有内容数据来自 `ContentSection` 表，以 `page` 字段区分归属，`sortOrder` 控制排序。管理员通过 Tab 切换即可编辑不同页面的内容。
+
+### 燕中故事管理（`/admin/stories`）
+
+`/alumni/stories` 页面改为数据库驱动。管理员通过 `/admin/stories` 增删改查故事（标题、作者、标签、正文、日期）。前端页面从 `/api/stories` 拉取数据，支持标签筛选。
+
+### 燕中记忆管理
+
+`/alumni/memories` 页面需普通口令验证。展品数据来自 `MemoryItem` 数据库表，由管理员通过 `/admin/memories` 后台可视化维护（CRUD、排序、图片上传）。上传图片自动裁切为 16:9（2752×1548）。前台页面标记为 `force-dynamic`，管理员更新后刷新即生效。

@@ -1,7 +1,14 @@
 export const revalidate = 60;
 
+import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { CalendarDays, Clock, MapPin, Users } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "校友活动",
+  description: "燕川中学校友活动 — 返校聚会、线上讲座、校友交流活动的信息发布与在线报名",
+};
 import prisma from "@/lib/db";
 
 export default async function EventsPage() {
@@ -47,12 +54,23 @@ export default async function EventsPage() {
                 return (
                   <article
                     key={event.id}
-                    className={`card p-5 transition hover:-translate-y-1 hover:shadow-md ${
+                    className={`card flex flex-col overflow-hidden p-5 transition hover:-translate-y-1 hover:shadow-md ${
                       isPast
                         ? "border-gray-200 bg-gray-50 opacity-70 hover:shadow-none hover:-translate-y-0"
                         : "border-gray-200 bg-white hover:border-[#7C3AED]/30"
                     }`}
                   >
+                    {event.coverImage && (
+                      <div className="relative -mx-5 -mt-5 mb-4 aspect-video overflow-hidden border-b border-gray-100">
+                        <Image
+                          src={event.coverImage}
+                          alt={event.title}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                          className="object-cover"
+                        />
+                      </div>
+                    )}
                     <div className="mb-3 flex items-center justify-between gap-2">
                       <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs ${
                         isPast ? "border border-gray-300 text-gray-500 bg-white" : "border border-[#7C3AED]/20 bg-[#7C3AED]/10 text-[#7C3AED]"
@@ -62,7 +80,7 @@ export default async function EventsPage() {
                     </div>
                     <h2 className="font-heading text-lg font-semibold text-[#4C1D95]">{event.title}</h2>
                     {event.summary && <p className="mt-2 text-sm leading-6 text-gray-700 line-clamp-2">{event.summary}</p>}
-                    <div className="mt-4 space-y-2 text-sm">
+                    <div className="mt-4 flex-1 space-y-2 text-sm">
                       <div className="flex items-center gap-2 text-gray-600">
                         <Clock size={14} className="text-[#7C3AED]" />
                         {new Date(event.eventDate).toLocaleString("zh-CN", { month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
@@ -82,11 +100,13 @@ export default async function EventsPage() {
                       )}
                     </div>
                     {!isPast && (
-                      <Link href={`/events/${event.id}`}
-                        className="mt-5 btn-primary w-full justify-center"
-                      >
-                        查看详情 & 报名
-                      </Link>
+                      <div className="mt-5 flex justify-end">
+                        <Link href={`/events/${event.id}`}
+                          className="btn-primary inline-flex"
+                        >
+                          查看详情 & 报名
+                        </Link>
+                      </div>
                     )}
                   </article>
                 );

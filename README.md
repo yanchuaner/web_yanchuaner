@@ -26,18 +26,19 @@
 - [文档](#文档)
 - [贡献指南](#贡献指南)
 - [许可证](#许可证)
+- [站点截图](#站点截图)
 
 ## 核心能力
 
 | 模块 | 能力 |
 | --- | --- |
-| 前台 | 首页、新闻、活动、电子校友纪念卡、燕中记忆文化长廊、校友城市分布地图、燕中故事、在校生资源站、教师频道、学校介绍、联系我们 |
-| 后台 | 新闻管理、活动管理、校友名单（CRUD/导入/导出/证书编号）、燕中记忆管理（CRUD/排序/图片上传）、修改申请审核、投稿管理、用户管理 |
-| 数据 | Prisma 7.x + SQLite，8 个数据模型，本地和生产均使用 SQLite 文件持久化 |
+| 前台 | 首页、新闻、活动、燕中记忆文化长廊、校友城市分布地图、燕中故事、在校生资源站、教师频道、学校介绍、联系我们 |
+| 后台 | 新闻管理、活动管理、校友名单（CRUD/导入/导出/证书编号）、燕中记忆管理、燕中故事管理、页面内容管理（教师频道/学校介绍/联系我们/在校生）、修改申请审核、投稿管理、用户管理 |
+| 数据 | Prisma 7.x + SQLite，10 个数据模型，本地和生产均使用 SQLite 文件持久化 |
 | 认证 | 普通访问口令（httpOnly cookie）+ 管理员登录（HMAC-SHA256 token），各自独立鉴权 |
-| 图片 | 管理员上传新闻/活动封面/记忆展品图片、校友纪念卡背景图上传、服务端 Sharp 裁切与格式转换 |
+| 图片 | 管理员上传图片自动 16:9 裁切（Sharp），新闻/活动/记忆展品封面统一规格 |
 | 地图 | 校友大学城市分布（Leaflet 地图 + 城市聚合统计 + 校友明细） |
-| 安全 | API 限流（内存/Redis）、CSV 导出防公式注入、httpOnly cookie、凭据脚本一键轮换、honeypot 反爬虫 |
+| 安全 | API 限流（内存/Redis）、CSV 导出防公式注入、httpOnly cookie、凭据脚本一键轮换 |
 
 ## 技术栈
 
@@ -69,8 +70,8 @@ aerospace-alumni-site/
 │   │   ├── teachers/                 # 教师频道
 │   │   ├── students/                 # 在校生资源站（5 个子页）
 │   │   ├── alumni/                   # 校友相关（证书、地图、记忆、故事、修改申请）
-│   │   ├── admin/                    # 后台管理（含燕中记忆管理）
-│   │   └── api/                      # API 路由（34 个端点）
+│   │   ├── admin/                    # 后台管理（含燕中记忆、故事、教师频道、内容管理）
+│   │   └── api/                      # API 路由（40+ 个端点）
 │   ├── components/                   # React 通用组件（12 个）
 │   ├── data/                         # 静态数据（城市坐标、故事 JSON、种子数据）
 │   ├── lib/                          # 工具库
@@ -85,10 +86,10 @@ aerospace-alumni-site/
 │   │   └── memories.ts               # 记忆板块文件重命名
 │   └── middleware.ts                 # 路由中间件（认证）
 ├── prisma/
-│   └── schema.prisma                 # 数据模型定义（8 个模型）
+│   └── schema.prisma                 # 数据模型定义（10 个模型）
 ├── prisma.config.ts                  # Prisma 7.x 数据源配置
 ├── public/                           # 静态资源（图片、Leaflet 图标、上传文件）
-├── scripts/                          # 运维脚本（11 个）
+├── scripts/                          # 运维脚本（13 个）
 ├── docs/                             # 项目文档（8 个文件）
 ├── .env.example                      # 环境变量模板
 ├── credentials.example.json          # 凭据脚本模板
@@ -126,7 +127,10 @@ DATABASE_URL="file:./dev.db" npx prisma generate
 DATABASE_URL="file:./dev.db" npx prisma db push
 
 # 4. （可选）种子数据初始化
-node scripts/seed_memories.js
+node scripts/seed_whitelist.js        # 校友名单（107 条）
+node scripts/seed_memories.js         # 燕中记忆展品（6 条）
+node scripts/seed_content_sections.js # 页面内容（about/contact/students/teachers）
+node scripts/seed_stories.js          # 燕中故事（3 条）
 
 # 5. 启动开发服务器
 npm run dev
@@ -156,7 +160,10 @@ npm run dev
 | `node scripts/smoke-test.js` | 关键路径回归测试 |
 | `node scripts/set-credentials.js` | 一键更新访问口令和管理员账号密码 |
 | `node scripts/gen_cert_numbers.js` | 批量生成校友证书编号 |
+| `node scripts/seed_whitelist.js` | 初始化校友名单（107 条） |
 | `node scripts/seed_memories.js` | 初始化燕中记忆种子数据 |
+| `node scripts/seed_content_sections.js` | 初始化页面内容数据 |
+| `node scripts/seed_stories.js` | 初始化燕中故事数据 |
 | `bash scripts/backup.sh` | 备份数据库 + 上传文件 |
 
 ### 30 秒修改凭证
@@ -180,7 +187,10 @@ node scripts/set-credentials.js
 | `EventRegistration` | 活动报名 | eventId, name, contact, message |
 | `AlumniCorrectionRequest` | 校友信息修改申请 | rosterId, 当前值与申请值对比, status(PENDING/APPROVED/REJECTED) |
 | `Post` | 投稿 | title, content, type, status(DRAFT/PUBLISHED), authorId |
+| `Story` | 燕中故事 | title, author, tags(JSON), body, date |
 | `MemoryItem` | 燕中记忆展品 | title, subtitle, description, imagePath, imageAlt, icon, sortOrder |
+| `ContentSection` | 页面内容块 | page(页面标识), title, description, note, icon, href, actionLabel, yearLabel, sortOrder |
+| `TeacherSection` | 教师频道版块 | title, description, note, icon, href, actionLabel, sortOrder |
 
 ## 主要路由
 
@@ -193,14 +203,20 @@ node scripts/set-credentials.js
 | `/alumni/certificate` | 普通口令 | 电子校友纪念卡 |
 | `/alumni/university-map` | 普通口令 | 校友大学城市分布地图 |
 | `/alumni/memories` | 普通口令 | 燕中记忆文化长廊（数据库驱动） |
-| `/alumni/stories` | 普通口令 | 燕中故事 |
+| `/alumni/stories` | 普通口令 | 燕中故事（数据库驱动 + 邮箱投稿） |
 | `/alumni/correction` | 普通口令 | 校友信息修改申请 |
-| `/students` | 公开 | 在校生资源站 |
-| `/teachers` | 公开 | 教师频道 |
-| `/contact` | 公开 | 联系我们 |
+| `/students` | 公开 | 在校生资源站（数据库驱动） |
+| `/teachers` | 公开 | 教师频道（数据库驱动） |
+| `/contact` | 公开 | 联系我们（数据库驱动） |
+| `/about` | 公开 | 学校介绍（数据库驱动） |
 | `/admin/login` | 公开 | 管理员登录 |
 | `/admin` | 管理员 | 后台控制面板 |
+| `/admin/news` | 管理员 | 新闻管理 |
+| `/admin/events` | 管理员 | 活动管理（含报名名单） |
 | `/admin/memories` | 管理员 | 燕中记忆管理（CRUD/排序/上传） |
+| `/admin/stories` | 管理员 | 燕中故事管理（CRUD） |
+| `/admin/teachers` | 管理员 | 教师频道管理 |
+| `/admin/content` | 管理员 | 页面内容管理（about/contact/students/teachers） |
 
 完整路由与 API 权限说明见 [docs/ROUTES.md](docs/ROUTES.md)。
 

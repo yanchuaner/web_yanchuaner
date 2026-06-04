@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
+import { rateLimit, getClientIp } from '@/lib/rate-limit';
 
 export async function POST(req: NextRequest) {
+  // 限流：每分钟 3 次
+  const ip = getClientIp(req);
+  const limit = await rateLimit(`posts:${ip}`, 3, 60);
+  if (!limit.ok) {
+    return NextResponse.json({ error: '提交过于频繁，请稍后再试' }, { status: 429 });
+  }
+
   try {
     const body = await req.json();
     const { title, content, type, authorContact } = body;

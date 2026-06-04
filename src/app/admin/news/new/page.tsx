@@ -138,12 +138,15 @@ export default function AdminNewsNewPage() {
             )}
           </div>
           {form.imageUrl && (
-            <Image
-              src={form.imageUrl}
-              alt="封面预览"
-              fill
-              className="mt-2 h-32 w-48 rounded-lg border border-[#7C3AED]/10 object-cover"
-            />
+            <div className="relative mt-2 h-32 w-48 overflow-hidden rounded-lg border border-[#7C3AED]/10">
+              <Image
+                src={form.imageUrl}
+                alt="封面预览"
+                fill
+                sizes="192px"
+                className="object-cover"
+              />
+            </div>
           )}
         </div>
 

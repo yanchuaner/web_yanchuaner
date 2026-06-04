@@ -97,6 +97,17 @@ export async function DELETE(
       return NextResponse.json({ error: "校友不存在" }, { status: 404 });
     }
 
+    // 检查关联的待处理修正申请
+    const pendingCount = await prisma.alumniCorrectionRequest.count({
+      where: { rosterId: params.id, status: "PENDING" },
+    });
+    if (pendingCount > 0) {
+      return NextResponse.json(
+        { error: `该校友有 ${pendingCount} 条待处理修改申请，请先处理后再删除` },
+        { status: 409 }
+      );
+    }
+
     await prisma.whitelistRoster.delete({
       where: { id: params.id },
     });

@@ -31,6 +31,9 @@ model WhitelistRoster {
   tags            String?
   certificateNo   String?
   createdAt       DateTime @default(now())
+
+  @@index([name])
+  @@index([graduationClass])
 }
 
 model AlumniCorrectionRequest {
@@ -108,6 +111,9 @@ model EventRegistration {
   contact   String?
   message   String?
   createdAt DateTime @default(now())
+
+  @@index([eventId])
+  @@index([createdAt])
 }
 
 model MemoryItem {
@@ -121,4 +127,45 @@ model MemoryItem {
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model TeacherSection {
+  id          String   @id @default(uuid())
+  title       String
+  description String   @default("")
+  note        String   @default("")
+  icon        String   @default("BookOpen")
+  href        String?
+  actionLabel String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ContentSection {
+  id          String   @id @default(uuid())
+  page        String   // "about_features", "about_timeline", "contact", "students"
+  title       String
+  description String   @default("")
+  note        String   @default("")
+  icon        String   @default("BookOpen")
+  href        String?
+  actionLabel String?
+  yearLabel   String?  // 时间线年份 (仅 about_timeline)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([page])
+}
+
+model Story {
+  id        String   @id @default(uuid())
+  title     String
+  author    String
+  tags      String   @default("") // JSON array as string
+  body      String   @default("")
+  date      String   @default("") // ISO date string
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

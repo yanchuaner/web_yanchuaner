@@ -170,12 +170,15 @@ export default function AdminNewsEditPage() {
           </div>
           {form.imageUrl && (
             <div className="flex items-center gap-4">
-              <Image
-                src={form.imageUrl}
-                alt="封面预览"
-                fill
-                className="h-32 w-48 rounded-lg border border-[#7C3AED]/10 object-cover"
-              />
+              <div className="relative h-32 w-48 overflow-hidden rounded-lg border border-[#7C3AED]/10">
+                <Image
+                  src={form.imageUrl}
+                  alt="封面预览"
+                  fill
+                  sizes="192px"
+                  className="object-cover"
+                />
+              </div>
               <button
                 type="button"
                 onClick={() => setForm((prev) => ({ ...prev, imageUrl: '' }))}
