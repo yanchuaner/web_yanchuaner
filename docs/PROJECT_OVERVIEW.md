@@ -42,12 +42,12 @@
 | 校友信息修改申请 | 校友在前台搜索自己姓名提交修改申请，管理员后台审核（通过/驳回） |
 | 校友大学城市分布 | Leaflet 地图 + 城市聚合统计 + 点击展开校友明细（姓名、大学、专业、班级） |
 | 电子校友纪念卡 | 输入姓名和班级验证身份，生成专属电子纪念卡（支持自定义背景上传） |
-| 校园记忆 | 校园风景、毕业合影等文化记忆展览（数据库驱动，管理员后台可视化维护） |
-| 燕中故事 | 校友故事浏览与投稿（静态数据 + 邮箱投稿） |
-| 在校生资源站 | 5 个子页面：志愿填报参考、大学与专业观察、学长问答、学习方法、校友寄语 |
-| 教师频道 | 教师名录、名师风采、教研成果、校友联络（规划中） |
-| 学校介绍 | 燕川中学航天科技特色、办学理念、校园规模等介绍 |
-| 联系我们 | 公开联系表单（邮箱引导）、投稿说明、免责声明 |
+| 校园记忆 | 校园风景、毕业合影等文化记忆展览（数据库驱动，管理员后台可视化维护，图片 16:9 自动裁切） |
+| 燕中故事 | 校友故事浏览与投稿（数据库驱动 + 邮箱投稿，管理员后台 CRUD） |
+| 在校生资源站 | 5 个子页面：志愿填报参考、大学与专业观察、学长问答、学习方法、校友寄语（数据库驱动） |
+| 教师频道 | 教师名录、名师风采、教研成果、校友联络（数据库驱动，管理员可编辑版块） |
+| 学校介绍 | 燕川中学航天科技特色、办学理念、校园规模等介绍（数据库驱动，含发展历程时间线） |
+| 联系我们 | 公开联系表单（邮箱引导）、投稿说明、免责声明（数据库驱动） |
 | 图片上传 | 管理员上传活动/新闻封面图片、校友纪念卡背景图（Sharp 裁切与格式转换） |
 | 地图展示 | Leaflet + react-leaflet 实现城市级别分布聚合 |
 | 安全机制 | API 限流（内存/Redis）、CSV 导出防公式注入、httpOnly cookie、凭据一键轮换 |
@@ -79,6 +79,8 @@ model News                      # 新闻（title, summary, content, imageUrl, st
 model Event                     # 活动（title, summary, location, eventDate, maxAttendees, status）
 model EventRegistration         # 活动报名（eventId, name, contact, message）
 model MemoryItem                # 燕中记忆展品（title, subtitle, description, imagePath, imageAlt, icon, sortOrder）
+model ContentSection            # 页面内容块（page, title, description, note, icon, href, actionLabel, yearLabel, sortOrder）
+model Story                     # 燕中故事（title, author, tags, body, date）
 ```
 
 ### 静态数据文件
@@ -144,9 +146,12 @@ aerospace-alumni-site/
 │   │   │   ├── alumni/               # 校友名单管理
 │   │   │   ├── alumni-corrections/   # 修改申请审核
 │   │   │   ├── memories/             # 燕中记忆管理
+│   │   │   ├── stories/              # 燕中故事管理
+│   │   │   ├── teachers/             # 教师频道管理
+│   │   │   ├── content/              # 页面内容统一管理
 │   │   │   ├── posts/                # 投稿管理
 │   │   │   └── users/                # 用户管理
-│   │   └── api/                      # 34 个 API 端点
+│   │   └── api/                      # 40+ 个 API 端点
 │   ├── components/                   # 通用组件（12 个）
 │   │   ├── AlumniSearch.tsx          # 校友搜索
 │   │   ├── AlumniMap.tsx             # 校友地图（Leaflet）
@@ -184,12 +189,14 @@ aerospace-alumni-site/
 ├── scripts/                          # 运维脚本
 │   ├── smoke-test.js                 # 关键路径回归测试
 │   ├── set-credentials.js            # 一键更新凭证
-│   ├── seed_content.js               # 种子内容数据
+│   ├── seed_content_sections.js      # 种子页面内容数据
 │   ├── seed_whitelist.js             # 种子校友名单
 │   ├── seed_memories.js              # 种子燕中记忆数据
+│   ├── seed_stories.js               # 种子燕中故事数据
 │   ├── gen_cert_numbers.js           # 批量生成证书编号
 │   ├── backup.sh                     # 自动备份脚本
 │   ├── rebuild_roster.js             # 重建名单
+│   ├── fix_timeline.js               # 修复时间线数据
 │   ├── sync_roster.js                # 同步名单
 │   ├── build_list.js                 # 构建列表
 │   └── clean.sh                      # 清理脚本

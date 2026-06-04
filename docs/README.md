@@ -28,8 +28,15 @@
 ### 贡献者
 
 1. [../CONTRIBUTING.md](../CONTRIBUTING.md) — 贡献指南
-2. [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) — 架构理解
-3. [ROUTES.md](ROUTES.md) — 路由设计
+2. [../CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md) — 行为准则
+3. [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) — 架构理解
+4. [ROUTES.md](ROUTES.md) — 路由设计
+
+### 安全相关
+
+1. [../SECURITY.md](../SECURITY.md) — 安全策略与漏洞报告
+2. [OPERATIONS_GUIDE.md](OPERATIONS_GUIDE.md) — 凭据管理与轮换
+3. [BACKUP_GUIDE.md](BACKUP_GUIDE.md) — 数据备份与恢复
 
 ## 文档分工
 
@@ -104,5 +111,7 @@
 
 - 项目根目录 [README.md](../README.md) — 项目快速开始
 - [CONTRIBUTING.md](../CONTRIBUTING.md) — 贡献流程
+- [SECURITY.md](../SECURITY.md) — 安全策略
+- [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md) — 行为准则
 - [CHANGELOG.md](../CHANGELOG.md) — 版本变更
 - [LICENSE](../LICENSE) — MIT 许可证

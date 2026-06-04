@@ -212,12 +212,15 @@ export default function AdminEventsNewPage() {
             )}
           </div>
           {form.coverImage && (
-            <Image
-              src={form.coverImage}
-              alt="封面预览"
-              fill
-              className="mt-2 h-32 w-48 rounded-lg border border-[#7C3AED]/10 object-cover"
-            />
+            <div className="relative mt-2 h-40 w-64 overflow-hidden rounded-lg border border-[#7C3AED]/10">
+              <Image
+                src={form.coverImage}
+                alt="封面预览"
+                fill
+                sizes="256px"
+                className="object-cover"
+              />
+            </div>
           )}
         </div>
 

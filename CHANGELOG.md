@@ -5,25 +5,35 @@
 ## [Unreleased]
 
 ### Added
-- 燕中记忆文化长廊数据库驱动改造：新增 `MemoryItem` 模型，后台 CRUD/排序/上传管理，前台 API 动态渲染
-- 燕中记忆后台管理页 `/admin/memories`（新增/编辑/删除/上下排序/图片上传）
-- 公开 API `GET /api/memories` + 管理员 CRUD API（`/api/admin/memories`、`/api/admin/memories/[id]`）
-- 上传文件按板块规范自动重命名：`{category}{sortOrder}.jpg`（campus/building/library/playground/garden/album）
-- Tags 解析统一工具 `src/lib/tags.ts`：`parseTags()` 容错竖线和逗号两种分隔符，`normalizeTags()` 在写入时标准化
-- `src/lib/memories.ts`：icon→板块英文名映射 + 文件重命名工具
-- 种子数据脚本 `scripts/seed_memories.js`（从 `memoriesGallery.json` 导入初始数据）
+- 通用页面内容管理模型 `ContentSection`：一个模型驱动 about(特色卡片+时间线)、contact、students、teachers 所有页面内容
+- 燕中故事数据库驱动改造：新增 `Story` 模型，后台 CRUD 管理页 `/admin/stories`，公开 API `GET /api/stories`
+- 管理员统一内容管理页 `/admin/content`（Tab 切换 about/contact/students/teachers 页面内容）
+- 教师频道管理页 `/admin/teachers`（版块 CRUD + 排序）
+- 活动列表卡片封面图展示（16:9 aspect-video）
+- 上传 API 接入 Sharp 16:9 自动裁切（`processToCard16x9`，2752×1548）
+- 种子数据脚本 `scripts/seed_content_sections.js`（25 条页面内容）
+- 种子数据脚本 `scripts/seed_stories.js`（3 条故事）
 
 ### Changed
-- `prisma.config.ts` 移除 `dotenv/config` 导入，提升 standalone 兼容性
-- 上传 API 文件命名改为 `时间戳-原文件名.ext`（保留原始文件名，可读性提升）
-- 燕中记忆前台页面改为 `force-dynamic` 实时渲染，不再依赖 JSON 静态文件和缓存
+- 学校介绍页 `/about`：特色卡片 + 发展历程时间线改为数据库驱动
+- 联系我们页 `/contact`：所有联系信息区块改为数据库驱动
+- 在校生资源站 `/students`：资源卡片改为数据库驱动
+- 教师频道 `/teachers`：版块内容改为数据库驱动
+- 燕中故事 `/alumni/stories`：从静态 JSON 改为 API 动态获取
+- 活动管理封面图预览限制为固定尺寸（256×160px），修复撑满页面问题
+- 活动列表按钮右下对齐 + flex column 布局优化
+- 燕中记忆卡片比例 4:3 → 16:9（aspect-video）
+- 管理员侧边栏重新排序：匹配前端导航顺序
+- 图片上传 MIME 白名单移除 GIF（与 16:9 裁切不兼容）
 
 ### Fixed
-- 部署打包补全 `prisma.config.ts` 和 `scripts/` 目录
-- PUT `/api/admin/memories/[id]` 支持部分更新（sortOrder-only 排序请求不再被 title 校验拒绝）
-- 文件上传后 input 正确重置，允许同名文件重复上传
-- Tags 全链路统一解析：4 处读取（地图/城市统计/搜索/首页）+ 3 处写入（create/update/CSV 导入）
-- 移除种子数据中 `/memories/` 旧路径引用
+- 燕中记忆删除功能失败：better-sqlite3 原生绑定在 turbopack 模式下丢失，rebuild 后恢复
+- 燕中记忆图片下方白框"已加载实际图片"移除，无图时显示"暂无图片"
+- 种子脚本 `datetime('now')` 兼容性问题，改为 JS Date 传值
+- 首页编译卡死（首次加载慢），属正常 Windows 环境首次编译行为
+
+### Security
+- 移除 `.env` 中残留真实凭据，全部替换为占位符
 
 ## [1.0.0] — 2026-06-01
 

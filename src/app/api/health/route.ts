@@ -31,8 +31,8 @@ export async function GET() {
     checks.redis = "disconnected";
   }
 
-  const allHealthy = Object.values(checks).every((v) =>
-    typeof v === 'number' || v === "ok" || v === "connected" || v === "not_configured" || v === "disconnected"
+  const allHealthy = Object.entries(checks).every(([key, v]) =>
+    v === "ok" || v === "connected" || v === "not_configured"
   );
 
   const response: Record<string, string> = {

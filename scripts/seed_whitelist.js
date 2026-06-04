@@ -45,7 +45,7 @@ async function main() {
 
     if (!name) continue;
 
-    const tags = [university, major, city].filter(Boolean).map(s => s.trim()).join(', ');
+    const tags = [university, major, city].filter(Boolean).map(s => s.trim()).join(' | ');
 
     insert.run(
       crypto.randomUUID(),
