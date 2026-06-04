@@ -40,6 +40,35 @@
 | 地图 | 校友大学城市分布（Leaflet 地图 + 城市聚合统计 + 校友明细） |
 | 安全 | API 限流（内存/Redis）、CSV 导出防公式注入、httpOnly cookie、凭据脚本一键轮换 |
 
+## 站点截图
+
+> 以下截图来自本地开发环境，已做脱敏处理。点击图片可查看原尺寸。
+
+<div align="center">
+
+| | | |
+|:---:|:---:|:---:|
+| ![首页](docs/assets/screenshots/home.webp) | ![校友活动](docs/assets/screenshots/events.webp) | ![星空通讯录](docs/assets/screenshots/alumni-map.webp) |
+| **首页总览** | **校友活动** | **星空通讯录（校友地图）** |
+| ![燕中记忆](docs/assets/screenshots/memories.webp) | ![燕中故事](docs/assets/screenshots/stories.webp) | ![电子校友证](docs/assets/screenshots/certificate.webp) |
+| **燕中记忆文化长廊** | **燕中故事** | **电子校友纪念卡** |
+| ![新闻公告](docs/assets/screenshots/news.webp) | ![后台管理](docs/assets/screenshots/admin.webp) | |
+| **新闻公告** | **后台管理** | |
+
+</div>
+
+<details>
+<summary>更多页面截图</summary>
+
+| | |
+|:---:|:---:|
+| ![学校介绍](docs/assets/screenshots/about.webp) | ![在校生资源站](docs/assets/screenshots/students.webp) |
+| **学校介绍** | **在校生资源站** |
+| ![教师频道](docs/assets/screenshots/teachers.webp) | ![联系我们](docs/assets/screenshots/contact.webp) |
+| **教师频道** | **联系我们** |
+
+</details>
+
 ## 技术栈
 
 | 层级 | 技术 | 版本 |
