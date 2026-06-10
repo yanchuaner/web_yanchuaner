@@ -40,6 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/students`, lastModified, changeFrequency: "monthly" as const, priority: 0.7 },
     { url: `${BASE_URL}/alumni/radar`, lastModified, changeFrequency: "monthly" as const, priority: 0.8 },
     { url: `${BASE_URL}/alumni/stories`, lastModified, changeFrequency: "weekly" as const, priority: 0.8 },
+    { url: `${BASE_URL}/alumni/achievements`, lastModified, changeFrequency: "weekly" as const, priority: 0.8 },
     { url: `${BASE_URL}/alumni/memories`, lastModified, changeFrequency: "monthly" as const, priority: 0.7 },
     { url: `${BASE_URL}/alumni/certificate`, lastModified, changeFrequency: "monthly" as const, priority: 0.7 },
     ...newsUrls,
