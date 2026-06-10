@@ -17,12 +17,14 @@ import {
   BookOpen,
   Mail,
   IdCard,
+  Award,
 } from 'lucide-react';
 
 const navItems = [
   { href: '/alumni/radar', label: '星空通讯录', icon: Radar },
   { href: '/alumni/certificate', label: '电子校友证', icon: IdCard },
   { href: '/alumni/stories', label: '燕中故事', icon: MessageSquareText },
+  { href: '/alumni/achievements', label: '校友成就', icon: Award },
   { href: '/alumni/memories', label: '燕中记忆', icon: GalleryVerticalEnd },
   { href: '/news', label: '新闻公告', icon: Newspaper },
   { href: '/events', label: '校友活动', icon: CalendarDays },
@@ -105,7 +107,7 @@ export default function MobileNav() {
   return (
     <>
       <nav
-        className="hidden items-center gap-0.5 lg:flex"
+        className="ml-8 hidden min-w-0 flex-1 items-center justify-between gap-0.5 xl:flex"
         role="navigation"
         aria-label="主导航"
       >
@@ -119,7 +121,7 @@ export default function MobileNav() {
               aria-current={active ? 'page' : undefined}
               tabIndex={0}
               className={[
-                'group relative inline-flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[12px] font-medium tracking-wide transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF5FF]',
+                'group relative inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1.5 text-[12px] font-medium tracking-wide transition-colors 2xl:px-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF5FF]',
                 active
                   ? 'bg-[#7C3AED]/10 text-[#7C3AED]'
                   : 'text-[#4C1D95]/70 hover:text-[#7C3AED]',
@@ -152,7 +154,7 @@ export default function MobileNav() {
         aria-label={open ? '关闭导航菜单' : '打开导航菜单'}
         aria-expanded={open ? 'true' : 'false'}
         aria-controls="mobile-drawer"
-        className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#7C3AED]/30 bg-[#7C3AED]/10 text-[#7C3AED] lg:hidden cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF5FF]"
+        className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#7C3AED]/30 bg-[#7C3AED]/10 text-[#7C3AED] xl:hidden cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF5FF]"
       >
         {open ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
       </button>
@@ -160,7 +162,7 @@ export default function MobileNav() {
       {open && mounted && createPortal(
         <>
           <div
-            className="fixed inset-0 z-[60] bg-[#4C1D95]/30 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-[60] bg-[#4C1D95]/30 backdrop-blur-sm xl:hidden"
             onClick={() => setOpen(false)}
             aria-hidden="true"
           />
@@ -170,7 +172,7 @@ export default function MobileNav() {
             role="dialog"
             aria-modal="true"
             aria-label="导航菜单"
-            className="fixed right-0 top-0 z-[60] flex h-full w-72 max-w-[85vw] flex-col border-l border-[#7C3AED]/15 bg-white/95 p-5 backdrop-blur-xl shadow-2xl lg:hidden"
+            className="fixed right-0 top-0 z-[60] flex h-full w-72 max-w-[85vw] flex-col border-l border-[#7C3AED]/15 bg-white/95 p-5 backdrop-blur-xl shadow-2xl xl:hidden"
           >
             <div className="mb-4 flex items-center justify-between">
               <p className="text-sm font-semibold text-[#7C3AED] font-heading">

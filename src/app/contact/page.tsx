@@ -44,11 +44,20 @@ export default async function ContactPage() {
                     <h2 className="font-heading text-base font-semibold text-[#4C1D95]">{s.title}</h2>
                     <p className="mt-1 text-sm leading-6 text-gray-600">{s.description}</p>
                     {s.note && <p className="mt-1 text-sm leading-6 text-gray-600">{s.note}</p>}
-                    {s.href && (
+                    {s.href === '/alumni/stories' ? (
+                      <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
+                        <Link href={s.href} className="text-sm text-[#7C3AED] underline hover:text-[#4C1D95] transition-colors">
+                          {s.actionLabel || '查看详情'}
+                        </Link>
+                        <Link href="/alumni/achievements?submit=1" className="text-sm text-[#7C3AED] underline hover:text-[#4C1D95] transition-colors">
+                          前往校友成就投稿
+                        </Link>
+                      </div>
+                    ) : s.href ? (
                       <Link href={s.href} className="mt-1 inline-block text-sm text-[#7C3AED] underline hover:text-[#4C1D95] transition-colors">
                         {s.actionLabel || '查看详情'}
                       </Link>
-                    )}
+                    ) : null}
                   </div>
                 </div>
               </div>
