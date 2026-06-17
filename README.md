@@ -32,9 +32,9 @@
 
 | 模块 | 能力 |
 | --- | --- |
-| 前台 | 首页、新闻、活动、燕中记忆文化长廊、校友城市分布地图、燕中故事、在校生资源站、教师频道、学校介绍、联系我们 |
-| 后台 | 新闻管理、活动管理、校友名单（CRUD/导入/导出/证书编号）、燕中记忆管理、燕中故事管理、页面内容管理（教师频道/学校介绍/联系我们/在校生）、修改申请审核、投稿管理、用户管理 |
-| 数据 | Prisma 7.x + SQLite，10 个数据模型，本地和生产均使用 SQLite 文件持久化 |
+| 前台 | 首页、新闻、活动、燕中记忆文化长廊、校友城市分布地图、燕中故事、校友成就墙、在校生资源站、教师频道、学校介绍、联系我们 |
+| 后台 | 新闻管理、活动管理、校友名单（CRUD/导入/导出/证书编号）、燕中记忆管理、燕中故事管理、校友成就墙管理、页面内容管理（教师频道/学校介绍/联系我们/在校生）、修改申请审核、投稿管理、用户管理 |
+| 数据 | Prisma 7.x + SQLite，12 个数据模型，本地和生产均使用 SQLite 文件持久化 |
 | 认证 | 普通访问口令（httpOnly cookie）+ 管理员登录（HMAC-SHA256 token），各自独立鉴权 |
 | 图片 | 管理员上传图片自动 16:9 裁切（Sharp），新闻/活动/记忆展品封面统一规格 |
 | 地图 | 校友大学城市分布（Leaflet 地图 + 城市聚合统计 + 校友明细） |
@@ -113,7 +113,7 @@ aerospace-alumni-site/
 │   │   └── memories.ts               # 记忆板块文件重命名
 │   └── middleware.ts                 # 路由中间件（认证）
 ├── prisma/
-│   └── schema.prisma                 # 数据模型定义（10 个模型）
+│   └── schema.prisma                 # 数据模型定义（12 个模型）
 ├── prisma.config.ts                  # Prisma 7.x 数据源配置
 ├── public/                           # 静态资源（图片、Leaflet 图标、上传文件）
 ├── scripts/                          # 运维脚本（13 个）
@@ -215,6 +215,7 @@ node scripts/set-credentials.js
 | `AlumniCorrectionRequest` | 校友信息修改申请 | rosterId, 当前值与申请值对比, status(PENDING/APPROVED/REJECTED) |
 | `Post` | 投稿 | title, content, type, status(DRAFT/PUBLISHED), authorId |
 | `Story` | 燕中故事 | title, author, tags(JSON), body, date |
+| `Achievement` | 校友成就 | alumniName, graduationClass, title, category, description, organization, yearLabel, status, sortOrder |
 | `MemoryItem` | 燕中记忆展品 | title, subtitle, description, imagePath, imageAlt, icon, sortOrder |
 | `ContentSection` | 页面内容块 | page(页面标识), title, description, note, icon, href, actionLabel, yearLabel, sortOrder |
 | `TeacherSection` | 教师频道版块 | title, description, note, icon, href, actionLabel, sortOrder |
@@ -231,6 +232,7 @@ node scripts/set-credentials.js
 | `/alumni/university-map` | 普通口令 | 校友大学城市分布地图 |
 | `/alumni/memories` | 普通口令 | 燕中记忆文化长廊（数据库驱动） |
 | `/alumni/stories` | 普通口令 | 燕中故事（数据库驱动 + 邮箱投稿） |
+| `/alumni/achievements` | 普通口令 | 校友成就墙（类别筛选，仅展示已发布内容） |
 | `/alumni/correction` | 普通口令 | 校友信息修改申请 |
 | `/students` | 公开 | 在校生资源站（数据库驱动） |
 | `/teachers` | 公开 | 教师频道（数据库驱动） |
@@ -242,6 +244,7 @@ node scripts/set-credentials.js
 | `/admin/events` | 管理员 | 活动管理（含报名名单） |
 | `/admin/memories` | 管理员 | 燕中记忆管理（CRUD/排序/上传） |
 | `/admin/stories` | 管理员 | 燕中故事管理（CRUD） |
+| `/admin/achievements` | 管理员 | 校友成就墙管理（CRUD/发布状态/排序） |
 | `/admin/teachers` | 管理员 | 教师频道管理 |
 | `/admin/content` | 管理员 | 页面内容管理（about/contact/students/teachers） |
 

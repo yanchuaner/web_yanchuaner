@@ -33,6 +33,7 @@
 | `/alumni/radar` | 普通口令 | 重定向至 `/alumni/university-map` |
 | `/alumni/memories` | 普通口令 | 燕中记忆文化长廊（数据库驱动，16:9 图片展示） |
 | `/alumni/stories` | 普通口令 | 燕中故事（数据库驱动 + 邮箱投稿） |
+| `/alumni/achievements` | 普通口令 | 校友成就墙（类别筛选，仅展示已发布记录） |
 | `/alumni/correction` | 普通口令 | 校友信息修改申请（搜索姓名 → 提交修改） |
 
 > 标记为普通口令的页面，其数据 API 通过 `requireAccessOrAdmin()` 保护。未验证时 API 返回 401。
@@ -56,6 +57,7 @@
 | `/admin/alumni-corrections` | 管理员 | 校友信息修改申请审核（筛选、通过/驳回） |
 | `/admin/memories` | 管理员 | 燕中记忆管理（CRUD、排序、图片上传） |
 | `/admin/stories` | 管理员 | 燕中故事管理（CRUD） |
+| `/admin/achievements` | 管理员 | 校友成就墙管理（CRUD、发布状态、排序） |
 | `/admin/teachers` | 管理员 | 教师频道管理（版块 CRUD、排序） |
 | `/admin/content` | 管理员 | 页面内容管理（about/contact/students/teachers 统一管理） |
 | `/admin/posts` | 管理员 | 投稿管理 |
@@ -124,6 +126,8 @@
 | `/api/admin/memories/[id]` | 管理员 | PUT / DELETE | 编辑展品（支持部分更新） / 删除展品 |
 | `/api/admin/stories` | 管理员 | GET / POST | 燕中故事列表 / 新建故事 |
 | `/api/admin/stories/[id]` | 管理员 | PUT / DELETE | 编辑故事 / 删除故事 |
+| `/api/admin/achievements` | 管理员 | GET / POST | 校友成就列表 / 新建成就 |
+| `/api/admin/achievements/[id]` | 管理员 | PUT / DELETE | 编辑成就 / 删除成就 |
 | `/api/admin/content` | 管理员 | GET / POST | 页面内容列表（?page=xxx）/ 新建内容 |
 | `/api/admin/content/[id]` | 管理员 | PUT / DELETE | 编辑内容 / 删除内容 |
 | `/api/admin/teachers` | 管理员 | GET / POST | 教师频道列表 / 新建版块 |
@@ -174,6 +178,10 @@
 ### 燕中故事管理（`/admin/stories`）
 
 `/alumni/stories` 页面改为数据库驱动。管理员通过 `/admin/stories` 增删改查故事（标题、作者、标签、正文、日期）。前端页面从 `/api/stories` 拉取数据，支持标签筛选。
+
+### 校友成就墙管理（`/admin/achievements`）
+
+校友成就数据来自 `Achievement` 表。管理员可维护校友姓名、届别、成就标题、类别、简介、机构、年份、排序和发布状态；前台 `/alumni/achievements` 仅展示状态为 `PUBLISHED` 的记录，并支持按类别筛选。
 
 ### 燕中记忆管理
 

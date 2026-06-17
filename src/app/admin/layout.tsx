@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { BarChart3, Users, FileText, Newspaper, CalendarDays, BookUser, FileEdit, Images, Home, Menu, X, LogOut, GraduationCap, Feather } from 'lucide-react';
+import { Award, BarChart3, Users, FileText, Newspaper, CalendarDays, BookUser, FileEdit, Images, Home, Menu, X, LogOut, GraduationCap, Feather } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -22,6 +22,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin/news', label: '新闻管理', icon: Newspaper },
     { href: '/admin/events', label: '活动管理', icon: CalendarDays },
     { href: '/admin/stories', label: '燕中故事', icon: Feather },
+    { href: '/admin/achievements', label: '校友成就墙', icon: Award },
     { href: '/admin/memories', label: '燕中记忆', icon: Images },
     { href: '/admin/teachers', label: '教师频道', icon: GraduationCap },
     { href: '/admin/content', label: '页面内容', icon: FileEdit },
