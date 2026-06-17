@@ -52,9 +52,9 @@ const data = [
   { id: uuid(), page: 'about_timeline', title: '标杆学校', description: '获评广东省中小学智慧教育应用标杆校、宝安区首批教育数字化转型标杆学校', yearLabel: '2024', sortOrder: 5 },
   { id: uuid(), page: 'about_timeline', title: '数字母港', description: '校友数字母港平台正式上线运营', yearLabel: '2025', sortOrder: 6 },
   // contact
-  { id: uuid(), page: 'contact', title: '联系邮箱', description: '网站相关事宜、技术反馈、内容建议请发送至：', note: 'yanchuan_alumni@163.com', icon: 'Mail', href: 'mailto:yanchuan_alumni@163.com', actionLabel: '发送邮件', sortOrder: 0 },
-  { id: uuid(), page: 'contact', title: '投稿说明', description: '欢迎校友分享燕中故事、校园记忆、成长经历或给学弟学妹的建议。所有内容经审核后发布。', icon: 'MessageSquare', href: '/alumni/stories', actionLabel: '通过燕中故事投稿', sortOrder: 1 },
-  { id: uuid(), page: 'contact', title: '活动合作', description: '如果您有意发起校友聚会、返校日、线上分享等活动，请通过邮箱联系我们说明活动构思与计划，审核后可在平台发布。', icon: 'CalendarDays', sortOrder: 2 },
+  { id: uuid(), page: 'contact', title: '联系邮箱', description: '网站维护、技术反馈、内容建议或活动合作，都可以发到这里。', note: 'yanchuan_alumni@163.com', icon: 'Mail', href: 'mailto:yanchuan_alumni@163.com', actionLabel: '发送邮件', sortOrder: 0 },
+  { id: uuid(), page: 'contact', title: '校友投稿', description: '你的燕中故事值得被记住。课堂趣事、校园回忆、成长感悟、优秀成就，都欢迎来稿。审核后发布。', icon: 'MessageSquare', href: '/alumni/stories', actionLabel: '前往燕中故事投稿', sortOrder: 1 },
+  { id: uuid(), page: 'contact', title: '活动合作', description: '想发起校友聚会、返校日或线上分享？告诉我们你的想法，我们帮你传播。', icon: 'CalendarDays', sortOrder: 2 },
   // students
   { id: uuid(), page: 'students', title: '志愿填报参考', description: '理解分数、位次、专业、城市、学校层次的思考框架，掌握信息收集方法，做出更明智的选择。', icon: 'School', href: '/students/application-guide', sortOrder: 0 },
   { id: uuid(), page: 'students', title: '大学与专业观察', description: '校友分享的大学生活体验与专业选择经验，帮助在校生提前了解真实的大学生活。', icon: 'Building2', href: '/students/university-insights', sortOrder: 1 },
