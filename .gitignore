@@ -28,7 +28,11 @@ prod.db-wal
 
 # Generated code
 /src/generated/prisma
-.claude/
+
+# Claude Code: ignore local/personal config & work artifacts,
+# but share the project-level settings.json with the team.
+.claude/*
+!.claude/settings.json
 
 # Production data (never commit)
 prod.db
