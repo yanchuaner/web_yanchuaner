@@ -8,10 +8,13 @@ import {
   processToCard16x9,
 } from "@/lib/image-pipeline";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { requireVerifiedAlumni } from "@/lib/admin-auth";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
+  const auth = await requireVerifiedAlumni(req);
+  if (auth) return auth;
   const ip = getClientIp(req);
   const limit = await rateLimit(`upload-bg:${ip}`, 6, 60_000);
   if (!limit.ok) {

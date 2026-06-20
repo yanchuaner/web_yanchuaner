@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { requireVerifiedAlumni } from "@/lib/admin-auth";
 
 export async function POST(req: NextRequest) {
+  const auth = await requireVerifiedAlumni(req);
+  if (auth) return auth;
   const ip = getClientIp(req);
   const limit = await rateLimit(`correction:${ip}`, 5, 5 * 60_000);
   if (!limit.ok) {

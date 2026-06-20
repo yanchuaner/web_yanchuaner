@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { requireAccessOrAdmin } from '@/lib/admin-auth';
+import { requireVerifiedAlumni } from '@/lib/admin-auth';
 
 export const dynamic = "force-dynamic";
 
 /** Look up alumni by exact name. Used by certificate page for identity validation. */
 export async function GET(req: NextRequest) {
-  const auth = requireAccessOrAdmin(req);
+  const auth = await requireVerifiedAlumni(req);
   if (auth) return auth;
 
   try {

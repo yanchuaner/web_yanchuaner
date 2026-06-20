@@ -5,8 +5,9 @@
 | 标记 | 说明 |
 |------|------|
 | 公开 | 无需任何凭据即可访问 |
-| 普通口令 | 需要 `ACCESS_PASSWORD` / `ACCESS_PASSWORD_HASH` 验证（httpOnly cookie: `yc_access_token`） |
-| 管理员 | 需要 `ADMIN_USERNAME` + `ADMIN_PASSWORD_HASH` 验证（httpOnly cookie, role=admin） |
+| 登录用户 | 需要个人账号登录（httpOnly cookie: `yc_access_token`） |
+| 认证校友 | 需要账号已通过校友认证 |
+| 管理员 | 需要数据库管理员账号登录（httpOnly cookie, role=admin） |
 
 ---
 
@@ -14,7 +15,7 @@
 
 | 路由 | 权限 | 说明 |
 |------|------|------|
-| `/` | 普通口令 | 首页（最新动态、校友寄语） |
+| `/` | 公开 | 首页（最新动态、校友寄语） |
 | `/about` | 公开 | 学校介绍（航天特色、办学理念、时间线，数据库驱动） |
 | `/news` | 公开 | 新闻列表 |
 | `/news/[id]` | 公开 | 新闻详情 |
@@ -28,15 +29,15 @@
 | `/students/senior-qa` | 公开 | 学长问答 |
 | `/students/learning-methods` | 公开 | 学习方法 |
 | `/students/alumni-messages` | 公开 | 校友寄语 |
-| `/alumni/certificate` | 普通口令 | 电子校友纪念卡（姓名+班级验证，生成专属卡片） |
-| `/alumni/university-map` | 普通口令 | 校友大学城市分布地图（Leaflet + 城市聚合 + 校友明细） |
-| `/alumni/radar` | 普通口令 | 重定向至 `/alumni/university-map` |
-| `/alumni/memories` | 普通口令 | 燕中记忆文化长廊（数据库驱动，16:9 图片展示） |
-| `/alumni/stories` | 普通口令 | 燕中故事（数据库驱动 + 邮箱投稿） |
-| `/alumni/achievements` | 普通口令 | 校友成就墙（类别筛选，仅展示已发布记录） |
-| `/alumni/correction` | 普通口令 | 校友信息修改申请（搜索姓名 → 提交修改） |
+| `/alumni/certificate` | 认证校友 | 电子校友纪念卡（姓名+班级验证，生成专属卡片） |
+| `/alumni/university-map` | 认证校友 | 校友大学城市分布地图（Leaflet + 城市聚合 + 校友明细） |
+| `/alumni/radar` | 认证校友 | 重定向至 `/alumni/university-map` |
+| `/alumni/memories` | 认证校友 | 燕中记忆文化长廊（数据库驱动，16:9 图片展示） |
+| `/alumni/stories` | 认证校友 | 燕中故事（数据库驱动 + 邮箱投稿） |
+| `/alumni/achievements` | 认证校友 | 校友成就墙（类别筛选，仅展示已发布记录） |
+| `/alumni/correction` | 认证校友 | 校友信息修改申请（搜索姓名 → 提交修改） |
 
-> 标记为普通口令的页面，其数据 API 通过 `requireAccessOrAdmin()` 保护。未验证时 API 返回 401。
+> 校友数据 API 通过 `requireVerifiedAlumni()` 保护。未登录时返回 401，未通过校友认证时返回 403。
 
 ---
 
@@ -71,7 +72,7 @@
 
 | 路由 | 权限 | 方法 | 说明 |
 |------|------|------|------|
-| `/api/auth/verify` | 普通口令 | GET | 验证当前 cookie 是否有效 |
+| `/api/auth/verify` | 登录用户 | GET | 验证当前 cookie 是否有效 |
 | `/api/auth/logout` | — | POST | 清除登录 cookie |
 
 ### 公开 API
@@ -88,15 +89,15 @@
 | `/api/memories` | 公开 | GET | 燕中记忆展品列表（含图片存在性检查） |
 | `/api/stories` | 公开 | GET | 燕中故事列表 |
 
-### 校友 API（需普通口令或管理员）
+### 校友 API（需认证校友或管理员）
 
 | 路由 | 权限 | 方法 | 说明 |
 |------|------|------|------|
-| `/api/alumni/search` | 普通口令 | GET | 校友搜索（按姓名/届别/标签） |
-| `/api/alumni/verify` | 普通口令 | GET | 校友身份验证（姓名+班级） |
-| `/api/alumni/map` | 普通口令 | GET | 校友地图数据（姓名+城市聚合） |
-| `/api/alumni/city-stats` | 普通口令 | GET | 校友城市聚合统计（含成员明细：姓名、大学、专业、班级） |
-| `/api/alumni/correction-requests` | 普通口令 | POST | 提交校友信息修改申请（含限流） |
+| `/api/alumni/search` | 认证校友 | GET | 校友搜索（按姓名/届别/标签） |
+| `/api/alumni/verify` | 认证校友 | GET | 校友身份验证（姓名+班级） |
+| `/api/alumni/map` | 认证校友 | GET | 校友地图数据（姓名+城市聚合） |
+| `/api/alumni/city-stats` | 认证校友 | GET | 校友城市聚合统计（含成员明细：姓名、大学、专业、班级） |
+| `/api/alumni/correction-requests` | 认证校友 | POST | 提交校友信息修改申请（含限流） |
 | `/api/alumni/certificate/upload-bg` | 管理员 | POST | 上传校友证背景图 |
 
 ### 图片上传 API（管理员）
@@ -139,12 +140,12 @@
 
 ## 认证机制说明
 
-### 普通口令（Access Token）
+### 用户会话
 
 - Cookie 名：`yc_access_token`
-- Payload 包含 `{ role: "access" }` 或 `{ role: "admin" }`
+- Payload 包含用户 ID、会话版本和 `{ role: "user" }` 或 `{ role: "admin" }`
 - 验证函数：`verifyToken()` — HMAC-SHA256 签名
-- 保护中间件：`requireAccessOrAdmin()` — 普通口令或管理员均可通过
+- 校友数据保护：`requireVerifiedAlumni()` — 已认证校友或管理员可通过
 
 ### 管理员（Admin Token）
 
@@ -185,4 +186,4 @@
 
 ### 燕中记忆管理
 
-`/alumni/memories` 页面需普通口令验证。展品数据来自 `MemoryItem` 数据库表，由管理员通过 `/admin/memories` 后台可视化维护（CRUD、排序、图片上传）。上传图片自动裁切为 16:9（2752×1548）。前台页面标记为 `force-dynamic`，管理员更新后刷新即生效。
+`/alumni/memories` 页面需登录并通过校友认证。展品数据来自 `MemoryItem` 数据库表，由管理员通过 `/admin/memories` 后台可视化维护（CRUD、排序、图片上传）。上传图片自动裁切为 16:9（2752×1548）。前台页面标记为 `force-dynamic`，管理员更新后刷新即生效。

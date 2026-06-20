@@ -35,8 +35,8 @@
 
 | 功能 | 说明 |
 |------|------|
-| 普通口令入口 | 访问者输入内测口令后进入站点（httpOnly cookie 鉴权） |
-| 管理员登录 | 管理员账号 + HMAC-SHA256 token 登录后台 |
+| 用户注册登录 | 用户名、邮箱和密码注册，登录后通过 httpOnly cookie 维持会话 |
+| 管理员登录 | 数据库管理员账号 + HMAC-SHA256 token 登录后台 |
 | 新闻管理 | 后台编辑、发布/下架、删除新闻；前台公开可访问 |
 | 活动管理 | 后台编辑、发布/下架、删除活动；支持在线报名 |
 | 活动报名名单导出 | 管理员导出 CSV（UTF-8 BOM，防 Excel 公式注入） |
@@ -150,9 +150,9 @@ model Story                     # 燕中故事（title, author, tags, body, date
 
 | 层级 | 保护范围 | 验证方式 |
 |------|----------|----------|
-| 普通入口 | 整个站点访问 | `ACCESS_PASSWORD` / `ACCESS_PASSWORD_HASH` → httpOnly cookie (`yc_access_token`) |
-| 管理员后台 | `/admin/*`、`/api/admin/*` | `ADMIN_USERNAME` + `ADMIN_PASSWORD_HASH` → httpOnly cookie (`yc_access_token`, role=admin) |
-| 校友数据 API | `/api/alumni/*` | `requireAccessOrAdmin()` — 普通口令或管理员均可 |
+| 用户会话 | 个人中心与受保护页面 | 数据库账号密码 → httpOnly cookie (`yc_access_token`) |
+| 管理员后台 | `/admin/*`、`/api/admin/*` | 数据库管理员账号密码 → httpOnly cookie (`yc_access_token`, role=admin) |
+| 校友数据 API | `/api/alumni/*` | `requireVerifiedAlumni()` — 已认证校友或管理员可访问 |
 | 图片上传 | `/api/upload`、`/api/alumni/certificate/upload-bg`、`/api/settings/card-bg/upload` | 仅管理员 |
 | 公开 API | `/api/news`、`/api/events`、`/api/health`、`/api/join` | 无需鉴权 |
 | API 限流 | `/api/join`、`/api/alumni/correction-requests`、`/admin/login` | 内存/Redis 限流 |
@@ -219,7 +219,7 @@ aerospace-alumni-site/
 │   │   └── alumni_encrypted.ts       # 加密校友数据
 │   ├── lib/                          # 工具库
 │   │   ├── db.ts                     # 数据库客户端
-│   │   ├── verify-token.ts           # Token 验证（普通口令 + 管理员）
+│   │   ├── verify-token.ts           # 用户与管理员会话 Token 验证
 │   │   ├── admin-auth.ts             # 管理员鉴权中间件
 │   │   ├── cache.ts                  # 缓存工具
 │   │   ├── redis.ts                  # Redis 客户端
@@ -233,7 +233,7 @@ aerospace-alumni-site/
 ├── prisma.config.ts                  # Prisma 7.x 数据源配置
 ├── scripts/                          # 运维脚本
 │   ├── smoke-test.js                 # 关键路径回归测试
-│   ├── set-credentials.js            # 一键更新凭证
+│   ├── create_admin.ts               # 创建数据库管理员账号
 │   ├── seed_content_sections.js      # 种子页面内容数据
 │   ├── seed_whitelist.js             # 种子校友名单
 │   ├── seed_memories.js              # 种子燕中记忆数据
@@ -251,7 +251,6 @@ aerospace-alumni-site/
 ├── tailwind.config.ts                # Tailwind 配置
 ├── tsconfig.json                     # TypeScript 配置
 ├── .env.example                      # 环境变量模板
-├── credentials.example.json          # 凭证模板
 ├── Dockerfile                        # Docker 多阶段构建
 ├── docker-compose.yml                # Docker Compose 编排
 ├── .dockerignore                     # Docker 忽略规则
@@ -264,7 +263,7 @@ aerospace-alumni-site/
 如果后续要继续优化项目，优先从下面这些地方入手：
 
 - **路由与导航**：统一首页、新闻、活动、校友证、后台的入口与高亮状态
-- **认证与权限**：普通口令、管理员 cookie、API 权限分层是否清晰
+- **认证与权限**：用户会话、管理员 cookie、API 权限分层是否清晰
 - **证书与图片链路**：背景上传、裁切、证书导出、上传目录持久化
 - **后台体验**：列表筛选、编辑表单、删除确认、导出和审核流程
 - **数据操作**：批量导入/导出的健壮性、数据校验与去重

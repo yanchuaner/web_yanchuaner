@@ -41,6 +41,15 @@ export async function rateLimit(
   const now = Date.now();
   const redis = getRedisClient();
 
+  if (!redis && process.env.NODE_ENV === "production") {
+    return {
+      ok: false,
+      remaining: 0,
+      retryAfter: Math.ceil(windowMs / 1000),
+      fallback: "memory",
+    };
+  }
+
   if (redis) {
     try {
       const redisKey = `rl:${key}`;

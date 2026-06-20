@@ -6,7 +6,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } },
 ) {
-  const auth = requireAdmin(req);
+  const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {
@@ -30,7 +30,7 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } },
 ) {
-  const auth = requireAdmin(req);
+  const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {

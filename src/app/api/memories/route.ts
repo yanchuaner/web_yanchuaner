@@ -1,11 +1,14 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
+import { requireVerifiedAlumni } from '@/lib/admin-auth';
 import fs from 'node:fs';
 import path from 'node:path';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const auth = await requireVerifiedAlumni(req);
+  if (auth) return auth;
   try {
     const items = await prisma.memoryItem.findMany({
       orderBy: { sortOrder: 'asc' },

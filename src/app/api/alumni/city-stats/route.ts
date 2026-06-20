@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { requireAccessOrAdmin } from '@/lib/admin-auth';
+import { requireVerifiedAlumni } from '@/lib/admin-auth';
 import { getCityCoords } from '@/data/cityCoordinates';
 import { parseTags } from '@/lib/tags';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
-  const auth = requireAccessOrAdmin(req);
+  const auth = await requireVerifiedAlumni(req);
   if (auth) return auth;
 
   try {

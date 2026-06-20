@@ -5,11 +5,17 @@ import { UserCheck, UserX, Users } from 'lucide-react';
 
 type UserRecord = {
   id: string;
-  name: string;
-  identityCode: string | null;
+  username: string | null;
+  email: string | null;
+  emailVerified: string | null;
+  name: string | null;
+  graduationClass: string | null;
+  className: string | null;
   contact: string | null;
   role: string;
   status: string;
+  accountStatus: string;
+  claimedAt: string | null;
   createdAt: string;
 };
 
@@ -39,12 +45,12 @@ export default function AdminUsersPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter]);
 
-  const updateUser = async (id: string, status: string, role?: string) => {
+  const runAction = async (id: string, action: string) => {
     try {
-      const res = await fetch('/api/admin/users', {
-        method: 'PATCH',
+      const res = await fetch(`/api/admin/users/${id}/actions`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, status, ...(role ? { role } : {}) }),
+        body: JSON.stringify({ action }),
       });
       if (!res.ok) throw new Error('Update failed');
       fetchUsers();
@@ -116,8 +122,9 @@ export default function AdminUsersPage() {
             <thead className="border-b border-[#7C3AED]/10 text-[#4C1D95]/60">
               <tr>
                 <th className="px-4 py-3 font-medium">姓名</th>
+                <th className="px-4 py-3 font-medium">账号</th>
                 <th className="px-4 py-3 font-medium">届别/班级</th>
-                <th className="px-4 py-3 font-medium">联系方式</th>
+                <th className="px-4 py-3 font-medium">邮箱状态</th>
                 <th className="px-4 py-3 font-medium">角色</th>
                 <th className="px-4 py-3 font-medium">状态</th>
                 <th className="px-4 py-3 font-medium">操作</th>
@@ -126,24 +133,27 @@ export default function AdminUsersPage() {
             <tbody className="divide-y divide-[#7C3AED]/5">
               {users.map((user) => (
                 <tr key={user.id} className="text-[#4C1D95]/70 transition hover:bg-[#7C3AED]/5">
-                  <td className="px-4 py-3 font-medium text-[#4C1D95]">{user.name}</td>
-                  <td className="px-4 py-3">{user.identityCode || '-'}</td>
-                  <td className="px-4 py-3">{user.contact || '-'}</td>
+                  <td className="px-4 py-3">
+                    <p className="font-medium text-[#4C1D95]">{user.name || '-'}</p>
+                    <p className="text-xs">{user.username || '旧资料'} · {user.email || '-'}</p>
+                  </td>
+                  <td className="px-4 py-3">{[user.graduationClass, user.className].filter(Boolean).join(' / ') || '-'}</td>
+                  <td className="px-4 py-3">{user.emailVerified ? '已验证' : '未验证'}</td>
                   <td className="px-4 py-3">{user.role}</td>
-                  <td className="px-4 py-3">{statusBadge(user.status)}</td>
+                  <td className="px-4 py-3">{statusBadge(user.status)}<p className="mt-1 text-xs">{user.accountStatus}</p></td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
                       {user.status === 'PENDING' && (
                         <>
                           <button
-                            onClick={() => updateUser(user.id, 'VERIFIED', 'ALUMNI')}
+                            onClick={() => runAction(user.id, 'approve-alumni')}
                             className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs text-emerald-700 transition hover:bg-emerald-100 cursor-pointer"
                           >
                             <UserCheck size={14} />
                             通过
                           </button>
                           <button
-                            onClick={() => updateUser(user.id, 'REJECTED')}
+                            onClick={() => runAction(user.id, 'reject-alumni')}
                             className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs text-rose-700 transition hover:bg-rose-100 cursor-pointer"
                           >
                             <UserX size={14} />
@@ -153,7 +163,7 @@ export default function AdminUsersPage() {
                       )}
                       {user.status === 'VERIFIED' && (
                         <button
-                          onClick={() => updateUser(user.id, 'REJECTED', 'GUEST')}
+                          onClick={() => runAction(user.id, 'reject-alumni')}
                           className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs text-rose-700 transition hover:bg-rose-100 cursor-pointer"
                         >
                           <UserX size={14} />
@@ -162,13 +172,19 @@ export default function AdminUsersPage() {
                       )}
                       {user.status === 'REJECTED' && (
                         <button
-                          onClick={() => updateUser(user.id, 'VERIFIED', 'ALUMNI')}
+                          onClick={() => runAction(user.id, 'approve-alumni')}
                           className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs text-emerald-700 transition hover:bg-emerald-100 cursor-pointer"
                         >
                           <UserCheck size={14} />
                           重新通过
                         </button>
                       )}
+                      <button
+                        onClick={() => runAction(user.id, user.accountStatus === 'ACTIVE' ? 'disable-account' : 'enable-account')}
+                        className="rounded-lg border px-2.5 py-1 text-xs"
+                      >
+                        {user.accountStatus === 'ACTIVE' ? '停用' : '启用'}
+                      </button>
                     </div>
                   </td>
                 </tr>

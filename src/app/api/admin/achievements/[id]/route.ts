@@ -10,7 +10,7 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } },
 ) {
-  const auth = requireAdmin(req);
+  const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {
@@ -81,7 +81,7 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } },
 ) {
-  const auth = requireAdmin(req);
+  const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {

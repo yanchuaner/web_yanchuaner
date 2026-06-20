@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { Open_Sans, Poppins, Noto_Sans_SC } from "next/font/google";
 import Link from "next/link";
 import UUIDCompat from "@/components/UUIDCompat";
-import Gatekeeper from "@/components/Gatekeeper";
 import MobileNav from "@/components/MobileNav";
-import { JoinModalProvider } from "@/components/JoinModalProvider";
-import { JoinRequestModal } from "@/components/JoinRequestModal";
+import AuthProvider from "@/components/AuthProvider";
 import "./globals.css";
 
 const openSans = Open_Sans({
@@ -78,8 +75,8 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
     googleBot: {
-      index: true,
-      follow: true,
+          index: true,
+          follow: true,
       "max-video-preview": -1,
       "max-image-preview": "large",
       "max-snippet": -1,
@@ -104,12 +101,8 @@ export default function RootLayout({
         >
           跳到正文
         </a>
-        <Gatekeeper initialIsVerified={false}>
-          <JoinModalProvider>
+        <AuthProvider>
             <UUIDCompat />
-            <Suspense fallback={null}>
-              <JoinRequestModal />
-            </Suspense>
             <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#FAF5FF] to-[#F3E8FF]">
             {/* 导航栏 */}
             <header className="glass sticky top-0 z-50 border-b border-[#7C3AED]/10 transition-colors duration-300 hover:border-[#7C3AED]/20">
@@ -153,8 +146,7 @@ export default function RootLayout({
               </div>
             </footer>
           </div>
-          </JoinModalProvider>
-        </Gatekeeper>
+        </AuthProvider>
       </body>
     </html>
   );

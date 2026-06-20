@@ -15,7 +15,7 @@ export const runtime = "nodejs";
 const CARD_PUBLIC_PATH = path.join(process.cwd(), "public", "card.jpg");
 
 export async function POST(req: NextRequest) {
-  const auth = requireAdmin(req);
+  const auth = await requireAdmin(req);
   if (auth) return auth;
 
   let formData: FormData;

@@ -3,126 +3,142 @@ import { NextRequest, NextResponse } from "next/server";
 const SESSION_SECRET = process.env.SESSION_SECRET || "";
 
 type TokenPayload = {
-  v: number;
-  role: "access" | "admin";
+  v: 3;
+  role: "user" | "admin";
+  userId: string;
+  sessionVersion: number;
   exp: number;
 };
 
-/**
- * Edge Runtime 兼容的 HMAC-SHA256 token 验证
- * middleware 不能使用 Node.js crypto 模块，改用 Web Crypto API
- */
-async function verifyTokenEdge(
-  token: string,
-): Promise<TokenPayload | null> {
+const PUBLIC_PAGES = new Set([
+  "/",
+  "/about",
+  "/login",
+  "/register",
+  "/verify-email",
+  "/reset-password",
+  "/admin/login",
+]);
+
+const PUBLIC_APIS = new Set([
+  "/api/health",
+  "/api/auth/login",
+  "/api/auth/register",
+  "/api/auth/verify-email",
+  "/api/auth/resend-verification",
+  "/api/auth/forgot-password",
+  "/api/auth/reset-password",
+  "/api/auth/graduation-classes",
+]);
+
+function base64UrlToBytes(value: string) {
+  const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+  const decoded = atob(padded);
+  return Uint8Array.from(decoded, (char) => char.charCodeAt(0));
+}
+
+async function verifyTokenEdge(token: string): Promise<TokenPayload | null> {
   if (!SESSION_SECRET) return null;
   try {
-    const dot = token.lastIndexOf(".");
-    if (dot === -1) return null;
-
-    const b64 = token.slice(0, dot);
-    const sig = token.slice(dot + 1);
-
+    const [encoded, signature, extra] = token.split(".");
+    if (!encoded || !signature || extra) return null;
     const key = await crypto.subtle.importKey(
       "raw",
       new TextEncoder().encode(SESSION_SECRET),
       { name: "HMAC", hash: "SHA-256" },
       false,
-      ["sign"],
+      ["verify"],
     );
-    const signature = await crypto.subtle.sign(
+    const valid = await crypto.subtle.verify(
       "HMAC",
       key,
-      new TextEncoder().encode(b64),
+      base64UrlToBytes(signature),
+      new TextEncoder().encode(encoded),
     );
-    const sigHex = Array.from(new Uint8Array(signature))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-
-    if (sig.length !== sigHex.length) return null;
-    let diff = 0;
-    for (let i = 0; i < sig.length; i++)
-      diff |= sig.charCodeAt(i) ^ sigHex.charCodeAt(i);
-    if (diff !== 0) return null;
-
-    // Edge compatible base64 decode
-    // base64 payload might be base64url encoded or standard base64
-    // Make sure we handle potential URI characters safely if needed
-    // The typical conversion works for standard base64 without padding
-    const decodedStr = atob(b64);
-    // Properly decode UTF-8 from the binary string atob provides
-    const bytes = new Uint8Array(decodedStr.length);
-    for (let i = 0; i < decodedStr.length; i++) {
-      bytes[i] = decodedStr.charCodeAt(i);
-    }
-    const decoded = new TextDecoder("utf-8").decode(bytes);
-    
-    const payload = JSON.parse(decoded) as TokenPayload;
-
+    if (!valid) return null;
+    const payload = JSON.parse(
+      new TextDecoder().decode(base64UrlToBytes(encoded)),
+    ) as Partial<TokenPayload>;
     if (
-      payload.v !== 2 ||
+      payload.v !== 3 ||
+      (payload.role !== "user" && payload.role !== "admin") ||
+      typeof payload.userId !== "string" ||
+      !Number.isInteger(payload.sessionVersion) ||
       typeof payload.exp !== "number" ||
       payload.exp <= Date.now()
     ) {
       return null;
     }
-    if (payload.role !== "access" && payload.role !== "admin") return null;
-
-    return payload;
+    return payload as TokenPayload;
   } catch {
     return null;
   }
 }
 
-/**
- * 燕中校友数字母港 — 路由中间件
- *
- * 职责:
- * 1. 保护 /admin/* 和 /api/admin/* 路由，只允许 admin role token
- * 2. /admin/login 已登录用户自动跳转到 /admin
- * 3. 透明放行其他所有路由
- */
-export async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
-
-  // 静态资源直接放行，不参与任何认证检查
-  if (
-    pathname.startsWith("/_next/static") ||
-    pathname.startsWith("/_next/image") ||
-    pathname.startsWith("/uploads") ||
+function isStatic(pathname: string) {
+  return (
+    pathname.startsWith("/_next/") ||
+    pathname.startsWith("/uploads/") ||
+    pathname.startsWith("/leaflet/") ||
     pathname === "/favicon.ico" ||
     pathname === "/icon.svg" ||
+    pathname === "/card.jpg" ||
     pathname === "/robots.txt" ||
     pathname === "/sitemap.xml" ||
+    /\.(?:avif|css|gif|ico|jpe?g|js|json|map|png|svg|txt|webmanifest|webp|woff2?)$/i.test(
+      pathname,
+    )
+  );
+}
 
-    pathname === "/admin/login"
-  ) {
-    return NextResponse.next();
+export async function middleware(req: NextRequest) {
+  const { pathname, search } = req.nextUrl;
+  const headers = new Headers(req.headers);
+  headers.set("x-pathname", pathname);
+  const next = () => NextResponse.next({ request: { headers } });
+
+  if (isStatic(pathname) || PUBLIC_APIS.has(pathname)) {
+    return next();
   }
 
-  if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
-    const token = req.cookies.get("yc_access_token")?.value;
-    const payload = token ? await verifyTokenEdge(token) : null;
-    const isAdmin = !!payload && payload.role === "admin";
+  const token = req.cookies.get("yc_access_token")?.value;
+  const payload = token ? await verifyTokenEdge(token) : null;
 
-    if (pathname === "/admin/login") {
-      if (isAdmin) {
-        return NextResponse.redirect(new URL("/admin", req.url));
-      }
-      return NextResponse.next();
+  if (pathname === "/admin/login") {
+    if (payload?.role === "admin") {
+      return NextResponse.redirect(new URL("/admin", req.url));
     }
-
-    if (!isAdmin) {
-      if (pathname.startsWith("/api/")) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
-      return NextResponse.redirect(new URL("/admin/login", req.url));
+    if (payload?.role === "user") {
+      return NextResponse.redirect(new URL("/me", req.url));
     }
+    return next();
   }
 
-  return NextResponse.next();
+  if (PUBLIC_PAGES.has(pathname)) {
+    return next();
+  }
+
+  if (!payload) {
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const loginPath = pathname.startsWith("/admin") ? "/admin/login" : "/login";
+    const url = new URL(loginPath, req.url);
+    if (loginPath === "/login") {
+      url.searchParams.set("redirect", `${pathname}${search}`);
+    }
+    return NextResponse.redirect(url);
+  }
+
+  if (pathname.startsWith("/admin") && payload.role !== "admin") {
+    return pathname.startsWith("/api/")
+      ? NextResponse.json({ error: "Forbidden" }, { status: 403 })
+      : NextResponse.redirect(new URL("/me", req.url));
+  }
+  return next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*"],
+  matcher: ["/((?!_next/static|_next/image).*)"],
 };

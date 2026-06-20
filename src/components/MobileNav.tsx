@@ -22,6 +22,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/components/ui/cn';
+import { useAuth } from '@/components/AuthProvider';
 
 type NavLeaf = { href: string; label: string; icon: LucideIcon; desc?: string };
 type NavGroup = { label: string; items: NavLeaf[] };
@@ -77,6 +78,7 @@ const JOIN_CTA =
   'inline-flex items-center justify-center rounded-full bg-accent px-5 py-2 text-[13px] font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface-muted';
 
 export default function MobileNav() {
+  const { user, isLoggedIn, logout } = useAuth();
   const pathname = usePathname() || '/';
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -238,9 +240,26 @@ export default function MobileNav() {
           );
         })}
 
-        <Link href="/?join=1" className={cn(JOIN_CTA, 'ml-2')}>
-          加入我们
-        </Link>
+        {isLoggedIn ? (
+          <>
+            {user?.role === "ADMIN" ? (
+              <Link href="/admin" className="ml-2 text-sm font-medium text-brand">
+                管理后台
+              </Link>
+            ) : null}
+            <Link href="/me" className={cn(JOIN_CTA, 'ml-2')}>
+              {user?.username || user?.name || '个人中心'}
+            </Link>
+            <button type="button" onClick={() => void logout()} className="ml-2 text-sm text-brand">
+              退出
+            </button>
+          </>
+        ) : (
+          <>
+            <Link href="/login" className="ml-2 text-sm text-brand">登录</Link>
+            <Link href="/register" className={cn(JOIN_CTA, 'ml-2')}>加入我们</Link>
+          </>
+        )}
       </nav>
 
       {/* ── 移动端：汉堡按钮 ──────────────────────────── */}
@@ -331,13 +350,30 @@ export default function MobileNav() {
             </nav>
 
             <div className="mt-4 border-t border-line pt-4">
-              <Link
-                href="/?join=1"
-                onClick={() => setOpen(false)}
-                className={cn(JOIN_CTA, 'w-full')}
-              >
-                加入我们
-              </Link>
+              {isLoggedIn ? (
+                <div className="space-y-2">
+                  {user?.role === "ADMIN" ? (
+                    <Link href="/admin" onClick={() => setOpen(false)} className="block text-center text-sm font-medium text-brand">
+                      管理后台
+                    </Link>
+                  ) : null}
+                  <Link href="/me" onClick={() => setOpen(false)} className={cn(JOIN_CTA, 'w-full')}>
+                    个人中心
+                  </Link>
+                  <button type="button" onClick={() => void logout()} className="w-full text-sm text-brand">
+                    退出登录
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Link href="/login" onClick={() => setOpen(false)} className="block text-center text-sm text-brand">
+                    登录
+                  </Link>
+                  <Link href="/register" onClick={() => setOpen(false)} className={cn(JOIN_CTA, 'w-full')}>
+                    加入我们
+                  </Link>
+                </div>
+              )}
               <p className="mt-3 text-center text-xs text-brand-fg/40">
                 燕中校友数字母港 · 个人公益版
               </p>

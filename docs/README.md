@@ -89,8 +89,8 @@
 
 | 凭据 | 保护范围 | 实现 |
 | --- | --- | --- |
-| 普通访问口令 | 全站访问 | `ACCESS_PASSWORD_HASH` → httpOnly cookie |
-| 管理员账号 | `/admin/*`、`/api/admin/*`、上传 API | `ADMIN_USERNAME` + `ADMIN_PASSWORD_HASH` → httpOnly cookie (role=admin) |
+| 用户账号 | 个人中心及校友功能 | 数据库账号密码 → httpOnly cookie |
+| 管理员账号 | `/admin/*`、`/api/admin/*`、上传 API | 数据库管理员账号密码 → httpOnly cookie (role=admin) |
 
 详见 [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md#安全边界) 中的「安全边界」章节。
 

@@ -10,18 +10,81 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  name         String?
-  contact      String?
-  identityCode String?
-  role         String   @default("GUEST")
-  status       String   @default("PENDING")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  posts        Post[]
+  id                     String             @id @default(uuid())
+  username               String?            @unique
+  passwordHash           String?
+  email                  String?            @unique
+  emailVerified          DateTime?
+  emailVerifyTokenHash   String?
+  emailVerifyExpiresAt   DateTime?
+  passwordResetTokenHash String?
+  passwordResetExpiresAt DateTime?
+  name                   String?
+  contact                String?
+  identityCode           String?
+  graduationClass        String?
+  className              String?
+  role                   String             @default("GUEST")
+  status                 String             @default("PENDING")
+  accountStatus          String             @default("ACTIVE")
+  sessionVersion         Int                @default(0)
+  claimedAt              DateTime?
+  mergedIntoUserId       String?
+  mergedIntoUser         User?              @relation("UserMerged", fields: [mergedIntoUserId], references: [id])
+  mergedUsers            User[]             @relation("UserMerged")
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+  posts                  Post[]
+  auditLogs              AuditLog[]         @relation("AuditLogAdmin")
+  claimRequests          UserClaimRequest[] @relation("ClaimRequestClaimant")
+  oldUserClaimRequests   UserClaimRequest[] @relation("ClaimRequestOldUser")
+  reviewedClaimRequests  UserClaimRequest[] @relation("ClaimRequestReviewer")
 
   @@index([status])
   @@index([role])
+  @@index([accountStatus])
+  @@index([emailVerified])
+  @@index([emailVerifyTokenHash])
+  @@index([passwordResetTokenHash])
+  @@index([graduationClass])
+  @@index([mergedIntoUserId])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  action     String
+  targetType String
+  targetId   String
+  adminId    String
+  admin      User     @relation("AuditLogAdmin", fields: [adminId], references: [id])
+  before     String?
+  after      String?
+  createdAt  DateTime @default(now())
+
+  @@index([adminId])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+}
+
+model UserClaimRequest {
+  id             String    @id @default(uuid())
+  claimantUserId String
+  claimant       User      @relation("ClaimRequestClaimant", fields: [claimantUserId], references: [id])
+  oldUserId      String?
+  oldUser        User?     @relation("ClaimRequestOldUser", fields: [oldUserId], references: [id])
+  description    String?
+  status         String    @default("PENDING")
+  adminNote      String?
+  reviewedById   String?
+  reviewedBy     User?     @relation("ClaimRequestReviewer", fields: [reviewedById], references: [id])
+  reviewedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([claimantUserId, status])
+  @@index([oldUserId])
+  @@index([status])
+  @@index([reviewedById])
 }
 
 model WhitelistRoster {
@@ -37,21 +100,21 @@ model WhitelistRoster {
 }
 
 model AlumniCorrectionRequest {
-  id                      String    @id @default(uuid())
-  rosterId                String
-  currentName             String?
-  currentGraduationClass  String?
-  currentTags             String?
-  requestedName           String?
+  id                       String    @id @default(uuid())
+  rosterId                 String
+  currentName              String?
+  currentGraduationClass   String?
+  currentTags              String?
+  requestedName            String?
   requestedGraduationClass String?
-  requestedTags           String?
-  contact                 String
-  reason                  String
-  status                  String    @default("PENDING")
-  adminNote               String?
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
-  reviewedAt              DateTime?
+  requestedTags            String?
+  contact                  String
+  reason                   String
+  status                   String    @default("PENDING")
+  adminNote                String?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+  reviewedAt               DateTime?
 
   @@index([status])
   @@index([rosterId])
@@ -72,32 +135,32 @@ model Post {
 }
 
 model News {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   title       String
   summary     String?
   content     String
   imageUrl    String?
-  status      String   @default("DRAFT")
+  status      String    @default("DRAFT")
   publishedAt DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@index([status])
 }
 
 model Event {
-  id          String   @id @default(uuid())
-  title       String
-  summary     String?
-  content     String
-  location    String?
-  eventDate   DateTime
-  endDate     DateTime?
-  coverImage  String?
-  maxAttendees Int?
-  status      String   @default("DRAFT")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String              @id @default(uuid())
+  title         String
+  summary       String?
+  content       String
+  location      String?
+  eventDate     DateTime
+  endDate       DateTime?
+  coverImage    String?
+  maxAttendees  Int?
+  status        String              @default("DRAFT")
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
   registrations EventRegistration[]
 
   @@index([status])
@@ -144,14 +207,14 @@ model TeacherSection {
 
 model ContentSection {
   id          String   @id @default(uuid())
-  page        String   // "about_features", "about_timeline", "contact", "students"
+  page        String // "about_features", "about_timeline", "contact", "students"
   title       String
   description String   @default("")
   note        String   @default("")
   icon        String   @default("BookOpen")
   href        String?
   actionLabel String?
-  yearLabel   String?  // 时间线年份 (仅 about_timeline)
+  yearLabel   String? // 时间线年份 (仅 about_timeline)
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

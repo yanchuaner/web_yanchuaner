@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { Send, X } from "lucide-react";
 import { useJoinModal } from "./JoinModalProvider";
 
@@ -278,13 +279,10 @@ export function JoinRequestModal() {
  * 点击后通过 context 打开全局唯一的弹窗。
  */
 export function JoinTriggerButton() {
-  const { trigger } = useJoinModal();
-
   return (
-    <button
-      type="button"
-      onClick={trigger}
-      aria-label="打开入轨联络舱"
+    <Link
+      href="/register"
+      aria-label="打开入轨联络舱注册页面"
       tabIndex={0}
       className="cosmic-card group flex min-h-[168px] flex-col items-center justify-center rounded-card border border-brand/25 bg-surface/55 px-5 py-6 text-center backdrop-blur-md shadow-[0_0_15px_rgba(124,58,237,0.3)] transition duration-300 hover:-translate-y-0.5 hover:scale-[1.02] hover:border-brand/50 hover:shadow-[0_0_24px_rgba(124,58,237,0.35)]"
     >
@@ -292,7 +290,7 @@ export function JoinTriggerButton() {
         <Send size={24} />
       </span>
       <p className="mt-4 text-base font-semibold text-brand-fg font-heading">入轨联络舱</p>
-      <p className="mt-1 text-xs text-brand-fg/60">新增入站或更新大学 / 城市信息</p>
-    </button>
+      <p className="mt-1 text-xs text-brand-fg/60">注册校友账号，加入数字母港</p>
+    </Link>
   );
 }

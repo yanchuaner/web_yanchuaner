@@ -1,9 +1,12 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
+import { requireVerifiedAlumni } from '@/lib/admin-auth';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const auth = await requireVerifiedAlumni(req);
+  if (auth) return auth;
   try {
     const stories = await prisma.story.findMany({
       orderBy: { date: 'desc' },

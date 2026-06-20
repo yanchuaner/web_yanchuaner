@@ -24,6 +24,7 @@ const NAV_SECTIONS: NavSection[] = [
     heading: '审核',
     items: [
       { href: '/admin/users', label: '用户审核', icon: Users },
+      { href: '/admin/user-claims', label: '旧资料认领', icon: Users },
       { href: '/admin/posts', label: '内容审核', icon: FileText },
       { href: '/admin/alumni-corrections', label: '信息修改申请', icon: FileEdit },
     ],

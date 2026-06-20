@@ -22,7 +22,7 @@ export default function AdminLoginPage() {
     setError(null);
 
     try {
-      const res = await fetch("/api/auth/verify", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -118,7 +118,7 @@ export default function AdminLoginPage() {
             className="inline-flex items-center gap-1.5 text-xs text-[#7C3AED]/50 transition hover:text-[#7C3AED]/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] rounded-sm"
           >
             <ArrowLeft size={13} />
-            <span>返回普通口令入口</span>
+            <span>返回首页</span>
           </a>
         </div>
 
@@ -126,7 +126,7 @@ export default function AdminLoginPage() {
           燕中校友数字母港 · 管理后台
         </p>
         <p className="mt-3 text-center text-xs text-[#4C1D95]/40">
-          想要获取后台账号或口令，请关注校友会微信公众号「燕中校友汇」
+          想要获取后台账号，请关注校友会微信公众号「燕中校友汇」
         </p>
       </div>
     </div>

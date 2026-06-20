@@ -62,7 +62,7 @@ export default async function LatestUpdatesSection() {
   if (items.length === 0) {
     return (
       <p className="text-sm text-slate-500 py-4">
-        暂无最新动态。欢迎通过{"“"}加入星港{"”"}成为共建者。
+        暂无最新动态
       </p>
     );
   }

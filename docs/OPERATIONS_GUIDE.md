@@ -32,10 +32,6 @@ Windows 本地开发使用 SQLite `prisma/dev.db`，所有数据变更可通过 
 | 变量名 | 用途 | 必填 |
 |--------|------|------|
 | `DATABASE_URL` | SQLite 数据库连接字符串（如 `file:./dev.db`） | 是 |
-| `ACCESS_PASSWORD` | 普通访问口令（明文，启动时自动计算 SHA256） | 是 |
-| `ACCESS_PASSWORD_HASH` | 普通访问口令的预计算 SHA256 哈希（与 ACCESS_PASSWORD 二选一，推荐） | 推荐 |
-| `ADMIN_USERNAME` | 管理员登录账号 | 是 |
-| `ADMIN_PASSWORD_HASH` | 管理员密码的 SHA256 哈希值 | 是 |
 | `SESSION_SECRET` | HMAC-SHA256 token 签名密钥（随机字符串） | 是 |
 | `SITE_URL` | 站点根 URL（用于 Open Graph 等 SEO 标签） | 否 |
 | `SITE_NAME` | 站点名称（SEO） | 否 |
@@ -47,41 +43,15 @@ Windows 本地开发使用 SQLite `prisma/dev.db`，所有数据变更可通过 
 
 ---
 
-## 3. 凭证管理
+## 3. 账号管理
 
-### 3.1 两套独立凭据体系
-
-| 凭据类型 | 用途 | 保护范围 |
-|----------|------|----------|
-| 普通访问口令 | 校友/访客进入站点 | 整个站点（`/admin/*` 和 `/api/admin/*` 除外） |
-| 管理员账号密码 | 管理员登录后台 | `/admin/*`、`/api/admin/*`、上传 API |
-
-两种凭据互不干扰，普通口令用户无法访问后台。
-
-### 3.2 一键修改凭据
-
-项目提供了 `scripts/set-credentials.js` 脚本，可一次性更新访问口令、管理员账号和密码：
+用户与管理员账号均存储在数据库 `User` 表中，密码使用 bcrypt 哈希。首次部署可运行：
 
 ```bash
-# 1. 首次使用：复制模板
-cp credentials.example.json credentials.local.json
-
-# 2. 编辑 credentials.local.json，填写新值
-#    - accessPassword: 新的访问口令
-#    - adminUsername: 新的管理员账号
-#    - adminPassword: 新的管理员密码（明文，脚本自动 SHA256）
-
-# 3. 执行更新
-node scripts/set-credentials.js
+npm run create-admin
 ```
 
-**脚本特性**：
-- 原子写入 `.env`，防止配置文件半写损坏
-- 自动备份旧 `.env` 文件（带时间戳），支持回滚
-- `credentials.local.json` 已在 `.gitignore` 中，不会意外提交
-- 修改后需重启服务才能生效
-
-**回滚方法**：脚本输出中会给出恢复命令，直接复制执行即可。
+普通用户通过 `/register` 注册；管理员可在后台审核校友身份、停用账号或注销全部会话。
 
 ---
 
@@ -179,7 +149,7 @@ cp /var/www/alumni-site/data/prod.db "/var/www/alumni-site/backups/prod.db.$(dat
 | 脚本 | 用途 | 使用场景 |
 |------|------|----------|
 | `scripts/smoke-test.js` | 关键路径回归测试 | 部署前验证认证、后台流程是否正常 |
-| `scripts/set-credentials.js` | 一键更新凭证 | 轮换访问口令或管理员密码 |
+| `scripts/create_admin.ts` | 创建数据库管理员账号 | 首次部署或新增管理员 |
 | `scripts/seed_content.js` | 种子内容数据 | 首次初始化或重置测试数据 |
 | `scripts/seed_whitelist.js` | 种子校友名单 | 填充初始校友数据 |
 | `scripts/rebuild_roster.js` | 重建校友名单 | 数据修复或迁移 |
@@ -195,13 +165,12 @@ cp /var/www/alumni-site/data/prod.db "/var/www/alumni-site/backups/prod.db.$(dat
 ```bash
 # 使用环境变量配置测试参数
 SMOKE_BASE_URL=http://localhost:3000 \
-SMOKE_ACCESS_PASSWORD=yourpassword \
-SMOKE_ADMIN_USERNAME=admin \
-SMOKE_ADMIN_PASSWORD=yourpassword \
+SMOKE_USERNAME=admin \
+SMOKE_PASSWORD=yourpassword \
 node scripts/smoke-test.js
 ```
 
-测试覆盖：普通口令验证 → 管理员登录 → 后台 API 访问 → 校友数据 API 访问。
+测试覆盖：用户登录 → 管理员登录 → 后台 API 访问 → 校友数据 API 访问。
 
 ### 证书编号管理（gen_cert_numbers.js）
 

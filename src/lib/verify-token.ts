@@ -1,57 +1,74 @@
 import { createHmac, timingSafeEqual } from "crypto";
 
-const SESSION_SECRET = process.env.SESSION_SECRET || "";
-const TOKEN_TTL_DAYS = 7;
+const TOKEN_VERSION = 3;
+export const TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60;
 
-type TokenPayload = {
-  v: number;
-  role: "access" | "admin";
+export type TokenRole = "user" | "admin";
+
+export type TokenPayload = {
+  v: 3;
+  role: TokenRole;
+  userId: string;
+  sessionVersion: number;
   exp: number;
 };
 
-export function signToken(
-  role: "access" | "admin",
-  expOverride?: number,
-): string {
-  if (!SESSION_SECRET) {
-    throw new Error("SESSION_SECRET not configured");
-  }
-  const exp =
-    expOverride ?? Date.now() + TOKEN_TTL_DAYS * 24 * 60 * 60 * 1000;
-  const payload = JSON.stringify({ v: 2, role, exp });
-  const b64 = Buffer.from(payload).toString("base64");
-  const hmac = createHmac("sha256", SESSION_SECRET).update(b64).digest("hex");
-  return b64 + "." + hmac;
+function secret() {
+  const value = process.env.SESSION_SECRET || "";
+  if (!value) throw new Error("SESSION_SECRET not configured");
+  return value;
+}
+
+export function signToken(input: {
+  role: TokenRole;
+  userId: string;
+  sessionVersion: number;
+  exp?: number;
+}): string {
+  const payload: TokenPayload = {
+    v: TOKEN_VERSION,
+    role: input.role,
+    userId: input.userId,
+    sessionVersion: input.sessionVersion,
+    exp: input.exp ?? Date.now() + TOKEN_TTL_SECONDS * 1000,
+  };
+  const encoded = Buffer.from(JSON.stringify(payload)).toString("base64url");
+  const signature = createHmac("sha256", secret())
+    .update(encoded)
+    .digest("base64url");
+  return `${encoded}.${signature}`;
 }
 
 export function verifyToken(token: string): TokenPayload | null {
-  if (!SESSION_SECRET) return null;
   try {
-    const dot = token.lastIndexOf(".");
-    if (dot === -1) return null;
-
-    const b64 = token.slice(0, dot);
-    const sig = token.slice(dot + 1);
-    const expected = createHmac("sha256", SESSION_SECRET)
-      .update(b64)
-      .digest("hex");
-
-    if (sig.length !== expected.length) return null;
-    if (!timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
-
-    const decoded = Buffer.from(b64, "base64").toString("utf-8");
-    const payload = JSON.parse(decoded) as TokenPayload;
-
+    const [encoded, signature, extra] = token.split(".");
+    if (!encoded || !signature || extra) return null;
+    const expected = createHmac("sha256", secret())
+      .update(encoded)
+      .digest("base64url");
+    const actualBuffer = Buffer.from(signature);
+    const expectedBuffer = Buffer.from(expected);
     if (
-      payload.v !== 2 ||
+      actualBuffer.length !== expectedBuffer.length ||
+      !timingSafeEqual(actualBuffer, expectedBuffer)
+    ) {
+      return null;
+    }
+    const payload = JSON.parse(
+      Buffer.from(encoded, "base64url").toString("utf8"),
+    ) as Partial<TokenPayload>;
+    if (
+      payload.v !== TOKEN_VERSION ||
+      (payload.role !== "user" && payload.role !== "admin") ||
+      typeof payload.userId !== "string" ||
+      !payload.userId ||
+      !Number.isInteger(payload.sessionVersion) ||
       typeof payload.exp !== "number" ||
       payload.exp <= Date.now()
     ) {
       return null;
     }
-    if (payload.role !== "access" && payload.role !== "admin") return null;
-
-    return payload;
+    return payload as TokenPayload;
   } catch {
     return null;
   }

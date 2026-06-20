@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { requireVerifiedAlumni } from "@/lib/admin-auth";
 
 export async function GET(req: NextRequest) {
+  const auth = await requireVerifiedAlumni(req);
+  if (auth) return auth;
   try {
     const id = req.url.split("/").pop();
     if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });

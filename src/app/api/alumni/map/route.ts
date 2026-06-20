@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { getCachedOrFetch } from '@/lib/cache';
-import { requireAccessOrAdmin } from '@/lib/admin-auth';
+import { requireVerifiedAlumni } from '@/lib/admin-auth';
 import { parseTags } from '@/lib/tags';
 
 export async function GET(req: NextRequest) {
-  const auth = requireAccessOrAdmin(req);
+  const auth = await requireVerifiedAlumni(req);
   if (auth) return auth;
   try {
     const data = await getCachedOrFetch('api:alumni:map', 300, async () => {

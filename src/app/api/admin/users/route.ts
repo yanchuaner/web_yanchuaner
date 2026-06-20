@@ -3,7 +3,7 @@ import prisma from '@/lib/db';
 import { requireAdmin } from '@/lib/admin-auth';
 
 export async function GET(req: NextRequest) {
-  const auth = requireAdmin(req);
+  const auth = await requireAdmin(req);
   if (auth) return auth;
   try {
     const { searchParams } = new URL(req.url);
@@ -19,6 +19,21 @@ export async function GET(req: NextRequest) {
         orderBy: { createdAt: 'desc' },
         take: limit,
         skip: offset,
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          emailVerified: true,
+          name: true,
+          contact: true,
+          graduationClass: true,
+          className: true,
+          role: true,
+          status: true,
+          accountStatus: true,
+          claimedAt: true,
+          createdAt: true,
+        },
       }),
       prisma.user.count({ where }),
     ]);
@@ -31,28 +46,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const auth = requireAdmin(req);
+  const auth = await requireAdmin(req);
   if (auth) return auth;
-  try {
-    const body = await req.json();
-    const { id, status, role } = body;
-
-    if (!id) {
-      return NextResponse.json({ error: 'User id is required' }, { status: 400 });
-    }
-
-    const updateData: Record<string, string> = {};
-    if (status) updateData.status = status;
-    if (role) updateData.role = role;
-
-    const user = await prisma.user.update({
-      where: { id },
-      data: updateData,
-    });
-
-    return NextResponse.json({ user });
-  } catch (error) {
-    console.error('Admin users PATCH error:', error);
-    return NextResponse.json({ error: 'Failed to update user' }, { status: 500 });
-  }
+  return NextResponse.json(
+    { error: '请使用 /api/admin/users/[id]/actions 执行固定管理操作' },
+    { status: 405, headers: { Allow: 'GET' } },
+  );
 }

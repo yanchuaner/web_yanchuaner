@@ -6,7 +6,7 @@ import { processToCard16x9, MAX_UPLOAD_BYTES } from '@/lib/image-pipeline';
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 export async function POST(req: NextRequest) {
-  const auth = requireAdmin(req);
+  const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {

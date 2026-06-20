@@ -47,15 +47,12 @@ DATABASE_URL="file:./prisma/dev.db"
 PORT=3000
 SITE_URL="https://yanchuaner.cn"
 SITE_NAME="燕中校友数字母港"
-ACCESS_PASSWORD_HASH="<口令SHA256哈希>"
-ACCESS_PASSWORD="<你的访问口令>"
-ADMIN_USERNAME="<管理员用户名>"
-ADMIN_PASSWORD_HASH="<管理员密码SHA256哈希>"
 SESSION_SECRET="<随机32字节hex密钥>"
 ENDOFFILE
 
 # ========== 6. 初始化本地数据库 ==========
 DATABASE_URL="file:./prisma/dev.db" npx prisma db push
+npm run create-admin
 
 # ========== 7. 构建（WSL 首次会下载 SWC，约 5-10 分钟） ==========
 npm run build
@@ -219,10 +216,6 @@ DATABASE_URL="file:/var/www/alumni-site/data/prod.db"
 PORT=3000
 SITE_URL="https://yanchuaner.cn"
 SITE_NAME="燕中校友数字母港"
-ACCESS_PASSWORD_HASH="<口令SHA256哈希>"
-ACCESS_PASSWORD="<你的访问口令>"
-ADMIN_USERNAME="<管理员用户名>"
-ADMIN_PASSWORD_HASH="<管理员密码SHA256哈希>"
 SESSION_SECRET="<随机32字节hex密钥>"
 ENDOFFILE
 ```

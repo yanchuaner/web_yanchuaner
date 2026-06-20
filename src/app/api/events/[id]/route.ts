@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { requireVerifiedAlumni } from "@/lib/admin-auth";
 
 export async function GET(req: NextRequest) {
+  const auth = await requireVerifiedAlumni(req);
+  if (auth) return auth;
   try {
     const id = req.url.split("/").pop();
     if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
@@ -30,9 +33,11 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await requireVerifiedAlumni(req);
+  if (auth) return auth;
   // 限流：每 30 秒 3 次
   const ip = getClientIp(req);
-  const limit = await rateLimit(`event-reg:${ip}`, 3, 30);
+  const limit = await rateLimit(`event-reg:${ip}`, 3, 30_000);
   if (!limit.ok) {
     return NextResponse.json({ error: '报名过于频繁，请稍后再试' }, { status: 429 });
   }

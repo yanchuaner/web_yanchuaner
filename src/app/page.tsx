@@ -22,6 +22,7 @@ import storiesData from "@/data/stories.json";
 import { getCachedOrFetch } from "@/lib/cache";
 import prisma from "@/lib/db";
 import { parseTags } from "@/lib/tags";
+import { getPageUser } from "@/lib/admin-auth";
 
 const AlumniMap = nextDynamic(() => import("@/components/AlumniMap"), {
   ssr: false,
@@ -133,7 +134,14 @@ async function computeDashboardStats() {
 }
 
 export default async function HomePage() {
-  const dashboardStats = await computeDashboardStats();
+  const currentUser = await getPageUser();
+  const canViewPrivate =
+    !!currentUser &&
+    (currentUser.role === "ADMIN" ||
+      (currentUser.role === "ALUMNI" && currentUser.status === "VERIFIED"));
+  const dashboardStats = canViewPrivate
+    ? await computeDashboardStats()
+    : { alumniCount: 0, cityCount: 0, storyCount: 0 };
 
   return (
     <section
@@ -173,7 +181,7 @@ export default async function HomePage() {
               浏览校友名录
             </Link>
           </div>
-          <div className="mt-8 flex items-center justify-center gap-8 text-center">
+          {canViewPrivate ? <div className="mt-8 flex items-center justify-center gap-8 text-center">
             <div>
               <p className="text-3xl font-bold text-[#4C1D95]">
                 {dashboardStats.alumniCount}+
@@ -196,7 +204,7 @@ export default async function HomePage() {
               </p>
               <p className="text-sm font-medium text-slate-500">校友故事</p>
             </div>
-          </div>
+          </div> : null}
         </header>
 
         <div className="h-12 overflow-hidden rounded-full border border-[#A78BFA]/30 bg-white/70 shadow-sm backdrop-blur-sm">
@@ -280,7 +288,7 @@ export default async function HomePage() {
         </section>
 
         {/* Latest Updates Section — streamed via Suspense */}
-        <section className="glass-card-base rounded-3xl border border-[#A78BFA]/20 bg-white/50 p-6 md:p-8 backdrop-blur-xl shadow-sm">
+        {canViewPrivate ? <section className="glass-card-base rounded-3xl border border-[#A78BFA]/20 bg-white/50 p-6 md:p-8 backdrop-blur-xl shadow-sm">
           <div className="mb-6 flex items-center gap-3">
             <Newspaper size={28} className="text-[#7C3AED]" />
             <h2 className="font-heading text-2xl font-bold text-[#4C1D95]">
@@ -290,7 +298,7 @@ export default async function HomePage() {
           <Suspense fallback={<LatestUpdatesSkeleton />}>
             <LatestUpdatesSection />
           </Suspense>
-        </section>
+        </section> : null}
 
         {/* 3. Active members showcase — map loaded via Suspense */}
         <section className="glass-card-base rounded-3xl border border-[#A78BFA]/20 bg-white/50 p-6 md:p-8 backdrop-blur-xl shadow-sm">
@@ -309,7 +317,11 @@ export default async function HomePage() {
             </Link>
           </div>
           <div className="rounded-2xl overflow-hidden border border-[#A78BFA]/20 bg-white shadow-sm">
-            <AlumniMap />
+            {canViewPrivate ? <AlumniMap /> : (
+              <div className="rounded-2xl border border-brand/15 bg-white/60 p-8 text-center text-sm text-brand-fg/60">
+                登录并通过校友认证后可查看校友分布。
+              </div>
+            )}
           </div>
         </section>
 
@@ -362,21 +374,23 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* 4. Join CTA */}
-        <section className="relative overflow-hidden rounded-3xl bg-[#7C3AED] px-6 py-16 text-center shadow-xl md:px-12 md:py-20">
-          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,white_0%,transparent_100%)]"></div>
-          <div className="relative z-10 mx-auto max-w-2xl text-white">
-            <h2 className="font-heading text-3xl font-bold md:text-4xl">
-              加入我们的校友网络
-            </h2>
-            <p className="mt-4 text-lg text-white/90">
-              结识优秀的校友，分享你的经历，获取更多资源与机会。无论你身在何处，这里都是你的精神家园。
-            </p>
-            <div className="mt-8 flex justify-center">
-              <JoinTriggerButton />
+        {!currentUser ? (
+          /* 4. Join CTA */
+          <section className="relative overflow-hidden rounded-3xl bg-[#7C3AED] px-6 py-16 text-center shadow-xl md:px-12 md:py-20">
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,white_0%,transparent_100%)]"></div>
+            <div className="relative z-10 mx-auto max-w-2xl text-white">
+              <h2 className="font-heading text-3xl font-bold md:text-4xl">
+                加入我们的校友网络
+              </h2>
+              <p className="mt-4 text-lg text-white/90">
+                结识优秀的校友，分享你的经历，获取更多资源与机会。无论你身在何处，这里都是你的精神家园。
+              </p>
+              <div className="mt-8 flex justify-center">
+                <JoinTriggerButton />
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        ) : null}
 
         <div className="mt-8 rounded-xl border border-amber-300/50 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800 shadow-sm">
           声明：本站为个人发起的公益站点，非任何官方机构。全站无盈利、不收费，仅供情感连接、记忆留存与校友社区服务。

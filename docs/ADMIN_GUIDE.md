@@ -7,28 +7,17 @@
 ## 1. 登录后台
 
 1. 打开浏览器访问 `https://yanchuaner.cn/admin/login`
-2. 输入管理员账号（`ADMIN_USERNAME`）和密码
+2. 输入数据库中已创建的管理员用户名和密码
 3. 登录成功后自动跳转到 `/admin` 控制面板，可看到各模块统计概览
 4. 会话通过 httpOnly cookie (`yc_access_token`，role=admin) 维持，关闭浏览器后需重新登录
 
-### 相关环境变量
-
-| 变量名 | 用途 |
-|--------|------|
-| `ADMIN_USERNAME` | 管理员登录账号 |
-| `ADMIN_PASSWORD_HASH` | 管理员密码的 SHA256 哈希值 |
-| `SESSION_SECRET` | HMAC-SHA256 token 签名密钥 |
-
-### 快速修改管理员凭据
+### 管理员账号管理
 
 ```bash
-cp credentials.example.json credentials.local.json
-# 编辑 credentials.local.json 填写新的管理员账号和密码
-node scripts/set-credentials.js
-# 重启服务后生效
+npm run create-admin
 ```
 
-脚本会原子写入配置文件并自动备份，出问题可回滚。修改后旧 cookie 立即失效，需用新凭据重新登录。
+管理员账号存储在 `User` 表中，密码使用 bcrypt 哈希。登录会话由 `SESSION_SECRET` 签名；修改账号权限或密码后，用户需重新登录。
 
 ---
 
@@ -386,7 +375,7 @@ node scripts/set-credentials.js
 
 | 问题类型 | 排查方向 |
 |----------|----------|
-| 登录异常 | 检查 cookie 是否过期、环境变量是否正确、浏览器控制台错误 |
+| 登录异常 | 检查账号状态、cookie 是否过期、`SESSION_SECRET` 是否正确、浏览器控制台错误 |
 | 数据不一致 | 检查数据库和最近备份，确认是否有并发修改 |
 | 上传失败 | 检查上传目录权限和磁盘空间 |
 | 导入失败 | 检查 CSV 编码（必须是 UTF-8）、表头格式、文件是否损坏 |
