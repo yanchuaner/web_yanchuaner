@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   try {
     const sections = await prisma.teacherSection.findMany({
       orderBy: { sortOrder: 'asc' },
-      take: 200, // 限制拉取最大条数，防全拉 DoS
+      take: 200, // 💡 黄金 API 最佳实践：硬上限拉取数量，防御全表查询引发的内存溢出与 DoS 攻击
     });
     return NextResponse.json({ sections });
   } catch (error) {

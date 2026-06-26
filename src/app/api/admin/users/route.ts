@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status');
 
-    // 强校验分页参数，防御 NaN / 负数
+    // 💡 黄金 API 最佳实践：强校验分页参数，防御 NaN / 负数，最大提取数硬编码防御以防 OOM
     const rawLimit = parseInt(searchParams.get('limit') || '50', 10);
     const limit = Number.isInteger(rawLimit) && rawLimit > 0 ? Math.min(rawLimit, 200) : 50;
 

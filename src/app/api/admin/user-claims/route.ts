@@ -7,6 +7,7 @@ export async function GET(req: NextRequest) {
   if (auth) return auth;
 
   try {
+    // 💡 黄金 API 最佳实践：全局异常捕获，屏蔽底层抛错以防结构泄漏，并硬编码限制 take 数量防 OOM
     const search = new URL(req.url).searchParams.get("search")?.trim() || "";
     if (search.length > 50) {
       return NextResponse.json({ error: "搜索关键字过长" }, { status: 400 });
