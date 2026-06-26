@@ -480,5 +480,5 @@ export function safeRedirect(value: unknown, fallback = "/") {
 ---
 
 <p align="center">
-  <sub>Security Document · V2.0 · Last updated: June 2025</sub>
+  <sub>Security Document · V2.0 · Last updated: June 2026</sub>
 </p>

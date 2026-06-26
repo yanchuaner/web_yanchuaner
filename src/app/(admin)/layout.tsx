@@ -191,7 +191,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <LogOut size={18} className="shrink-0" />
             退出登录
           </button>
-          <p className="mt-1 px-3 text-center text-[10px] text-brand-fg/30">Aerospace Alumni v0.1</p>
+          <p className="mt-1 px-3 text-center text-[10px] text-brand-fg/30">燕中校友数字母港 v2.0</p>
         </div>
       </aside>
 

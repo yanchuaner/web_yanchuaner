@@ -463,5 +463,5 @@ export async function processToCard16x9(buffer: Buffer, destPath: string) {
 ---
 
 <p align="center">
-  <sub>Architecture Document · V2.0 · Last updated: June 2025</sub>
+  <sub>Architecture Document · V2.0 · Last updated: June 2026</sub>
 </p>

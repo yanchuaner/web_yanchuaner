@@ -337,5 +337,5 @@ text-accent      /* CTA 绿 */                 border-line        /* 统一描�
 ---
 
 <p align="center">
-  <sub>Built with ❤️ for Yanzhong Alumni · V2.0 — June 2025</sub>
+  <sub>Built with ❤️ for Yanzhong Alumni · V2.0 — June 2026</sub>
 </p>

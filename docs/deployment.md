@@ -552,5 +552,5 @@ sudo certbot renew --dry-run                           # 测试续期
 ---
 
 <p align="center">
-  <sub>Deployment Guide · V2.0 · Last updated: June 2025</sub>
+  <sub>Deployment Guide · V2.0 · Last updated: June 2026</sub>
 </p>
