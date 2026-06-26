@@ -58,3 +58,5 @@ coverage/
 
 # Allow source code data directory
 !src/data/
+.agents/
+.claude/
