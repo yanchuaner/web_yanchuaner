@@ -153,17 +153,14 @@ cp .env.example .env
 # （RESEND_API_KEY / REDIS_URL 可选，本地测试可留空）
 
 # 3. 初始化数据库
-npx prisma generate
-npx prisma db push
+npm run db:generate
+npm run db:push
 
 # 4. （可选）创建管理员账号
 npm run create-admin
 
-# 5. （可选）初始化示例数据
-node scripts/seed_whitelist.js        # 校友名单
-node scripts/seed_memories.js         # 燕中记忆展品
-node scripts/seed_content_sections.js # 页面内容（about/contact/students/teachers）
-node scripts/seed_stories.js          # 燕中故事
+# 5. （可选）初始化示例数据（一键填充校友名单与页面内容种子）
+npm run db:seed
 
 # 6. 启动开发服务器
 npm run dev
@@ -287,6 +284,17 @@ docker compose up -d
 | [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | 常见问题排查与修复方案 |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | 贡献指南 |
 | [CHANGELOG.md](CHANGELOG.md) | 版本变更记录 |
+
+## 开发环境推荐
+
+为了保证各校友共建者在协作时的代码格式与质量统一，推荐使用以下开发工具与环境配置：
+
+- **编辑器/IDE**：统一推荐使用 **VS Code**。
+- **代码规范与格式化**：
+  - 安装 **ESLint** 与 **Prettier - Code formatter** 插件。
+  - 建议在 VS Code 中启用 `"editor.formatOnSave": true`（可创建项目级 `.vscode/settings.json`），确保保存时自动格式化。
+  - 安装 **Prisma** 插件（用于 `prisma/schema.prisma` 的语法高亮及格式化）以及 **Tailwind CSS IntelliSense**（用于类名智能补全）。
+- **AI 辅助工具**：推荐配合 **GitHub Copilot**、**Cursor** 或 **Aider** 等 AI 辅助编程助手，以保持与项目现有设计令牌（Design Tokens）、鉴权保护、防越权及数据库事务架构一致的编码风格。
 
 ## 贡献指南
 

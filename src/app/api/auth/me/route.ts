@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
       className: user.className,
       status: user.status,
       role: user.role,
+      isRoot: user.email === (process.env.ROOT_ADMIN_EMAIL || "yanchuaner@yanchuaner.cn"),
     },
   });
 }

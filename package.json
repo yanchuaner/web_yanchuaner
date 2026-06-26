@@ -13,7 +13,11 @@
     "migrate-users": "tsx scripts/migrate_users.ts",
     "smoke": "node scripts/smoke-test.js",
     "seed": "tsx prisma/seed.ts",
-    "seed-all": "node scripts/seed_content_sections.js && node scripts/seed_memories.js && node scripts/seed_stories.js"
+    "seed-all": "node scripts/seed_whitelist.js && node scripts/seed_content_sections.js && node scripts/seed_memories.js && node scripts/seed_stories.js",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "db:seed": "npm run seed-all"
   },
   "dependencies": {
     "@faker-js/faker": "^10.5.0",

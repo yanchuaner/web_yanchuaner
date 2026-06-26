@@ -75,7 +75,7 @@ export async function POST(
     if (!target) return NextResponse.json({ error: "用户不存在" }, { status: 404 });
 
     // Root Admin 防线：普通管理员（ADMIN）之间不能互相“停用”或“撤销”对方的权限
-    const ROOT_ADMIN_EMAIL = "yanchuaner@yanchuaner.cn";
+    const ROOT_ADMIN_EMAIL = process.env.ROOT_ADMIN_EMAIL || "yanchuaner@yanchuaner.cn";
     const isRoot = admin.email === ROOT_ADMIN_EMAIL;
     if (target.role === "ADMIN" && target.id !== admin.id && !isRoot) {
       if (

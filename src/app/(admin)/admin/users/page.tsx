@@ -159,8 +159,8 @@ export default function AdminUsersPage() {
                         {user.status === 'PENDING' && (
                           <>
                             <button
-                              disabled={user.role === 'ADMIN' && currentUser?.email !== 'yanchuaner@yanchuaner.cn'}
-                              title={user.role === 'ADMIN' && currentUser?.email !== 'yanchuaner@yanchuaner.cn' ? "无权操作其他管理员" : undefined}
+                              disabled={user.role === 'ADMIN' && !currentUser?.isRoot}
+                              title={user.role === 'ADMIN' && !currentUser?.isRoot ? "无权操作其他管理员" : undefined}
                               onClick={() => runAction(user.id, 'approve-alumni')}
                               className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs text-emerald-700 transition hover:bg-emerald-100 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-emerald-50"
                             >
@@ -168,8 +168,8 @@ export default function AdminUsersPage() {
                               通过
                             </button>
                             <button
-                              disabled={user.role === 'ADMIN' && currentUser?.email !== 'yanchuaner@yanchuaner.cn'}
-                              title={user.role === 'ADMIN' && currentUser?.email !== 'yanchuaner@yanchuaner.cn' ? "无权操作其他管理员" : undefined}
+                              disabled={user.role === 'ADMIN' && !currentUser?.isRoot}
+                              title={user.role === 'ADMIN' && !currentUser?.isRoot ? "无权操作其他管理员" : undefined}
                               onClick={() => runAction(user.id, 'reject-alumni')}
                               className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs text-rose-700 transition hover:bg-rose-100 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-rose-50"
                             >
@@ -191,8 +191,8 @@ export default function AdminUsersPage() {
                         )}
                         {user.status === 'REJECTED' && (
                           <button
-                            disabled={user.role === 'ADMIN' && currentUser?.email !== 'yanchuaner@yanchuaner.cn'}
-                            title={user.role === 'ADMIN' && currentUser?.email !== 'yanchuaner@yanchuaner.cn' ? "无权操作其他管理员" : undefined}
+                            disabled={user.role === 'ADMIN' && !currentUser?.isRoot}
+                            title={user.role === 'ADMIN' && !currentUser?.isRoot ? "无权操作其他管理员" : undefined}
                             onClick={() => runAction(user.id, 'approve-alumni')}
                             className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs text-emerald-700 transition hover:bg-emerald-100 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-emerald-50"
                           >
@@ -201,14 +201,14 @@ export default function AdminUsersPage() {
                           </button>
                         )}
                         <button
-                          disabled={user.role === 'ADMIN' && currentUser?.email !== 'yanchuaner@yanchuaner.cn'}
-                          title={user.role === 'ADMIN' && currentUser?.email !== 'yanchuaner@yanchuaner.cn' ? "无权操作其他管理员" : undefined}
+                          disabled={user.role === 'ADMIN' && !currentUser?.isRoot}
+                          title={user.role === 'ADMIN' && !currentUser?.isRoot ? "无权操作其他管理员" : undefined}
                           onClick={() => runAction(user.id, user.accountStatus === 'ACTIVE' ? 'disable-account' : 'enable-account')}
                           className="rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs text-[#4C1D95]/70 transition hover:bg-gray-50 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white"
                         >
                           {user.accountStatus === 'ACTIVE' ? '停用' : '启用'}
                         </button>
-                        {currentUser?.email === 'yanchuaner@yanchuaner.cn' && (
+                        {currentUser?.isRoot && (
                           user.role === 'ADMIN' ? (
                             <button
                               onClick={() => runAction(user.id, 'revoke-admin')}

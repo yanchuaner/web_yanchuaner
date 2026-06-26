@@ -11,8 +11,8 @@ git clone <repo-url>
 cd aerospace-alumni-site
 cp .env.example .env          # 从模板创建环境变量文件
 npm ci                         # 严格按 lockfile 安装依赖
-npx prisma generate            # 生成 Prisma Client
-npx prisma db push             # 同步数据库 schema（创建表结构）
+npm run db:generate            # 生成 Prisma Client
+npm run db:push                # 同步数据库 schema（创建表结构）
 npm run dev                    # 启动开发服务器 → http://localhost:3000
 ```
 

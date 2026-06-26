@@ -20,6 +20,7 @@ export type AuthUser = {
   className: string | null;
   status: string;
   role: string;
+  isRoot?: boolean;
 };
 
 type AuthContextValue = {
