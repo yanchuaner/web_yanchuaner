@@ -47,6 +47,10 @@ function detectHeaders(
   classNameIdx: number;
   emailIdx: number;
   tagsIdx: number;
+  cityIdx: number;
+  universityIdx: number;
+  majorIdx: number;
+  industryIdx: number;
 } {
   const headerMap: Record<string, string> = {
     姓名: "name",
@@ -59,6 +63,20 @@ function detectHeaders(
     email: "email",
     标签: "tags",
     tags: "tags",
+    城市: "city",
+    所在城市: "city",
+    city: "city",
+    院校: "university",
+    毕业院校: "university",
+    就读院校: "university",
+    大学: "university",
+    university: "university",
+    专业: "major",
+    就读专业: "major",
+    major: "major",
+    行业: "industry",
+    从事行业: "industry",
+    industry: "industry",
   };
 
   let nameIdx = -1;
@@ -66,6 +84,10 @@ function detectHeaders(
   let classNameIdx = -1;
   let emailIdx = -1;
   let tagsIdx = -1;
+  let cityIdx = -1;
+  let universityIdx = -1;
+  let majorIdx = -1;
+  let industryIdx = -1;
 
   fields.forEach((f, i) => {
     const key = f.toLowerCase().replace(/[\s_-]/g, "");
@@ -75,9 +97,23 @@ function detectHeaders(
     else if (mapped === "className") classNameIdx = i;
     else if (mapped === "email") emailIdx = i;
     else if (mapped === "tags") tagsIdx = i;
+    else if (mapped === "city") cityIdx = i;
+    else if (mapped === "university") universityIdx = i;
+    else if (mapped === "major") majorIdx = i;
+    else if (mapped === "industry") industryIdx = i;
   });
 
-  return { nameIdx, graduationClassIdx, classNameIdx, emailIdx, tagsIdx };
+  return {
+    nameIdx,
+    graduationClassIdx,
+    classNameIdx,
+    emailIdx,
+    tagsIdx,
+    cityIdx,
+    universityIdx,
+    majorIdx,
+    industryIdx,
+  };
 }
 
 export async function POST(req: NextRequest) {
@@ -115,6 +151,10 @@ export async function POST(req: NextRequest) {
       classNameIdx,
       emailIdx,
       tagsIdx,
+      cityIdx,
+      universityIdx,
+      majorIdx,
+      industryIdx,
     } = detectHeaders(headers);
 
     if (nameIdx === -1) {
@@ -155,6 +195,20 @@ export async function POST(req: NextRequest) {
             tagsIdx >= 0 ? (fields[tagsIdx] || "").trim() || null : null;
           const tags = rawTags ? normalizeTags(rawTags) : null;
 
+          let city = cityIdx >= 0 ? (fields[cityIdx] || "").trim() || null : null;
+          if (city) {
+            if (city.endsWith("市") && city.length > 1) {
+              city = city.slice(0, -1).trim();
+            }
+            if (!city) city = null;
+          }
+          const university =
+            universityIdx >= 0 ? (fields[universityIdx] || "").trim() || null : null;
+          const major =
+            majorIdx >= 0 ? (fields[majorIdx] || "").trim() || null : null;
+          const industry =
+            industryIdx >= 0 ? (fields[industryIdx] || "").trim() || null : null;
+
           if (name.length > 50) {
             errors.push(`第 ${i + 1} 行：姓名过长`);
             skipped++;
@@ -176,6 +230,10 @@ export async function POST(req: NextRequest) {
             className,
             email,
             tags,
+            city,
+            university,
+            major,
+            industry,
           });
           if (!created) {
             skipped++;

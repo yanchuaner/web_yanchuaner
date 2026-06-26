@@ -10,6 +10,10 @@ export type RosterWrite = {
   contact?: string | null;
   tags?: string | null;
   certificateNo?: string | null;
+  city?: string | null;
+  university?: string | null;
+  major?: string | null;
+  industry?: string | null;
 };
 
 function optional(value: string | null | undefined) {
@@ -39,6 +43,10 @@ export async function upsertRosterEntry(
         ...(input.certificateNo !== undefined
           ? { certificateNo: optional(input.certificateNo) }
           : {}),
+        ...(input.city !== undefined ? { city: optional(input.city) } : {}),
+        ...(input.university !== undefined ? { university: optional(input.university) } : {}),
+        ...(input.major !== undefined ? { major: optional(input.major) } : {}),
+        ...(input.industry !== undefined ? { industry: optional(input.industry) } : {}),
       },
     });
     return { entry, created: false };
@@ -50,6 +58,10 @@ export async function upsertRosterEntry(
       contact: optional(input.contact),
       tags: optional(input.tags),
       certificateNo: optional(input.certificateNo),
+      city: optional(input.city),
+      university: optional(input.university),
+      major: optional(input.major),
+      industry: optional(input.industry),
     },
   });
   return { entry, created: true };
