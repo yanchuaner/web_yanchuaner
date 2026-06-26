@@ -12,7 +12,14 @@ export async function GET(req: NextRequest) {
 
   try {
     const records = await prisma.whitelistRoster.findMany({
-      select: { name: true, graduationClass: true, tags: true },
+      select: {
+        name: true,
+        graduationClass: true,
+        tags: true,
+        city: true,
+        university: true,
+        major: true,
+      },
       orderBy: { name: 'asc' },
     });
 
@@ -31,7 +38,16 @@ export async function GET(req: NextRequest) {
     let uncounted = 0;
 
     for (const r of records) {
-      const { university, major, city } = parseTags(r.tags);
+      let city = r.city || null;
+      let university = r.university || null;
+      let major = r.major || null;
+
+      if (!city || !university || !major) {
+        const parsed = parseTags(r.tags);
+        if (!city) city = parsed.city;
+        if (!university) university = parsed.university;
+        if (!major) major = parsed.major;
+      }
 
       if (!city) { uncounted++; continue; }
 

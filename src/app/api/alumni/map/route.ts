@@ -10,12 +10,17 @@ export async function GET(req: NextRequest) {
   try {
     const data = await getCachedOrFetch('api:alumni:map', 300, async () => {
       const records = await prisma.whitelistRoster.findMany({
-        select: { name: true, graduationClass: true, tags: true },
+        select: {
+          name: true,
+          graduationClass: true,
+          tags: true,
+          city: true,
+        },
         orderBy: { name: 'asc' },
       });
 
       const alumni = records.map((r) => {
-        const { city } = parseTags(r.tags);
+        const city = r.city || parseTags(r.tags).city;
         return {
           name: r.name,
           graduationClass: r.graduationClass,

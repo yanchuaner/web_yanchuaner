@@ -17,6 +17,10 @@ const select = {
   contact: true,
   graduationClass: true,
   className: true,
+  city: true,
+  university: true,
+  major: true,
+  industry: true,
   status: true,
   role: true,
   accountStatus: true,
@@ -37,12 +41,25 @@ export async function PATCH(req: NextRequest) {
     const body = await readJsonBody<{
       username?: unknown;
       contact?: unknown;
+      city?: unknown;
+      university?: unknown;
+      major?: unknown;
+      industry?: unknown;
     }>(req);
     const username = normalizeUsername(body.username);
     const contact = typeof body.contact === "string" ? body.contact.trim() : "";
+    const city = typeof body.city === "string" ? body.city.trim() : "";
+    const university = typeof body.university === "string" ? body.university.trim() : "";
+    const major = typeof body.major === "string" ? body.major.trim() : "";
+    const industry = typeof body.industry === "string" ? body.industry.trim() : "";
+
     if (
       !USERNAME_PATTERN.test(username) ||
-      contact.length > 128
+      contact.length > 128 ||
+      city.length > 100 ||
+      university.length > 150 ||
+      major.length > 100 ||
+      industry.length > 100
     ) {
       return NextResponse.json({ error: "资料格式无效" }, { status: 400 });
     }
@@ -51,6 +68,10 @@ export async function PATCH(req: NextRequest) {
       data: {
         username,
         contact: contact || null,
+        city: city || null,
+        university: university || null,
+        major: major || null,
+        industry: industry || null,
       },
       select,
     });
