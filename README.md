@@ -6,25 +6,12 @@
   <img src="https://img.shields.io/badge/Prisma-7.x-2D3748?style=for-the-badge&logo=prisma&logoColor=white" alt="Prisma" />
   <img src="https://img.shields.io/badge/SQLite-WAL-blue?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite" />
   <img src="https://img.shields.io/badge/TailwindCSS-3.4-38B2AC?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind" />
-  <img src="https://img.shields.io/badge/V2.0-🌌_Production_Ready-7C3AED?style=for-the-badge" alt="V2.0" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License" />
 </p>
 
 <p align="center">
   <strong>深圳市燕川中学校友会公益数字平台</strong><br />
-  连接毕业校友、在校生与老师 · 非官方、无盈利、即将开源共建
-</p>
-
-<p align="center">
-  <a href="https://yanchuaner.cn">
-    <img src="https://img.shields.io/badge/🟢_线上站点-yanchuaner.cn-22C55E?style=flat-square" alt="生产环境" />
-  </a>
-  <a href="https://github.com/yanchuaner/web_yanchuaner">
-    <img src="https://img.shields.io/badge/GitHub-yanchuaner/web__yanchuaner-181717?style=flat-square&logo=github" alt="GitHub" />
-  </a>
-  <img src="https://img.shields.io/badge/备案-粤ICP备2026024784号--2-888?style=flat-square" alt="ICP" />
-  <a href="./LICENSE">
-    <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="MIT License" />
-  </a>
+  连接毕业校友、在校生与老师 · 非官方、无盈利 · 开源共建
 </p>
 
 ---
