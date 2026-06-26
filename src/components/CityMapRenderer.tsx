@@ -24,7 +24,7 @@ export default function CityMapRenderer({ cities }: { cities: CityPoint[] }) {
     return 0.4 + (count / maxCount) * 0.5;
   };
 
-  const onEachFeature = (feature: any, layer: any) => {
+  const onEachFeature = (_feature: any, layer: any) => {
     layer.on({
       mouseover: (e: any) => {
         const l = e.target;

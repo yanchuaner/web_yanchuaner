@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { Users, ArrowLeft, Download, CalendarDays, Clock } from 'lucide-react';
+import { Users, ArrowLeft, Download, CalendarDays } from 'lucide-react';
 import Link from 'next/link';
 
 type Registration = {
@@ -20,13 +20,6 @@ type EventInfo = {
   maxAttendees: number | null;
   registrationCount: number;
 };
-
-function toLocalDatetime(isoString: string): string {
-  const d = new Date(isoString);
-  const local = new Date(d.getTime() + 8 * 60 * 60 * 1000);
-  const iso = local.toISOString();
-  return iso.slice(0, 16);
-}
 
 function csvEscape(value: string): string {
   if (value.includes(',') || value.includes('"') || value.includes('\n') || value.includes('\r')) {

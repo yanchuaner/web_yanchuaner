@@ -128,7 +128,6 @@ export default function AdminAlumniCorrectionsPage() {
   };
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
-  const selectedStatusBadge = actionTarget ? STATUS_BADGE[actionTarget.status] : null;
 
   return (
     <div className="space-y-4">

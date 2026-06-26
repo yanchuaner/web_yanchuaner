@@ -1,11 +1,7 @@
 import { createHash, randomBytes } from "crypto";
+export { normalizeUsername, USERNAME_PATTERN } from "./identity-fields";
 
 export const BCRYPT_COST = 12;
-export const USERNAME_PATTERN = /^[a-z0-9_-]{3,32}$/;
-
-export function normalizeUsername(value: unknown) {
-  return typeof value === "string" ? value.trim().toLowerCase() : "";
-}
 
 export function normalizeEmail(value: unknown) {
   return typeof value === "string" ? value.trim().toLowerCase() : "";

@@ -1,5 +1,4 @@
 import type { LucideIcon } from "lucide-react";
-import { cn } from "./cn";
 import { RevealSection } from "./RevealSection";
 
 /**

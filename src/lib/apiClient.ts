@@ -8,6 +8,8 @@ export type ApiResponse<T = unknown> = {
   data: T | null;
   error: string | null;
   status: number;
+  code?: string | null;
+  raw?: unknown;
 };
 
 /**
@@ -41,13 +43,19 @@ export async function apiClient<T = unknown>(
 
   let data: T | null = null;
   let errorText: string | null = null;
+  let code: string | null = null;
+  let raw: unknown = null;
 
   try {
     const json = await response.json();
     if (response.ok) {
       data = json as T;
     } else {
-      errorText = (json as { error?: string })?.error ?? null;
+      raw = json;
+      const errorBody = json as { error?: unknown; code?: unknown };
+      errorText =
+        typeof errorBody.error === "string" ? errorBody.error : null;
+      code = typeof errorBody.code === "string" ? errorBody.code : null;
     }
   } catch {
     errorText = response.statusText || "响应格式错误";
@@ -76,7 +84,7 @@ export async function apiClient<T = unknown>(
     }
   }
 
-  return { data, error: errorText, status: response.status };
+  return { data, error: errorText, status: response.status, code, raw };
 }
 
 /**

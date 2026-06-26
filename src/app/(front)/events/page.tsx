@@ -1,7 +1,6 @@
 export const revalidate = 60;
 
 import type { Metadata } from "next";
-import Link from "next/link";
 import Image from "next/image";
 import { CalendarDays, Clock, MapPin, Users } from "lucide-react";
 import { PageShell, GlassCard, PageHeader, ButtonLink, EmptyState } from "@/components/ui";

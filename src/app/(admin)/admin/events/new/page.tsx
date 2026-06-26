@@ -6,13 +6,6 @@ import { CalendarDays, ArrowLeft, Upload } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-function toLocalDatetime(isoString: string): string {
-  const d = new Date(isoString);
-  const local = new Date(d.getTime() + 8 * 60 * 60 * 1000);
-  const iso = local.toISOString();
-  return iso.slice(0, 16);
-}
-
 function toISODatetime(localValue: string): string {
   return new Date(localValue + '+08:00').toISOString();
 }

@@ -3,6 +3,12 @@ import prisma from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
 import { normalizeTags } from "@/lib/tags";
 import { upsertRosterEntry } from "@/lib/roster";
+import {
+  normalizeClassName,
+  normalizeGraduationClass,
+  validClassName,
+  validGraduationClass,
+} from "@/lib/identity-fields";
 
 function parseCSVLine(text: string): string[] {
   const fields: string[] = [];
@@ -182,12 +188,14 @@ export async function POST(req: NextRequest) {
             skipped++;
             continue;
           }
-          const graduationClass =
+          const graduationClass = normalizeGraduationClass(
             graduationClassIdx >= 0
-              ? (fields[graduationClassIdx] || "").trim() || null
-              : null;
-          const className =
-            classNameIdx >= 0 ? (fields[classNameIdx] || "").trim() || null : null;
+              ? (fields[graduationClassIdx] || "").trim()
+              : "",
+          ) || null;
+          const className = normalizeClassName(
+            classNameIdx >= 0 ? (fields[classNameIdx] || "").trim() : "",
+          ) || null;
           const email =
             emailIdx >= 0
               ? (fields[emailIdx] || "").trim().toLowerCase() || null
@@ -216,8 +224,8 @@ export async function POST(req: NextRequest) {
             continue;
           }
           if (
-            (graduationClass && graduationClass.length > 50) ||
-            (className && className.length > 64) ||
+            (graduationClass && !validGraduationClass(graduationClass)) ||
+            (className && !validClassName(className)) ||
             (email && (email.length > 254 || !email.includes("@")))
           ) {
             errors.push(`第 ${i + 1} 行：届别、班级或邮箱格式无效`);

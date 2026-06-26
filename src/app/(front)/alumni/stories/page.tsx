@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { Feather, Filter, Mail, PenSquare, X, CheckCircle2, AlertTriangle, Send } from "lucide-react";
+import { Feather, Filter, PenSquare, X, CheckCircle2, AlertTriangle, Send } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { toast } from "sonner";
 
@@ -42,7 +42,6 @@ function formatDate(isoDate: string) {
 export default function AlumniStoriesPage() {
   const { user } = useAuth();
   const [stories, setStories] = useState<StoryRecord[]>([]);
-  const [loading, setLoading] = useState(true);
   const [activeTag, setActiveTag] = useState("全部");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [draft, setDraft] = useState<DraftState>(initialDraft);
@@ -55,7 +54,6 @@ export default function AlumniStoriesPage() {
       .then(r => r.json())
       .then(d => setStories(d.stories || []))
       .catch(() => {})
-      .finally(() => setLoading(false));
   }, []);
 
   const allTags = useMemo(() => {

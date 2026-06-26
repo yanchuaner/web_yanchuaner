@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Search } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { api } from "@/lib/apiClient";
+import { USERNAME_INPUT_PATTERN } from "@/lib/identity-fields";
 
 const MAJOR_CITIES = [
   "北京", "上海", "广州", "深圳", "天津", "重庆", "杭州", "南京", "武汉", "成都", 
@@ -220,7 +221,7 @@ export default function EditProfilePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <label className="block text-xs font-medium text-brand-fg">
               用户名
-              <input name="username" className="input mt-1 w-full text-xs focus:border-brand/50 focus:ring-brand/35" defaultValue={profile.username || ""} placeholder="用户名" minLength={3} maxLength={32} required />
+              <input name="username" className="input mt-1 w-full text-xs focus:border-brand/50 focus:ring-brand/35" defaultValue={profile.username || ""} placeholder="用户名" minLength={1} maxLength={32} pattern={USERNAME_INPUT_PATTERN} required />
             </label>
             <label className="block text-xs font-medium text-brand-fg">
               联系方式

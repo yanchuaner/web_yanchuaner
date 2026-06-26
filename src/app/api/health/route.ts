@@ -31,7 +31,7 @@ export async function GET() {
     checks.redis = "disconnected";
   }
 
-  const allHealthy = Object.entries(checks).every(([key, v]) =>
+  const allHealthy = Object.values(checks).every((v) =>
     v === "ok" || v === "connected" || v === "not_configured"
   );
 

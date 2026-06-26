@@ -1,6 +1,12 @@
 import { PrismaClient } from "@prisma/client";
 import * as fs from "fs";
 import * as path from "path";
+import {
+  normalizeClassName,
+  normalizeGraduationClass,
+  validClassName,
+  validGraduationClass,
+} from "../src/lib/identity-fields";
 
 const prisma = new PrismaClient();
 
@@ -77,8 +83,17 @@ async function main() {
       const name = (row.name || "").trim();
       if (!name) continue;
 
-      const graduationClass = (row.graduationClass || "").trim() || null;
-      const className = (row.className || "").trim() || null;
+      const graduationClass = normalizeGraduationClass(row.graduationClass) || null;
+      const className = normalizeClassName(row.className) || null;
+      if (
+        (graduationClass && !validGraduationClass(graduationClass)) ||
+        (className && !validClassName(className))
+      ) {
+        console.warn(
+          `⚠️ 跳过白名单记录：${name} 的届别或班级格式无效（届别：${graduationClass ?? "空"}，班级：${className ?? "空"}）`,
+        );
+        continue;
+      }
       const email = (row.email || "").trim().toLowerCase() || null;
       const contact = (row.contact || "").trim() || null;
       const tags = (row.tags || "").trim() || null;

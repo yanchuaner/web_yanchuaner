@@ -1,4 +1,8 @@
 import { Prisma, PrismaClient } from "@prisma/client";
+import {
+  normalizeClassName,
+  normalizeGraduationClass,
+} from "@/lib/identity-fields";
 
 type RosterClient = PrismaClient | Prisma.TransactionClient;
 
@@ -20,14 +24,22 @@ function optional(value: string | null | undefined) {
   return value?.trim() || null;
 }
 
+function optionalGraduationClass(value: string | null | undefined) {
+  return normalizeGraduationClass(value) || null;
+}
+
+function optionalClassName(value: string | null | undefined) {
+  return normalizeClassName(value) || null;
+}
+
 export async function upsertRosterEntry(
   client: RosterClient,
   input: RosterWrite,
 ) {
   const identity = {
     name: input.name.trim(),
-    graduationClass: optional(input.graduationClass),
-    className: optional(input.className),
+    graduationClass: optionalGraduationClass(input.graduationClass),
+    className: optionalClassName(input.className),
     email: optional(input.email)?.toLowerCase() || null,
   };
   const existing = await client.whitelistRoster.findFirst({

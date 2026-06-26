@@ -32,7 +32,6 @@ type SubmitResult = {
  */
 export function JoinRequestModal() {
   const { open, close } = useJoinModal();
-  const [mounted, setMounted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,10 +41,6 @@ export function JoinRequestModal() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { trigger } = useJoinModal();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // 监听路由参数 ?join=1 变化，自动打开弹窗
   useEffect(() => {

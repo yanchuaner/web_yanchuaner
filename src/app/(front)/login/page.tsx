@@ -33,15 +33,16 @@ export default function LoginPage() {
     setNeedsVerification(false);
     try {
       // 429/413/401 等错误会由 apiClient 自动弹出 Toast，这里只处理业务逻辑
-      const { data, error: apiError, status } = await api.post<{ role?: string; code?: string }>(
+      const { data, error: apiError, status, code } = await api.post<{ role?: string }>(
         "/api/auth/login",
         { username, password },
         [401, 403] // 401/403 由下面的 setError 处理，不重复弹 Toast
       );
 
       if (apiError || !data) {
-        if (status === 403 && (data as any)?.code === "EMAIL_NOT_VERIFIED") {
+        if (status === 403 && code === "EMAIL_NOT_VERIFIED") {
           setNeedsVerification(true);
+          throw new Error("你的邮箱还没有完成验证，请先验证邮箱后再登录。");
         }
         throw new Error(apiError || "登录失败");
       }
@@ -71,10 +72,14 @@ export default function LoginPage() {
             密码
             <input className="input mt-1 w-full" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
           </label>
-          {error ? <p className="text-sm text-rose-600">{error}</p> : null}
+          {error ? (
+            <p className={needsVerification ? "text-sm text-brand-fg/70" : "text-sm text-rose-600"}>
+              {error}
+            </p>
+          ) : null}
           {needsVerification ? (
             <Link className="text-sm text-brand underline" href="/verify-email">
-              重发验证邮件
+              前往验证 / 重新发送验证邮件
             </Link>
           ) : null}
           <Button type="submit" variant="primary" className="w-full mt-2" disabled={loading}>

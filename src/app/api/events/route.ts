@@ -13,8 +13,6 @@ export async function GET(req: NextRequest) {
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "10", 10)));
     const skip = (page - 1) * limit;
 
-    const now = new Date().toISOString();
-
     const [events, total] = await Promise.all([
       prisma.event.findMany({
         where: { status: "PUBLISHED" },

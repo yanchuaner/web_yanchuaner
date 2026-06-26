@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   BookOpen, School, Building2, HelpCircle, GraduationCap, Sparkles,
-  ChevronRight, Mail, Shield, Star, Heart, MessageSquare, Users, Globe2, MapPin, Rocket
+  ChevronRight, Mail, Star, Heart, MessageSquare, Users, Globe2, MapPin, Rocket
 } from "lucide-react";
 import prisma from "@/lib/db";
 import { PageShell, GlassCard, PageHeader, ButtonLink, EmptyState, DisclaimerBanner } from "@/components/ui";

@@ -3,7 +3,7 @@ export const revalidate = 60;
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ArrowLeft, CalendarDays, Clock, MapPin, Users } from "lucide-react";
+import { ArrowLeft, Clock, MapPin, Users } from "lucide-react";
 import prisma from "@/lib/db";
 import EventRegistrationForm from "@/components/EventRegistrationForm";
 

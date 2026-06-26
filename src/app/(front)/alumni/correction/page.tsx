@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { Search, AlertTriangle, CheckCircle2, Loader2, Send, ArrowLeft } from 'lucide-react';
+import { Search, AlertTriangle, CheckCircle2, Loader2, Send } from 'lucide-react';
 import Link from 'next/link';
 
 type AlumniResult = {

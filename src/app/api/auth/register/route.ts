@@ -14,6 +14,12 @@ import {
 } from "@/lib/auth-utils";
 import { sendVerificationEmail } from "@/lib/email";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
+import {
+  normalizeClassName,
+  normalizeGraduationClass,
+  validClassName,
+  validGraduationClass,
+} from "@/lib/identity-fields";
 
 type RegisterBody = {
   username?: unknown;
@@ -44,18 +50,14 @@ export async function POST(req: NextRequest) {
     const confirmPassword =
       typeof body.confirmPassword === "string" ? body.confirmPassword : "";
     const name = typeof body.name === "string" ? body.name.trim() : "";
-    const graduationClass =
-      typeof body.graduationClass === "string"
-        ? body.graduationClass.trim()
-        : "";
-    const className =
-      typeof body.className === "string" ? body.className.trim() : "";
+    const graduationClass = normalizeGraduationClass(body.graduationClass);
+    const className = normalizeClassName(body.className);
     const contact =
       typeof body.contact === "string" ? body.contact.trim() : "";
 
     if (!USERNAME_PATTERN.test(username)) {
       return NextResponse.json(
-        { error: "用户名需为 3-32 位字母、数字、下划线或短横线" },
+        { error: "用户名需为 1-32 位中文、英文字母、数字、下划线或短横线" },
         { status: 400 },
       );
     }
@@ -71,8 +73,8 @@ export async function POST(req: NextRequest) {
     if (
       !name ||
       name.length > 64 ||
-      graduationClass.length > 32 ||
-      className.length > 64 ||
+      !validGraduationClass(graduationClass) ||
+      !validClassName(className) ||
       contact.length > 128
     ) {
       return NextResponse.json({ error: "注册资料格式无效" }, { status: 400 });
