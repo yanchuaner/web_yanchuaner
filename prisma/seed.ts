@@ -111,7 +111,6 @@ async function main() {
           where: { id: existing.id },
           data: {
             contact,
-            tags,
             city,
             university,
             major,
@@ -125,7 +124,6 @@ async function main() {
           data: {
             ...identity,
             contact,
-            tags,
             city,
             university,
             major,

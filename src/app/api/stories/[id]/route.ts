@@ -2,6 +2,27 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { getAuthenticatedUser } from "@/lib/admin-auth";
 
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> | { id: string } }
+) {
+  try {
+    const resolvedParams = await params;
+    const story = await prisma.story.findUnique({
+      where: { id: resolvedParams.id, status: "PUBLISHED" },
+      include: { authorUser: { select: { id: true, name: true } } },
+    });
+    if (!story) {
+      return NextResponse.json({ error: "故事不存在" }, { status: 404 });
+    }
+    let parsedTags: string[] = [];
+    try { parsedTags = JSON.parse(story.tags || "[]"); } catch {}
+    return NextResponse.json({ story: { ...story, tags: parsedTags } });
+  } catch {
+    return NextResponse.json({ error: "系统错误" }, { status: 500 });
+  }
+}
+
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> | { id: string } }

@@ -132,7 +132,7 @@ export default function AlumniStoriesPage() {
             </p>
             <h1 className="font-heading mt-3 text-3xl font-bold text-[#4C1D95] md:text-4xl">{"燕川故事 · 轻论坛专栏"}</h1>
             <p className="mt-2 max-w-3xl text-sm leading-7 text-gray-700 md:text-base">
-              {"所有稿件均为前端静态展示，只通过“邮件投递 + 人工审核”上线。不设登录、不设站内发布，完全合规。"}
+              {"燕中校友的真实故事与经历分享。每一篇投稿经审核后公开发布，欢迎你的来稿。"}
             </p>
           </div>
 
@@ -198,7 +198,15 @@ export default function AlumniStoriesPage() {
                 ))}
               </div>
 
-              <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-gray-700 md:text-[15px]">{story.body}</p>
+              <p className="mt-4 line-clamp-3 text-sm leading-7 text-gray-600">{story.body.slice(0, 150)}……</p>
+              <div className="mt-3 text-right">
+                <Link
+                  href={`/alumni/stories/${story.id}`}
+                  className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-4 py-1.5 text-xs font-medium text-brand transition hover:bg-brand/20"
+                >
+                  {"阅读全文"} <span className="text-[10px]">→</span>
+                </Link>
+              </div>
             </article>
           )))}
         </div>
