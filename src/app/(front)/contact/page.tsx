@@ -54,9 +54,15 @@ export default async function ContactPage() {
                         </Link>
                       </div>
                     ) : s.href ? (
-                      <Link href={s.href} className="mt-1 inline-block text-sm text-brand underline hover:text-brand-fg transition-colors">
-                        {s.actionLabel || '查看详情'}
-                      </Link>
+                      s.href.startsWith('mailto:') ? (
+                        <a href={s.href} className="mt-1 inline-block text-sm text-brand underline hover:text-brand-fg transition-colors">
+                          {s.actionLabel || '查看详情'}
+                        </a>
+                      ) : (
+                        <Link href={s.href} className="mt-1 inline-block text-sm text-brand underline hover:text-brand-fg transition-colors">
+                          {s.actionLabel || '查看详情'}
+                        </Link>
+                      )
                     ) : null}
                   </div>
                 </div>
