@@ -24,6 +24,10 @@ model User {
   identityCode           String?
   graduationClass        String?
   className              String?
+  city                   String?
+  university             String?
+  major                  String?
+  industry               String?
   role                   String             @default("GUEST")
   status                 String             @default("PENDING")
   accountStatus          String             @default("ACTIVE")
@@ -95,6 +99,10 @@ model WhitelistRoster {
   email           String?
   contact         String?
   tags            String?
+  city            String?
+  university      String?
+  major           String?
+  industry        String?
   certificateNo   String?
   createdAt       DateTime @default(now())
 
