@@ -169,6 +169,7 @@ export async function POST(req: NextRequest) {
     let skipped = 0;
 
     await prisma.$transaction(async (tx) => {
+      // 💡 事务批量写入：通过单一事务批量写入校友名册，降低 SQLite I/O 锁盘阻塞，规避高频导入下的死锁风险
       for (let i = 1; i < lines.length; i++) {
         if (errors.length >= 20) {
           errors.push(`已达错误上限，第 ${i + 1} 行及之后已跳过`);

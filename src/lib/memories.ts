@@ -36,6 +36,7 @@ export function renameToCategoryPath(
     oldFilename.includes('/') ||
     oldFilename.includes('\\')
   ) {
+    console.warn(`[Security Alert] Potential path traversal attempt: ${oldImagePath}`);
     return oldImagePath;
   }
 
@@ -52,6 +53,7 @@ export function renameToCategoryPath(
   // 再次绝对路径核对，确保旧文件在 uploadsDir 内部
   const resolvedOldPath = path.resolve(oldPath);
   if (!resolvedOldPath.startsWith(uploadsDir)) {
+    console.warn(`[Security Alert] Absolute path containment check failed: ${resolvedOldPath}`);
     return oldImagePath;
   }
 
