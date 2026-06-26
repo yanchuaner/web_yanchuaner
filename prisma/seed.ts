@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "../src/lib/db";
 import * as fs from "fs";
 import * as path from "path";
 import {
@@ -7,8 +7,6 @@ import {
   validClassName,
   validGraduationClass,
 } from "../src/lib/identity-fields";
-
-const prisma = new PrismaClient();
 
 function parseCSVLine(text: string): string[] {
   const fields: string[] = [];
