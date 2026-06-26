@@ -39,6 +39,7 @@ model User {
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
   posts                  Post[]
+  stories                Story[]            @relation("StoryAuthor")
   auditLogs              AuditLog[]         @relation("AuditLogAdmin")
   claimRequests          UserClaimRequest[] @relation("ClaimRequestClaimant")
   oldUserClaimRequests   UserClaimRequest[] @relation("ClaimRequestOldUser")
@@ -234,15 +235,28 @@ model ContentSection {
   @@index([page])
 }
 
+enum PostStatus {
+  DRAFT
+  PENDING
+  PUBLISHED
+  REJECTED
+}
+
 model Story {
-  id        String   @id @default(uuid())
-  title     String
-  author    String
-  tags      String   @default("") // JSON array as string
-  body      String   @default("")
-  date      String   @default("") // ISO date string
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String     @id @default(uuid())
+  title      String
+  author     String
+  tags       String     @default("") // JSON array as string
+  body       String     @default("")
+  date       String     @default("") // ISO date string
+  status     PostStatus @default(PUBLISHED)
+  authorId   String?
+  authorUser User?      @relation("StoryAuthor", fields: [authorId], references: [id])
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@index([status])
+  @@index([authorId])
 }
 
 model Achievement {
