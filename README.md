@@ -39,32 +39,43 @@
 
 ## 📸 平台视觉
 
-> 本地开发环境高清无损截图（已完成全站脱敏与暗黑美学适配），点击图片查看高清原图。
-
-### 🏛️ 前台大堂与星空走廊
+### 🏛️ 前台大堂
 
 | | | |
 |:---:|:---:|:---:|
-| [![前端首页](docs/assets/screenshots/home.png)](docs/assets/screenshots/home.png) | [![关于母校](docs/assets/screenshots/about.png)](docs/assets/screenshots/about.png) | [![校园新闻资讯](docs/assets/screenshots/news.png)](docs/assets/screenshots/news.png) |
-| **星空大堂（首页）** | **百年燕中（关于母校）** | **校园公告与新闻资讯** |
-| [![在校生资源站](docs/assets/screenshots/students.png)](docs/assets/screenshots/students.png) | [![教师频道](docs/assets/screenshots/teachers.webp)](docs/assets/screenshots/teachers.webp) | [![联系我们](docs/assets/screenshots/contact.webp)](docs/assets/screenshots/contact.webp) |
+| [![学校介绍](docs/assets/screenshots/about.webp)](docs/assets/screenshots/about.webp) | [![新闻公告](docs/assets/screenshots/news.webp)](docs/assets/screenshots/news.webp) | [![校友活动](docs/assets/screenshots/events.webp)](docs/assets/screenshots/events.webp) |
+| **百年燕中（学校介绍）** | **校园公告与新闻资讯** | **校友活动** |
+| [![在校生资源站](docs/assets/screenshots/students.webp)](docs/assets/screenshots/students.webp) | [![教师频道](docs/assets/screenshots/teachers.webp)](docs/assets/screenshots/teachers.webp) | [![联系我们](docs/assets/screenshots/contact.webp)](docs/assets/screenshots/contact.webp) |
 | **在校生互助资源站** | **筑梦师长（教师频道）** | **互通有无（联系我们）** |
 
-### 🚀 校友专属服务终端
+### 🚀 校友专属空间
 
 | | | |
 |:---:|:---:|:---:|
-| [![校友空间](docs/assets/screenshots/alumni-space.png)](docs/assets/screenshots/alumni-space.png) | [![校友故事](docs/assets/screenshots/stories.webp)](docs/assets/screenshots/stories.webp) | [![电子校友证](docs/assets/screenshots/certificate.webp)](docs/assets/screenshots/certificate.webp) |
-| **校友地图空间（聚合分布）** | **燕中岁月故事专栏 (CMS)** | **电子校友纪念卡** |
+| [![星空通讯录](docs/assets/screenshots/alumni-contact.webp)](docs/assets/screenshots/alumni-contact.webp) | [![校友成就墙](docs/assets/screenshots/alumni-achievements.webp)](docs/assets/screenshots/alumni-achievements.webp) | [![燕中故事](docs/assets/screenshots/alumni-stories.webp)](docs/assets/screenshots/alumni-stories.webp) |
+| **星空通讯录（校友地图）** | **校友成就墙** | **燕中故事专栏 (CMS)** |
+| [![燕中记忆](docs/assets/screenshots/alumni-memories.webp)](docs/assets/screenshots/alumni-memories.webp) | [![电子校友证](docs/assets/screenshots/alumni-certificate.webp)](docs/assets/screenshots/alumni-certificate.webp) | |
+| **燕中记忆文化长廊** | **电子校友纪念卡** | |
 
-### 🛠️ 管理员控制中心
+<details>
+<summary><b>🛠️ 管理员后台（点击展开 14 张截图）</b></summary>
+
+<br />
 
 | | | |
 |:---:|:---:|:---:|
-| [![管理员概览](docs/assets/screenshots/admin-overview.png)](docs/assets/screenshots/admin-overview.png) | [![审核中心](docs/assets/screenshots/admin-audit.png)](docs/assets/screenshots/admin-audit.png) | [![内容管理中心](docs/assets/screenshots/admin-content.png)](docs/assets/screenshots/admin-content.png) |
-| **后台控制台（概览中心）** | **审核工作台（校友/故事）** | **内容运营工作台** |
-| [![系统站点配置](docs/assets/screenshots/admin-config.png)](docs/assets/screenshots/admin-config.png) | | |
-| **站点通用配置管理** | | |
+| [![控制台](docs/assets/screenshots/admin-dashboard.webp)](docs/assets/screenshots/admin-dashboard.webp) | [![新闻管理](docs/assets/screenshots/admin-news.webp)](docs/assets/screenshots/admin-news.webp) | [![活动管理](docs/assets/screenshots/admin-events.webp)](docs/assets/screenshots/admin-events.webp) |
+| **控制台概览** | **新闻管理** | **活动管理** |
+| [![校友名单](docs/assets/screenshots/admin-alumni.webp)](docs/assets/screenshots/admin-alumni.webp) | [![修改申请](docs/assets/screenshots/admin-corrections.webp)](docs/assets/screenshots/admin-corrections.webp) | [![燕中记忆](docs/assets/screenshots/admin-memories.webp)](docs/assets/screenshots/admin-memories.webp) |
+| **校友名单管理** | **修改申请审核** | **燕中记忆管理** |
+| [![燕中故事](docs/assets/screenshots/admin-stories.webp)](docs/assets/screenshots/admin-stories.webp) | [![待审核故事](docs/assets/screenshots/admin-stories-pending.webp)](docs/assets/screenshots/admin-stories-pending.webp) | [![投稿管理](docs/assets/screenshots/admin-posts.webp)](docs/assets/screenshots/admin-posts.webp) |
+| **燕中故事管理** | **待审核故事工作台** | **投稿管理** |
+| [![用户管理](docs/assets/screenshots/admin-users.webp)](docs/assets/screenshots/admin-users.webp) | [![资料认领](docs/assets/screenshots/admin-claims.webp)](docs/assets/screenshots/admin-claims.webp) | [![校友成就](docs/assets/screenshots/admin-achievements.webp)](docs/assets/screenshots/admin-achievements.webp) |
+| **用户管理** | **旧资料认领审核** | **校友成就墙管理** |
+| [![教师频道](docs/assets/screenshots/admin-teachers.webp)](docs/assets/screenshots/admin-teachers.webp) | [![页面内容](docs/assets/screenshots/admin-content.webp)](docs/assets/screenshots/admin-content.webp) | |
+| **教师频道管理** | **页面内容管理** | |
+
+</details>
 
 ---
 
