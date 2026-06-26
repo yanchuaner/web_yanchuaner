@@ -83,46 +83,43 @@
 
 ## 🏗️ 架构概览
 
-```
-┌──────────────────────────────────────────────────────────┐
-│                      Nginx Reverse Proxy                  │
-│                   (HTTPS / Let's Encrypt)                 │
-└──────────────────┬───────────────────────────────────────┘
-                   │
-     ┌─────────────▼─────────────┐
-     │   Next.js 14.2 (Standalone)│
-     │   ┌─────────────────────┐ │
-     │   │  Middleware (Edge)  │ │  ← Token 验签 + 路由守卫
-     │   │  HMAC-SHA256 verify │ │
-     │   └────────┬────────────┘ │
-     │            │               │
-     │   ┌────────▼────────────┐ │
-     │   │  21 × Front Pages   │ │  ← 前台：首页/地图/故事/校友证
-     │   │  18 × Admin Pages   │ │  ← 后台：审核/管理/配置
-     │   │  40+ API Routes     │ │  ← REST：鉴权→payload校验→业务
-     │   └────────┬────────────┘ │
-     └────────────┼──────────────┘
-                  │
-     ┌────────────▼────────────┐
-     │   Prisma 7.x + SQLite   │
-     │   ┌─────────────────┐   │
-     │   │  WAL Mode        │   │  ← 并发读 / 批量事务写
-     │   │  busy_timeout=5s │   │
-     │   └─────────────────┘   │
-     │   16 Models · 50+ Index │
-     └─────────────────────────┘
-     ┌─────────────────────────┐
-     │  Upstash Redis (可选)   │  ← 限流加速 / 缓存
-     │  ioredis (可选)         │  ← 自建 Redis 退路
-     │  Memory Map (保底)      │  ← 单机兜底
-     └─────────────────────────┘
+```mermaid
+graph TD
+    U(("👤 用户 / 浏览器"))
+    U -->|"HTTPS :443"| NGINX["<b>Nginx</b><br/>SSL · 静态资源 · 反向代理"]
+    NGINX -->|"proxy_pass :3000"| MW["<b>Edge Middleware</b><br/>HMAC-SHA256 验签<br/>路由级角色分流"]
+    MW --> FRONT["<b>前台 21 页</b><br/>首页 · 地图 · 校友证<br/>故事投稿 · 个人中心"]
+    MW --> ADMIN["<b>后台 18 页</b><br/>CMS 审核 · 名单管理<br/>用户管理 · 内容配置"]
+    MW --> API["<b>60+ API Routes</b><br/>鉴权 → Payload 校验<br/>readJsonBody 熔断"]
+
+    FRONT --> PRISMA
+    ADMIN --> PRISMA
+    API --> PRISMA
+
+    PRISMA["<b>Prisma 7.x ORM</b><br/>16 Models · 50+ Index<br/>WAL · busy_timeout=5s"] --> SQLITE[("🗄️ SQLite")]
+    PRISMA --> CACHE
+
+    subgraph SAFE["🛡️ 安全层"]
+        MW
+        AUTH["<b>RBAC 鉴权</b><br/>GUEST / ALUMNI / ADMIN<br/>sessionVersion 即时踢出"]
+        LIMIT["<b>三层限流</b><br/>Upstash → ioredis<br/>→ Memory Map<br/>优雅降级"]
+    end
+
+    subgraph CACHE["⩛ 缓存层（可选）"]
+        REDIS["Upstash Redis"]
+        IOREDIS["自建 Redis"]
+        MEM["进程内内存"]
+    end
+
+    style U fill:#7C3AED,color:#fff,stroke:#A78BFA
+    style SQLITE fill:#003B57,color:#fff
+    style NGINX fill:#22C55E,color:#fff
+    style PRISMA fill:#2D3748,color:#fff
+    style SAFE fill:transparent,stroke:#EF4444,stroke-dasharray:4
+    style CACHE fill:transparent,stroke:#F59E0B,stroke-dasharray:4
 ```
 
-### 技术选型哲学
-
-> **Lightweight by design, robust by defense.**  
-> SQLite 单文件数据库避免了运维 MySQL/Postgres 的复杂性；WAL 模式 + 事务批量写 + `busy_timeout` 三重优化使它在并发场景下仍然可靠。  
-> Standalone 编译输出意味着零 Node.js 运行时依赖——一台 2C2G 的 Linux 服务器足以驱动数百校友的日常访问。
+> **技术选型哲学**：SQLite 单文件数据库零运维；WAL + 事务批量写 + `busy_timeout` 三重优化保障并发可靠。Standalone 编译输出意味着 **一台 2C2G Linux 服务器足以驱动数百校友日常访问**。
 
 ---
 
