@@ -117,10 +117,17 @@ model AlumniCorrectionRequest {
   rosterId                 String
   currentName              String?
   currentGraduationClass   String?
+  currentClassName         String?
   currentTags              String?
   requestedName            String?
   requestedGraduationClass String?
+  requestedClassName       String?
   requestedTags            String?
+  requestedCity            String?
+  requestedUniversity      String?
+  requestedMajor           String?
+  requestedIndustry        String?
+  requestedContact         String?
   contact                  String
   reason                   String
   status                   String    @default("PENDING")

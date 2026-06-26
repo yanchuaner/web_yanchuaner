@@ -30,9 +30,11 @@ export async function GET(req: NextRequest) {
         id: true,
         name: true,
         graduationClass: true,
+        className: true,
         city: true,
         university: true,
         major: true,
+        industry: true,
       },
       take: 20,
       orderBy: { name: 'asc' },
@@ -42,9 +44,11 @@ export async function GET(req: NextRequest) {
       id: r.id,
       name: r.name,
       graduationClass: r.graduationClass || '',
+      className: r.className || '',
       university: r.university || '',
       major: r.major || '',
       city: r.city || '',
+      industry: r.industry || '',
     }));
 
     return NextResponse.json({ results, total: results.length });

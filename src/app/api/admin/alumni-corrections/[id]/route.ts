@@ -70,37 +70,51 @@ export async function PATCH(
     }
 
     if (action === "approve") {
-      // 确认 WhitelistRoster 仍存在
-      const roster = await prisma.whitelistRoster.findUnique({
-        where: { id: request.rosterId },
-      });
-      if (!roster) {
-        return NextResponse.json(
-          { error: "该校友已从名单中删除，无法应用修改" },
-          { status: 400 },
-        );
-      }
+      const roster = await prisma.whitelistRoster.findUnique({ where: { id: request.rosterId } });
+      if (!roster) return NextResponse.json({ error: "该校友已从名单中删除，无法应用修改" }, { status: 400 });
 
       // 使用 transaction 保证一致性
-      await prisma.$transaction([
-        prisma.alumniCorrectionRequest.update({
+      await prisma.$transaction(async (tx) => {
+        // 1. 更新审核状态
+        await tx.alumniCorrectionRequest.update({
           where: { id: params.id },
-          data: {
-            status: "APPROVED",
-            adminNote: adminNote || null,
-            reviewedAt: new Date(),
-          },
-        }),
-        prisma.whitelistRoster.update({
-          where: { id: request.rosterId },
-          data: {
-            ...(request.requestedName ? { name: request.requestedName } : {}),
-            ...(request.requestedGraduationClass
-              ? { graduationClass: request.requestedGraduationClass }
-              : {}),
-          },
-        }),
-      ]);
+          data: { status: "APPROVED", adminNote: adminNote || null, reviewedAt: new Date() },
+        });
+
+        // 2. 更新 WhitelistRoster
+        const rosterUpdate: Record<string, string | null> = {};
+        if (request.requestedName) rosterUpdate.name = request.requestedName;
+        if (request.requestedGraduationClass) rosterUpdate.graduationClass = request.requestedGraduationClass;
+        if (request.requestedClassName) rosterUpdate.className = request.requestedClassName;
+        if (request.requestedCity) rosterUpdate.city = request.requestedCity;
+        if (request.requestedUniversity) rosterUpdate.university = request.requestedUniversity;
+        if (request.requestedMajor) rosterUpdate.major = request.requestedMajor;
+        if (request.requestedIndustry) rosterUpdate.industry = request.requestedIndustry;
+        if (request.requestedContact) rosterUpdate.contact = request.requestedContact;
+
+        await tx.whitelistRoster.update({ where: { id: request.rosterId }, data: rosterUpdate });
+
+        // 3. 同步更新匹配的 User 账号 (按 name + graduationClass)
+        const matchCriteria: Record<string, string> = {
+          name: rosterUpdate.name || roster.name,
+          graduationClass: rosterUpdate.graduationClass || roster.graduationClass || '',
+        };
+        const matchedUser = await tx.user.findFirst({
+          where: { name: matchCriteria.name, graduationClass: matchCriteria.graduationClass },
+        });
+        if (matchedUser) {
+          const userUpdate: Record<string, string | null> = {};
+          if (request.requestedClassName) userUpdate.className = request.requestedClassName;
+          if (request.requestedCity) userUpdate.city = request.requestedCity;
+          if (request.requestedUniversity) userUpdate.university = request.requestedUniversity;
+          if (request.requestedMajor) userUpdate.major = request.requestedMajor;
+          if (request.requestedIndustry) userUpdate.industry = request.requestedIndustry;
+          if (request.requestedContact) userUpdate.contact = request.requestedContact;
+          if (Object.keys(userUpdate).length > 0) {
+            await tx.user.update({ where: { id: matchedUser.id }, data: userUpdate });
+          }
+        }
+      });
 
       return NextResponse.json({ success: true, status: "APPROVED" });
     }
