@@ -1,9 +1,8 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { ArrowLeft, Feather } from "lucide-react";
-import { GlassCard } from "@/components/ui";
+import { PageShell, GlassCard, ButtonLink } from "@/components/ui";
 import prisma from "@/lib/db";
 
 type StoryDetail = {
@@ -40,12 +39,12 @@ export default async function StoryDetailPage({ params }: { params: { id: string
   if (!story) notFound();
 
   return (
-    <section className="mx-auto w-full max-w-3xl px-4 py-10 pb-32 md:px-8 md:py-12">
+    <PageShell size="narrow" className="pb-32">
       <GlassCard className="p-6 md:p-8">
-        <Link href="/alumni/stories" className="inline-flex items-center gap-1.5 text-sm text-brand hover:text-brand-fg transition-colors mb-6">
+        <ButtonLink href="/alumni/stories" variant="secondary" size="sm" className="mb-6">
           <ArrowLeft size={16} />
           返回故事列表
-        </Link>
+        </ButtonLink>
 
         <div className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-3 py-1 text-xs text-brand mb-4">
           <Feather size={14} />
@@ -54,15 +53,15 @@ export default async function StoryDetailPage({ params }: { params: { id: string
 
         <h1 className="font-heading text-2xl font-bold text-brand-fg md:text-3xl">{story.title}</h1>
 
-        <div className="mt-3 flex items-center gap-3 text-sm text-gray-500">
-          <span>{story.author}</span>
+        <div className="mt-3 flex items-center gap-3 text-sm text-brand-fg/50">
+          <span>{story.author || '匿名校友'}</span>
           <span>·</span>
           <span>{formatDate(story.date)}</span>
         </div>
 
         <div className="mt-3 flex flex-wrap gap-1.5">
           {story.tags.map((tag) => (
-            <span key={tag} className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs text-emerald-700">
+            <span key={tag} className="rounded-full border border-accent/20 bg-accent/10 px-2.5 py-1 text-xs text-accent">
               #{tag}
             </span>
           ))}
@@ -70,8 +69,8 @@ export default async function StoryDetailPage({ params }: { params: { id: string
 
         <hr className="my-6 border-line" />
 
-        <div className="whitespace-pre-wrap text-sm leading-7 text-gray-700 md:text-[15px]">{story.body}</div>
+        <div className="whitespace-pre-wrap text-sm leading-7 text-brand-fg/80 md:text-[15px]">{story.body}</div>
       </GlassCard>
-    </section>
+    </PageShell>
   );
 }

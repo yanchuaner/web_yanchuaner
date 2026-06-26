@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { toast } from "sonner";
-import { Trash2, Clock, ArrowLeft } from "lucide-react";
+import { Trash2, Clock, ArrowLeft, FileText } from "lucide-react";
+import { PageShell, GlassCard, PageHeader, Button, ButtonLink, EmptyState, Badge } from "@/components/ui";
 
 type UserPost = {
   id: string;
@@ -18,8 +18,10 @@ export default function MyPostsPage() {
   const [posts, setPosts] = useState<UserPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<UserPost | null>(null);
 
-  useEffect(() => {
+  const fetchPosts = () => {
+    setLoading(true);
     fetch("/api/me/posts")
       .then((res) => res.json())
       .then((data) => {
@@ -30,11 +32,15 @@ export default function MyPostsPage() {
         toast.error("加载投稿列表失败");
       })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchPosts();
   }, []);
 
-  const handleDelete = async (id: string, title: string) => {
-    const confirmed = window.confirm(`确定要撤销并删除投稿《${title}》吗？`);
-    if (!confirmed) return;
+  const handleDelete = async () => {
+    if (!confirmDelete) return;
+    const { id, title } = confirmDelete;
 
     setDeletingId(id);
     try {
@@ -45,6 +51,7 @@ export default function MyPostsPage() {
       if (res.ok && data.success) {
         toast.success(`成功撤销投稿《${title}》`);
         setPosts((prev) => prev.filter((post) => post.id !== id));
+        setConfirmDelete(null);
       } else {
         toast.error(data.error || "撤销失败，请稍后重试");
       }
@@ -57,117 +64,139 @@ export default function MyPostsPage() {
   };
 
   return (
-    <section className="mx-auto max-w-3xl px-4 py-12 pb-24 md:py-16 md:pb-32">
-      <Link
+    <PageShell size="narrow" className="pb-32">
+      <ButtonLink
         href="/me"
-        className="mb-6 inline-flex items-center gap-1.5 text-sm text-brand hover:underline transition"
+        variant="secondary"
+        size="sm"
+        className="mb-6"
       >
         <ArrowLeft size={14} />
         返回个人中心
-      </Link>
+      </ButtonLink>
       
-      <div className="flex items-center justify-between border-b border-purple-500/10 pb-4 mb-6">
-        <h1 className="text-2xl font-bold font-heading text-slate-100">我的投稿</h1>
-        <span className="text-xs text-slate-400">共 {posts.length} 篇</span>
+      <PageHeader
+        eyebrow="CONTRIBUTIONS"
+        eyebrowIcon={FileText}
+        title="我的投稿"
+        description={`管理已提交的稿件，共 ${posts.length} 篇`}
+      />
+
+      <div className="mt-6">
+        {loading ? (
+          <div className="text-center py-20 text-brand-fg/60">加载中...</div>
+        ) : posts.length === 0 ? (
+          <EmptyState
+            icon={FileText}
+            title="暂无投稿"
+            description="您还没有发布任何文章，快去写下第一篇吧！"
+            action={
+              <ButtonLink href="/me/submit" variant="primary">
+                立即去投稿
+              </ButtonLink>
+            }
+          />
+        ) : (
+          <div className="space-y-4">
+            {posts.map((post) => {
+              const canDelete = post.status === "PENDING" || post.status === "DRAFT";
+              
+              return (
+                <article
+                  key={post.id}
+                  className="rounded-card border border-line bg-surface/40 backdrop-blur-md p-6 shadow-[0_8px_32px_rgba(124,58,237,0.08)] transition duration-300 hover:border-brand/50 hover:shadow-[0_8px_32px_rgba(124,58,237,0.18)]"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div className="space-y-1.5 flex-1 min-w-[240px]">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="font-heading text-lg font-bold text-brand-fg leading-snug">
+                          {post.title}
+                        </h2>
+                        
+                        {/* 状态标签 */}
+                        {post.status === "PENDING" && <Badge tone="warning">审核中</Badge>}
+                        {post.status === "PUBLISHED" && <Badge tone="success">已发布</Badge>}
+                        {post.status === "REJECTED" && <Badge tone="danger">已驳回</Badge>}
+                        {post.status === "DRAFT" && <Badge tone="neutral">草稿</Badge>}
+                      </div>
+                      
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-brand-fg/50">
+                        <span className="flex items-center gap-1">
+                          <Clock size={12} />
+                          提交时间: {new Date(post.createdAt).toLocaleString("zh-CN")}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* 操作按钮 */}
+                    {canDelete && (
+                      <Button
+                        onClick={() => setConfirmDelete(post)}
+                        disabled={deletingId === post.id}
+                        variant="danger"
+                        size="sm"
+                        className="shrink-0"
+                      >
+                        <Trash2 size={13} />
+                        {post.status === "PENDING" ? "撤销投稿" : "删除草稿"}
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* 稿件正文预览 */}
+                  <div className="mt-4 rounded-btn border border-line bg-surface-muted/50 p-4 shadow-inner">
+                    <p className="whitespace-pre-wrap text-sm leading-6 text-brand-fg/70 select-text max-h-[120px] overflow-y-auto">
+                      {post.content}
+                    </p>
+                  </div>
+
+                  {/* 标签列表 */}
+                  {post.tags && post.tags.length > 0 && (
+                    <div className="mt-4 flex flex-wrap gap-1.5">
+                      {post.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-full border border-brand/20 bg-brand/10 px-2.5 py-0.5 text-xs text-brand font-medium"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      {loading ? (
-        <div className="text-center py-12 text-slate-400">加载中...</div>
-      ) : posts.length === 0 ? (
-        <div className="rounded-2xl border border-purple-500/20 bg-slate-900/50 p-10 text-center backdrop-blur-xl">
-          <p className="text-sm text-slate-400">暂无投稿。</p>
-          <div className="mt-4">
-            <Link href="/me/submit" className="btn-primary py-2 px-5 text-xs">
-              立即去投稿
-            </Link>
+      {/* 删除确认弹窗 */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+          <div className="w-full max-w-md rounded-modal border border-line bg-surface p-6 shadow-lg backdrop-blur-md">
+            <h3 className="text-lg font-semibold text-brand font-heading">确认删除</h3>
+            <p className="mt-3 text-sm leading-6 text-brand-fg/70">
+              确定要撤销并删除投稿《{confirmDelete.title}》吗？此操作不可撤销。
+            </p>
+            <div className="mt-5 flex justify-end gap-3">
+              <Button
+                onClick={() => setConfirmDelete(null)}
+                disabled={deletingId === confirmDelete.id}
+                variant="secondary"
+              >
+                取消
+              </Button>
+              <Button
+                onClick={handleDelete}
+                disabled={deletingId === confirmDelete.id}
+                variant="danger"
+              >
+                {deletingId === confirmDelete.id ? '处理中...' : '确认删除'}
+              </Button>
+            </div>
           </div>
         </div>
-      ) : (
-        <div className="space-y-4">
-          {posts.map((post) => {
-            const canDelete = post.status === "PENDING" || post.status === "DRAFT";
-            
-            return (
-              <article
-                key={post.id}
-                className="rounded-2xl border border-purple-500/30 bg-slate-900/50 p-6 backdrop-blur-xl shadow-[0_8px_32px_rgba(124,58,237,0.08)] transition duration-300 hover:border-purple-400/50 hover:shadow-[0_8px_32px_rgba(124,58,237,0.18)]"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div className="space-y-1.5 flex-1 min-w-[240px]">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="font-heading text-lg font-bold text-slate-100 leading-snug">
-                        {post.title}
-                      </h2>
-                      
-                      {/* 状态标签 */}
-                      {post.status === "PENDING" && (
-                        <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-xs text-amber-400 font-medium">
-                          审核中
-                        </span>
-                      )}
-                      {post.status === "PUBLISHED" && (
-                        <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs text-emerald-400 font-medium">
-                          已发布
-                        </span>
-                      )}
-                      {post.status === "REJECTED" && (
-                        <span className="rounded-full border border-rose-500/30 bg-rose-500/10 px-2.5 py-0.5 text-xs text-rose-400 font-medium">
-                          已驳回
-                        </span>
-                      )}
-                      {post.status === "DRAFT" && (
-                        <span className="rounded-full border border-slate-500/30 bg-slate-500/10 px-2.5 py-0.5 text-xs text-slate-400 font-medium">
-                          草稿
-                        </span>
-                      )}
-                    </div>
-                    
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
-                      <span className="flex items-center gap-1">
-                        <Clock size={12} />
-                        提交时间: {new Date(post.createdAt).toLocaleString("zh-CN")}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* 操作按钮 */}
-                  {canDelete && (
-                    <button
-                      onClick={() => handleDelete(post.id, post.title)}
-                      disabled={deletingId === post.id}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-1.5 text-xs font-semibold text-rose-400 transition hover:bg-rose-500/20 cursor-pointer focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
-                    >
-                      <Trash2 size={13} />
-                      {post.status === "PENDING" ? "撤销投稿" : "删除草稿"}
-                    </button>
-                  )}
-                </div>
-
-                {/* 稿件正文预览 */}
-                <div className="mt-4 rounded-xl border border-purple-500/20 bg-slate-950/50 p-4 shadow-inner">
-                  <p className="whitespace-pre-wrap text-sm leading-6 text-slate-300 select-text max-h-[120px] overflow-y-auto">
-                    {post.content}
-                  </p>
-                </div>
-
-                {/* 标签列表 */}
-                {post.tags && post.tags.length > 0 && (
-                  <div className="mt-4 flex flex-wrap gap-1.5">
-                    {post.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full border border-purple-500/20 bg-purple-500/5 px-2 py-0.5 text-xs text-purple-300/80"
-                      >
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </article>
-            );
-          })}
-        </div>
       )}
-    </section>
+    </PageShell>
   );
 }

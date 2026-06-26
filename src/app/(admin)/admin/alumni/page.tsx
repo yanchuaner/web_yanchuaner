@@ -14,6 +14,8 @@ import {
   CheckCircle2,
   Loader2,
 } from 'lucide-react';
+import { AdminPageShell } from '@/components/admin/AdminPageShell';
+import { toast } from 'sonner';
 
 type AlumniItem = {
   id: string;
@@ -233,9 +235,11 @@ export default function AdminAlumniPage() {
         throw new Error(data.error || '保存失败');
       }
       setShowForm(false);
+      toast.success(editingId ? '修改成功' : '新增成功');
       fetchAlumni();
     } catch (err: any) {
       setFormError(err.message);
+      toast.error(err.message || '保存失败');
     } finally {
       setFormSaving(false);
     }
@@ -251,9 +255,11 @@ export default function AdminAlumniPage() {
       });
       if (!res.ok) throw new Error('删除失败');
       setDeleteTarget(null);
+      toast.success('删除成功');
       fetchAlumni();
-    } catch {
+    } catch (err: any) {
       setDeleteTarget(null);
+      toast.error(err.message || '删除失败');
     } finally {
       setDeleting(false);
     }
@@ -274,9 +280,15 @@ export default function AdminAlumniPage() {
       });
       const data = await res.json();
       setImportResult(data);
-      if (res.ok) fetchAlumni();
+      if (res.ok) {
+        toast.success(`成功导入 ${data.imported} 条记录`);
+        fetchAlumni();
+      } else {
+        toast.error('导入失败，请检查数据格式');
+      }
     } catch {
       setImportResult({ imported: 0, skipped: 0, failed: 1, errors: ['导入请求失败'] });
+      toast.error('导入请求失败');
     } finally {
       setImporting(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -299,19 +311,14 @@ export default function AdminAlumniPage() {
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
-    <div className="space-y-4">
-      {/* 页面标题 */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="font-heading text-xl font-bold text-[#4C1D95]">校友名单</h1>
-          <p className="mt-0.5 text-sm text-[#4C1D95]/60">
-            共 {total} 条记录
-          </p>
-        </div>
+    <AdminPageShell
+      title="校友名单"
+      description={`共 ${total} 条记录`}
+      actions={
         <div className="flex flex-wrap gap-2">
           <button
             onClick={openAdd}
-            className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-[#7C3AED]/20 bg-[#7C3AED]/5 px-4 py-2 text-sm text-[#7C3AED] transition hover:bg-[#7C3AED]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-btn border border-[#7C3AED]/20 bg-[#7C3AED]/5 px-4 py-2 text-sm text-[#7C3AED] transition hover:bg-[#7C3AED]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]"
           >
             <Plus size={16} />
             新增
@@ -319,7 +326,7 @@ export default function AdminAlumniPage() {
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={importing}
-            className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-[#7C3AED]/20 bg-[#7C3AED]/5 px-4 py-2 text-sm text-[#7C3AED] transition hover:bg-[#7C3AED]/10 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-btn border border-[#7C3AED]/20 bg-[#7C3AED]/5 px-4 py-2 text-sm text-[#7C3AED] transition hover:bg-[#7C3AED]/10 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]"
           >
             {importing ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
             导入
@@ -334,13 +341,15 @@ export default function AdminAlumniPage() {
           />
           <button
             onClick={handleExport}
-            className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-[#7C3AED]/20 bg-[#7C3AED]/5 px-4 py-2 text-sm text-[#7C3AED] transition hover:bg-[#7C3AED]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-btn border border-[#7C3AED]/20 bg-[#7C3AED]/5 px-4 py-2 text-sm text-[#7C3AED] transition hover:bg-[#7C3AED]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]"
           >
             <Download size={16} />
             导出
           </button>
         </div>
-      </div>
+      }
+    >
+      <div className="space-y-4">
 
       {/* 搜索栏 */}
       <div className="flex flex-wrap gap-3">
@@ -723,6 +732,7 @@ export default function AdminAlumniPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </AdminPageShell>
   );
 }

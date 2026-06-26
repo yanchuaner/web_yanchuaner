@@ -1,11 +1,11 @@
 "use client";
 
 import { FormEvent, useEffect, useState, useRef } from "react";
-import Link from "next/link";
 import { toast } from "sonner";
-import { Search } from "lucide-react";
+import { Search, ArrowLeft, User } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { api } from "@/lib/apiClient";
+import { PageShell, GlassCard, PageHeader, Button, ButtonLink } from "@/components/ui";
 
 const MAJOR_CITIES = [
   "北京", "上海", "广州", "深圳", "天津", "重庆", "杭州", "南京", "武汉", "成都", 
@@ -73,7 +73,7 @@ function CityCombobox({ defaultValue, name }: { defaultValue: string; name: stri
       </div>
 
       {isOpen && (
-        <ul className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-brand/15 bg-[#05030e]/95 backdrop-blur-2xl py-1 text-xs shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none select-none scrollbar-thin scrollbar-thumb-brand/20">
+        <ul className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-card border border-line bg-surface py-1 text-xs shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none select-none scrollbar-thin scrollbar-thumb-brand/20">
           {filteredCities.length === 0 ? (
             <li className="relative cursor-default select-none py-2 px-3 text-brand-fg/40">
               未找到匹配的城市，可直接保存输入的值
@@ -102,6 +102,7 @@ export default function EditProfilePage() {
   const { refresh } = useAuth();
   const [profile, setProfile] = useState<any>(null);
   const [message, setMessage] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     api.get<{ user: any }>("/api/me/profile").then(({ data }) => {
@@ -111,6 +112,7 @@ export default function EditProfilePage() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setSaving(true);
     const payload = Object.fromEntries(new FormData(event.currentTarget).entries());
 
     // 429/413/5xx 由 apiClient 自动弹出 Toast
@@ -120,6 +122,7 @@ export default function EditProfilePage() {
       [409] // 409 冲突由下面的 setMessage 处理
     );
 
+    setSaving(false);
     if (data?.user) {
       setProfile(data.user);
       setMessage("");
@@ -127,10 +130,17 @@ export default function EditProfilePage() {
       await refresh();
     } else {
       setMessage(apiError || "更新失败");
+      toast.error(apiError || "更新资料失败，请重试");
     }
   }
 
-  if (!profile) return <p className="p-8 text-center text-brand-fg/60">加载中…</p>;
+  if (!profile) {
+    return (
+      <PageShell size="narrow">
+        <div className="flex items-center justify-center py-20 text-brand-fg/60">加载中…</div>
+      </PageShell>
+    );
+  }
 
   // Build graduationClass options dynamically from 2025 to current year
   const startYear = 2025;
@@ -160,108 +170,124 @@ export default function EditProfilePage() {
   }
 
   return (
-    <section className="mx-auto max-w-xl px-4 py-12">
-      <Link href="/me" className="mb-4 inline-flex items-center gap-1.5 text-sm text-brand hover:underline transition">
-        ← 返回个人中心
-      </Link>
-      <form onSubmit={submit} className="space-y-5 rounded-card border border-line bg-surface/50 backdrop-blur-xl p-7 shadow-xl">
-        <h1 className="text-2xl font-bold font-heading text-brand-fg">编辑资料</h1>
+    <PageShell size="narrow" className="pb-24">
+      <ButtonLink href="/me" variant="secondary" size="sm" className="mb-6">
+        <ArrowLeft size={14} />
+        返回个人中心
+      </ButtonLink>
 
-        {/* 基本身份（只读） */}
-        <div className="space-y-3 rounded-xl bg-purple-950/10 border border-brand/5 p-4">
-          <h3 className="text-xs font-semibold text-brand/80 border-b border-brand/5 pb-1.5 mb-2">基本身份（系统锁定）</h3>
-          <div className="grid grid-cols-2 gap-3">
-            <label className="block text-xs font-medium text-brand-fg/70">
-              姓名
-              <input name="name" className="input mt-1 w-full bg-black/10 opacity-70 cursor-not-allowed text-xs" value={profile.name || ""} disabled />
-            </label>
-            <label className="block text-xs font-medium text-brand-fg/70">
-              邮箱
-              <input name="email" type="email" className="input mt-1 w-full bg-black/10 opacity-70 cursor-not-allowed text-xs" value={profile.email || ""} disabled />
-            </label>
-            <label className="block text-xs font-medium text-brand-fg/70">
-              届别
-              <select
-                name="graduationClass"
-                className="input mt-1 w-full bg-black/10 opacity-70 cursor-not-allowed text-xs select-none"
-                value={userGradClass}
-                disabled
-              >
-                <option value="">未填写</option>
-                {displayedGradClasses.map((item) => (
-                  <option key={item} value={item}>
-                    {item}届
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="block text-xs font-medium text-brand-fg/70">
-              班级
-              <select
-                name="className"
-                className="input mt-1 w-full bg-black/10 opacity-70 cursor-not-allowed text-xs select-none"
-                value={formattedUserClass}
-                disabled
-              >
-                <option value="">未填写</option>
-                {displayedClassNames.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-        </div>
+      <PageHeader
+        eyebrow="EDIT PROFILE"
+        eyebrowIcon={User}
+        title="编辑资料"
+        description="完善个人资料以方便校友进行联络"
+      />
 
-        {/* 账号设置 */}
-        <div className="space-y-3 rounded-xl bg-purple-950/10 border border-brand/5 p-4">
-          <h3 className="text-xs font-semibold text-brand/80 border-b border-brand/5 pb-1.5 mb-2">账号设置</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <label className="block text-xs font-medium text-brand-fg">
-              用户名
-              <input name="username" className="input mt-1 w-full text-xs focus:border-brand/50 focus:ring-brand/35" defaultValue={profile.username || ""} placeholder="用户名" minLength={3} maxLength={32} required />
-            </label>
-            <label className="block text-xs font-medium text-brand-fg">
-              联系方式
-              <input name="contact" className="input mt-1 w-full text-xs focus:border-brand/50 focus:ring-brand/35" defaultValue={profile.contact || ""} placeholder="手机号/微信号" />
-            </label>
-          </div>
-        </div>
-
-        {/* 教育轨迹 */}
-        <div className="space-y-3 rounded-xl bg-purple-950/10 border border-brand/5 p-4">
-          <h3 className="text-xs font-semibold text-brand/80 border-b border-brand/5 pb-1.5 mb-2">教育轨迹</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <label className="block text-xs font-medium text-brand-fg">
-              毕业院校
-              <input name="university" className="input mt-1 w-full text-xs focus:border-brand/50 focus:ring-brand/35" defaultValue={profile.university || ""} placeholder="例如：清华大学" maxLength={150} />
-            </label>
-            <label className="block text-xs font-medium text-brand-fg">
-              所学专业
-              <input name="major" className="input mt-1 w-full text-xs focus:border-brand/50 focus:ring-brand/35" defaultValue={profile.major || ""} placeholder="例如：计算机科学" maxLength={100} />
-            </label>
-          </div>
-        </div>
-
-        {/* 职业发展 */}
-        <div className="space-y-3 rounded-xl bg-purple-950/10 border border-brand/5 p-4">
-          <h3 className="text-xs font-semibold text-brand/80 border-b border-brand/5 pb-1.5 mb-2">职业发展</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="block text-xs font-medium text-brand-fg">
-              所在城市
-              <CityCombobox defaultValue={profile.city || ""} name="city" />
+      <GlassCard className="p-7 mt-6">
+        <form onSubmit={submit} className="space-y-5">
+          {/* 基本身份（只读） */}
+          <div className="space-y-3 rounded-card bg-brand/5 border border-line p-4">
+            <h3 className="text-xs font-semibold text-brand border-b border-line pb-1.5 mb-2">基本身份（系统锁定）</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block text-xs font-medium text-brand-fg/70">
+                姓名
+                <input name="name" className="input mt-1 w-full bg-black/20 opacity-70 cursor-not-allowed text-xs focus:ring-0 focus:border-line" value={profile.name || ""} disabled />
+              </label>
+              <label className="block text-xs font-medium text-brand-fg/70">
+                邮箱
+                <input name="email" type="email" className="input mt-1 w-full bg-black/20 opacity-70 cursor-not-allowed text-xs focus:ring-0 focus:border-line" value={profile.email || ""} disabled />
+              </label>
+              <label className="block text-xs font-medium text-brand-fg/70">
+                届别
+                <select
+                  name="graduationClass"
+                  className="input mt-1 w-full bg-black/20 opacity-70 cursor-not-allowed text-xs select-none focus:ring-0 focus:border-line"
+                  value={userGradClass}
+                  disabled
+                >
+                  <option value="">未填写</option>
+                  {displayedGradClasses.map((item) => (
+                    <option key={item} value={item}>
+                      {item}届
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="block text-xs font-medium text-brand-fg/70">
+                班级
+                <select
+                  name="className"
+                  className="input mt-1 w-full bg-black/20 opacity-70 cursor-not-allowed text-xs select-none focus:ring-0 focus:border-line"
+                  value={formattedUserClass}
+                  disabled
+                >
+                  <option value="">未填写</option>
+                  {displayedClassNames.map((item) => (
+                    <option key={item} value={item}>
+                      {item}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
-            <label className="block text-xs font-medium text-brand-fg">
-              从事行业
-              <input name="industry" className="input mt-1 w-full text-xs focus:border-brand/50 focus:ring-brand/35" defaultValue={profile.industry || ""} placeholder="例如：互联网/金融" maxLength={100} />
-            </label>
           </div>
-        </div>
 
-        <button className="btn-primary w-full">保存</button>
-        {message ? <p className="text-xs text-rose-500">{message}</p> : null}
-      </form>
-    </section>
+          {/* 账号设置 */}
+          <div className="space-y-3 rounded-card bg-brand/5 border border-line p-4">
+            <h3 className="text-xs font-semibold text-brand border-b border-line pb-1.5 mb-2">账号设置</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <label className="block text-xs font-medium text-brand-fg">
+                用户名
+                <input name="username" className="input mt-1.5 w-full text-xs focus:border-brand/50 focus:ring-brand/35" defaultValue={profile.username || ""} placeholder="用户名" minLength={3} maxLength={32} required disabled={saving} />
+              </label>
+              <label className="block text-xs font-medium text-brand-fg">
+                联系方式
+                <input name="contact" className="input mt-1.5 w-full text-xs focus:border-brand/50 focus:ring-brand/35" defaultValue={profile.contact || ""} placeholder="手机号/微信号" disabled={saving} />
+              </label>
+            </div>
+          </div>
+
+          {/* 教育轨迹 */}
+          <div className="space-y-3 rounded-card bg-brand/5 border border-line p-4">
+            <h3 className="text-xs font-semibold text-brand border-b border-line pb-1.5 mb-2">教育轨迹</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <label className="block text-xs font-medium text-brand-fg">
+                毕业院校
+                <input name="university" className="input mt-1.5 w-full text-xs focus:border-brand/50 focus:ring-brand/35" defaultValue={profile.university || ""} placeholder="例如：清华大学" maxLength={150} disabled={saving} />
+              </label>
+              <label className="block text-xs font-medium text-brand-fg">
+                所学专业
+                <input name="major" className="input mt-1.5 w-full text-xs focus:border-brand/50 focus:ring-brand/35" defaultValue={profile.major || ""} placeholder="例如：计算机科学" maxLength={100} disabled={saving} />
+              </label>
+            </div>
+          </div>
+
+          {/* 职业发展 */}
+          <div className="space-y-3 rounded-card bg-brand/5 border border-line p-4">
+            <h3 className="text-xs font-semibold text-brand border-b border-line pb-1.5 mb-2">职业发展</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="block text-xs font-medium text-brand-fg">
+                所在城市
+                <CityCombobox defaultValue={profile.city || ""} name="city" />
+              </div>
+              <label className="block text-xs font-medium text-brand-fg">
+                从事行业
+                <input name="industry" className="input mt-1.5 w-full text-xs focus:border-brand/50 focus:ring-brand/35" defaultValue={profile.industry || ""} placeholder="例如：互联网/金融" maxLength={100} disabled={saving} />
+              </label>
+            </div>
+          </div>
+
+          {message && (
+            <div className="rounded-card border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
+              {message}
+            </div>
+          )}
+
+          <Button type="submit" disabled={saving} className="w-full">
+            {saving ? "保存中..." : "保存资料"}
+          </Button>
+        </form>
+      </GlassCard>
+    </PageShell>
   );
 }

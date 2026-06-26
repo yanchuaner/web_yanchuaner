@@ -5,6 +5,8 @@ import { useRouter, useParams } from 'next/navigation';
 import { CalendarDays, ArrowLeft, Upload, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { AdminPageShell } from '@/components/admin/AdminPageShell';
+import { toast } from 'sonner';
 
 function toLocalDatetime(isoString: string): string {
   const d = new Date(isoString);
@@ -78,7 +80,7 @@ export default function AdminEventsEditPage() {
       const data = await res.json();
       setForm((prev) => ({ ...prev, coverImage: data.url }));
     } catch (err: any) {
-      alert('上传失败: ' + err.message);
+      toast.error('上传失败: ' + err.message);
     } finally {
       setUploading(false);
     }
@@ -116,9 +118,11 @@ export default function AdminEventsEditPage() {
         const data = await res.json();
         throw new Error(data.error || '更新失败');
       }
+      toast.success('更新成功');
       router.push('/admin/events');
     } catch (err: any) {
       setError(err.message);
+      toast.error(err.message || '更新失败');
       setSubmitting(false);
     }
   };
@@ -130,20 +134,20 @@ export default function AdminEventsEditPage() {
   }
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <CalendarDays size={28} className="text-[#7C3AED]" />
-          <h2 className="text-2xl font-bold text-[#4C1D95] font-heading">编辑活动</h2>
-        </div>
+    <AdminPageShell
+      title="编辑活动"
+      description="修改活动基本信息、状态与名额限制"
+      actions={
         <Link
           href="/admin/events"
-          className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 text-sm text-[#4C1D95]/60 transition hover:border-[#7C3AED]/30 hover:text-[#7C3AED] cursor-pointer"
+          className="inline-flex items-center gap-2 rounded-btn border border-line bg-surface/50 px-4 py-2.5 text-sm text-brand transition hover:bg-brand/5 cursor-pointer"
         >
           <ArrowLeft size={16} />
           返回列表
         </Link>
-      </div>
+      }
+    >
+      <div className="space-y-4">
 
       {error && (
         <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
@@ -317,6 +321,7 @@ export default function AdminEventsEditPage() {
           </Link>
         </div>
       </form>
-    </div>
+      </div>
+    </AdminPageShell>
   );
 }

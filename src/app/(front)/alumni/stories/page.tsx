@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { Feather, Filter, Mail, PenSquare, X, CheckCircle2, AlertTriangle, Send } from "lucide-react";
+import { Feather, Filter, PenSquare, X, CheckCircle2, AlertTriangle, Send } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { toast } from "sonner";
+import { PageShell, GlassCard, Button, ButtonLink, EmptyState } from "@/components/ui";
 
 type StoryRecord = {
   id: string;
@@ -122,27 +123,27 @@ export default function AlumniStoriesPage() {
   };
 
   return (
-    <section className="mx-auto w-full max-w-6xl px-4 py-10 pb-32 md:px-8 md:py-12 md:pb-36">
-      <div className="glass-card-base p-5 md:p-8">
+    <PageShell size="wide" className="pb-32 md:pb-36">
+      <GlassCard className="p-5 md:p-8">
         <header className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="inline-flex items-center gap-2 rounded-full border border-[#7C3AED]/20 bg-[#7C3AED]/10 px-3 py-1 text-xs tracking-[0.18em] text-[#7C3AED]">
+            <p className="inline-flex items-center gap-2 rounded-full border border-line bg-brand/10 px-3 py-1 text-xs tracking-[0.18em] text-brand">
               <Feather size={14} />
               STORY COLUMN
             </p>
-            <h1 className="font-heading mt-3 text-3xl font-bold text-[#4C1D95] md:text-4xl">{"燕川故事 · 轻论坛专栏"}</h1>
-            <p className="mt-2 max-w-3xl text-sm leading-7 text-gray-700 md:text-base">
-              {"燕中校友的真实故事与经历分享。每一篇投稿经审核后公开发布，欢迎你的来稿。"}
+            <h1 className="font-heading mt-3 text-3xl font-bold text-brand-fg md:text-4xl">燕川故事 · 轻论坛专栏</h1>
+            <p className="mt-2 max-w-3xl text-sm leading-7 text-brand-fg/70 md:text-base">
+              燕中校友的真实故事与经历分享。每一篇投稿经审核后公开发布，欢迎你的来稿。
             </p>
           </div>
 
-          <Link href="/" className="btn-secondary">
-            {"返回指挥中心"}
-          </Link>
+          <ButtonLink href="/" variant="secondary">
+            返回指挥中心
+          </ButtonLink>
         </header>
 
-        <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-3 md:p-4">
-          <div className="mb-3 inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-[#7C3AED]">
+        <div className="mt-6 rounded-card border border-line bg-surface/30 p-3 md:p-4">
+          <div className="mb-3 inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-brand">
             <Filter size={14} />
             TAG FILTER
           </div>
@@ -154,10 +155,10 @@ export default function AlumniStoriesPage() {
                   key={tag}
                   type="button"
                   onClick={() => setActiveTag(tag)}
-                  className={`rounded-full border px-3 py-1.5 text-xs transition md:text-sm ${
+                  className={`rounded-full border px-3 py-1.5 text-xs transition md:text-sm cursor-pointer ${
                     isActive
-                      ? "border-[#7C3AED] bg-[#7C3AED]/10 text-[#4C1D95]"
-                      : "border-gray-200 bg-gray-50 text-gray-600 hover:border-[#7C3AED]/40 hover:bg-white"
+                      ? "border-brand bg-brand/10 text-brand"
+                      : "border-line bg-surface/50 text-brand-fg/60 hover:border-brand/40 hover:text-brand"
                   }`}
                 >
                   {tag}
@@ -167,134 +168,142 @@ export default function AlumniStoriesPage() {
           </div>
         </div>
 
-        <div className="story-waterfall mt-6">
-          {filteredStories.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 py-12 text-center">
-              <p className="text-sm text-gray-400">
-                {activeTag === "全部" ? "暂无故事，敬请期待。" : `没有找到标签为"${activeTag}"的故事`}
-              </p>
-            </div>
-          ) : (
-            filteredStories.map((story) => (
-            <article
-              key={story.id}
-              className="story-waterfall-item card p-4 transition hover:-translate-y-1 hover:shadow-md md:p-5"
-            >
-              <div className="mb-3 flex items-center justify-between gap-2 text-xs text-[#7C3AED]">
-                <span className="rounded-full border border-[#7C3AED]/20 bg-[#7C3AED]/10 px-2.5 py-1">{formatDate(story.date)}</span>
-                <span className="text-gray-500">{story.author}</span>
-              </div>
-
-              <h2 className="font-heading text-lg font-semibold leading-7 text-[#4C1D95] md:text-xl">{story.title}</h2>
-
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {story.tags.map((tag) => (
-                  <span
-                    key={`${story.id}-${tag}`}
-                    className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs text-emerald-700"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-
-              <p className="mt-4 line-clamp-3 text-sm leading-7 text-gray-600">{story.body.slice(0, 150)}……</p>
-              <div className="mt-3 text-right">
-                <Link
-                  href={`/alumni/stories/${story.id}`}
-                  className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-4 py-1.5 text-xs font-medium text-brand transition hover:bg-brand/20"
+        {loading ? (
+          <div className="flex items-center justify-center py-20 text-brand-fg/60">加载中...</div>
+        ) : (
+          <div className="story-waterfall mt-6">
+            {filteredStories.length === 0 ? (
+              <EmptyState
+                icon={Feather}
+                title={activeTag === "全部" ? "暂无故事" : `没有找到标签为 "${activeTag}" 的故事`}
+                description="欢迎点击下方的投稿按钮，留下属于你的精彩故事。"
+              />
+            ) : (
+              filteredStories.map((story) => (
+                <article
+                  key={story.id}
+                  className="story-waterfall-item rounded-card border border-line bg-surface/40 backdrop-blur-md p-4 transition hover:-translate-y-1 hover:bg-surface/60 hover:shadow-md md:p-5"
                 >
-                  {"阅读全文"} <span className="text-[10px]">→</span>
-                </Link>
-              </div>
-            </article>
-          )))}
-        </div>
-      </div>
+                  <div className="mb-3 flex items-center justify-between gap-2 text-xs">
+                    <span className="rounded-full border border-brand/20 bg-brand/10 px-2.5 py-1 text-brand font-medium">{formatDate(story.date)}</span>
+                    <span className="text-brand-fg/50">{story.author || '匿名校友'}</span>
+                  </div>
 
-      <button
+                  <h2 className="font-heading text-lg font-semibold leading-7 text-brand md:text-xl">{story.title}</h2>
+
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {story.tags.map((tag) => (
+                      <span
+                        key={`${story.id}-${tag}`}
+                        className="rounded-full border border-accent/20 bg-accent/10 px-2.5 py-1 text-xs text-accent"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <p className="mt-4 line-clamp-3 text-sm leading-7 text-brand-fg/70">{story.body.slice(0, 150)}……</p>
+                  <div className="mt-3 text-right">
+                    <Link
+                      href={`/alumni/stories/${story.id}`}
+                      className="inline-flex items-center gap-1 rounded-full border border-brand/20 bg-brand/10 px-4 py-1.5 text-xs font-medium text-brand transition hover:bg-brand/20"
+                    >
+                      阅读全文 <span className="text-[10px]">→</span>
+                    </Link>
+                  </div>
+                </article>
+              ))
+            )}
+          </div>
+        )}
+      </GlassCard>
+
+      <Button
         type="button"
         onClick={() => {
           setIsModalOpen(true);
           setSubmitSuccess(false);
           setSubmitError(null);
         }}
-        className="btn-primary fixed bottom-20 right-4 z-40 px-5 py-3 shadow-lg ring-1 ring-emerald-500/30 hover:ring-emerald-500/50 md:bottom-24 md:right-8"
+        className="fixed bottom-20 right-4 z-40 shadow-lg md:bottom-24 md:right-8"
+        icon={PenSquare}
       >
-        <PenSquare size={16} />
-        {"我要投稿"}
-      </button>
+        我要投稿
+      </Button>
 
-      {isModalOpen ? (
-        <div className="mobile-modal-shell fixed inset-0 z-[90] flex items-center justify-center px-4 py-8">
-          <button type="button"
-            aria-label={"关闭投稿窗口"}
+      {isModalOpen && (
+        <div className="mobile-modal-shell fixed inset-0 z-[90] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-8">
+          <button
+            type="button"
+            aria-label="关闭投稿窗口"
             tabIndex={-1}
-            className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm focus:outline-none"
+            className="absolute inset-0 bg-transparent focus:outline-none"
             onClick={() => setIsModalOpen(false)}
           />
 
-          <div className="mobile-modal-panel safe-modal-panel relative z-10 w-full max-w-2xl rounded-3xl border border-[#7C3AED]/20 bg-white p-5 shadow-xl md:p-6">
-            <div className="mb-4 flex items-center justify-between gap-3 border-b border-gray-100 pb-3">
-              <h3 className="font-heading text-xl font-semibold text-[#4C1D95] md:text-2xl">{"投稿投递舱"}</h3>
+          <div className="relative z-10 w-full max-w-2xl rounded-modal border border-line bg-surface p-5 shadow-lg backdrop-blur-xl md:p-6">
+            <div className="mb-4 flex items-center justify-between gap-3 border-b border-line pb-3">
+              <h3 className="font-heading text-xl font-semibold text-brand md:text-2xl">投稿投递舱</h3>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
                 aria-label="关闭"
                 tabIndex={0}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#7C3AED] focus:ring-offset-2"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-line bg-surface/50 text-brand-fg/60 hover:bg-brand/5 hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2"
               >
                 <X size={15} aria-hidden="true" />
                 <span className="sr-only">关闭</span>
               </button>
             </div>
 
-            <p className="text-sm leading-7 text-gray-600 md:text-base">
-              {"您的投稿在经管理员审核合规后，将会正式收录并展示在“燕中故事”板块中。"}
+            <p className="text-sm leading-7 text-brand-fg/70 md:text-base">
+              您的投稿在经管理员审核合规后，将会正式收录并展示在“燕中故事”板块中。
             </p>
 
             {!(user && (user.role === 'ADMIN' || (user.role === 'ALUMNI' && user.status === 'VERIFIED'))) ? (
-              <div className="mt-4 rounded-xl border border-amber-500/20 bg-amber-500/5 p-5 text-center space-y-3">
+              <div className="mt-4 rounded-card border border-amber-500/20 bg-amber-500/5 p-5 text-center space-y-3">
                 <div className="flex justify-center text-amber-500">
                   <AlertTriangle size={32} />
                 </div>
                 <h4 className="font-semibold text-amber-600">投稿权限受限</h4>
-                <p className="text-xs leading-5 text-gray-600">
+                <p className="text-xs leading-5 text-brand-fg/60">
                   只有通过校友身份认证的用户才能在此提交故事投稿。您当前处于未认证状态。
                 </p>
                 <div className="pt-1">
-                  <Link href="/me" className="btn-secondary py-1 px-4 text-xs">
+                  <ButtonLink href="/me" variant="secondary" size="sm">
                     前往个人中心申请认证
-                  </Link>
+                  </ButtonLink>
                 </div>
               </div>
             ) : submitSuccess ? (
-              <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-6 text-center space-y-4">
-                <div className="flex justify-center text-emerald-500">
+              <div className="mt-4 rounded-card border border-emerald-500/20 bg-emerald-500/10 p-6 text-center space-y-4">
+                <div className="flex justify-center text-emerald-400">
                   <CheckCircle2 size={40} className="animate-in zoom-in duration-300" />
                 </div>
-                <h4 className="font-bold text-emerald-600">投递成功！</h4>
-                <p className="text-xs leading-5 text-gray-600">
+                <h4 className="font-bold text-emerald-400">投递成功！</h4>
+                <p className="text-xs leading-5 text-brand-fg/60">
                   您的文章已进入审核队列，请等待管理员审核。
                 </p>
                 <div className="pt-2 flex justify-center gap-3">
-                  <button
+                  <Button
                     type="button"
                     onClick={() => {
                       setSubmitSuccess(false);
                       setDraft(initialDraft);
                     }}
-                    className="btn-secondary text-xs"
+                    variant="secondary"
+                    size="sm"
                   >
                     再写一篇
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="btn-primary text-xs"
+                    variant="primary"
+                    size="sm"
                   >
                     返回列表
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : (
@@ -305,7 +314,7 @@ export default function AlumniStoriesPage() {
                   tabIndex={0}
                   value={draft.title}
                   onChange={(event) => setDraft((prev) => ({ ...prev, title: event.target.value }))}
-                  placeholder={"标题（例：大学避坑指南）"}
+                  placeholder="标题（例：大学避坑指南）"
                   className="input w-full"
                 />
 
@@ -316,7 +325,7 @@ export default function AlumniStoriesPage() {
                     tabIndex={0}
                     value={draft.author}
                     onChange={(event) => setDraft((prev) => ({ ...prev, author: event.target.value }))}
-                    placeholder={"作者（姓名 / 届别）"}
+                    placeholder="作者（姓名 / 届别）"
                     className="input w-full"
                   />
 
@@ -327,10 +336,10 @@ export default function AlumniStoriesPage() {
                     onChange={(event) => setDraft((prev) => ({ ...prev, tag: event.target.value }))}
                     className="input w-full"
                   >
-                    <option value="专业真相">{"专业真相"}</option>
-                    <option value="避坑指南">{"避坑指南"}</option>
-                    <option value="校园回忆">{"校园回忆"}</option>
-                    <option value="青春寄语">{"青春寄语"}</option>
+                    <option value="专业真相">专业真相</option>
+                    <option value="避坑指南">避坑指南</option>
+                    <option value="校园回忆">校园回忆</option>
+                    <option value="青春寄语">青春寄语</option>
                   </select>
                 </div>
 
@@ -341,7 +350,7 @@ export default function AlumniStoriesPage() {
                   tabIndex={0}
                   value={draft.content}
                   onChange={(event) => setDraft((prev) => ({ ...prev, content: event.target.value }))}
-                  placeholder={"请输入稿件正文"}
+                  placeholder="请输入稿件正文"
                   className="input w-full resize-y"
                 />
 
@@ -350,29 +359,29 @@ export default function AlumniStoriesPage() {
                   aria-label="联系方式"
                   tabIndex={0}
                   onChange={(event) => setDraft((prev) => ({ ...prev, contact: event.target.value }))}
-                  placeholder={"联系方式（可选）"}
+                  placeholder="联系方式（可选，微信号/邮箱）"
                   className="input w-full"
                 />
 
                 {submitError && (
-                  <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-xs text-rose-700">
+                  <div className="rounded-card border border-rose-500/20 bg-rose-500/10 px-4 py-2 text-xs text-rose-400">
                     ⚠️ {submitError}
                   </div>
                 )}
 
-                <button
+                <Button
                   type="submit"
                   disabled={submitting}
-                  className="btn-primary w-full justify-center disabled:opacity-50"
+                  className="w-full justify-center"
                 >
                   <Send size={17} />
                   {submitting ? "投递中..." : "提交投稿到母港"}
-                </button>
+                </Button>
               </form>
             )}
           </div>
         </div>
-      ) : null}
-    </section>
+      )}
+    </PageShell>
   );
 }

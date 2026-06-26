@@ -3,6 +3,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { CalendarDays, Plus, Edit2, Users, Search, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import { AdminPageShell } from '@/components/admin/AdminPageShell';
+import { EmptyState } from '@/components/ui';
+import { toast } from 'sonner';
 
 type EventItem = {
   id: string;
@@ -58,9 +61,10 @@ export default function AdminEventsPage() {
         throw new Error(data.error || '删除失败');
       }
       setEvents((prev) => prev.filter((e) => e.id !== confirmDelete.id));
+      toast.success('活动已删除');
       setConfirmDelete(null);
     } catch (err: any) {
-      alert('删除失败: ' + err.message);
+      toast.error('删除失败: ' + err.message);
     } finally {
       setDeleting(null);
     }
@@ -86,20 +90,20 @@ export default function AdminEventsPage() {
   const filters = ['ALL', 'DRAFT', 'PUBLISHED'];
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <CalendarDays size={28} className="text-[#7C3AED]" />
-          <h2 className="text-2xl font-bold text-[#4C1D95] font-heading">活动管理</h2>
-        </div>
+    <AdminPageShell
+      title="活动管理"
+      description="创建、发布并运营校友活动记录"
+      actions={
         <Link
           href="/admin/events/new"
-          className="inline-flex items-center gap-2 rounded-xl border border-[#7C3AED]/20 bg-[#7C3AED]/5 px-4 py-2.5 text-sm text-[#7C3AED] transition hover:bg-[#7C3AED]/10 cursor-pointer"
+          className="inline-flex items-center gap-2 rounded-btn border border-[#7C3AED]/20 bg-[#7C3AED]/5 px-4 py-2.5 text-sm text-[#7C3AED] transition hover:bg-[#7C3AED]/10 cursor-pointer"
         >
           <Plus size={16} />
           创建活动
         </Link>
-      </div>
+      }
+    >
+      <div className="space-y-4">
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <div className="flex gap-2">
@@ -138,15 +142,17 @@ export default function AdminEventsPage() {
       {loading ? (
         <div className="flex items-center justify-center py-20 text-[#4C1D95]/60">加载中...</div>
       ) : events.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-[#4C1D95]/60">
-          <CalendarDays size={40} className="mb-3 opacity-30" />
-          <p>暂无活动记录</p>
-        </div>
+        <EmptyState
+          icon={CalendarDays}
+          title="暂无活动记录"
+          description="点击右上角“创建活动”来新增第一条记录"
+        />
       ) : filteredEvents.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-[#4C1D95]/60">
-          <CalendarDays size={40} className="mb-3 opacity-30" />
-          <p>未找到匹配的活动</p>
-        </div>
+        <EmptyState
+          icon={CalendarDays}
+          title="未找到匹配的活动"
+          description="可以尝试调整您的搜索关键词"
+        />
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-[#7C3AED]/10 bg-white/50 backdrop-blur-sm">
           <table className="w-full text-left text-sm">
@@ -227,6 +233,7 @@ export default function AdminEventsPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </AdminPageShell>
   );
 }

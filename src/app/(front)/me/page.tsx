@@ -1,25 +1,63 @@
-import Link from "next/link";
+import { PageShell, GlassCard, PageHeader, ButtonLink, Badge } from "@/components/ui";
+import { User, Edit, FileText, Lock, PlusCircle } from "lucide-react";
 import { requirePageUser } from "@/lib/admin-auth";
 
 export default async function MePage() {
   const user = await requirePageUser();
+
+  const getStatusBadgeTone = (status: string) => {
+    if (status === "VERIFIED") return "success";
+    if (status === "PENDING") return "warning";
+    if (status === "REJECTED") return "danger";
+    return "neutral";
+  };
+
+  const getStatusText = (status: string) => {
+    if (status === "VERIFIED") return "已认证校友";
+    if (status === "PENDING") return "身份审核中";
+    if (status === "REJECTED") return "已驳回";
+    return "未认证";
+  };
+
   return (
-    <section className="mx-auto max-w-3xl px-4 py-12">
-      <div className="rounded-card border border-line bg-surface/50 backdrop-blur-xl p-7">
-        <h1 className="text-2xl font-bold">个人中心</h1>
-        <p className="mt-2 text-brand-fg/70">
-          {user.name || user.username} · {user.email}
-        </p>
-        <div className="mt-6 grid gap-3 grid-cols-2 sm:grid-cols-4">
-          <Link className="rounded-xl border border-brand/15 p-4 hover:bg-brand/5 text-center text-sm" href="/me/edit">编辑资料</Link>
-          <Link className="rounded-xl border border-brand/15 p-4 hover:bg-brand/5 text-center text-sm text-brand font-semibold" href="/me/submit">我要投稿</Link>
-          <Link className="rounded-xl border border-brand/15 p-4 hover:bg-brand/5 text-center text-sm" href="/me/posts">我的投稿</Link>
-          <Link className="rounded-xl border border-brand/15 p-4 hover:bg-brand/5 text-center text-sm" href="/me/change-password">修改密码</Link>
+    <PageShell size="narrow">
+      <PageHeader
+        eyebrow="PROFILE"
+        eyebrowIcon={User}
+        title="个人中心"
+        description="管理你的校友资料、提交投稿及查看个人状态"
+      />
+
+      <GlassCard className="p-7 mt-6 space-y-6">
+        <div className="flex items-center justify-between border-b border-line pb-4">
+          <div>
+            <h2 className="text-xl font-bold text-brand-fg">{user.name || user.username}</h2>
+            <p className="text-sm text-brand-fg/60 mt-1">{user.email}</p>
+          </div>
+          <Badge tone={getStatusBadgeTone(user.status)}>
+            {getStatusText(user.status)}
+          </Badge>
         </div>
-        <p className="mt-6 text-sm text-brand-fg/60">
-          校友认证状态：{user.status}
-        </p>
-      </div>
-    </section>
+
+        <div className="grid gap-4 grid-cols-2">
+          <ButtonLink href="/me/edit" variant="secondary" size="md" className="flex flex-col items-center justify-center p-6 gap-2 text-center rounded-card h-auto border-line hover:border-brand/35">
+            <Edit size={20} className="text-brand" />
+            <span>编辑资料</span>
+          </ButtonLink>
+          <ButtonLink href="/me/submit" variant="secondary" size="md" className="flex flex-col items-center justify-center p-6 gap-2 text-center rounded-card h-auto border-line hover:border-brand/35">
+            <PlusCircle size={20} className="text-brand" />
+            <span>我要投稿</span>
+          </ButtonLink>
+          <ButtonLink href="/me/posts" variant="secondary" size="md" className="flex flex-col items-center justify-center p-6 gap-2 text-center rounded-card h-auto border-line hover:border-brand/35">
+            <FileText size={20} className="text-brand" />
+            <span>我的投稿</span>
+          </ButtonLink>
+          <ButtonLink href="/me/change-password" variant="secondary" size="md" className="flex flex-col items-center justify-center p-6 gap-2 text-center rounded-card h-auto border-line hover:border-brand/35">
+            <Lock size={20} className="text-brand" />
+            <span>修改密码</span>
+          </ButtonLink>
+        </div>
+      </GlassCard>
+    </PageShell>
   );
 }

@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Users, ArrowLeft, Download, CalendarDays, Clock } from 'lucide-react';
 import Link from 'next/link';
+import { AdminPageShell } from '@/components/admin/AdminPageShell';
+import { EmptyState } from '@/components/ui';
+import { toast } from 'sonner';
 
 type Registration = {
   id: string;
@@ -110,17 +113,15 @@ export default function AdminEventRegistrationsPage() {
   };
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Users size={28} className="text-[#7C3AED]" />
-          <h2 className="text-2xl font-bold text-[#4C1D95] font-heading">报名名单</h2>
-        </div>
+    <AdminPageShell
+      title="报名名单"
+      description={event ? `活动《${event.title}》的报名记录` : '活动报名记录'}
+      actions={
         <div className="flex gap-2">
           {registrations.length > 0 && (
             <button
               onClick={handleExport}
-              className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm text-emerald-700 transition hover:bg-emerald-100 cursor-pointer"
+              className="inline-flex items-center gap-2 rounded-btn border border-emerald-500/20 bg-emerald-500/10 px-4 py-2.5 text-sm text-emerald-400 transition hover:bg-emerald-500/20 cursor-pointer"
             >
               <Download size={16} />
               导出 CSV
@@ -128,13 +129,15 @@ export default function AdminEventRegistrationsPage() {
           )}
           <Link
             href={`/admin/events/${params.id}`}
-            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 text-sm text-[#4C1D95]/60 transition hover:border-[#7C3AED]/30 hover:text-[#7C3AED] cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-btn border border-line bg-surface/50 px-4 py-2.5 text-sm text-brand transition hover:bg-brand/5 cursor-pointer"
           >
             <ArrowLeft size={16} />
             返回编辑
           </Link>
         </div>
-      </div>
+      }
+    >
+      <div className="space-y-4">
 
       {event && (
         <div className="mb-6 rounded-2xl border border-[#7C3AED]/10 bg-white/50 p-4 backdrop-blur-sm">
@@ -161,10 +164,11 @@ export default function AdminEventRegistrationsPage() {
       {loading ? (
         <div className="flex items-center justify-center py-20 text-[#4C1D95]/60">加载中...</div>
       ) : registrations.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-[#4C1D95]/60">
-          <Users size={40} className="mb-3 opacity-30" />
-          <p>暂无报名记录</p>
-        </div>
+        <EmptyState
+          icon={Users}
+          title="暂无报名记录"
+          description="该活动目前还没有校友登记报名"
+        />
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-[#7C3AED]/10 bg-white/50 backdrop-blur-sm">
           <table className="w-full text-left text-sm">
@@ -193,6 +197,7 @@ export default function AdminEventRegistrationsPage() {
           </table>
         </div>
       )}
-    </div>
+      </div>
+    </AdminPageShell>
   );
 }

@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import { ShieldCheck, UserCheck, UserX, Users } from 'lucide-react';
 import { useAuth } from '@/components/AuthProvider';
+import { AdminPageShell } from '@/components/admin/AdminPageShell';
+import { EmptyState } from '@/components/ui';
+import { toast } from 'sonner';
 
 type UserRecord = {
   id: string;
@@ -56,11 +59,12 @@ export default function AdminUsersPage() {
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Update failed');
+        throw new Error(data.error || '操作失败');
       }
+      toast.success('操作成功');
       fetchUsers();
     } catch (err: any) {
-      alert('操作失败: ' + err.message);
+      toast.error('操作失败: ' + err.message);
     }
   };
 
@@ -85,11 +89,11 @@ export default function AdminUsersPage() {
   const filters = ['ALL', 'PENDING', 'VERIFIED', 'REJECTED'];
 
   return (
-    <div>
-      <div className="mb-6 flex items-center gap-3">
-        <Users size={28} className="text-[#7C3AED]" />
-        <h2 className="text-2xl font-bold text-[#4C1D95] font-heading">用户审核</h2>
-      </div>
+    <AdminPageShell
+      title="用户审核"
+      description="审核注册用户的校友身份与账号状态"
+    >
+      <div className="space-y-4">
 
       {/* Filter tabs */}
       <div className="mb-4 flex gap-2">
@@ -117,10 +121,11 @@ export default function AdminUsersPage() {
       {loading ? (
         <div className="flex items-center justify-center py-20 text-[#4C1D95]/60">加载中...</div>
       ) : users.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-[#4C1D95]/60">
-          <Users size={40} className="mb-3 opacity-30" />
-          <p>暂无匹配的用户记录</p>
-        </div>
+        <EmptyState
+          icon={Users}
+          title="暂无匹配的用户记录"
+          description="注册申请处理完毕后将在此归档显示"
+        />
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-[#7C3AED]/10 bg-white/50 backdrop-blur-sm">
           <table className="w-full text-left text-sm">
@@ -236,6 +241,7 @@ export default function AdminUsersPage() {
           </table>
         </div>
       )}
-    </div>
+      </div>
+    </AdminPageShell>
   );
 }

@@ -2,8 +2,8 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { CheckCircle2, XCircle, Loader2, Mail } from "lucide-react";
+import { PageShell, GlassCard, Button, ButtonLink } from "@/components/ui";
 
 export default function VerifyEmailPage() {
   const params = useSearchParams();
@@ -65,83 +65,88 @@ export default function VerifyEmailPage() {
   }
 
   return (
-    <section className="mx-auto max-w-md px-4 py-16 flex flex-col items-center justify-center min-h-[60vh] text-center select-none">
-      {/* 状态图标 */}
-      <div className="flex justify-center mb-6">
-        {status === "verifying" && (
-          <Loader2 className="w-16 h-16 animate-spin text-purple-400 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]" />
-        )}
-        {status === "success" && (
-          <CheckCircle2 className="w-16 h-16 text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.5)]" />
-        )}
-        {status === "error" && (
-          <XCircle className="w-16 h-16 text-rose-400 drop-shadow-[0_0_15px_rgba(251,113,133,0.5)]" />
-        )}
-        {status === "idle" && (
-          <Mail className="w-16 h-16 text-purple-400 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]" />
-        )}
-      </div>
-
-      {/* 渐变标题 */}
-      <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-200 to-pink-200 mt-2 font-heading">
-        {status === "idle" && "发送验证邮件"}
-        {status === "verifying" && "正在验证邮箱"}
-        {status === "success" && "邮箱验证成功"}
-        {status === "error" && "验证失败"}
-      </h1>
-
-      {/* 柔和说明文字 */}
-      {message && (
-        <p className="text-purple-300/70 mt-4 max-w-sm leading-relaxed text-sm md:text-base">
-          {message}
-        </p>
-      )}
-
-      {/* 验证重发单栏表单 */}
-      {status === "idle" && (
-        <form onSubmit={resend} className="mt-8 w-full space-y-4">
-          <input
-            type="email"
-            className="w-full px-4 py-3 rounded-xl bg-[#0f0a1d]/60 border border-purple-500/30 text-purple-100 placeholder-purple-300/40 focus:outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400 transition-all duration-300 text-center"
-            placeholder="请输入注册邮箱"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <button className="w-full px-8 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-medium shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] transition-all duration-300 cursor-pointer">
-            重新发送验证邮件
-          </button>
-          <Link
-            href="/login"
-            className="block text-sm text-purple-300/50 hover:text-purple-300 transition-colors pt-2"
-          >
-            返回登录
-          </Link>
-        </form>
-      )}
-
-      {/* 交互闭环导航 (登录/重试) */}
-      {(status === "success" || status === "error") && (
-        <div className="flex flex-col items-center gap-4 mt-6">
-          <Link
-            href="/login"
-            className="mt-6 px-8 py-3 rounded-full border border-purple-500/50 text-purple-100 hover:bg-purple-500/20 hover:border-purple-400 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all duration-300 cursor-pointer"
-          >
-            前往登录
-          </Link>
+    <PageShell size="narrow" className="flex items-center justify-center min-h-[60vh]">
+      <GlassCard className="w-full max-w-md p-8 text-center flex flex-col items-center justify-center select-none">
+        {/* 状态图标 */}
+        <div className="flex justify-center mb-6">
+          {status === "verifying" && (
+            <Loader2 className="w-16 h-16 animate-spin text-brand drop-shadow-[0_0_15px_rgba(167,139,250,0.5)]" />
+          )}
+          {status === "success" && (
+            <CheckCircle2 className="w-16 h-16 text-accent drop-shadow-[0_0_15px_rgba(34,197,94,0.5)]" />
+          )}
           {status === "error" && (
-            <button
-              onClick={() => {
-                setStatus("idle");
-                setMessage("");
-              }}
-              className="text-sm text-purple-300/50 hover:text-purple-300 transition-colors cursor-pointer"
-            >
-              重新发送验证邮件
-            </button>
+            <XCircle className="w-16 h-16 text-rose-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]" />
+          )}
+          {status === "idle" && (
+            <Mail className="w-16 h-16 text-brand drop-shadow-[0_0_15px_rgba(167,139,250,0.5)]" />
           )}
         </div>
-      )}
-    </section>
+
+        {/* 渐变标题 */}
+        <h1 className="text-3xl font-bold text-brand-fg font-heading bg-gradient-to-r from-brand-soft via-brand-fg to-brand bg-clip-text text-transparent">
+          {status === "idle" && "发送验证邮件"}
+          {status === "verifying" && "正在验证邮箱"}
+          {status === "success" && "邮箱验证成功"}
+          {status === "error" && "验证失败"}
+        </h1>
+
+        {/* 柔和说明文字 */}
+        {message && (
+          <p className="text-brand-fg/70 mt-4 max-w-sm leading-relaxed text-sm">
+            {message}
+          </p>
+        )}
+
+        {/* 验证重发单栏表单 */}
+        {status === "idle" && (
+          <form onSubmit={resend} className="mt-8 w-full space-y-4">
+            <input
+              type="email"
+              className="input w-full text-center"
+              placeholder="请输入注册邮箱"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <Button type="submit" className="w-full">
+              重新发送验证邮件
+            </Button>
+            <ButtonLink
+              href="/login"
+              variant="secondary"
+              className="w-full"
+            >
+              返回登录
+            </ButtonLink>
+          </form>
+        )}
+
+        {/* 交互闭环导航 (登录/重试) */}
+        {(status === "success" || status === "error") && (
+          <div className="flex flex-col items-center gap-4 mt-6 w-full">
+            <ButtonLink
+              href="/login"
+              variant="primary"
+              className="w-full"
+            >
+              前往登录
+            </ButtonLink>
+            {status === "error" && (
+              <Button
+                onClick={() => {
+                  setStatus("idle");
+                  setMessage("");
+                }}
+                variant="secondary"
+                className="w-full"
+              >
+                重新发送验证邮件
+              </Button>
+            )}
+          </div>
+        )}
+      </GlassCard>
+    </PageShell>
   );
 }

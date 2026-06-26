@@ -1,8 +1,8 @@
-'use client';
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import { cn } from '@/components/ui/cn';
+import { AdminPageShell } from './AdminPageShell';
+import { toast } from 'sonner';
 
 /**
  * 字段配置：声明式描述一个表单字段，CrudManager 据此渲染输入控件。
@@ -79,6 +79,12 @@ export function CrudManager<T extends { id: string }>({
     setEditingId(null);
   };
 
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
+
   const openEdit = (item: T) => {
     setForm({ ...emptyForm, ...toForm(item) });
     setEditingId(item.id);
@@ -89,33 +95,34 @@ export function CrudManager<T extends { id: string }>({
     if (validate) {
       const msg = validate(form);
       if (msg) {
-        setError(msg);
+        toast.error(msg);
         return;
       }
     }
     const payload = toPayload ? toPayload(form) : form;
-    const ok = editingId ? await onUpdate(editingId, payload) : await onCreate(payload);
-    if (ok) resetForm();
+    const isEdit = !!editingId;
+    const ok = isEdit ? await onUpdate(editingId, payload) : await onCreate(payload);
+    if (ok) {
+      toast.success(isEdit ? '更新成功' : '新增成功');
+      resetForm();
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm(deleteConfirm)) {
+      const ok = await onDelete(id);
+      if (ok) {
+        toast.success('删除成功');
+      }
+    }
   };
 
   return (
-    <div>
-      <h1 className="font-heading text-xl font-bold text-brand-fg">{title}</h1>
-      {subtitle ? <p className="mt-1 text-sm text-brand-fg/60">{subtitle}</p> : null}
-
-      {error ? (
-        <div className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-          {error}
-          <button onClick={() => setError('')} className="ml-2 underline cursor-pointer">
-            关闭
-          </button>
-        </div>
-      ) : null}
-
+    <AdminPageShell title={title} description={subtitle}>
       {/* 表单卡片 */}
-      <div className="mt-4 rounded-card border border-brand/10 bg-surface p-5 shadow-sm">
+      <div className="rounded-card border border-line bg-surface/60 backdrop-blur-xl p-5 shadow-sm">
         <h2 className="mb-4 font-heading text-base font-semibold text-brand-fg">
-          {editingId ? '编辑' : '新增'}
+          {editingId ? '编辑记录' : '新增记录'}
         </h2>
         <div className="grid gap-4 md:grid-cols-2">
           {fields.map((field) => (
@@ -128,12 +135,12 @@ export function CrudManager<T extends { id: string }>({
             />
           ))}
         </div>
-        <div className="mt-4 flex gap-3">
-          <button onClick={handleSubmit} disabled={saving} className="btn-primary cursor-pointer">
+        <div className="mt-5 flex gap-3">
+          <button onClick={handleSubmit} disabled={saving} className="btn-primary cursor-pointer rounded-btn">
             {saving ? '保存中...' : editingId ? '更新' : '新增'}
           </button>
           {editingId ? (
-            <button onClick={resetForm} className="btn-secondary cursor-pointer" disabled={saving}>
+            <button onClick={resetForm} className="btn-secondary cursor-pointer rounded-btn" disabled={saving}>
               取消编辑
             </button>
           ) : null}
@@ -141,32 +148,32 @@ export function CrudManager<T extends { id: string }>({
       </div>
 
       {/* 列表 */}
-      <div className="mt-4 space-y-2">
+      <div className="mt-6 space-y-3">
         {loading ? (
-          <p className="text-sm text-gray-400">加载中...</p>
+          <p className="text-sm text-brand-fg/50 animate-pulse">加载中...</p>
         ) : items.length === 0 ? (
-          <p className="text-sm text-gray-400">{emptyHint}</p>
+          <div className="rounded-card border border-dashed border-line bg-surface/20 py-8 text-center text-sm text-brand-fg/40">
+            {emptyHint}
+          </div>
         ) : (
           items.map((item) => (
             <div
               key={item.id}
-              className="flex flex-wrap items-start gap-3 rounded-card border border-gray-200 bg-surface p-4 shadow-sm hover:shadow-md"
+              className="flex flex-wrap items-start gap-3 rounded-card border border-line bg-surface/40 backdrop-blur-sm p-4 shadow-sm hover:border-brand/20 transition-all duration-300"
             >
               <div className="min-w-0 flex-1">{renderItem(item)}</div>
-              <div className="flex shrink-0 items-center gap-1">
+              <div className="flex shrink-0 items-center gap-1.5">
                 <button
                   onClick={() => openEdit(item)}
                   aria-label="编辑"
-                  className="rounded p-1.5 text-gray-400 hover:bg-brand/10 hover:text-brand cursor-pointer"
+                  className="rounded-btn p-2 text-brand-fg/50 hover:bg-brand/15 hover:text-brand transition cursor-pointer"
                 >
                   <Pencil size={15} />
                 </button>
                 <button
-                  onClick={() => {
-                    if (confirm(deleteConfirm)) onDelete(item.id);
-                  }}
+                  onClick={() => handleDelete(item.id)}
                   aria-label="删除"
-                  className="rounded p-1.5 text-gray-400 hover:bg-rose-50 hover:text-rose-600 cursor-pointer"
+                  className="rounded-btn p-2 text-brand-fg/50 hover:bg-rose-500/10 hover:text-rose-400 transition cursor-pointer"
                 >
                   <Trash2 size={15} />
                 </button>
@@ -175,7 +182,7 @@ export function CrudManager<T extends { id: string }>({
           ))
         )}
       </div>
-    </div>
+    </AdminPageShell>
   );
 }
 
@@ -206,7 +213,7 @@ function FormField({
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="input w-full min-h-[120px]"
+          className="input w-full min-h-[120px] rounded-btn bg-surface-muted/50 border-line"
           placeholder={field.placeholder}
           disabled={disabled}
         />
@@ -214,11 +221,11 @@ function FormField({
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="input w-full"
+          className="input w-full rounded-btn bg-surface-muted/50 border-line"
           disabled={disabled}
         >
           {(field.options || []).map((opt) => (
-            <option key={opt.value} value={opt.value}>
+            <option key={opt.value} value={opt.value} className="bg-surface-muted">
               {opt.label}
             </option>
           ))}
@@ -228,7 +235,7 @@ function FormField({
           type={field.type === 'url' ? 'text' : field.type || 'text'}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={cn('input w-full')}
+          className={cn('input w-full rounded-btn bg-surface-muted/50 border-line')}
           placeholder={field.placeholder}
           disabled={disabled}
         />

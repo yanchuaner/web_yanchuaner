@@ -12,6 +12,9 @@ import {
   ChevronUp,
   FileEdit,
 } from 'lucide-react';
+import { AdminPageShell } from '@/components/admin/AdminPageShell';
+import { EmptyState } from '@/components/ui';
+import { toast } from 'sonner';
 
 type CorrectionRequest = {
   id: string;
@@ -119,9 +122,11 @@ export default function AdminAlumniCorrectionsPage() {
       setActionTarget(null);
       setActionType(null);
       setAdminNote('');
+      toast.success(actionType === 'approve' ? '申请已批准，名单已自动更新' : '申请已驳回');
       fetchRequests();
     } catch (err: any) {
       setActionError(err.message);
+      toast.error(err.message || '操作失败');
     } finally {
       setActionLoading(false);
     }
@@ -131,14 +136,11 @@ export default function AdminAlumniCorrectionsPage() {
   const selectedStatusBadge = actionTarget ? STATUS_BADGE[actionTarget.status] : null;
 
   return (
-    <div className="space-y-4">
-      {/* 页面标题 */}
-      <div>
-        <h1 className="font-heading text-xl font-bold text-[#4C1D95]">信息修改申请</h1>
-        <p className="mt-0.5 text-sm text-[#4C1D95]/60">
-          共 {total} 条申请
-        </p>
-      </div>
+    <AdminPageShell
+      title="信息修改申请"
+      description={`共 ${total} 条申请`}
+    >
+      <div className="space-y-4">
 
       {/* 状态筛选 */}
       <div className="flex flex-wrap gap-2">
@@ -187,12 +189,11 @@ export default function AdminAlumniCorrectionsPage() {
             </button>
           </div>
         ) : requests.length === 0 ? (
-          <div className="py-16 text-center">
-            <FileEdit size={36} className="mx-auto text-[#7C3AED]/20" />
-            <p className="mt-3 text-sm text-[#4C1D95]/40">
-              {search || statusFilter ? '未找到匹配的申请' : '暂无修改申请'}
-            </p>
-          </div>
+          <EmptyState
+            icon={FileEdit}
+            title={search || statusFilter ? '未找到匹配的申请' : '暂无修改申请'}
+            description="校友数据更新后将在此处统一管理与审核"
+          />
         ) : (
           <table className="w-full text-sm">
             <thead>
@@ -451,6 +452,7 @@ export default function AdminAlumniCorrectionsPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </AdminPageShell>
   );
 }

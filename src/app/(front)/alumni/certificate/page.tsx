@@ -4,6 +4,8 @@ import Link from "next/link";
 import NextImage from "next/image";
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { CheckCircle2, IdCard, ImagePlus, Rocket, X } from "lucide-react";
+import { PageShell } from "@/components/ui";
+import { toast } from "sonner";
 
 const CANVAS_WIDTH = 2752;
 const CANVAS_HEIGHT = 1548;
@@ -340,7 +342,7 @@ export default function AlumniCertificatePage() {
     }
 
     if (!selectedFile.type.startsWith("image/")) {
-      alert("请上传图片格式文件");
+      toast.error("请上传图片格式文件");
       event.target.value = "";
       return;
     }
@@ -349,7 +351,7 @@ export default function AlumniCertificatePage() {
     reader.onload = () => {
       const nextDataUrl = typeof reader.result === "string" ? reader.result : "";
       if (!nextDataUrl) {
-        alert("影像读取失败，请重试");
+        toast.error("影像读取失败，请重试");
         return;
       }
 
@@ -357,7 +359,7 @@ export default function AlumniCertificatePage() {
       setAvatarFileName(selectedFile.name);
     };
     reader.onerror = () => {
-      alert("影像读取失败，请重试");
+      toast.error("影像读取失败，请重试");
     };
     reader.readAsDataURL(selectedFile);
     event.target.value = "";
@@ -377,12 +379,12 @@ export default function AlumniCertificatePage() {
       return;
     }
     if (!selectedFile.type.startsWith("image/")) {
-      alert("请上传图片格式文件");
+      toast.error("请上传图片格式文件");
       event.target.value = "";
       return;
     }
     if (selectedFile.size > 10 * 1024 * 1024) {
-      alert("背景图过大，请使用 10MB 以内的文件");
+      toast.error("背景图过大，请使用 10MB 以内的文件");
       event.target.value = "";
       return;
     }
@@ -397,13 +399,13 @@ export default function AlumniCertificatePage() {
       });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data?.url) {
-        alert(data?.error || "背景上传失败，请重试");
+        toast.error(data?.error || "背景上传失败，请重试");
         return;
       }
       setBgUrl(data.url);
       setBgFileName(selectedFile.name);
     } catch {
-      alert("背景上传失败，请检查网络后重试");
+      toast.error("背景上传失败，请检查网络后重试");
     } finally {
       setBgUploading(false);
       event.target.value = "";
@@ -534,7 +536,7 @@ export default function AlumniCertificatePage() {
   const handleGenerate = async () => {
     const userAnswer = Number(captchaInput.trim());
     if (!Number.isInteger(userAnswer) || userAnswer !== numA + numB) {
-      alert("算术验证码错误，请重新计算");
+      toast.error("算术验证码错误，请重新计算");
       regenerateCaptcha();
       return;
     }
@@ -543,7 +545,7 @@ export default function AlumniCertificatePage() {
     const trimmedClass = className.trim();
 
     if (!trimmedName || !trimmedClass) {
-      alert("请输入完整的校友信息");
+      toast.error("请输入完整的校友信息");
       return;
     }
 
@@ -552,13 +554,13 @@ export default function AlumniCertificatePage() {
       const data = await res.json();
 
       if (!data.found || !data.match) {
-        alert("抱歉，未在已登记名单中找到匹配信息。请核对姓名与班级（需与登记信息完全一致）。");
+        toast.error("抱歉，未在已登记名单中找到匹配信息。请核对姓名与班级（需与登记信息完全一致）。");
         return;
       }
 
       const match = data.match;
       if (!isClassMatch(trimmedClass, match.graduationClass)) {
-        alert("抱歉，班级不匹配。请核对班级信息（需与登记信息一致）。");
+        toast.error("抱歉，班级不匹配。请核对班级信息（需与登记信息一致）。");
         return;
       }
 
@@ -584,12 +586,12 @@ export default function AlumniCertificatePage() {
         setIsSuccess(false);
       }, 1200);
     } catch {
-      alert("验证服务暂时不可用，请稍后重试。");
+      toast.error("验证服务暂时不可用，请稍后重试。");
     }
   };
 
   return (
-    <section className="mx-auto w-full max-w-6xl px-4 py-8 md:px-8 md:py-10">
+    <PageShell size="wide">
       {/* Hero — 仪式感顶部 */}
       <header className="relative mb-6 overflow-hidden rounded-3xl border border-line bg-surface/50 backdrop-blur-xl p-4 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.3)] md:mb-8 md:p-6">
         <div
@@ -897,6 +899,6 @@ export default function AlumniCertificatePage() {
       </div>
 
       <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="hidden" />
-    </section>
+    </PageShell>
   );
 }
