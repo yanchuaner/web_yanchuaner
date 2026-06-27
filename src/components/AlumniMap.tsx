@@ -8,6 +8,7 @@ import L from 'leaflet';
 import { getCityCoords } from '@/data/cityCoordinates';
 import chinaData from '@/data/china.json';
 import { formatGraduationClass } from '@/lib/identity-fields';
+import { Skeleton } from '@/components/ui';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -40,8 +41,12 @@ export default function AlumniMap() {
 
   if (loading) {
     return (
-      <div className="flex h-80 items-center justify-center rounded-2xl border border-cyan-300/15 bg-slate-900/50">
-        <p className="text-sm text-slate-300">正在加载校友分布图...</p>
+      <div className="overflow-hidden rounded-2xl border border-line bg-surface/30 shadow-sm">
+        <Skeleton className="h-80 w-full rounded-none" />
+        <div className="flex min-h-[44px] items-center gap-2 border-t border-line bg-surface/40 px-4 py-3">
+          <Skeleton variant="circle" className="h-4 w-4 shrink-0" />
+          <Skeleton variant="text" className="h-3 w-full max-w-56" />
+        </div>
       </div>
     );
   }
@@ -77,9 +82,9 @@ export default function AlumniMap() {
           </Marker>
         ))}
       </MapContainer>
-      <div className="flex items-center gap-2 border-t border-cyan-300/10 bg-slate-900/80 px-4 py-3">
-        <MapPin size={14} className="text-cyan-400" />
-        <p className="text-xs text-slate-300">
+      <div className="flex min-h-[44px] items-center gap-2 border-t border-cyan-300/10 bg-slate-900/80 px-4 py-3">
+        <MapPin size={14} className="shrink-0 text-cyan-400" />
+        <p className="min-w-0 text-xs leading-5 text-slate-300">
           共 {points.length} 个校友分布点 · 拖动地图浏览
         </p>
       </div>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import prisma from "@/lib/db";
 import { Newspaper, CalendarDays } from "lucide-react";
+import { Skeleton, SkeletonText } from "@/components/ui";
 
 type UpdateItem = {
   id: string;
@@ -47,11 +48,14 @@ async function getLatestUpdates(): Promise<UpdateItem[]> {
 
 export const LatestUpdatesSkeleton = () => (
   <div className="grid gap-4 sm:grid-cols-2">
-    {[1, 2, 3].map((i) => (
+    {Array.from({ length: 3 }).map((_, index) => (
       <div
-        key={i}
-        className="animate-pulse rounded-xl border border-[#A78BFA]/20 bg-white/60 h-16"
-      />
+        key={index}
+        className="flex min-h-[72px] items-center gap-4 rounded-xl border border-line bg-surface/40 px-5 py-4 shadow-sm"
+      >
+        <Skeleton className="h-10 w-10 shrink-0 rounded-xl" />
+        <SkeletonText lines={2} className="min-w-0 flex-1" />
+      </div>
     ))}
   </div>
 );
