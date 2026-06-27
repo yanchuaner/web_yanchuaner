@@ -21,6 +21,8 @@ import {
   formatClassName,
   formatGraduationClass,
   GRADUATION_CLASS_PATTERN,
+  normalizeClassName,
+  normalizeGraduationClass,
 } from '@/lib/identity-fields';
 
 type AlumniItem = {
@@ -168,8 +170,8 @@ export default function AdminAlumniPage() {
   const openEdit = (item: AlumniItem) => {
     setEditingId(item.id);
     setFormName(item.name);
-    setFormClass(item.graduationClass || '');
-    setFormClassName(item.className || '');
+    setFormClass(normalizeGraduationClass(item.graduationClass));
+    setFormClassName(normalizeClassName(item.className));
     setFormEmail(item.email || '');
     setFormContact(item.contact || '');
     setFormCity(item.city || '');
