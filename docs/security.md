@@ -437,6 +437,25 @@ await prisma.$transaction(async (tx) => {
 
 ## 10. 安全头与 Cookie 策略
 
+### 当前安全响应头
+
+应用层在 `next.config.mjs` 中统一下发基础安全响应头：
+
+```http
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Referrer-Policy: strict-origin-when-cross-origin
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+Content-Security-Policy-Report-Only: ...
+```
+
+说明：
+
+- HSTS 只会被浏览器在 HTTPS 响应上采纳；生产域名必须确保证书有效后再长期启用。
+- CSP 当前使用 `Report-Only`，目的是先收集误伤，不阻断现有页面、地图、上传图片和后台操作。
+- 第一版 CSP 允许 `self`、`data:`/`blob:` 图片、HTTPS 图片/请求、WebSocket 开发连接，并保留 Next.js 运行所需的 inline/eval 兼容项。后续应逐步收紧。
+- Nginx 直出的 `/_next/static/*`、`/uploads/*` 不经过 Next.js，可在 Nginx 侧补充 HSTS 与基础安全头。
+
 ### Cookie 配置
 
 ```
@@ -471,8 +490,9 @@ export function safeRedirect(value: unknown, fallback = "/") {
 
 ## 待审计项 (Security Roadmap)
 
-- [ ] 生产环境开启 CSP (Content Security Policy) header
-- [ ] 生产环境开启 HSTS (HTTP Strict Transport Security)
+- [x] 应用层开启 CSP Report-Only header
+- [x] 应用层开启 HSTS (HTTP Strict Transport Security)
+- [ ] 生产环境通过浏览器控制台或上报日志确认 CSP 无误伤后，切换为正式 `Content-Security-Policy`
 - [ ] 添加请求频率异常告警（同上 IP 在多个账号间切换）
 - [ ] Admin 操作双因素认证（可选）
 - [ ] 定期依赖审计（`npm audit`）

@@ -1,50 +1,53 @@
+import { GlassCard, PageShell, Skeleton, SkeletonText } from "@/components/ui";
+
 export default function AlumniLoading() {
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-12 bg-slate-950 p-8">
-      {/* Grid skeleton */}
-      <div className="w-full max-w-6xl space-y-6">
-        {/* Header skeleton */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-          <div className="space-y-3">
-            <div className="h-8 w-64 animate-pulse rounded-md bg-slate-800"></div>
-            <div className="h-4 w-40 animate-pulse rounded-md bg-slate-800/60"></div>
+    <PageShell size="wide" className="min-h-[60vh]">
+      <div className="space-y-6" aria-busy="true" aria-live="polite">
+        <GlassCard className="p-5 md:p-6" as="section">
+          <div className="flex flex-col gap-4 border-b border-line pb-5 md:flex-row md:items-center md:justify-between">
+            <div className="space-y-3">
+              <Skeleton variant="text" className="h-8 w-64 max-w-full" />
+              <Skeleton variant="text" className="h-4 w-40 max-w-full" />
+            </div>
+            <div className="flex gap-2">
+              <Skeleton variant="circle" className="h-10 w-10" />
+              <Skeleton className="h-10 w-24 rounded-btn" />
+            </div>
           </div>
-          <div className="flex space-x-2">
-            <div className="h-10 w-10 animate-pulse rounded-full bg-slate-800"></div>
-            <div className="h-10 w-24 animate-pulse rounded-md bg-slate-800"></div>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <Skeleton key={index} className="h-24" />
+            ))}
           </div>
-        </div>
-        
-        {/* Data grid skeleton */}
+        </GlassCard>
+
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900/50 p-6 backdrop-blur-sm">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <GlassCard key={index} className="p-6" as="article">
               <div className="flex items-start justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="h-16 w-16 animate-pulse rounded-full bg-slate-800"></div>
+                <div className="flex items-center gap-4">
+                  <Skeleton variant="circle" className="h-16 w-16" />
                   <div className="space-y-2">
-                    <div className="h-5 w-32 animate-pulse rounded-md bg-slate-700"></div>
-                    <div className="h-3 w-24 animate-pulse rounded-md bg-slate-800"></div>
+                    <Skeleton variant="text" className="h-5 w-32" />
+                    <Skeleton variant="text" className="h-3 w-24" />
                   </div>
                 </div>
-                <div className="h-6 w-16 animate-pulse rounded-full bg-cyan-900/30 border border-cyan-800/50"></div>
+                <Skeleton variant="text" className="h-6 w-16" />
               </div>
-              
-              <div className="mt-6 space-y-3">
-                <div className="h-3 w-full animate-pulse rounded-md bg-slate-800"></div>
-                <div className="h-3 w-4/5 animate-pulse rounded-md bg-slate-800"></div>
-                <div className="h-3 w-5/6 animate-pulse rounded-md bg-slate-800"></div>
-              </div>
-              
+
+              <SkeletonText lines={3} className="mt-6" />
+
               <div className="mt-6 flex flex-wrap gap-2">
-                <div className="h-6 w-20 animate-pulse rounded-md bg-slate-800/70"></div>
-                <div className="h-6 w-24 animate-pulse rounded-md bg-slate-800/70"></div>
-                <div className="h-6 w-16 animate-pulse rounded-md bg-slate-800/70"></div>
+                <Skeleton className="h-6 w-20 rounded-btn" />
+                <Skeleton className="h-6 w-24 rounded-btn" />
+                <Skeleton className="h-6 w-16 rounded-btn" />
               </div>
-            </div>
+            </GlassCard>
           ))}
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 }

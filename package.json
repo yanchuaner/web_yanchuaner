@@ -10,7 +10,7 @@
     "fresh": "bash scripts/clean.sh && npm run dev",
     "update-list": "node scripts/build_list.js",
     "create-admin": "tsx scripts/create_admin.ts",
-    "normalize-identity-fields": "tsx scripts/normalize_identity_fields.ts",
+    "normalize-identity-fields": "node scripts/normalize_identity_fields.js",
     "migrate-users": "tsx scripts/migrate_users.ts",
     "smoke": "node scripts/smoke-test.js",
     "seed": "tsx prisma/seed.ts",
@@ -55,8 +55,5 @@
     "tailwindcss": "^3.4.17",
     "tsx": "^4.20.3",
     "typescript": "^5.9.2"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
   }
 }

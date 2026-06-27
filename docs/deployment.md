@@ -221,6 +221,10 @@ npm install prisma@7.8.0
 # === 同步数据库 Schema ===
 DATABASE_URL="file:/var/www/alumni-site/data/prod.db" npx prisma db push
 
+# === 清洗历史身份字段（PR #23 后执行一次） ===
+DATABASE_URL="file:/var/www/alumni-site/data/prod.db" node scripts/normalize_identity_fields.js --dry-run
+DATABASE_URL="file:/var/www/alumni-site/data/prod.db" node scripts/normalize_identity_fields.js
+
 # === 启动服务 ===
 systemctl start alumni-site
 
@@ -338,6 +342,8 @@ server {
     listen 80;
     server_name yanchuaner.cn www.yanchuaner.cn;
 
+    add_header X-Content-Type-Options "nosniff" always;
+
     # 静态资源直读（绕过 Node.js）
     location /_next/static/ {
         alias /var/www/alumni-site/.next/static/;
@@ -378,6 +384,24 @@ sudo ln -sf /etc/nginx/sites-available/alumni-site /etc/nginx/sites-enabled/
 sudo rm -f /etc/nginx/sites-enabled/default  # 移除默认站点
 sudo nginx -t                                  # 测试配置
 sudo systemctl reload nginx
+```
+
+> CSP 当前由 `next.config.mjs` 以 `Content-Security-Policy-Report-Only` 管理。不要在 Nginx 代理层重复下发不同 CSP，避免排查时出现多份策略互相干扰。
+
+### HTTPS 安全响应头
+
+certbot 签发证书并生成/改写 443 server 后，在 HTTPS server 中保留 HSTS 和基础安全头：
+
+```nginx
+server {
+    listen 443 ssl http2;
+    server_name yanchuaner.cn www.yanchuaner.cn;
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Content-Type-Options "nosniff" always;
+
+    # 其余 SSL、静态资源和 proxy_pass 配置沿用 certbot / 上方站点配置
+}
 ```
 
 ---

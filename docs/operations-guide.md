@@ -329,6 +329,7 @@ const updated = await prisma.$transaction(async (tx) => {
 | `npm run smoke` | 关键路径回归测试 | 部署前验证认证、后台流程是否正常 |
 | `npm run fresh` | 清理构建产物后重新开发 | 遇到奇怪的缓存/构建问题 |
 | `npm run update-list` | 构建校友列表文件 | 数据更新后重新生成静态文件 |
+| `npm run normalize-identity-fields` | 清洗届别/班级历史后缀 | PR #23 后生产执行一次，支持 `-- --dry-run` |
 | `npm run db:generate` | 仅生成 Prisma Client | schema 变更后单独执行 |
 | `npm run db:push` | 仅同步数据库 schema | 不触发种子和构建 |
 | `npm run db:studio` | 打开 Prisma Studio | 本地调试数据 |
@@ -344,7 +345,36 @@ V2.0 的 `prisma/seed.ts` 使用 `findFirst + createOrUpdate` 模式：
 
 因此 `npm run seed` 可以安全地多次执行——不会产生重复数据，只补充缺失项和更新已有项。这在构建流水线（`npm run build`）中特别关键：每次构建自动种子不会污染数据库。
 
-### 7.2 全量种子（`npm run seed-all`）
+### 7.2 身份字段清洗（normalize-identity-fields）
+
+PR #23 后，届别和班级统一为纯数字存储：数据库保存 `2025`、`1`，展示层格式化为 `2025届`、`1班`。历史数据如果仍有后缀，可通过脚本幂等清洗。
+
+```bash
+# 本地预览会改动多少行
+npm run normalize-identity-fields -- --dry-run
+
+# 本地正式执行
+npm run normalize-identity-fields
+```
+
+生产执行顺序：
+
+```bash
+# 1. 必须先备份数据库和上传目录
+sudo /var/www/alumni-site/scripts/backup.sh
+
+# 2. 部署新版本后，先同步 schema
+cd /var/www/alumni-site/app
+DATABASE_URL="file:/var/www/alumni-site/data/prod.db" npx prisma db push
+
+# 3. 先 dry-run，再正式执行
+DATABASE_URL="file:/var/www/alumni-site/data/prod.db" node scripts/normalize_identity_fields.js --dry-run
+DATABASE_URL="file:/var/www/alumni-site/data/prod.db" node scripts/normalize_identity_fields.js
+```
+
+脚本会处理 `User`、`WhitelistRoster`、`Achievement`、`AlumniCorrectionRequest` 中的届别/班级字段；多次执行不会重复改动。本地开发仍可使用 `npm run normalize-identity-fields`。
+
+### 7.3 全量种子（`npm run seed-all`）
 
 执行顺序：
 ```
@@ -353,7 +383,7 @@ seed_whitelist.js  → seed_content_sections.js  → seed_memories.js  → seed_
 
 适合首次部署或需要完整重建演示数据时使用。
 
-### 7.3 烟雾测试（`npm run smoke`）
+### 7.4 烟雾测试（`npm run smoke`）
 
 ```bash
 # 使用环境变量配置测试参数
@@ -365,7 +395,7 @@ npm run smoke
 
 测试覆盖：用户注册 → 邮箱验证 → 用户登录 → 管理员登录 → 后台 API 访问 → 校友数据 API 访问。
 
-### 7.4 证书编号管理（gen_cert_numbers.js）
+### 7.5 证书编号管理（gen_cert_numbers.js）
 
 电子校友证上的编号来自数据库 `WhitelistRoster.certificateNo` 字段。留空则回退显示 UUID。
 
@@ -383,7 +413,7 @@ node scripts/gen_cert_numbers.js
 - 后台 → 校友名单 → 编辑 → 证书编号输入框
 - 数据库 → `npx prisma studio` → WhitelistRoster → certificateNo 列
 
-### 7.5 燕中记忆管理（seed_memories.js）
+### 7.6 燕中记忆管理（seed_memories.js）
 
 燕中记忆文化长廊使用数据库驱动，通过后台 `/admin/memories` 可视化维护。
 
