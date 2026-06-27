@@ -7,6 +7,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { getCityCoords } from '@/data/cityCoordinates';
 import chinaData from '@/data/china.json';
+import { formatGraduationClass } from '@/lib/identity-fields';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -70,7 +71,7 @@ export default function AlumniMap() {
             <Popup>
               <div className="text-sm">
                 <p className="font-semibold">{p.name}</p>
-                <p className="text-gray-500">{p.graduationClass} · {p.city}</p>
+                <p className="text-gray-500">{formatGraduationClass(p.graduationClass)} · {p.city}</p>
               </div>
             </Popup>
           </Marker>

@@ -10,6 +10,7 @@
     "fresh": "bash scripts/clean.sh && npm run dev",
     "update-list": "node scripts/build_list.js",
     "create-admin": "tsx scripts/create_admin.ts",
+    "normalize-identity-fields": "tsx scripts/normalize_identity_fields.ts",
     "migrate-users": "tsx scripts/migrate_users.ts",
     "smoke": "node scripts/smoke-test.js",
     "seed": "tsx prisma/seed.ts",

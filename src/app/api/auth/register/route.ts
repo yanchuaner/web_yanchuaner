@@ -77,7 +77,10 @@ export async function POST(req: NextRequest) {
       !validClassName(className) ||
       contact.length > 128
     ) {
-      return NextResponse.json({ error: "注册资料格式无效" }, { status: 400 });
+      return NextResponse.json(
+        { error: "注册资料格式无效：届别需为2025起的四位年份数字，班级需为1-99的数字" },
+        { status: 400 },
+      );
     }
 
     const passwordHash = await hash(password, BCRYPT_COST);

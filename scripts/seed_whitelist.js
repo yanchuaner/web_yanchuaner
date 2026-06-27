@@ -10,6 +10,12 @@ const dbUrl = (process.env.DATABASE_URL || 'file:./dev.db').replace('file:', '')
 const dbPath = path.resolve(process.cwd(), dbUrl);
 const db = new Database(dbPath);
 
+function normalizeGraduationClass(value) {
+  const normalized = String(value || '').trim().normalize('NFC');
+  const match = normalized.match(/^(20\d{2})届?$/);
+  return match ? match[1] : normalized;
+}
+
 async function main() {
   const csvFilePath = path.join(__dirname, '../alumni_roster.csv');
   const fileStream = fs.createReadStream(csvFilePath);
@@ -50,7 +56,7 @@ async function main() {
     insert.run(
       crypto.randomUUID(),
       name.trim(),
-      graduationClass ? graduationClass.trim() : null,
+      graduationClass ? normalizeGraduationClass(graduationClass) : null,
       tags ? tags.trim() : null
     );
     count++;

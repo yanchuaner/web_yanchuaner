@@ -5,6 +5,7 @@ import { Search, AlertTriangle, CheckCircle2, Loader2, Send } from 'lucide-react
 import { PageShell, GlassCard, Button, ButtonLink, EmptyState, DisclaimerBanner } from '@/components/ui';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { formatClassName, formatGraduationClass } from '@/lib/identity-fields';
 
 type AlumniResult = {
   id: string;
@@ -232,7 +233,7 @@ export default function AlumniCorrectionPage() {
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium text-brand-fg">{item.name}</p>
                           <p className="mt-0.5 text-xs text-brand-fg/50">
-                            {item.graduationClass || '届别未知'}{item.className && ` · ${item.className}`}
+                            {formatGraduationClass(item.graduationClass) || '届别未知'}{item.className && ` · ${formatClassName(item.className)}`}
                             {item.university && ` · ${item.university}`}{item.city && ` · ${item.city}`}
                           </p>
                         </div>
@@ -257,8 +258,8 @@ export default function AlumniCorrectionPage() {
               <p className="text-xs text-brand-fg/40">当前信息</p>
               <p className="mt-1 text-sm font-medium text-brand-fg">{selected.name}</p>
               <p className="text-xs text-brand-fg/60">
-                {selected.graduationClass || '届别未知'}
-                {selected.className && ` · ${selected.className}`}
+                {formatGraduationClass(selected.graduationClass) || '届别未知'}
+                {selected.className && ` · ${formatClassName(selected.className)}`}
                 {selected.university && ` · ${selected.university}`}
                 {selected.major && ` · ${selected.major}`}
                 {selected.city && ` · ${selected.city}`}

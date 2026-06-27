@@ -6,6 +6,7 @@ import { useAuth } from '@/components/AuthProvider';
 import { AdminPageShell } from '@/components/admin/AdminPageShell';
 import { EmptyState, ResponsiveTabs } from '@/components/ui';
 import { toast } from 'sonner';
+import { formatClassName, formatGraduationClass } from '@/lib/identity-fields';
 
 type UserRecord = {
   id: string;
@@ -161,7 +162,7 @@ export default function AdminUsersPage() {
                     <p>{user.username || '旧资料'}</p>
                     <p className="text-xs">{user.email || '-'}</p>
                   </td>
-                  <td className="px-4 py-3">{[user.graduationClass, user.className].filter(Boolean).join(' / ') || '-'}</td>
+                  <td className="px-4 py-3">{[formatGraduationClass(user.graduationClass), formatClassName(user.className)].filter(Boolean).join(' / ') || '-'}</td>
                   <td className="px-4 py-3 hidden md:table-cell">{user.emailVerified ? '已验证' : '未验证'}</td>
                   <td className="px-4 py-3 hidden md:table-cell">{user.role}</td>
                   <td className="px-4 py-3">

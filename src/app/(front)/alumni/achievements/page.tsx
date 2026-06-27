@@ -15,6 +15,7 @@ import {
   ACHIEVEMENT_CATEGORY_LABELS,
   type AchievementCategory,
 } from "@/lib/achievements";
+import { formatGraduationClass } from "@/lib/identity-fields";
 
 import {
   PageShell,
@@ -145,7 +146,7 @@ export default async function AlumniAchievementsPage({
                       {achievement.alumniName}
                     </p>
                     <p className="mt-1 text-xs text-gray-500">
-                      {[achievement.graduationClass, achievement.organization]
+                      {[formatGraduationClass(achievement.graduationClass), achievement.organization]
                         .filter(Boolean)
                         .join(" · ") || "燕中校友"}
                     </p>

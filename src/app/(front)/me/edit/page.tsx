@@ -6,7 +6,10 @@ import { Search, ArrowLeft, User } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { api } from "@/lib/apiClient";
 import { PageShell, GlassCard, PageHeader, Button, ButtonLink } from "@/components/ui";
-import { USERNAME_INPUT_PATTERN } from "@/lib/identity-fields";
+import {
+  normalizeGraduationClass,
+  USERNAME_INPUT_PATTERN,
+} from "@/lib/identity-fields";
 
 const MAJOR_CITIES = [
   "北京", "上海", "广州", "深圳", "天津", "重庆", "杭州", "南京", "武汉", "成都", 
@@ -151,7 +154,7 @@ export default function EditProfilePage() {
     (_, i) => String(startYear + i)
   ).reverse();
 
-  const userGradClass = profile.graduationClass || "";
+  const userGradClass = normalizeGraduationClass(profile.graduationClass);
   const displayedGradClasses = [...gradClasses];
   if (userGradClass && !displayedGradClasses.includes(userGradClass)) {
     displayedGradClasses.unshift(userGradClass);

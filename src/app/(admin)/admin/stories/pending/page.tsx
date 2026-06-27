@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { CheckCircle, XCircle, Feather, Clock, User, Calendar } from 'lucide-react';
 import { AdminPageShell } from '@/components/admin/AdminPageShell';
 import { api } from '@/lib/apiClient';
+import { formatClassName, formatGraduationClass } from '@/lib/identity-fields';
 
 type PendingStory = {
   id: string;
@@ -124,8 +125,8 @@ export default function AdminStoriesPendingPage() {
                     <div>姓名: <span className="text-slate-200">{story.authorUser.name || '未填写'}</span></div>
                     <div>用户名: <span className="text-slate-200">{story.authorUser.username || '未填写'}</span></div>
                     <div>邮箱: <span className="text-slate-200">{story.authorUser.email || '未填写'}</span></div>
-                    <div>届别: <span className="text-slate-200">{story.authorUser.graduationClass || '未填写'}</span></div>
-                    <div>班级: <span className="text-slate-200">{story.authorUser.className || '未填写'}</span></div>
+                    <div>届别: <span className="text-slate-200">{formatGraduationClass(story.authorUser.graduationClass) || '未填写'}</span></div>
+                    <div>班级: <span className="text-slate-200">{formatClassName(story.authorUser.className) || '未填写'}</span></div>
                   </div>
                 </div>
               )}

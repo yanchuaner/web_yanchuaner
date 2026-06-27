@@ -8,6 +8,7 @@ import {
   ChevronDown, ChevronUp, ArrowLeft, AlertCircle,
 } from 'lucide-react';
 import { PageShell, GlassCard, PageHeader, ButtonLink, DisclaimerBanner } from '@/components/ui';
+import { formatGraduationClass } from '@/lib/identity-fields';
 
 const CityMapRenderer = dynamic(() => import('@/components/CityMapRenderer'), { ssr: false });
 
@@ -194,7 +195,7 @@ export default function UniversityMapPage() {
                                   >
                                     <div className="flex justify-between items-center">
                                       <span className="font-semibold text-sm text-[#4C1D95]">{member.name}</span>
-                                      <span className="text-[#4C1D95]/60 font-semibold">{member.graduationClass || '暂无班级'}</span>
+                                      <span className="text-[#4C1D95]/60 font-semibold">{formatGraduationClass(member.graduationClass) || '暂无届别'}</span>
                                     </div>
                                     <div className="text-gray-500 flex justify-between gap-2 flex-wrap">
                                       <span>大学: {member.university || '暂无'}</span>
@@ -221,7 +222,7 @@ export default function UniversityMapPage() {
                                       <span className="font-medium text-[#4C1D95]">{member.name}</span>
                                       <span>{member.university || '暂无'}</span>
                                       <span>{member.major || '暂无'}</span>
-                                      <span>{member.graduationClass || '暂无'}</span>
+                                      <span>{formatGraduationClass(member.graduationClass) || '暂无'}</span>
                                     </div>
                                   ))}
                                 </div>

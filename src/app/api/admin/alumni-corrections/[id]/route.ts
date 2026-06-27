@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
 import { readJsonBody } from "@/lib/auth-utils";
+import {
+  normalizeClassName,
+  normalizeGraduationClass,
+  validClassName,
+  validGraduationClass,
+} from "@/lib/identity-fields";
 
 export async function GET(
   req: NextRequest,
@@ -73,6 +79,15 @@ export async function PATCH(
       const roster = await prisma.whitelistRoster.findUnique({ where: { id: request.rosterId } });
       if (!roster) return NextResponse.json({ error: "该校友已从名单中删除，无法应用修改" }, { status: 400 });
 
+      const requestedGraduationClass = normalizeGraduationClass(request.requestedGraduationClass);
+      const requestedClassName = normalizeClassName(request.requestedClassName);
+      if (requestedGraduationClass && !validGraduationClass(requestedGraduationClass)) {
+        return NextResponse.json({ error: "届别需为2025起的四位年份数字" }, { status: 400 });
+      }
+      if (requestedClassName && !validClassName(requestedClassName)) {
+        return NextResponse.json({ error: "班级需为1-99的数字" }, { status: 400 });
+      }
+
       // 使用 transaction 保证一致性
       await prisma.$transaction(async (tx) => {
         // 1. 更新审核状态
@@ -84,8 +99,8 @@ export async function PATCH(
         // 2. 更新 WhitelistRoster
         const rosterUpdate: Record<string, string | null> = {};
         if (request.requestedName) rosterUpdate.name = request.requestedName;
-        if (request.requestedGraduationClass) rosterUpdate.graduationClass = request.requestedGraduationClass;
-        if (request.requestedClassName) rosterUpdate.className = request.requestedClassName;
+        if (requestedGraduationClass) rosterUpdate.graduationClass = requestedGraduationClass;
+        if (requestedClassName) rosterUpdate.className = requestedClassName;
         if (request.requestedCity) rosterUpdate.city = request.requestedCity;
         if (request.requestedUniversity) rosterUpdate.university = request.requestedUniversity;
         if (request.requestedMajor) rosterUpdate.major = request.requestedMajor;
@@ -96,15 +111,17 @@ export async function PATCH(
 
         // 3. 同步更新匹配的 User 账号 (按 name + graduationClass)
         const matchCriteria: Record<string, string> = {
-          name: rosterUpdate.name || roster.name,
-          graduationClass: rosterUpdate.graduationClass || roster.graduationClass || '',
+          name: roster.name,
+          graduationClass: normalizeGraduationClass(roster.graduationClass),
         };
         const matchedUser = await tx.user.findFirst({
           where: { name: matchCriteria.name, graduationClass: matchCriteria.graduationClass },
         });
         if (matchedUser) {
           const userUpdate: Record<string, string | null> = {};
-          if (request.requestedClassName) userUpdate.className = request.requestedClassName;
+          if (request.requestedName) userUpdate.name = request.requestedName;
+          if (requestedGraduationClass) userUpdate.graduationClass = requestedGraduationClass;
+          if (requestedClassName) userUpdate.className = requestedClassName;
           if (request.requestedCity) userUpdate.city = request.requestedCity;
           if (request.requestedUniversity) userUpdate.university = request.requestedUniversity;
           if (request.requestedMajor) userUpdate.major = request.requestedMajor;

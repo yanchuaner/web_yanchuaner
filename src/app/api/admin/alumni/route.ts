@@ -3,6 +3,12 @@ import prisma from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
 import { upsertRosterEntry } from "@/lib/roster";
 import { readJsonBody } from "@/lib/auth-utils";
+import {
+  normalizeClassName,
+  normalizeGraduationClass,
+  validClassName,
+  validGraduationClass,
+} from "@/lib/identity-fields";
 
 export async function GET(req: NextRequest) {
   const auth = await requireAdmin(req);
@@ -85,8 +91,8 @@ export async function POST(req: NextRequest) {
     }>(req, 16384); // 16KB limit
 
     const name = typeof body.name === "string" ? body.name.trim() : "";
-    const graduationClass = typeof body.graduationClass === "string" ? body.graduationClass.trim() : "";
-    const className = typeof body.className === "string" ? body.className.trim() : "";
+    const graduationClass = normalizeGraduationClass(body.graduationClass);
+    const className = normalizeClassName(body.className);
     const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
     const contact = typeof body.contact === "string" ? body.contact.trim() : "";
     const city = typeof body.city === "string" ? body.city.trim() : "";
@@ -101,15 +107,15 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
-    if (graduationClass && graduationClass.length > 50) {
+    if (graduationClass && !validGraduationClass(graduationClass)) {
       return NextResponse.json(
-        { error: "届别长度不超过50字" },
+        { error: "届别需为2025起的四位年份数字" },
         { status: 400 },
       );
     }
-    if (className && className.length > 64) {
+    if (className && !validClassName(className)) {
       return NextResponse.json(
-        { error: "班级长度不能超过 64 字" },
+        { error: "班级需为1-99的数字" },
         { status: 400 },
       );
     }

@@ -5,6 +5,7 @@ import { AdminPageShell } from "@/components/admin/AdminPageShell";
 import { EmptyState } from "@/components/ui";
 import { toast } from "sonner";
 import { Users, Loader2 } from "lucide-react";
+import { formatGraduationClass } from "@/lib/identity-fields";
 
 export default function UserClaimsPage() {
   const [claims, setClaims] = useState<any[]>([]);
@@ -102,7 +103,7 @@ export default function UserClaimsPage() {
                 {claim.claimant.name}（{claim.claimant.username}）
               </h3>
               <p className="mt-1.5 text-sm text-brand-fg/60">
-                {claim.claimant.email} · {claim.claimant.graduationClass || "届别未填"} · {claim.claimant.contact || "无联系方式"}
+                {claim.claimant.email} · {formatGraduationClass(claim.claimant.graduationClass) || "届别未填"} · {claim.claimant.contact || "无联系方式"}
               </p>
 
               <div className="mt-4">

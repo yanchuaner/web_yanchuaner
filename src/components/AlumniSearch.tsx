@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Search, X } from 'lucide-react';
+import { formatGraduationClass } from '@/lib/identity-fields';
 
 type Result = { id: number; name: string; graduationClass: string; city: string; university: string; major: string };
 
@@ -63,7 +64,7 @@ export default function AlumniSearch() {
             <div key={r.id} className="rounded-xl px-4 py-3 transition hover:bg-[#7C3AED]/5">
               <p className="text-sm font-medium text-[#4C1D95]">{r.name}</p>
               <p className="mt-0.5 text-xs text-gray-600">
-                {r.graduationClass}
+                {formatGraduationClass(r.graduationClass)}
                 {r.university && ` · ${r.university}`}
                 {r.major && ` · ${r.major}`}
                 {r.city && ` · ${r.city}`}

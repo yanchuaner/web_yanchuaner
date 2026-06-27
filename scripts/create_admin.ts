@@ -26,7 +26,7 @@ async function main() {
     const email = normalizeEmail(await rl.question("管理员邮箱: "));
     const password = await rl.question("管理员密码: ");
     const confirmPassword = await rl.question("确认密码: ");
-    const graduationClass = normalizeGraduationClass(await rl.question("届别（例如：2025届）: "));
+    const graduationClass = normalizeGraduationClass(await rl.question("届别（例如：2025）: "));
     const className = normalizeClassName(await rl.question("班级（例如：2）: "));
     const contact = (await rl.question("联系方式（可选）: ")).trim();
     if (

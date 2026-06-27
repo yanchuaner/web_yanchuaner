@@ -16,6 +16,12 @@ import {
 } from 'lucide-react';
 import { AdminPageShell } from '@/components/admin/AdminPageShell';
 import { toast } from 'sonner';
+import {
+  CLASS_NAME_PATTERN,
+  formatClassName,
+  formatGraduationClass,
+  GRADUATION_CLASS_PATTERN,
+} from '@/lib/identity-fields';
 
 type AlumniItem = {
   id: string;
@@ -183,13 +189,13 @@ export default function AdminAlumniPage() {
       return;
     }
     const gradClass = formClass.trim();
-    if (gradClass.length > 50) {
-      setFormError('届别不超过50字');
+    if (gradClass && !GRADUATION_CLASS_PATTERN.test(gradClass)) {
+      setFormError('届别需为2025起的四位年份数字');
       return;
     }
     const className = formClassName.trim();
-    if (className.length > 64) {
-      setFormError('班级不能超过 64 字');
+    if (className && !CLASS_NAME_PATTERN.test(className)) {
+      setFormError('班级需为1-99的数字');
       return;
     }
     const email = formEmail.trim().toLowerCase();
@@ -464,8 +470,8 @@ export default function AdminAlumniPage() {
                   className="border-b border-[#7C3AED]/5 transition hover:bg-[#7C3AED]/[0.02]"
                 >
                   <td className="px-4 py-3 font-medium text-[#4C1D95]">{item.name}</td>
-                  <td className="px-4 py-3 text-[#4C1D95]/60">{item.graduationClass || '-'}</td>
-                  <td className="px-4 py-3 text-[#4C1D95]/60">{item.className || '-'}</td>
+                  <td className="px-4 py-3 text-[#4C1D95]/60">{formatGraduationClass(item.graduationClass) || '-'}</td>
+                  <td className="px-4 py-3 text-[#4C1D95]/60">{formatClassName(item.className) || '-'}</td>
                   <td className="px-4 py-3 text-[#4C1D95]/60 hidden md:table-cell">{item.email || '-'}</td>
                   <td className="px-4 py-3 text-[#4C1D95]/60 hidden lg:table-cell">{item.contact || '-'}</td>
                   <td className="px-4 py-3 text-[#4C1D95]/60 hidden sm:table-cell">{item.city || '-'}</td>
@@ -575,7 +581,9 @@ export default function AdminAlumniPage() {
                   value={formClass}
                   onChange={(e) => setFormClass(e.target.value)}
                   className="input w-full bg-white"
-                  placeholder="例如：2020"
+                  maxLength={4}
+                  pattern={GRADUATION_CLASS_PATTERN.source}
+                  placeholder="例如：2025"
                   disabled={formSaving}
                 />
               </div>
@@ -587,6 +595,8 @@ export default function AdminAlumniPage() {
                   value={formClassName}
                   onChange={(e) => setFormClassName(e.target.value)}
                   className="input w-full bg-white"
+                  maxLength={2}
+                  pattern={CLASS_NAME_PATTERN.source}
                   placeholder="例如：1"
                   disabled={formSaving}
                 />
@@ -729,7 +739,7 @@ export default function AdminAlumniPage() {
                 <h2 id="delete-modal-title" className="font-heading text-lg font-bold text-[#4C1D95]">确认删除</h2>
                 <p className="mt-1 text-sm leading-6 text-[#4C1D95]/60">
                   确定要删除 <strong>{deleteTarget.name}</strong>
-                  {deleteTarget.graduationClass ? `（${deleteTarget.graduationClass}）` : ''}
+                  {deleteTarget.graduationClass ? `（${formatGraduationClass(deleteTarget.graduationClass)}）` : ''}
                   的校友信息吗？此操作不可撤销。
                 </p>
               </div>

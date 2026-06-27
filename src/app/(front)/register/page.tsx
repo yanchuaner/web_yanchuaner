@@ -70,8 +70,9 @@ export default function RegisterPage() {
           <label className="text-sm">密码<input name="password" type="password" className="input mt-1 w-full" minLength={8} maxLength={64} required /></label>
           <label className="text-sm">确认密码<input name="confirmPassword" type="password" className="input mt-1 w-full" minLength={8} maxLength={64} required /></label>
           <label className="text-sm">真实姓名<input name="name" defaultValue={searchParams.get("name") || ""} className="input mt-1 w-full" maxLength={64} required /></label>
-          <label className="text-sm">届别
-            <input name="graduationClass" defaultValue={searchParams.get("graduationClass") || ""} className="input mt-1 w-full" maxLength={5} pattern={GRADUATION_CLASS_PATTERN.source} placeholder="例如：2025届" required />
+          <label className="text-sm">
+            届别 <span className="text-xs text-brand-fg/50">首届为2025届</span>
+            <input name="graduationClass" defaultValue={searchParams.get("graduationClass") || ""} className="input mt-1 w-full" maxLength={4} pattern={GRADUATION_CLASS_PATTERN.source} placeholder="例如：2025" required />
           </label>
           <label className="text-sm">班级<input name="className" className="input mt-1 w-full" maxLength={2} pattern={CLASS_NAME_PATTERN.source} placeholder="例如：2" required /></label>
           <label className="text-sm">联系方式（可选）<input name="contact" defaultValue={searchParams.get("contact") || ""} className="input mt-1 w-full" maxLength={128} /></label>

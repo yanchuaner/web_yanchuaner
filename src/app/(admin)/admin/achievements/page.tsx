@@ -8,6 +8,7 @@ import {
   ACHIEVEMENT_CATEGORY_LABELS,
   type AchievementCategory,
 } from "@/lib/achievements";
+import { formatGraduationClass } from "@/lib/identity-fields";
 
 type Achievement = {
   id: string;
@@ -24,7 +25,7 @@ type Achievement = {
 
 const FIELDS: FieldConfig[] = [
   { name: "alumniName", label: "校友姓名", required: true },
-  { name: "graduationClass", label: "届别", placeholder: "例：2020届" },
+  { name: "graduationClass", label: "届别", placeholder: "例：2025" },
   { name: "title", label: "成就标题", required: true, fullWidth: true },
   {
     name: "category",
@@ -100,7 +101,7 @@ export default function AdminAchievementsPage() {
           </div>
           <p className="mt-1 text-sm text-gray-600">
             {a.alumniName}
-            {a.graduationClass ? ` · ${a.graduationClass}` : ""}
+            {a.graduationClass ? ` · ${formatGraduationClass(a.graduationClass)}` : ""}
             {" · "}
             {ACHIEVEMENT_CATEGORY_LABELS[a.category]}
           </p>

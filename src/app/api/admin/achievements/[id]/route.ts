@@ -6,6 +6,10 @@ import {
   isAchievementCategory,
   isAchievementStatus,
 } from "@/lib/achievements";
+import {
+  normalizeGraduationClass,
+  validGraduationClass,
+} from "@/lib/identity-fields";
 
 export async function PUT(
   req: NextRequest,
@@ -39,7 +43,7 @@ export async function PUT(
     const description = typeof body.description === "string" ? body.description.trim() : "";
     const category = typeof body.category === "string" ? body.category.trim() : "OTHER";
     const status = typeof body.status === "string" ? body.status.trim() : "DRAFT";
-    const graduationClass = typeof body.graduationClass === "string" ? body.graduationClass.trim() : "";
+    const graduationClass = normalizeGraduationClass(body.graduationClass);
     const organization = typeof body.organization === "string" ? body.organization.trim() : "";
     const yearLabel = typeof body.yearLabel === "string" ? body.yearLabel.trim() : "";
 
@@ -61,9 +65,9 @@ export async function PUT(
         { status: 400 },
       );
     }
-    if (graduationClass.length > 50) {
+    if (graduationClass && !validGraduationClass(graduationClass)) {
       return NextResponse.json(
-        { error: "届别长度不超过50字" },
+        { error: "届别需为2025起的四位年份数字" },
         { status: 400 },
       );
     }

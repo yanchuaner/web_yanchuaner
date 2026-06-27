@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { requireVerifiedAlumni } from "@/lib/admin-auth";
+import {
+  normalizeClassName,
+  normalizeGraduationClass,
+  validClassName,
+  validGraduationClass,
+} from "@/lib/identity-fields";
 
 export async function POST(req: NextRequest) {
   const auth = await requireVerifiedAlumni(req);
@@ -49,8 +55,8 @@ export async function POST(req: NextRequest) {
 
     try {
       requestedName = stringField("requestedName", 50);
-      requestedGraduationClass = stringField("requestedGraduationClass", 50);
-      requestedClassName = stringField("requestedClassName", 64);
+      requestedGraduationClass = normalizeGraduationClass(stringField("requestedGraduationClass", 50)) || null;
+      requestedClassName = normalizeClassName(stringField("requestedClassName", 64)) || null;
       requestedCity = stringField("requestedCity", 100);
       requestedUniversity = stringField("requestedUniversity", 150);
       requestedMajor = stringField("requestedMajor", 100);
@@ -58,6 +64,12 @@ export async function POST(req: NextRequest) {
       requestedContact = stringField("requestedContact", 128);
     } catch (e: any) {
       return NextResponse.json({ error: e.message }, { status: 400 });
+    }
+    if (requestedGraduationClass && !validGraduationClass(requestedGraduationClass)) {
+      return NextResponse.json({ error: "届别需为2025起的四位年份数字" }, { status: 400 });
+    }
+    if (requestedClassName && !validClassName(requestedClassName)) {
+      return NextResponse.json({ error: "班级需为1-99的数字" }, { status: 400 });
     }
 
     // 至少有一项修改
@@ -67,10 +79,12 @@ export async function POST(req: NextRequest) {
     }
 
     // 检查是否与当前值不同
+    const currentGraduationClass = normalizeGraduationClass(roster.graduationClass);
+    const currentClassName = normalizeClassName(roster.className);
     const hasDiff =
       (requestedName && requestedName !== roster.name) ||
-      (requestedGraduationClass && requestedGraduationClass !== (roster.graduationClass || "")) ||
-      (requestedClassName && requestedClassName !== (roster.className || "")) ||
+      (requestedGraduationClass && requestedGraduationClass !== currentGraduationClass) ||
+      (requestedClassName && requestedClassName !== currentClassName) ||
       (requestedCity && requestedCity !== (roster.city || "")) ||
       (requestedUniversity && requestedUniversity !== (roster.university || "")) ||
       (requestedMajor && requestedMajor !== (roster.major || "")) ||
@@ -86,8 +100,8 @@ export async function POST(req: NextRequest) {
       data: {
         rosterId,
         currentName: roster.name,
-        currentGraduationClass: roster.graduationClass,
-        currentClassName: roster.className,
+        currentGraduationClass: currentGraduationClass || null,
+        currentClassName: currentClassName || null,
         currentTags: currentTagsStr || null,
         requestedName,
         requestedGraduationClass,

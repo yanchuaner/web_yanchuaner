@@ -56,7 +56,7 @@ async function main() {
         accountStatus: "ACTIVE",
         sessionVersion: 1,
         graduationClass: "2025",
-        className: "1班",
+        className: "1",
         city: "北京",
         university: "北京航空航天大学",
         major: "航空宇航科学与技术",
