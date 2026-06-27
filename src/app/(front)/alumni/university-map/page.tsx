@@ -1,11 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import {
   MapPin, Building2, UsersRound, GraduationCap,
-  ChevronDown, ChevronUp, ArrowLeft, AlertCircle,
+  ChevronDown, ChevronUp, ArrowLeft,
 } from 'lucide-react';
 import {
   PageShell,
@@ -13,6 +12,8 @@ import {
   PageHeader,
   ButtonLink,
   DisclaimerBanner,
+  EmptyState,
+  ErrorState,
   Skeleton,
   SkeletonText,
 } from '@/components/ui';
@@ -110,17 +111,27 @@ export default function UniversityMapPage() {
   const [error, setError] = useState<string | null>(null);
   const [expandedCity, setExpandedCity] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchStats = useCallback(() => {
+    setLoading(true);
+    setError(null);
+    setData(null);
     fetch('/api/alumni/city-stats')
       .then((res) => {
         if (res.status === 401) throw new Error('请先验证访问口令后查看');
         if (!res.ok) throw new Error('数据加载失败，请稍后重试');
         return res.json();
       })
-      .then((d) => setData(d))
+      .then((d) => {
+        setData(d);
+        setExpandedCity(null);
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
   const toggleCity = (city: string) => {
     setExpandedCity((prev) => (prev === city ? null : city));
@@ -156,27 +167,22 @@ export default function UniversityMapPage() {
 
           {/* Error state */}
           {error && !loading && (
-            <div className="rounded-2xl border border-rose-500/20 bg-rose-500/10 p-8 text-center">
-              <AlertCircle size={32} className="mx-auto text-rose-500" />
-              <p className="mt-3 text-sm text-rose-200">{error}</p>
-              {error.includes('访问口令') && (
-                <Link
-                  href="/"
-                  className="mt-4 inline-flex items-center gap-2 rounded-xl border border-rose-500/30 px-4 py-2 text-sm text-rose-200 transition hover:bg-rose-500/20"
-                >
-                  返回首页验证
-                </Link>
-              )}
-            </div>
+            <ErrorState
+              title="城市分布暂时无法加载"
+              description={error}
+              onRetry={error.includes('访问口令') ? undefined : fetchStats}
+              homeHref={error.includes('访问口令') ? '/' : '/alumni/radar'}
+              homeLabel={error.includes('访问口令') ? '返回首页验证' : '返回通讯录'}
+            />
           )}
 
           {/* Empty state */}
           {data && data.cities.length === 0 && !loading && (
-            <div className="rounded-2xl border border-dashed border-line bg-surface/20 p-12 text-center">
-              <MapPin size={40} className="mx-auto text-brand-fg/20" />
-              <p className="mt-4 text-sm text-brand-fg/60">暂无城市分布数据</p>
-              <p className="mt-1 text-xs text-brand-fg/40">校友数据收集中，敬请期待</p>
-            </div>
+            <EmptyState
+              icon={MapPin}
+              title="暂无城市分布数据"
+              description="校友数据收集中，敬请期待"
+            />
           )}
 
           {/* Data loaded */}

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Trash2, Clock, ArrowLeft, FileText } from "lucide-react";
-import { PageShell, GlassCard, PageHeader, Button, ButtonLink, EmptyState, Badge, Skeleton, SkeletonText } from "@/components/ui";
+import { PageShell, GlassCard, PageHeader, Button, ButtonLink, EmptyState, ErrorState, Badge, Skeleton, SkeletonText } from "@/components/ui";
 
 type UserPost = {
   id: string;
@@ -17,19 +17,26 @@ type UserPost = {
 export default function MyPostsPage() {
   const [posts, setPosts] = useState<UserPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<UserPost | null>(null);
 
   const fetchPosts = () => {
     setLoading(true);
+    setLoadError(null);
     fetch("/api/me/posts")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("投稿列表加载失败，请稍后重试");
+        return res.json();
+      })
       .then((data) => {
         setPosts(data.posts || []);
       })
       .catch((err) => {
         console.error("Failed to load posts", err);
-        toast.error("加载投稿列表失败");
+        const message = err instanceof Error ? err.message : "投稿列表加载失败，请稍后重试";
+        setLoadError(message);
+        toast.error(message);
       })
       .finally(() => setLoading(false));
   };
@@ -107,6 +114,14 @@ export default function MyPostsPage() {
               </GlassCard>
             ))}
           </div>
+        ) : loadError ? (
+          <ErrorState
+            title="投稿列表暂时无法加载"
+            description={loadError}
+            onRetry={fetchPosts}
+            homeHref="/me"
+            homeLabel="返回个人中心"
+          />
         ) : posts.length === 0 ? (
           <EmptyState
             icon={FileText}
