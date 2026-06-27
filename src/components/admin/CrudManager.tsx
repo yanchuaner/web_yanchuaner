@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import { cn } from '@/components/ui/cn';
+import { Skeleton, SkeletonText } from '@/components/ui';
 import { AdminPageShell } from './AdminPageShell';
 import { toast } from 'sonner';
 
@@ -135,12 +136,12 @@ export function CrudManager<T extends { id: string }>({
             />
           ))}
         </div>
-        <div className="mt-5 flex gap-3">
-          <button onClick={handleSubmit} disabled={saving} className="btn-primary cursor-pointer rounded-btn">
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+          <button onClick={handleSubmit} disabled={saving} className="btn-primary min-h-[44px] w-full cursor-pointer rounded-btn sm:w-auto">
             {saving ? '保存中...' : editingId ? '更新' : '新增'}
           </button>
           {editingId ? (
-            <button onClick={resetForm} className="btn-secondary cursor-pointer rounded-btn" disabled={saving}>
+            <button onClick={resetForm} className="btn-secondary min-h-[44px] w-full cursor-pointer rounded-btn sm:w-auto" disabled={saving}>
               取消编辑
             </button>
           ) : null}
@@ -150,7 +151,21 @@ export function CrudManager<T extends { id: string }>({
       {/* 列表 */}
       <div className="mt-6 space-y-3">
         {loading ? (
-          <p className="text-sm text-brand-fg/50 animate-pulse">加载中...</p>
+          Array.from({ length: 4 }).map((_, index) => (
+            <div
+              key={index}
+              className="flex flex-col gap-4 rounded-card border border-line bg-surface/40 p-4 backdrop-blur-sm sm:flex-row sm:items-start sm:justify-between"
+            >
+              <div className="w-full min-w-0 flex-1">
+                <Skeleton variant="text" className="h-5 w-40 max-w-full" />
+                <SkeletonText lines={2} className="mt-3 max-w-xl" />
+              </div>
+              <div className="flex gap-2 sm:shrink-0">
+                <Skeleton className="h-11 w-11 rounded-btn" />
+                <Skeleton className="h-11 w-11 rounded-btn" />
+              </div>
+            </div>
+          ))
         ) : items.length === 0 ? (
           <div className="rounded-card border border-dashed border-line bg-surface/20 py-8 text-center text-sm text-brand-fg/40">
             {emptyHint}
@@ -166,14 +181,14 @@ export function CrudManager<T extends { id: string }>({
                 <button
                   onClick={() => openEdit(item)}
                   aria-label="编辑"
-                  className="rounded-btn p-2 text-brand-fg/50 hover:bg-brand/15 hover:text-brand transition cursor-pointer"
+                  className="flex h-11 w-11 items-center justify-center rounded-btn text-brand-fg/50 hover:bg-brand/15 hover:text-brand transition cursor-pointer"
                 >
                   <Pencil size={15} />
                 </button>
                 <button
                   onClick={() => handleDelete(item.id)}
                   aria-label="删除"
-                  className="rounded-btn p-2 text-brand-fg/50 hover:bg-rose-500/10 hover:text-rose-400 transition cursor-pointer"
+                  className="flex h-11 w-11 items-center justify-center rounded-btn text-brand-fg/50 hover:bg-rose-500/10 hover:text-rose-400 transition cursor-pointer"
                 >
                   <Trash2 size={15} />
                 </button>

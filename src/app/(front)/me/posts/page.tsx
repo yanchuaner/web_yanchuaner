@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Trash2, Clock, ArrowLeft, FileText } from "lucide-react";
-import { PageShell, GlassCard, PageHeader, Button, ButtonLink, EmptyState, Badge } from "@/components/ui";
+import { PageShell, GlassCard, PageHeader, Button, ButtonLink, EmptyState, Badge, Skeleton, SkeletonText } from "@/components/ui";
 
 type UserPost = {
   id: string;
@@ -69,7 +69,7 @@ export default function MyPostsPage() {
         href="/me"
         variant="secondary"
         size="sm"
-        className="mb-6"
+        className="mb-6 w-full sm:w-auto"
       >
         <ArrowLeft size={14} />
         返回个人中心
@@ -79,12 +79,34 @@ export default function MyPostsPage() {
         eyebrow="CONTRIBUTIONS"
         eyebrowIcon={FileText}
         title="我的投稿"
-        description={`管理已提交的稿件，共 ${posts.length} 篇`}
+        description={loading ? "正在加载已提交的稿件" : `管理已提交的稿件，共 ${posts.length} 篇`}
       />
 
       <div className="mt-6">
         {loading ? (
-          <div className="text-center py-20 text-brand-fg/60">加载中...</div>
+          <div className="space-y-4" aria-busy="true" aria-live="polite">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <GlassCard key={index} as="article" className="p-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="w-full min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Skeleton variant="text" className="h-6 w-44 max-w-full" />
+                      <Skeleton variant="text" className="h-6 w-16" />
+                    </div>
+                    <Skeleton variant="text" className="mt-3 h-3 w-56 max-w-full" />
+                  </div>
+                  <Skeleton className="h-11 w-full rounded-btn sm:w-24" />
+                </div>
+                <div className="mt-4 rounded-btn border border-line bg-surface-muted/40 p-4">
+                  <SkeletonText lines={3} />
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Skeleton className="h-6 w-20 rounded-full" />
+                  <Skeleton className="h-6 w-24 rounded-full" />
+                </div>
+              </GlassCard>
+            ))}
+          </div>
         ) : posts.length === 0 ? (
           <EmptyState
             icon={FileText}
@@ -135,7 +157,7 @@ export default function MyPostsPage() {
                         disabled={deletingId === post.id}
                         variant="danger"
                         size="sm"
-                        className="shrink-0"
+                        className="w-full shrink-0 sm:w-auto"
                       >
                         <Trash2 size={13} />
                         {post.status === "PENDING" ? "撤销投稿" : "删除草稿"}
