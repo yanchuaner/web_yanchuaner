@@ -348,7 +348,7 @@ export default async function HomePage() {
               </div>
               <Link
                 href="/alumni/radar"
-                className="text-sm font-medium text-[#7C3AED] hover:text-[#4C1D95] transition-colors"
+                className="inline-flex min-h-[44px] shrink-0 items-center rounded-full px-3 text-sm font-medium text-[#7C3AED] transition-colors hover:bg-brand/5 hover:text-[#4C1D95] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF5FF]"
               >
                 查看完整名录 &rarr;
               </Link>
@@ -357,7 +357,7 @@ export default async function HomePage() {
               {canViewPrivate ? (
                 <AlumniMap />
               ) : (
-                <div className="relative overflow-hidden min-h-[320px] flex flex-col items-center justify-center rounded-2xl border border-purple-500/30 p-8 text-center bg-[#0f0a1d]">
+                <div className="relative flex min-h-[240px] flex-col items-center justify-center overflow-hidden rounded-2xl border border-purple-500/30 bg-[#0f0a1d] p-6 text-center sm:min-h-[320px] sm:p-8">
                   {/* 模糊伪数据背景 */}
                   <div
                     className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/40 via-[#0f0a1d]/85 to-[#0f0a1d] blur-md scale-105 pointer-events-none"
@@ -402,7 +402,7 @@ export default async function HomePage() {
                 href="#top"
                 aria-label="返回顶部"
                 tabIndex={0}
-                className="rounded-full border border-[#A78BFA]/30 bg-white px-4 py-2 text-sm font-medium text-[#7C3AED] hover:bg-[#F3E8FF] transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF5FF]"
+                className="inline-flex min-h-[44px] items-center rounded-full border border-[#A78BFA]/30 bg-white px-4 text-sm font-medium text-[#7C3AED] transition-all duration-300 hover:bg-[#F3E8FF] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF5FF]"
               >
                 返回顶部
               </a>

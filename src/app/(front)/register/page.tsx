@@ -76,8 +76,8 @@ export default function RegisterPage() {
           </label>
           <label className="text-sm">班级<input name="className" className="input mt-1 w-full" maxLength={2} pattern={CLASS_NAME_PATTERN.source} placeholder="例如：2" required /></label>
           <label className="text-sm">联系方式（可选）<input name="contact" defaultValue={searchParams.get("contact") || ""} className="input mt-1 w-full" maxLength={128} /></label>
-          <label className="flex items-center gap-2 text-sm md:col-span-2">
-            <input name="claimOldProfile" type="checkbox" />
+          <label className="flex min-h-[44px] items-center gap-3 rounded-xl px-1 text-sm md:col-span-2">
+            <input name="claimOldProfile" type="checkbox" className="h-5 w-5 shrink-0" />
             我曾通过入轨联络舱提交过申请，需要人工认领旧资料
           </label>
           {message ? <p className="text-sm text-emerald-700 md:col-span-2">{message}</p> : null}
@@ -94,7 +94,15 @@ export default function RegisterPage() {
             {loading ? "创建中…" : "创建账号"}
           </Button>
         </form>
-        <p className="mt-6 text-sm text-brand-fg/60">已有账号？ <Link href="/login" className="text-brand hover:text-brand-fg transition-colors">去登录</Link></p>
+        <p className="mt-6 flex flex-wrap items-center gap-1 text-sm text-brand-fg/60">
+          已有账号？
+          <Link
+            href="/login"
+            className="inline-flex min-h-[44px] items-center rounded-full px-3 text-brand transition-colors hover:bg-brand/5 hover:text-brand-fg"
+          >
+            去登录
+          </Link>
+        </p>
       </GlassCard>
     </PageShell>
   );
