@@ -59,7 +59,7 @@ function CityCombobox({ defaultValue, name }: { defaultValue: string; name: stri
       <div className="relative">
         <input
           type="text"
-          className="input w-full text-xs pr-10 focus:border-brand/50 focus:ring-brand/35"
+          className="input w-full text-xs pr-10 touch-manipulation"
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -76,14 +76,14 @@ function CityCombobox({ defaultValue, name }: { defaultValue: string; name: stri
       {isOpen && (
         <ul className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-card border border-line bg-surface py-1 text-xs shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none select-none scrollbar-thin scrollbar-thumb-brand/20">
           {filteredCities.length === 0 ? (
-            <li className="relative cursor-default select-none py-2 px-3 text-brand-fg/40">
+            <li className="relative cursor-default select-none px-3 py-3 text-brand-fg/40">
               未找到匹配的城市，可直接保存输入的值
             </li>
           ) : (
             filteredCities.map((city) => (
               <li
                 key={city}
-                className="relative cursor-pointer select-none py-2 px-3 hover:bg-brand/15 hover:text-brand text-brand-fg transition"
+                className="relative cursor-pointer select-none px-3 py-3 text-brand-fg transition hover:bg-brand/15 hover:text-brand touch-manipulation"
                 onClick={() => {
                   setQuery(city);
                   setIsOpen(false);
@@ -151,7 +151,7 @@ export default function EditProfilePage() {
   ];
 
   return (
-    <PageShell size="narrow" className="pb-24">
+    <PageShell size="narrow" className="pb-28 md:pb-32">
       <ButtonLink href="/me" variant="secondary" size="sm" className="mb-6">
         <ArrowLeft size={14} />
         返回个人中心
@@ -201,11 +201,11 @@ export default function EditProfilePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <label className="block text-xs font-medium text-brand-fg">
                 用户名
-                <input name="username" className="input mt-1.5 w-full text-xs focus:border-brand/50 focus:ring-brand/35" defaultValue={profile.username || ""} placeholder="用户名" minLength={1} maxLength={32} pattern={USERNAME_INPUT_PATTERN} required disabled={saving} />
+                <input name="username" className="input mt-1.5 w-full text-xs" defaultValue={profile.username || ""} placeholder="用户名" minLength={1} maxLength={32} pattern={USERNAME_INPUT_PATTERN} required disabled={saving} />
               </label>
               <label className="block text-xs font-medium text-brand-fg">
                 联系方式
-                <input name="contact" className="input mt-1.5 w-full text-xs focus:border-brand/50 focus:ring-brand/35" defaultValue={profile.contact || ""} placeholder="手机号/微信号" disabled={saving} />
+                <input name="contact" className="input mt-1.5 w-full text-xs" defaultValue={profile.contact || ""} placeholder="手机号/微信号" disabled={saving} />
               </label>
             </div>
           </div>
@@ -216,11 +216,11 @@ export default function EditProfilePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <label className="block text-xs font-medium text-brand-fg">
                 毕业院校
-                <input name="university" className="input mt-1.5 w-full text-xs focus:border-brand/50 focus:ring-brand/35" defaultValue={profile.university || ""} placeholder="例如：清华大学" maxLength={150} disabled={saving} />
+                <input name="university" className="input mt-1.5 w-full text-xs" defaultValue={profile.university || ""} placeholder="例如：清华大学" maxLength={150} disabled={saving} />
               </label>
               <label className="block text-xs font-medium text-brand-fg">
                 所学专业
-                <input name="major" className="input mt-1.5 w-full text-xs focus:border-brand/50 focus:ring-brand/35" defaultValue={profile.major || ""} placeholder="例如：计算机科学" maxLength={100} disabled={saving} />
+                <input name="major" className="input mt-1.5 w-full text-xs" defaultValue={profile.major || ""} placeholder="例如：计算机科学" maxLength={100} disabled={saving} />
               </label>
             </div>
           </div>
@@ -235,7 +235,7 @@ export default function EditProfilePage() {
               </div>
               <label className="block text-xs font-medium text-brand-fg">
                 从事行业
-                <input name="industry" className="input mt-1.5 w-full text-xs focus:border-brand/50 focus:ring-brand/35" defaultValue={profile.industry || ""} placeholder="例如：互联网/金融" maxLength={100} disabled={saving} />
+                <input name="industry" className="input mt-1.5 w-full text-xs" defaultValue={profile.industry || ""} placeholder="例如：互联网/金融" maxLength={100} disabled={saving} />
               </label>
             </div>
           </div>
@@ -246,7 +246,7 @@ export default function EditProfilePage() {
             </div>
           )}
 
-          <Button type="submit" disabled={saving} className="w-full">
+          <Button type="submit" disabled={saving} className="w-full touch-manipulation">
             {saving ? "保存中..." : "保存资料"}
           </Button>
         </form>

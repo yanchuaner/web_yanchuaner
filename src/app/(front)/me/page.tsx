@@ -28,15 +28,17 @@ export default async function MePage() {
         description="管理你的校友资料、发起身份修正申请、提交投稿及查看个人状态"
       />
 
-      <GlassCard className="p-7 mt-6 space-y-6">
-        <div className="flex items-center justify-between border-b border-line pb-4">
-          <div>
-            <h2 className="text-xl font-bold text-brand-fg">{user.name || user.username}</h2>
-            <p className="text-sm text-brand-fg/60 mt-1">{user.email}</p>
+      <GlassCard className="mt-6 space-y-6 p-5 sm:p-7">
+        <div className="flex flex-col gap-3 border-b border-line pb-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <h2 className="break-words text-xl font-bold text-brand-fg">{user.name || user.username}</h2>
+            <p className="mt-1 break-all text-sm text-brand-fg/60">{user.email}</p>
           </div>
-          <Badge tone={getStatusBadgeTone(user.status)}>
-            {getStatusText(user.status)}
-          </Badge>
+          <div className="shrink-0">
+            <Badge tone={getStatusBadgeTone(user.status)}>
+              {getStatusText(user.status)}
+            </Badge>
+          </div>
         </div>
 
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">

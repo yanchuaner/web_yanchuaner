@@ -702,14 +702,14 @@ export default function AdminAlumniPage() {
                 <button
                   onClick={() => setShowForm(false)}
                   disabled={formSaving}
-                  className="w-full sm:w-auto min-h-[44px] sm:min-h-0 cursor-pointer rounded-xl border border-gray-200 px-4 py-2 text-sm text-[#4C1D95]/60 transition hover:bg-gray-50 disabled:opacity-50"
+                  className="w-full sm:w-auto min-h-[44px] cursor-pointer rounded-xl border border-gray-200 px-4 py-2 text-sm text-[#4C1D95]/60 transition hover:bg-gray-50 disabled:opacity-50"
                 >
                   取消
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={formSaving}
-                  className="inline-flex w-full sm:w-auto min-h-[44px] sm:min-h-0 items-center justify-center gap-1.5 rounded-xl border border-[#7C3AED]/20 bg-[#7C3AED]/5 px-4 py-2 text-sm text-[#7C3AED] transition hover:bg-[#7C3AED]/10 disabled:opacity-50"
+                  className="inline-flex w-full sm:w-auto min-h-[44px] items-center justify-center gap-1.5 rounded-xl border border-[#7C3AED]/20 bg-[#7C3AED]/5 px-4 py-2 text-sm text-[#7C3AED] transition hover:bg-[#7C3AED]/10 disabled:opacity-50"
                 >
                   {formSaving && <Loader2 size={14} className="animate-spin" />}
                   {editingId ? '保存' : '新增'}
@@ -750,14 +750,14 @@ export default function AdminAlumniPage() {
               <button
                 onClick={() => setDeleteTarget(null)}
                 disabled={deleting}
-                className="w-full sm:w-auto min-h-[44px] sm:min-h-0 cursor-pointer rounded-xl border border-gray-200 px-4 py-2 text-sm text-[#4C1D95]/60 transition hover:bg-gray-50 disabled:opacity-50"
+                className="w-full sm:w-auto min-h-[44px] cursor-pointer rounded-xl border border-gray-200 px-4 py-2 text-sm text-[#4C1D95]/60 transition hover:bg-gray-50 disabled:opacity-50"
               >
                 取消
               </button>
               <button
                 onClick={handleDelete}
                 disabled={deleting}
-                className="inline-flex w-full sm:w-auto min-h-[44px] sm:min-h-0 items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm text-rose-600 transition hover:bg-rose-100 disabled:opacity-50"
+                className="inline-flex w-full sm:w-auto min-h-[44px] items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm text-rose-600 transition hover:bg-rose-100 disabled:opacity-50"
               >
                 {deleting && <Loader2 size={14} className="animate-spin" />}
                 确认删除

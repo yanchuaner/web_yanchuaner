@@ -188,15 +188,15 @@ export default function AlumniCorrectionPage() {
   return (
     <PageShell size="narrow">
       <GlassCard className="p-5 md:p-8">
-        <div className="flex items-start justify-between gap-3">
-          <div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
             <p className="inline-flex items-center gap-2 rounded-full border border-line bg-brand/10 px-3 py-1 text-xs tracking-[0.18em] text-brand">
               <FileEdit size={14} /> CORRECTION
             </p>
-            <h1 className="font-heading mt-3 text-3xl font-bold text-brand-fg md:text-4xl">基础身份修正申请</h1>
+            <h1 className="font-heading mt-3 text-2xl font-bold text-brand-fg sm:text-3xl md:text-4xl">基础身份修正申请</h1>
             <p className="mt-2 text-sm leading-7 text-brand-fg/70">搜索你的姓名，核对当前信息，提交姓名、届别、班级的修正申请。其他资料请在个人中心修改，邮箱如需变更请联系管理员。</p>
           </div>
-          <ButtonLink href="/me" variant="secondary" className="shrink-0">
+          <ButtonLink href="/me" variant="secondary" className="w-full shrink-0 sm:w-auto">
             返回个人中心
           </ButtonLink>
         </div>
@@ -268,10 +268,10 @@ export default function AlumniCorrectionPage() {
                   <div className="space-y-2">
                     <p className="text-xs text-brand-fg/40">找到 {results.length} 条记录</p>
                     {results.map((item) => (
-                      <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-card border border-line bg-surface/50 px-4 py-3 transition hover:bg-brand/5">
+                      <div key={item.id} className="flex flex-col justify-between gap-3 rounded-card border border-line bg-surface/50 px-4 py-3 transition hover:bg-brand/5 sm:flex-row sm:items-center">
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-brand-fg">{item.name}</p>
-                          <p className="mt-0.5 text-xs text-brand-fg/50">
+                          <p className="break-words text-sm font-medium text-brand-fg">{item.name}</p>
+                          <p className="mt-0.5 break-words text-xs text-brand-fg/50">
                             {formatGraduationClass(item.graduationClass) || '届别未知'}{item.className && ` · ${formatClassName(item.className)}`}
                           </p>
                         </div>
@@ -294,8 +294,8 @@ export default function AlumniCorrectionPage() {
           <div className="mt-6 space-y-4">
             <div className="rounded-card border border-line bg-brand/5 px-4 py-3">
               <p className="text-xs text-brand-fg/40">当前信息</p>
-              <p className="mt-1 text-sm font-medium text-brand-fg">{selected.name}</p>
-              <p className="text-xs text-brand-fg/60">
+              <p className="mt-1 break-words text-sm font-medium text-brand-fg">{selected.name}</p>
+              <p className="break-words text-xs text-brand-fg/60">
                 {formatGraduationClass(selected.graduationClass) || '届别未知'}
                 {selected.className && ` · ${formatClassName(selected.className)}`}
               </p>

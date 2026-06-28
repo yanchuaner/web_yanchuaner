@@ -153,32 +153,32 @@ export default function AdminNewsEditPage() {
             onChange={(e) => setForm((prev) => ({ ...prev, content: e.target.value }))}
             className="input w-full"
             rows={12}
-            placeholder="新闻正文（支持 HTML）"
+            placeholder="新闻正文（支持换行）"
           />
         </div>
 
         <div>
           <label htmlFor="imageUrl" className="mb-1.5 block text-sm font-medium text-[#4C1D95]">封面图片</label>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#7C3AED]/20 bg-[#7C3AED]/5 px-4 py-2.5 text-sm text-[#7C3AED] transition hover:bg-[#7C3AED]/10">
               <Upload size={16} />
               {uploading ? '上传中...' : '选择图片'}
               <input
                 id="imageUrl"
                 type="file"
-                accept="image/jpeg,image/png,image/webp,image/gif"
+                accept="image/jpeg,image/png,image/webp"
                 onChange={handleImageUpload}
                 className="hidden"
                 disabled={uploading}
               />
             </label>
             {form.imageUrl && (
-              <span className="text-sm text-[#4C1D95]/60">{form.imageUrl}</span>
+              <span className="break-all text-sm text-[#4C1D95]/60">{form.imageUrl}</span>
             )}
           </div>
           {form.imageUrl && (
-            <div className="flex items-center gap-4">
-              <div className="relative h-32 w-48 overflow-hidden rounded-lg border border-[#7C3AED]/10">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="relative aspect-video w-full max-w-48 overflow-hidden rounded-lg border border-[#7C3AED]/10">
                 <Image
                   src={form.imageUrl}
                   alt="封面预览"

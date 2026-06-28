@@ -225,7 +225,7 @@ export default function MyPostsPage() {
                 onClick={() => setConfirmDelete(null)}
                 disabled={deletingId === confirmDelete.id}
                 variant="secondary"
-                className="w-full sm:w-auto min-h-[44px] sm:min-h-0 cursor-pointer"
+                className="w-full sm:w-auto min-h-[44px] cursor-pointer"
               >
                 取消
               </Button>
@@ -233,7 +233,7 @@ export default function MyPostsPage() {
                 onClick={handleDelete}
                 disabled={deletingId === confirmDelete.id}
                 variant="danger"
-                className="w-full sm:w-auto min-h-[44px] sm:min-h-0 cursor-pointer"
+                className="w-full sm:w-auto min-h-[44px] cursor-pointer"
               >
                 {deletingId === confirmDelete.id ? '处理中...' : '确认删除'}
               </Button>

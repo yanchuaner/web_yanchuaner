@@ -3,6 +3,7 @@ import prisma from '@/lib/db';
 import { requireAdmin } from '@/lib/admin-auth';
 import { renameToCategoryPath } from '@/lib/memories';
 import { readJsonBody } from '@/lib/auth-utils';
+import { isSafeLocalImagePath, normalizeOptionalText } from '@/lib/content-safety';
 
 export async function PUT(
   req: NextRequest,
@@ -29,12 +30,12 @@ export async function PUT(
       sortOrder?: unknown;
     }>(req, 16384); // 16KB limit
 
-    const title = typeof body.title === "string" ? body.title.trim() : undefined;
-    const subtitle = typeof body.subtitle === "string" ? body.subtitle.trim() : undefined;
-    const description = typeof body.description === "string" ? body.description.trim() : undefined;
-    const imagePath = typeof body.imagePath === "string" ? body.imagePath.trim() : undefined;
-    const imageAlt = typeof body.imageAlt === "string" ? body.imageAlt.trim() : undefined;
-    const icon = typeof body.icon === "string" ? body.icon.trim() : undefined;
+    const title = body.title !== undefined ? normalizeOptionalText(body.title) : undefined;
+    const subtitle = body.subtitle !== undefined ? normalizeOptionalText(body.subtitle) : undefined;
+    const description = body.description !== undefined ? normalizeOptionalText(body.description) : undefined;
+    const imagePath = body.imagePath !== undefined ? normalizeOptionalText(body.imagePath) : undefined;
+    const imageAlt = body.imageAlt !== undefined ? normalizeOptionalText(body.imageAlt) : undefined;
+    const icon = body.icon !== undefined ? normalizeOptionalText(body.icon) : undefined;
 
     if (body.title !== undefined && (!title || title.length > 100)) {
       return NextResponse.json({ error: '标题不能为空且不超过100字' }, { status: 400 });
@@ -47,6 +48,9 @@ export async function PUT(
     }
     if (imagePath !== undefined && imagePath.length > 254) {
       return NextResponse.json({ error: '图片路径不超过254字' }, { status: 400 });
+    }
+    if (imagePath !== undefined && !isSafeLocalImagePath(imagePath)) {
+      return NextResponse.json({ error: '图片仅支持站内上传路径' }, { status: 400 });
     }
     if (imageAlt !== undefined && imageAlt.length > 200) {
       return NextResponse.json({ error: '图片 ALT 说明不超过200字' }, { status: 400 });

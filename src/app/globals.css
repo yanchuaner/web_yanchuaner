@@ -64,6 +64,14 @@
     font-family: 'Open Sans', 'Noto Sans SC', sans-serif;
   }
 
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Poppins', 'Noto Sans SC', sans-serif;
   }
@@ -80,6 +88,13 @@
     transition: all 200ms ease;
     cursor: pointer;
     border: none;
+  }
+
+  .btn-primary:focus-visible,
+  .btn-secondary:focus-visible,
+  .input:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(3, 1, 11, 1), 0 0 0 4px rgba(167, 139, 250, 0.55);
   }
 
   .btn-primary:hover {
@@ -125,6 +140,7 @@
     border: 1px solid #E2E8F0;
     border-radius: 8px;
     font-size: 16px;
+    min-height: 44px;
     background: white;
     color: var(--color-text);
     transition: border-color 200ms ease, box-shadow 200ms ease;
@@ -665,7 +681,7 @@ body::after {
 }
 
 .safe-modal-panel {
-  max-height: 88vh;
+  max-height: calc(100dvh - 2rem);
   overflow: auto;
 }
 
@@ -696,7 +712,7 @@ body::after {
   }
 
   .mobile-modal-panel {
-    max-height: 92vh;
+    max-height: calc(100dvh - 1.5rem);
     border-bottom-left-radius: 0.75rem;
     border-bottom-right-radius: 0.75rem;
   }
@@ -1013,10 +1029,10 @@ body::after {
 
 /* 7. 移动端响应式与物理体验适配系统 */
 .pb-safe {
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
 }
 .pt-safe {
-  padding-top: env(safe-area-inset-top);
+  padding-top: calc(1.5rem + env(safe-area-inset-top));
 }
 
 @keyframes slideIn {
@@ -1043,4 +1059,8 @@ body::after {
 
 .animate-fade-in {
   animation: fadeIn 200ms ease forwards;
+}
+
+.touch-manipulation {
+  touch-action: manipulation;
 }

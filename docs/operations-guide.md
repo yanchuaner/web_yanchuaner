@@ -313,7 +313,7 @@ const updated = await prisma.$transaction(async (tx) => {
 |----------|---------|------|
 | 4096 | 认证类（登录/注册/验证/密码重置） | 仅字段名和简短值 |
 | 16384 (16KB) | 管理类写入（新闻/活动/故事/审核） | 含富文本内容 |
-| 65536 (64KB) | 前台投稿（`/api/posts`、`/api/stories`） | 长文投稿 |
+| 524288 (512KB) | 站内故事投稿（`/api/stories`、`/api/admin/stories`） | 长文投稿 |
 
 如果请求体超过限制，返回 `413 Payload Too Large` 错误。
 
@@ -505,8 +505,9 @@ node scripts/seed_memories.js
 | 上传入口 | API 路由 | 用途 |
 |----------|----------|------|
 | 后台新闻/活动编辑页 | `/api/upload` | 新闻封面图、活动封面图 |
-| 校友证页面（管理端） | `/api/alumni/certificate/upload-bg` | 校友证个人背景图 |
 | 系统设置 | `/api/settings/card-bg/upload` | 校友纪念卡默认背景（16:9，Sharp 裁切） |
+
+校友在纪念卡页面选择的个人背景仅在浏览器本地读取并参与当前卡片生成，不写入服务器。
 
 ### 9.2 上传要求
 

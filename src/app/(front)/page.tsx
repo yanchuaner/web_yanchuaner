@@ -11,6 +11,7 @@ import {
   Users,
   Newspaper,
   CalendarDays,
+  FileEdit,
   Lock,
 } from "lucide-react";
 import { RevealSection } from "@/components/ui";
@@ -251,7 +252,7 @@ export default async function HomePage() {
               热门频道
             </h2>
           </RevealSection>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             <RevealSection delay={0} className="h-full flex flex-col">
               <Link
                 href="/news"
@@ -313,6 +314,22 @@ export default async function HomePage() {
                 </h3>
                 <p className="mt-2 text-sm text-slate-500">
                   重温校园时光的珍贵影像
+                </p>
+              </Link>
+            </RevealSection>
+            <RevealSection delay={0.4} className="h-full flex flex-col">
+              <Link
+                href="/alumni/correction"
+                className="card h-full w-full glass-card-base group flex flex-col items-start rounded-2xl border border-[#A78BFA]/20 bg-white/60 p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#7C3AED]/40 hover:bg-white hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF5FF]"
+              >
+                <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[#7C3AED]/10 text-[#7C3AED] transition-colors group-hover:bg-[#7C3AED] group-hover:text-white">
+                  <FileEdit size={24} />
+                </span>
+                <h3 className="mt-4 font-heading text-lg font-bold text-slate-800">
+                  信息修正
+                </h3>
+                <p className="mt-2 text-sm text-slate-500">
+                  申请修正姓名、届别与班级
                 </p>
               </Link>
             </RevealSection>

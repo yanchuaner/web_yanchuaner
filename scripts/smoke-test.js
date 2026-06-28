@@ -26,9 +26,17 @@ async function request(path, options = {}) {
   return fetch(`${baseUrl}${path}`, { redirect: "manual", ...options });
 }
 
+function sameOriginHeaders(extra = {}) {
+  return {
+    Origin: baseUrl,
+    ...extra,
+  };
+}
+
 async function main() {
   const health = await request("/api/health");
-  record("health_is_public", health.ok, String(health.status));
+  const healthText = await health.text().catch(() => "");
+  record("health_is_public", health.ok, `${health.status} ${healthText}`);
 
   const privatePage = await request("/news");
   record(
@@ -45,14 +53,20 @@ async function main() {
     String(privateApi.status),
   );
 
-  const oldVerify = await request("/api/auth/verify", { method: "POST" });
+  const oldVerify = await request("/api/auth/verify", {
+    method: "POST",
+    headers: sameOriginHeaders(),
+  });
   record(
     "shared_password_login_removed",
     oldVerify.status === 401 || oldVerify.status === 410,
     String(oldVerify.status),
   );
 
-  const oldJoin = await request("/api/join", { method: "POST" });
+  const oldJoin = await request("/api/join", {
+    method: "POST",
+    headers: sameOriginHeaders(),
+  });
   record(
     "legacy_join_write_removed",
     oldJoin.status === 401 || oldJoin.status === 410,
@@ -70,7 +84,7 @@ async function main() {
   if (username && password) {
     const login = await request("/api/auth/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: sameOriginHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({ username, password }),
     });
     const cookie = login.headers.get("set-cookie") || "";
@@ -87,7 +101,7 @@ async function main() {
       record("admin_api_authorized", admin.ok, String(admin.status));
       const logout = await request("/api/auth/logout", {
         method: "POST",
-        headers: { Cookie: authCookie },
+        headers: sameOriginHeaders({ Cookie: authCookie }),
       });
       record(
         "logout_clears_cookie",

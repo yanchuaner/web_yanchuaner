@@ -29,6 +29,14 @@ export async function GET(
       where: { eventId: params.id },
       orderBy: { createdAt: "desc" },
       take: 300, // 防御大量数据导致 OOM
+      select: {
+        id: true,
+        eventId: true,
+        name: true,
+        contact: true,
+        message: true,
+        createdAt: true,
+      },
     });
 
     return NextResponse.json({

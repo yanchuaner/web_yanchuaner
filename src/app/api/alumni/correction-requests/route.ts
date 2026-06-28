@@ -28,7 +28,18 @@ export async function POST(req: NextRequest) {
     const rosterId = ((formData.get("rosterId") as string) || "").trim();
     if (!rosterId) return NextResponse.json({ error: "请选择要修改的校友" }, { status: 400 });
 
-    const roster = await prisma.whitelistRoster.findUnique({ where: { id: rosterId } });
+    const roster = await prisma.whitelistRoster.findUnique({
+      where: { id: rosterId },
+      select: {
+        id: true,
+        name: true,
+        graduationClass: true,
+        className: true,
+        university: true,
+        major: true,
+        city: true,
+      },
+    });
     if (!roster) return NextResponse.json({ error: "校友不存在" }, { status: 404 });
 
     const contact = ((formData.get("contact") as string) || "").trim();
@@ -47,21 +58,30 @@ export async function POST(req: NextRequest) {
     let requestedName: string | null = null;
     let requestedGraduationClass: string | null = null;
     let requestedClassName: string | null = null;
-    let requestedCity: string | null = null;
-    let requestedUniversity: string | null = null;
-    let requestedMajor: string | null = null;
-    let requestedIndustry: string | null = null;
-    let requestedContact: string | null = null;
+    const unsupportedFields = [
+      "requestedCity",
+      "requestedUniversity",
+      "requestedMajor",
+      "requestedIndustry",
+      "requestedContact",
+      "requestedEmail",
+    ];
+    if (
+      unsupportedFields.some((key) => {
+        const value = formData.get(key);
+        return typeof value === "string" && value.trim().length > 0;
+      })
+    ) {
+      return NextResponse.json(
+        { error: "此入口仅支持姓名、届别、班级修正；其他资料请在个人中心修改，邮箱变更请联系管理员" },
+        { status: 400 },
+      );
+    }
 
     try {
       requestedName = stringField("requestedName", 50);
       requestedGraduationClass = normalizeGraduationClass(stringField("requestedGraduationClass", 50)) || null;
       requestedClassName = normalizeClassName(stringField("requestedClassName", 64)) || null;
-      requestedCity = stringField("requestedCity", 100);
-      requestedUniversity = stringField("requestedUniversity", 150);
-      requestedMajor = stringField("requestedMajor", 100);
-      requestedIndustry = stringField("requestedIndustry", 100);
-      requestedContact = stringField("requestedContact", 128);
     } catch (e: any) {
       return NextResponse.json({ error: e.message }, { status: 400 });
     }
@@ -73,8 +93,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 至少有一项修改
-    if (!requestedName && !requestedGraduationClass && !requestedClassName &&
-        !requestedCity && !requestedUniversity && !requestedMajor && !requestedIndustry && !requestedContact) {
+    if (!requestedName && !requestedGraduationClass && !requestedClassName) {
       return NextResponse.json({ error: "请至少填写一项要修改的内容" }, { status: 400 });
     }
 
@@ -84,12 +103,7 @@ export async function POST(req: NextRequest) {
     const hasDiff =
       (requestedName && requestedName !== roster.name) ||
       (requestedGraduationClass && requestedGraduationClass !== currentGraduationClass) ||
-      (requestedClassName && requestedClassName !== currentClassName) ||
-      (requestedCity && requestedCity !== (roster.city || "")) ||
-      (requestedUniversity && requestedUniversity !== (roster.university || "")) ||
-      (requestedMajor && requestedMajor !== (roster.major || "")) ||
-      (requestedIndustry && requestedIndustry !== (roster.industry || "")) ||
-      (requestedContact && requestedContact !== (roster.contact || ""));
+      (requestedClassName && requestedClassName !== currentClassName);
 
     if (!hasDiff) return NextResponse.json({ error: "修改内容与当前信息相同，请检查后重新提交" }, { status: 400 });
 
@@ -106,11 +120,6 @@ export async function POST(req: NextRequest) {
         requestedName,
         requestedGraduationClass,
         requestedClassName,
-        requestedCity,
-        requestedUniversity,
-        requestedMajor,
-        requestedIndustry,
-        requestedContact,
         contact,
         reason,
       },

@@ -140,7 +140,7 @@ export function JoinRequestModal() {
         type="button"
         aria-label="关闭弹窗"
         tabIndex={-1}
-        className="absolute inset-0 bg-brand-fg/35 backdrop-blur-sm cursor-pointer transition-all duration-300 focus:outline-none"
+        className="absolute inset-0 bg-brand-fg/35 backdrop-blur-sm cursor-pointer transition-all duration-300 focus-visible:outline-none"
         onClick={closeModal}
       />
 
@@ -158,7 +158,7 @@ export function JoinRequestModal() {
             onClick={closeModal}
             aria-label="关闭弹窗"
             tabIndex={0}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-brand/30 bg-brand/10 text-brand cursor-pointer transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand/30 bg-brand/10 text-brand cursor-pointer transition-all duration-300 touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
           >
             <X size={14} aria-hidden="true" />
             <span className="sr-only">关闭</span>
@@ -231,7 +231,7 @@ export function JoinRequestModal() {
               disabled={loading}
               aria-label="提交入轨申请"
               tabIndex={0}
-              className="btn-primary w-full inline-flex items-center justify-center gap-2"
+              className="btn-primary w-full inline-flex min-h-[48px] items-center justify-center gap-2 touch-manipulation"
             >
               {loading ? (
                 <>
@@ -259,7 +259,7 @@ export function JoinRequestModal() {
                 <p className="mt-1">您的信息暂未匹配白名单，已进入人工审核队列。审核通过后将自动同步您的校友身份。</p>
               </div>
             )}
-            <button type="button" onClick={closeModal} className="btn-secondary w-full min-h-[44px]">
+            <button type="button" onClick={closeModal} className="btn-secondary w-full min-h-[48px] touch-manipulation">
               关闭
             </button>
           </div>
@@ -279,7 +279,7 @@ export function JoinTriggerButton() {
       href="/register"
       aria-label="打开入轨联络舱注册页面"
       tabIndex={0}
-      className="group flex min-h-[168px] flex-col items-center justify-center rounded-card border border-purple-500/30 bg-[#0f0a1d]/60 backdrop-blur-lg px-5 py-6 text-center shadow-[0_0_20px_rgba(168,85,247,0.1)] transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.02] hover:bg-white/10 hover:border-purple-400/60 hover:shadow-[0_0_25px_rgba(168,85,247,0.2)]"
+      className="group flex min-h-[168px] flex-col items-center justify-center rounded-card border border-purple-500/30 bg-[#0f0a1d]/60 backdrop-blur-lg px-5 py-6 text-center shadow-[0_0_20px_rgba(168,85,247,0.1)] transition-all duration-300 touch-manipulation hover:-translate-y-0.5 hover:scale-[1.02] hover:bg-white/10 hover:border-purple-400/60 hover:shadow-[0_0_25px_rgba(168,85,247,0.2)] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
     >
       <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-500/15 text-purple-300 shadow-[0_0_20px_rgba(168,85,247,0.15)] transition-all duration-300 group-hover:bg-purple-500/25 group-hover:text-purple-200 group-hover:shadow-[0_0_28px_rgba(168,85,247,0.3)]">
         <Send size={24} />

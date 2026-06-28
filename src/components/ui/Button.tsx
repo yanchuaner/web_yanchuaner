@@ -27,7 +27,7 @@ const SIZES: Record<Size, string> = {
 
 function classesFor(variant: Variant, size: Size, className?: string) {
   return cn(
-    "inline-flex items-center justify-center rounded-btn font-semibold transition-all duration-150 active:scale-[0.97] disabled:active:scale-100 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60",
+    "inline-flex min-h-[44px] items-center justify-center rounded-btn font-semibold transition-all duration-150 active:scale-[0.97] disabled:active:scale-100 cursor-pointer touch-manipulation disabled:cursor-not-allowed disabled:opacity-60",
     VARIANTS[variant],
     SIZES[size],
     FOCUS_RING,

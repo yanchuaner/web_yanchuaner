@@ -77,7 +77,7 @@ function groupIsActive(pathname: string, group: NavGroup) {
 }
 
 const JOIN_CTA =
-  'inline-flex items-center justify-center rounded-full bg-accent px-5 py-2 text-[13px] font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface-muted';
+  'inline-flex min-h-[44px] items-center justify-center rounded-full bg-accent px-5 py-2 text-[13px] font-semibold text-white shadow-sm transition-all touch-manipulation hover:-translate-y-0.5 hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface-muted';
 
 export default function MobileNav() {
   const { user, isLoggedIn, logout } = useAuth();
@@ -189,7 +189,7 @@ export default function MobileNav() {
                 aria-haspopup="true"
                 onClick={() => setOpenGroup(expanded ? null : group.label)}
                 className={cn(
-                  'inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface-muted',
+                  'inline-flex min-h-[44px] items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface-muted',
                   active ? 'bg-brand/10 text-brand' : 'text-brand-fg/70 hover:text-brand',
                 )}
               >
@@ -216,7 +216,7 @@ export default function MobileNav() {
                           role="menuitem"
                           aria-current={itemActive ? 'page' : undefined}
                           className={cn(
-                            'flex items-start gap-3 rounded-xl px-3 py-2.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand',
+                            'flex min-h-[44px] items-start gap-3 rounded-xl px-3 py-2.5 transition-colors touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-brand',
                             itemActive ? 'bg-brand/10' : 'hover:bg-brand/5',
                           )}
                         >
@@ -275,7 +275,7 @@ export default function MobileNav() {
         aria-label={open ? '关闭导航菜单' : '打开导航菜单'}
         aria-expanded={open ? 'true' : 'false'}
         aria-controls="mobile-drawer"
-        className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-brand/30 bg-brand/10 text-brand lg:hidden cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface-muted"
+        className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-brand/30 bg-brand/10 text-brand lg:hidden cursor-pointer touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface-muted"
       >
         {open ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
       </button>
@@ -294,7 +294,7 @@ export default function MobileNav() {
             role="dialog"
             aria-modal="true"
             aria-label="导航菜单"
-            className="fixed right-0 top-0 z-[60] flex h-full w-80 max-w-[88vw] flex-col border-l border-brand/15 bg-surface/95 p-5 pb-safe backdrop-blur-xl shadow-2xl lg:hidden animate-slide-in"
+            className="fixed right-0 top-0 z-[60] flex h-[100dvh] w-80 max-w-[88vw] flex-col border-l border-brand/15 bg-surface/95 p-5 pb-safe pt-safe backdrop-blur-xl shadow-2xl lg:hidden animate-slide-in"
           >
             <div className="mb-4 flex items-center justify-between">
               <p className="text-sm font-semibold text-brand font-heading">导航菜单</p>
@@ -305,7 +305,7 @@ export default function MobileNav() {
                   toggleRef.current?.focus();
                 }}
                 aria-label="关闭导航菜单"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-brand-fg/60 hover:bg-brand/10 hover:text-brand-fg cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-brand-fg/60 hover:bg-brand/10 hover:text-brand-fg cursor-pointer touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
               >
                 <X size={18} aria-hidden="true" />
               </button>
@@ -334,7 +334,7 @@ export default function MobileNav() {
                             toggleRef.current?.focus();
                           }}
                           className={cn(
-                            'flex min-h-[44px] items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand',
+                            'flex min-h-[44px] items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition cursor-pointer touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-brand',
                             itemActive
                               ? 'bg-brand/10 text-brand font-semibold'
                               : 'text-brand-fg/80 hover:bg-brand/5 hover:text-brand',
@@ -358,25 +358,25 @@ export default function MobileNav() {
               {isLoggedIn ? (
                 <div className="space-y-2">
                   {user?.role === "ADMIN" ? (
-                    <Link href="/admin" onClick={() => setOpen(false)} className="flex min-h-[44px] items-center justify-center text-sm font-medium text-brand">
+                    <Link href="/admin" onClick={() => setOpen(false)} className="flex min-h-[44px] items-center justify-center text-sm font-medium text-brand touch-manipulation">
                       管理后台
                     </Link>
                   ) : null}
-                  <Link href="/me" onClick={() => setOpen(false)} className={cn(JOIN_CTA, 'w-full min-h-[44px]')}>
+                  <Link href="/me" onClick={() => setOpen(false)} className={cn(JOIN_CTA, 'w-full')}>
                     个人中心
                   </Link>
                   {!isAdminPath ? (
-                    <button type="button" onClick={() => void logout()} className="flex min-h-[44px] w-full items-center justify-center text-sm text-brand">
+                    <button type="button" onClick={() => void logout()} className="flex min-h-[44px] w-full items-center justify-center text-sm text-brand touch-manipulation">
                       退出登录
                     </button>
                   ) : null}
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <Link href="/login" onClick={() => setOpen(false)} className="flex min-h-[44px] items-center justify-center text-sm text-brand">
+                  <Link href="/login" onClick={() => setOpen(false)} className="flex min-h-[44px] items-center justify-center text-sm text-brand touch-manipulation">
                     登录
                   </Link>
-                  <Link href="/register" onClick={() => setOpen(false)} className={cn(JOIN_CTA, 'w-full min-h-[44px]')}>
+                  <Link href="/register" onClick={() => setOpen(false)} className={cn(JOIN_CTA, 'w-full')}>
                     加入我们
                   </Link>
                 </div>

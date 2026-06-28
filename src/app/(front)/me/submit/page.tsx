@@ -74,7 +74,7 @@ export default function UserStorySubmitPage() {
   }
 
   return (
-    <PageShell size="narrow" className="pb-24 md:pb-32">
+    <PageShell size="narrow" className="pb-28 md:pb-32">
       <ButtonLink
         href="/me"
         variant="secondary"
@@ -150,7 +150,7 @@ export default function UserStorySubmitPage() {
                     }}
                     maxLength={120}
                     placeholder="例如：大学避坑指南——计算机专业真相"
-                    className="input w-full text-sm focus:border-brand/50 focus:ring-brand/35"
+                    className="input w-full text-sm"
                     disabled={submitting}
                   />
                 </div>
@@ -167,7 +167,7 @@ export default function UserStorySubmitPage() {
                       onChange={(e) => setAuthor(e.target.value)}
                       maxLength={50}
                       placeholder={user?.name || user?.username || "匿名"}
-                      className="input w-full text-sm focus:border-brand/50 focus:ring-brand/35"
+                      className="input w-full text-sm"
                       disabled={submitting}
                     />
                   </div>
@@ -181,7 +181,7 @@ export default function UserStorySubmitPage() {
                       type="date"
                       value={storyDate}
                       onChange={(e) => setStoryDate(e.target.value)}
-                      className="input w-full text-sm focus:border-brand/50 focus:ring-brand/35"
+                      className="input w-full text-sm"
                       disabled={submitting}
                     />
                   </div>
@@ -197,7 +197,7 @@ export default function UserStorySubmitPage() {
                     value={tagsInput}
                     onChange={(e) => setTagsInput(e.target.value)}
                     placeholder="例如：专业真相, 避坑指南, 校园回忆"
-                    className="input w-full text-sm focus:border-brand/50 focus:ring-brand/35"
+                    className="input w-full text-sm"
                     disabled={submitting}
                   />
                 </div>
@@ -217,7 +217,7 @@ export default function UserStorySubmitPage() {
                     }}
                     maxLength={20000}
                     placeholder="请输入稿件正文内容，支持换行..."
-                    className="input w-full text-sm focus:border-brand/50 focus:ring-brand/35 resize-y min-h-[240px]"
+                    className="input w-full text-sm resize-y min-h-[240px]"
                     disabled={submitting}
                   />
                 </div>
@@ -231,7 +231,7 @@ export default function UserStorySubmitPage() {
                 <Button
                   type="submit"
                   disabled={submitting}
-                  className="w-full flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 cursor-pointer touch-manipulation"
                 >
                   <Send size={15} />
                   {submitting ? "提交中..." : "提交审核"}

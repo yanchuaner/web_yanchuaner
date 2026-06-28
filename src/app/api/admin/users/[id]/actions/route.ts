@@ -112,12 +112,24 @@ export async function POST(
         return NextResponse.json({ success: true, emailSent: false });
       }
       const verification = createOneTimeToken();
-      await prisma.user.update({
-        where: { id: target.id },
-        data: {
-          emailVerifyTokenHash: verification.hash,
-          emailVerifyExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-        },
+      await prisma.$transaction(async (tx) => {
+        await tx.user.update({
+          where: { id: target.id },
+          data: {
+            emailVerifyTokenHash: verification.hash,
+            emailVerifyExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+          },
+        });
+        await tx.auditLog.create({
+          data: {
+            action,
+            targetType: "User",
+            targetId: target.id,
+            adminId: admin.id,
+            before: snapshot(target),
+            after: JSON.stringify({ emailVerifyTokenReset: true }),
+          },
+        });
       });
       const emailSent = await sendVerificationEmail(
         target.email,
@@ -131,12 +143,24 @@ export async function POST(
         return NextResponse.json({ success: true, emailSent: false });
       }
       const reset = createOneTimeToken();
-      await prisma.user.update({
-        where: { id: target.id },
-        data: {
-          passwordResetTokenHash: reset.hash,
-          passwordResetExpiresAt: new Date(Date.now() + 60 * 60 * 1000),
-        },
+      await prisma.$transaction(async (tx) => {
+        await tx.user.update({
+          where: { id: target.id },
+          data: {
+            passwordResetTokenHash: reset.hash,
+            passwordResetExpiresAt: new Date(Date.now() + 60 * 60 * 1000),
+          },
+        });
+        await tx.auditLog.create({
+          data: {
+            action,
+            targetType: "User",
+            targetId: target.id,
+            adminId: admin.id,
+            before: snapshot(target),
+            after: JSON.stringify({ passwordResetTokenReset: true }),
+          },
+        });
       });
       const emailSent = await sendPasswordResetEmail(target.email, reset.token);
       return NextResponse.json({ success: true, emailSent });

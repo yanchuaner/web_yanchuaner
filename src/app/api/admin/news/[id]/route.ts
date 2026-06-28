@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
 import { readJsonBody } from "@/lib/auth-utils";
+import { isSafeLocalImagePath, normalizeOptionalText } from "@/lib/content-safety";
 
 export async function GET(
   req: NextRequest,
@@ -44,11 +45,11 @@ export async function PUT(
       publishedAt?: unknown;
     }>(req, 524288); // 512KB limit
 
-    const title = typeof body.title === "string" ? body.title.trim() : "";
-    const summary = typeof body.summary === "string" ? body.summary.trim() : "";
-    const content = typeof body.content === "string" ? body.content.trim() : "";
-    const imageUrl = typeof body.imageUrl === "string" ? body.imageUrl.trim() : "";
-    const status = typeof body.status === "string" ? body.status.trim() : "";
+    const title = normalizeOptionalText(body.title);
+    const summary = normalizeOptionalText(body.summary);
+    const content = normalizeOptionalText(body.content);
+    const imageUrl = normalizeOptionalText(body.imageUrl);
+    const status = normalizeOptionalText(body.status);
 
     if (!title) {
       return NextResponse.json({ error: "标题不能为空" }, { status: 400 });
@@ -67,6 +68,9 @@ export async function PUT(
     }
     if (imageUrl.length > 254) {
       return NextResponse.json({ error: "封面图片链接长度不超过254字" }, { status: 400 });
+    }
+    if (!isSafeLocalImagePath(imageUrl)) {
+      return NextResponse.json({ error: "封面图片仅支持站内上传路径" }, { status: 400 });
     }
     if (status && !["DRAFT", "PUBLISHED"].includes(status)) {
       return NextResponse.json({ error: "无效的状态值" }, { status: 400 });
