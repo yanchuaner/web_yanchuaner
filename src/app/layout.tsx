@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Toaster } from "sonner";
 import UUIDCompat from "@/components/UUIDCompat";
 import AuthProvider from "@/components/AuthProvider";
@@ -66,6 +66,12 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -73,24 +79,27 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
-      <body className="font-sans antialiased text-[var(--color-text)] bg-[var(--color-background)]">
+      <body className="overflow-x-hidden font-sans antialiased text-[var(--color-text)] bg-[var(--color-background)]">
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-[#7C3AED] focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#7C3AED] focus:ring-offset-2 focus:ring-offset-[#FAF5FF]"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-brand focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 focus:ring-offset-surface-muted"
         >
           跳到正文
         </a>
         <AuthProvider>
-            <UUIDCompat />
-            <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#FAF5FF] to-[#F3E8FF]">
-              {/* 全局宇宙氛围背景（使所有子页面的磨砂玻璃卡片背后折射出流星与星空） */}
-              <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-60" aria-hidden="true">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_15%,rgba(124,58,237,0.06),transparent_40%),radial-gradient(circle_at_85%_80%,rgba(167,139,250,0.08),transparent_40%)]" />
-                <InteractiveStarfield />
-                <div className="meteor-layer absolute inset-0 opacity-[0.10]" />
-              </div>
-              
-              {children}
+          <UUIDCompat />
+          <div className="relative min-h-[100dvh] overflow-hidden bg-gradient-to-b from-[#FAF5FF] to-[#F3E8FF]">
+            {/* 全局宇宙氛围背景（使所有子页面的磨砂玻璃卡片背后折射出流星与星空） */}
+            <div
+              className="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-60"
+              aria-hidden="true"
+            >
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_15%,rgba(124,58,237,0.06),transparent_40%),radial-gradient(circle_at_85%_80%,rgba(167,139,250,0.08),transparent_40%)]" />
+              <InteractiveStarfield />
+              <div className="meteor-layer absolute inset-0 opacity-[0.10]" />
+            </div>
+
+            {children}
           </div>
           {/* 星空紫主题 Toast 通知 */}
           <Toaster

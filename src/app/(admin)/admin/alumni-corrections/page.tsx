@@ -21,9 +21,11 @@ type CorrectionRequest = {
   rosterId: string;
   currentName: string | null;
   currentGraduationClass: string | null;
+  currentClassName: string | null;
   currentTags: string | null;
   requestedName: string | null;
   requestedGraduationClass: string | null;
+  requestedClassName: string | null;
   requestedTags: string | null;
   contact: string;
   reason: string;
@@ -270,7 +272,11 @@ export default function AdminAlumniCorrectionsPage() {
               current: req.currentGraduationClass,
               requested: req.requestedGraduationClass,
             },
-            { label: '标签', current: req.currentTags, requested: req.requestedTags },
+            {
+              label: '班级',
+              current: req.currentClassName,
+              requested: req.requestedClassName,
+            },
           ];
 
           return (

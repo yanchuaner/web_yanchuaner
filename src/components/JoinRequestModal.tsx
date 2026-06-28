@@ -134,7 +134,7 @@ export function JoinRequestModal() {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center px-4 py-10">
+    <div className="mobile-modal-shell fixed inset-0 z-[60] flex items-center justify-center px-4 py-10">
       {/* 遮罩：统一模糊背景 */}
       <button
         type="button"
@@ -149,7 +149,7 @@ export function JoinRequestModal() {
         role="dialog"
         aria-modal="true"
         aria-label="入轨联络舱"
-        className="safe-modal-panel relative z-10 w-full max-w-lg rounded-modal border border-brand/20 bg-surface/95 p-6 shadow-lg backdrop-blur-xl"
+        className="mobile-modal-panel safe-modal-panel relative z-10 w-full max-w-lg rounded-modal border border-brand/20 bg-surface/95 p-6 shadow-lg backdrop-blur-xl pb-safe"
       >
         <div className="flex items-center justify-between gap-2">
           <h3 className="text-xl font-semibold text-brand-fg font-heading">入轨联络舱</h3>
@@ -259,7 +259,7 @@ export function JoinRequestModal() {
                 <p className="mt-1">您的信息暂未匹配白名单，已进入人工审核队列。审核通过后将自动同步您的校友身份。</p>
               </div>
             )}
-            <button type="button" onClick={closeModal} className="btn-secondary w-full">
+            <button type="button" onClick={closeModal} className="btn-secondary w-full min-h-[44px]">
               关闭
             </button>
           </div>

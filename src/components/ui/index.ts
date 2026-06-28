@@ -16,6 +16,7 @@ export { Button, ButtonLink } from "./Button";
 export { Badge } from "./Badge";
 export { EmptyState } from "./EmptyState";
 export { ErrorState } from "./ErrorState";
+export { FormStatus } from "./FormStatus";
 export { Skeleton, SkeletonText } from "./Skeleton";
 export { DisclaimerBanner } from "./DisclaimerBanner";
 export { InteractiveStarfield } from "./InteractiveStarfield";

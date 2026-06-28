@@ -9,6 +9,7 @@ import {
   X,
   ChevronDown,
   GalleryVerticalEnd,
+  FileEdit,
   MessageSquareText,
   Radar,
   Newspaper,
@@ -28,7 +29,7 @@ type NavLeaf = { href: string; label: string; icon: LucideIcon; desc?: string };
 type NavGroup = { label: string; items: NavLeaf[] };
 
 /**
- * 导航信息架构：11 个平铺入口按用户心智聚合为 4 组。
+ * 导航信息架构：12 个平铺入口按用户心智聚合为 4 组。
  * 注意：仅重组「呈现与分组」，所有 href 保持原有 URL 不变。
  */
 const NAV_GROUPS: NavGroup[] = [
@@ -37,6 +38,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: '/alumni/radar', label: '星空通讯录', icon: Radar, desc: '校友大学城市分布地图' },
       { href: '/alumni/certificate', label: '电子校友证', icon: IdCard, desc: '生成专属纪念卡' },
+      { href: '/alumni/correction', label: '信息修正', icon: FileEdit, desc: '姓名、届别、班级修正申请' },
       { href: '/alumni/achievements', label: '校友成就墙', icon: Award, desc: '升学・科研・职业足迹' },
       { href: '/alumni/stories', label: '燕中故事', icon: MessageSquareText, desc: '校友的奋斗与成长' },
       { href: '/alumni/memories', label: '燕中记忆', icon: GalleryVerticalEnd, desc: '校园时光珍贵影像' },
@@ -292,7 +294,7 @@ export default function MobileNav() {
             role="dialog"
             aria-modal="true"
             aria-label="导航菜单"
-            className="fixed right-0 top-0 z-[60] flex h-full w-80 max-w-[88vw] flex-col border-l border-brand/15 bg-surface/95 p-5 backdrop-blur-xl shadow-2xl lg:hidden animate-slide-in"
+            className="fixed right-0 top-0 z-[60] flex h-full w-80 max-w-[88vw] flex-col border-l border-brand/15 bg-surface/95 p-5 pb-safe backdrop-blur-xl shadow-2xl lg:hidden animate-slide-in"
           >
             <div className="mb-4 flex items-center justify-between">
               <p className="text-sm font-semibold text-brand font-heading">导航菜单</p>
@@ -352,7 +354,7 @@ export default function MobileNav() {
               ))}
             </nav>
 
-            <div className="mt-4 border-t border-line pt-4">
+            <div className="mt-4 border-t border-line pt-4 pb-safe">
               {isLoggedIn ? (
                 <div className="space-y-2">
                   {user?.role === "ADMIN" ? (
