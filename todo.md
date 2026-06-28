@@ -44,7 +44,7 @@
 背景：当前 `package.json` 中有 `prisma.seed`，但 Prisma 7 读取 `prisma.config.ts` 后，`prisma db seed` 在 build 中提示 `No seed command configured`，导致 `npm run build` 的 seed 步骤实际跳过。
 
 - [x] 在 `prisma.config.ts` 中配置 seed 命令。
-- [ ] 确认 `npm run build` 会实际执行 `prisma/seed.ts`。
+- [x] 确认 `npm run build` 会实际执行 `prisma/seed.ts`（已在 WSL 原生临时目录用临时 SQLite 验证）。
 - [x] 继续保留 `npm run seed` 作为直接播种入口。
 
 验收标准：
