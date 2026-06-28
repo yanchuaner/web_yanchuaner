@@ -68,8 +68,8 @@ async function main() {
     headers: sameOriginHeaders(),
   });
   record(
-    "legacy_join_write_removed",
-    oldJoin.status === 401 || oldJoin.status === 410,
+    "legacy_join_api_absent",
+    oldJoin.status === 401 || oldJoin.status === 404 || oldJoin.status === 410,
     String(oldJoin.status),
   );
 

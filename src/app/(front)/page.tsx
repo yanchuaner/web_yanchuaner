@@ -17,7 +17,7 @@ import { RevealSection } from "@/components/ui";
 import MessageOrbit from "@/components/MessageOrbit";
 import CosmicBackground from "@/components/CosmicBackground";
 import AlumniMapClient from "@/components/AlumniMapClient";
-import { JoinTriggerButton } from "@/components/JoinRequestModal";
+import { JoinTriggerButton } from "@/components/JoinTriggerButton";
 import LatestUpdatesSection, {
   LatestUpdatesSkeleton,
 } from "@/components/LatestUpdatesSection";

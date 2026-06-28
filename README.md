@@ -75,7 +75,7 @@
 | 🗺️ **多维校友地图聚合** | Leaflet 热力地图 · 城市/院校/专业三维聚合算法 · `cityCoordinates` 静态离线坐标系 · 实时校友搜索与分布统计 |
 | 📝 **站内 CMS 审核闭环** | `DRAFT → PENDING → PUBLISHED/REJECTED` 四态状态机 · 前台「我的投稿」面板支持状态追踪与撤销 · 后台审核工作台含完整审计日志 |
 | ⚙️ **自动化全链路部署** | Prisma 幂等种子脚本 · `build` 命令自动建表+播种 · systemd + Nginx + Let's Encrypt · WAL 模式 SQLite 事务优化 |
-| 🎨 **前端工程化解耦** | `useResource` + `CrudManager` 数据层抽象 · 基础组件库（GlassCard/PageShell/Badge/PageHeader）· `JoinRequestModal` 全局单例弹窗 |
+| 🎨 **前端工程化解耦** | `useResource` + `CrudManager` 数据层抽象 · 基础组件库（GlassCard/PageShell/Badge/PageHeader）· 移动优先导航与注册入口 |
 | 📤 **智能图片管道** | Sharp 16:9 自动裁切 + WebP 转换 · 原子写入（tmp→rename）防文件损坏 · 上传 MIME 类型安全校验 |
 | 📊 **操作审计追溯** | 管理员所有关键操作自动写入 `AuditLog` · JSON before/after 快照 · 按目标类型 & 时间双索引检索 |
 

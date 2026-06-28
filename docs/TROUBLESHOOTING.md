@@ -50,7 +50,7 @@
 2. 删除 `node_modules/.cache`（如果存在）
 3. 重新 `npm run dev` 或 `npm run build`
 
-### 4. `useSearchParams` bailout — admin 页面全部预渲染失败
+### 4. `useSearchParams` bailout — 全局客户端组件导致页面预渲染失败
 
 **现象**：
 ```
@@ -61,9 +61,9 @@ Export encountered errors on following paths:
     ...
 ```
 
-**原因**：`JoinRequestModal`（在全局根 `layout.tsx` 中渲染）内部使用了 `useSearchParams()`。Next.js 构建时会对每个子页面（含 `/admin/*`）做静态预渲染，遍历整棵组件树时遇到 `useSearchParams` 但没有 `<Suspense>` 边界，导致所有页面 bail out。
+**原因**：全局根 `layout.tsx` 或跨页面共享组件中直接使用了 `useSearchParams()`、`usePathname()` 等客户端 hook。Next.js 构建时会对页面做预渲染，遍历整棵组件树时遇到缺少 `<Suspense>` 边界的客户端 hook，可能导致多个页面 bail out。
 
-**修复**：在 `src/app/layout.tsx` 中，将 `<JoinRequestModal />` 用 `<Suspense fallback={null}>` 包裹。这样 SSR 阶段跳过弹窗组件（弹窗默认不显示，不影响静态 HTML），运行时客户端仍正常工作。
+**修复**：优先把该逻辑移出全局 layout，或改成页面局部客户端组件；确实需要全局存在时，用 `<Suspense fallback={null}>` 包裹对应组件，并确认它默认不影响 SSR 输出。
 
 ### 5. `'use client'` 必须在 `export const dynamic` 之前
 
