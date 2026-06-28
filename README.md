@@ -8,6 +8,45 @@
 
 > 本仓库只包含网站代码、公开文档和示例配置，不包含真实数据库、上传文件、账号凭据或校友隐私数据。
 
+## 项目预览
+
+点击截图可查看大图。这里保留少量代表性页面，完整交互以本地运行或线上站点为准。
+
+| 校友空间 | 校友故事 | 管理后台 |
+| --- | --- | --- |
+| [![校友地图](docs/assets/screenshots/alumni-contact.webp)](docs/assets/screenshots/alumni-contact.webp) | [![燕中故事](docs/assets/screenshots/alumni-stories.webp)](docs/assets/screenshots/alumni-stories.webp) | [![后台控制台](docs/assets/screenshots/admin-dashboard.webp)](docs/assets/screenshots/admin-dashboard.webp) |
+| 校友地图与分布统计 | 站内故事展示与投稿 | 后台统计与运营入口 |
+
+<details>
+<summary>展开更多前台页面截图</summary>
+
+| 学校介绍 | 新闻公告 | 校友活动 |
+| --- | --- | --- |
+| [![学校介绍](docs/assets/screenshots/about.webp)](docs/assets/screenshots/about.webp) | [![新闻公告](docs/assets/screenshots/news.webp)](docs/assets/screenshots/news.webp) | [![校友活动](docs/assets/screenshots/events.webp)](docs/assets/screenshots/events.webp) |
+
+| 在校生资源站 | 教师频道 | 联系我们 |
+| --- | --- | --- |
+| [![在校生资源站](docs/assets/screenshots/students.webp)](docs/assets/screenshots/students.webp) | [![教师频道](docs/assets/screenshots/teachers.webp)](docs/assets/screenshots/teachers.webp) | [![联系我们](docs/assets/screenshots/contact.webp)](docs/assets/screenshots/contact.webp) |
+
+| 电子校友证 | 校友成就墙 | 燕中记忆 |
+| --- | --- | --- |
+| [![电子校友证](docs/assets/screenshots/alumni-certificate.webp)](docs/assets/screenshots/alumni-certificate.webp) | [![校友成就墙](docs/assets/screenshots/alumni-achievements.webp)](docs/assets/screenshots/alumni-achievements.webp) | [![燕中记忆](docs/assets/screenshots/alumni-memories.webp)](docs/assets/screenshots/alumni-memories.webp) |
+
+</details>
+
+<details>
+<summary>展开后台管理截图</summary>
+
+| 新闻管理 | 活动管理 | 校友名单 |
+| --- | --- | --- |
+| [![新闻管理](docs/assets/screenshots/admin-news.webp)](docs/assets/screenshots/admin-news.webp) | [![活动管理](docs/assets/screenshots/admin-events.webp)](docs/assets/screenshots/admin-events.webp) | [![校友名单](docs/assets/screenshots/admin-alumni.webp)](docs/assets/screenshots/admin-alumni.webp) |
+
+| 修改申请 | 故事审核 | 页面内容 |
+| --- | --- | --- |
+| [![修改申请](docs/assets/screenshots/admin-corrections.webp)](docs/assets/screenshots/admin-corrections.webp) | [![故事审核](docs/assets/screenshots/admin-stories-pending.webp)](docs/assets/screenshots/admin-stories-pending.webp) | [![页面内容](docs/assets/screenshots/admin-content.webp)](docs/assets/screenshots/admin-content.webp) |
+
+</details>
+
 ## 当前状态
 
 | 维度 | 状态 |
