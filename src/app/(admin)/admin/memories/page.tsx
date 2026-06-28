@@ -180,20 +180,20 @@ export default function AdminMemoriesPage() {
             />
           </div>
           <div>
-            <label htmlFor="imagePath" className="mb-1 block text-sm font-medium text-brand-fg">图片路径</label>
-            <div className="flex gap-2">
+            <label htmlFor="imagePath" className="mb-1 block text-sm font-medium text-brand-fg">上传图片路径</label>
+            <div className="flex flex-col gap-2 sm:flex-row">
               <input
                 id="imagePath"
                 type="text"
                 value={form.imagePath}
                 onChange={(e) => setForm({ ...form, imagePath: e.target.value })}
-                className="input flex-1"
-                placeholder="/memories/xxx.jpg 或上传"
+                className="input min-w-0 flex-1"
+                placeholder="/uploads/xxx.jpg 或上传"
                 disabled={saving}
               />
-              <label className="btn-secondary inline-flex cursor-pointer items-center gap-1 whitespace-nowrap">
+              <label className="btn-secondary inline-flex min-h-[44px] cursor-pointer items-center justify-center gap-1 whitespace-nowrap">
                 {uploading ? '上传中...' : '本地上传'}
-                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleUpload} className="hidden" disabled={uploading} />
+                <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleUpload} className="hidden" disabled={uploading} />
               </label>
             </div>
             {uploadMsg && (

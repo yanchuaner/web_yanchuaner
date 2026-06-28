@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { getAuthenticatedUser } from "@/lib/admin-auth";
+import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: IdRouteParams }
 ) {
   try {
-    const resolvedParams = await params;
+    const id = await getRouteId(params);
     const story = await prisma.story.findUnique({
-      where: { id: resolvedParams.id, status: "PUBLISHED" },
+      where: { id, status: "PUBLISHED" },
       include: { authorUser: { select: { id: true, name: true } } },
     });
     if (!story) {
@@ -25,7 +26,7 @@ export async function GET(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: IdRouteParams }
 ) {
   const user = await getAuthenticatedUser(req);
   if (!user) {
@@ -33,8 +34,7 @@ export async function DELETE(
   }
 
   try {
-    const resolvedParams = await params;
-    const id = resolvedParams.id;
+    const id = await getRouteId(params);
 
     const story = await prisma.story.findUnique({
       where: { id },

@@ -50,7 +50,7 @@
 2. 删除 `node_modules/.cache`（如果存在）
 3. 重新 `npm run dev` 或 `npm run build`
 
-### 4. `useSearchParams` bailout — admin 页面全部预渲染失败
+### 4. `useSearchParams` bailout — 全局客户端组件导致页面预渲染失败
 
 **现象**：
 ```
@@ -61,9 +61,9 @@ Export encountered errors on following paths:
     ...
 ```
 
-**原因**：`JoinRequestModal`（在全局根 `layout.tsx` 中渲染）内部使用了 `useSearchParams()`。Next.js 构建时会对每个子页面（含 `/admin/*`）做静态预渲染，遍历整棵组件树时遇到 `useSearchParams` 但没有 `<Suspense>` 边界，导致所有页面 bail out。
+**原因**：全局根 `layout.tsx` 或跨页面共享组件中直接使用了 `useSearchParams()`、`usePathname()` 等客户端 hook。Next.js 构建时会对页面做预渲染，遍历整棵组件树时遇到缺少 `<Suspense>` 边界的客户端 hook，可能导致多个页面 bail out。
 
-**修复**：在 `src/app/layout.tsx` 中，将 `<JoinRequestModal />` 用 `<Suspense fallback={null}>` 包裹。这样 SSR 阶段跳过弹窗组件（弹窗默认不显示，不影响静态 HTML），运行时客户端仍正常工作。
+**修复**：优先把该逻辑移出全局 layout，或改成页面局部客户端组件；确实需要全局存在时，用 `<Suspense fallback={null}>` 包裹对应组件，并确认它默认不影响 SSR 输出。
 
 ### 5. `'use client'` 必须在 `export const dynamic` 之前
 
@@ -170,8 +170,8 @@ const Component = dynamic(() => import('./Component'), { ssr: false });
 | maxBytes | 端点 | 原因 |
 |----------|------|------|
 | 4096 | 登录、注册、验证邮箱、忘记密码、邮箱重发、用户操作 | 仅含字段名和简短值 |
-| 16384 (16KB) | 管理类写入（新闻、活动、故事、内容、审核、教师） | 含富文本内容 |
-| 65536 (64KB) | 前台投稿（`/api/posts`、`/api/stories`） | 长文投稿 |
+| 16384 (16KB) | 管理类写入（新闻、活动、内容、审核、教师） | 结构化文本字段 |
+| 524288 (512KB) | 站内故事投稿（`/api/stories`、`/api/admin/stories`） | 长文纯文本投稿 |
 
 **修复**：
 - 如果是长文投稿超限，将超大稿件拆分为多个部分，或在后台直接发布
@@ -315,13 +315,14 @@ const Component = dynamic(() => import('./Component'), { ssr: false });
 **原因**：
 - 图片尚未上传到服务器
 - 图片路径指向了不存在的旧 `/memories/` 目录
-- 上传目录软链接未创建（`public/uploads` → `/var/www/alumni-site/uploads`）
+- 上传目录未创建、权限不足，或 `/var/www/alumni-site/app/public/uploads` 未指向生产上传目录
 
 **修复**：
 1. 后台 `/admin/memories` 逐个展品上传图片
 2. 检查 `imagePath` 字段是否为 `/uploads/` 路径
-3. 确认 uploads 软链接：`ls -la /var/www/alumni-site/app/public/uploads`
-4. 如缺失：`ln -sf /var/www/alumni-site/uploads /var/www/alumni-site/app/public/uploads`
+3. 确认生产上传目录存在且可写：`ls -ld /var/www/alumni-site/uploads`
+4. 确认应用目录中的软链接：`ls -la /var/www/alumni-site/app/public/uploads`
+5. 如缺失：`rm -rf /var/www/alumni-site/app/public/uploads && ln -sfn /var/www/alumni-site/uploads /var/www/alumni-site/app/public/uploads`
 
 ### 20. 燕中记忆展品排序失败
 

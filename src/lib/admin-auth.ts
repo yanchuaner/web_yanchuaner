@@ -96,7 +96,7 @@ export async function requireAdmin(
 }
 
 async function pageUser() {
-  const token = cookies().get(AUTH_COOKIE)?.value;
+  const token = (await cookies()).get(AUTH_COOKIE)?.value;
   return resolveUser(token ? verifyToken(token) : null);
 }
 

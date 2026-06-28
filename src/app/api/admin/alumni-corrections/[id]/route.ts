@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { requireAdmin } from "@/lib/admin-auth";
+import { getAuthenticatedUser } from "@/lib/admin-auth";
 import { readJsonBody } from "@/lib/auth-utils";
+import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 import {
   normalizeClassName,
   normalizeGraduationClass,
@@ -9,16 +10,47 @@ import {
   validGraduationClass,
 } from "@/lib/identity-fields";
 
+function requireAdminUser(req: NextRequest) {
+  return getAuthenticatedUser(req).then((user) => {
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    if (user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+    return user;
+  });
+}
+
+const correctionSelect = {
+  id: true,
+  rosterId: true,
+  currentName: true,
+  currentGraduationClass: true,
+  currentClassName: true,
+  requestedName: true,
+  requestedGraduationClass: true,
+  requestedClassName: true,
+  contact: true,
+  reason: true,
+  status: true,
+  adminNote: true,
+  createdAt: true,
+  reviewedAt: true,
+} as const;
+
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: IdRouteParams },
 ) {
-  const auth = await requireAdmin(req);
-  if (auth) return auth;
+  const admin = await requireAdminUser(req);
+  if (admin instanceof NextResponse) return admin;
 
   try {
+    const id = await getRouteId(params);
     const request = await prisma.alumniCorrectionRequest.findUnique({
-      where: { id: params.id },
+      where: { id },
+      select: correctionSelect,
     });
     if (!request) {
       return NextResponse.json({ error: "申请不存在" }, { status: 404 });
@@ -35,12 +67,13 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: IdRouteParams },
 ) {
-  const auth = await requireAdmin(req);
-  if (auth) return auth;
+  const admin = await requireAdminUser(req);
+  if (admin instanceof NextResponse) return admin;
 
   try {
+    const id = await getRouteId(params);
     const body = await readJsonBody<{
       action?: unknown;
       adminNote?: unknown;
@@ -63,7 +96,8 @@ export async function PATCH(
     }
 
     const request = await prisma.alumniCorrectionRequest.findUnique({
-      where: { id: params.id },
+      where: { id },
+      select: correctionSelect,
     });
     if (!request) {
       return NextResponse.json({ error: "申请不存在" }, { status: 404 });
@@ -91,8 +125,8 @@ export async function PATCH(
       // 使用 transaction 保证一致性
       await prisma.$transaction(async (tx) => {
         // 1. 更新审核状态
-        await tx.alumniCorrectionRequest.update({
-          where: { id: params.id },
+        const updatedRequest = await tx.alumniCorrectionRequest.update({
+          where: { id },
           data: { status: "APPROVED", adminNote: adminNote || null, reviewedAt: new Date() },
         });
 
@@ -101,13 +135,10 @@ export async function PATCH(
         if (request.requestedName) rosterUpdate.name = request.requestedName;
         if (requestedGraduationClass) rosterUpdate.graduationClass = requestedGraduationClass;
         if (requestedClassName) rosterUpdate.className = requestedClassName;
-        if (request.requestedCity) rosterUpdate.city = request.requestedCity;
-        if (request.requestedUniversity) rosterUpdate.university = request.requestedUniversity;
-        if (request.requestedMajor) rosterUpdate.major = request.requestedMajor;
-        if (request.requestedIndustry) rosterUpdate.industry = request.requestedIndustry;
-        if (request.requestedContact) rosterUpdate.contact = request.requestedContact;
 
-        await tx.whitelistRoster.update({ where: { id: request.rosterId }, data: rosterUpdate });
+        if (Object.keys(rosterUpdate).length === 0) throw new Error("NO_SUPPORTED_FIELDS");
+
+        const updatedRoster = await tx.whitelistRoster.update({ where: { id: request.rosterId }, data: rosterUpdate });
 
         // 3. 同步更新匹配的 User 账号 (按 name + graduationClass)
         const matchCriteria: Record<string, string> = {
@@ -122,28 +153,64 @@ export async function PATCH(
           if (request.requestedName) userUpdate.name = request.requestedName;
           if (requestedGraduationClass) userUpdate.graduationClass = requestedGraduationClass;
           if (requestedClassName) userUpdate.className = requestedClassName;
-          if (request.requestedCity) userUpdate.city = request.requestedCity;
-          if (request.requestedUniversity) userUpdate.university = request.requestedUniversity;
-          if (request.requestedMajor) userUpdate.major = request.requestedMajor;
-          if (request.requestedIndustry) userUpdate.industry = request.requestedIndustry;
-          if (request.requestedContact) userUpdate.contact = request.requestedContact;
           if (Object.keys(userUpdate).length > 0) {
             await tx.user.update({ where: { id: matchedUser.id }, data: userUpdate });
           }
         }
+
+        await tx.auditLog.create({
+          data: {
+            action: "approve-alumni-correction",
+            targetType: "AlumniCorrectionRequest",
+            targetId: request.id,
+            adminId: admin.id,
+            before: JSON.stringify({
+              requestStatus: request.status,
+              roster: {
+                id: roster.id,
+                name: roster.name,
+                graduationClass: normalizeGraduationClass(roster.graduationClass),
+                className: normalizeClassName(roster.className),
+              },
+            }),
+            after: JSON.stringify({
+              requestStatus: updatedRequest.status,
+              fields: Object.keys(rosterUpdate),
+              roster: {
+                id: updatedRoster.id,
+                name: updatedRoster.name,
+                graduationClass: normalizeGraduationClass(updatedRoster.graduationClass),
+                className: normalizeClassName(updatedRoster.className),
+              },
+              syncedUserId: matchedUser?.id || null,
+            }),
+          },
+        });
       });
 
       return NextResponse.json({ success: true, status: "APPROVED" });
     }
 
     // reject
-    await prisma.alumniCorrectionRequest.update({
-      where: { id: params.id },
-      data: {
-        status: "REJECTED",
-        adminNote: adminNote || null,
-        reviewedAt: new Date(),
-      },
+    await prisma.$transaction(async (tx) => {
+      const updated = await tx.alumniCorrectionRequest.update({
+        where: { id },
+        data: {
+          status: "REJECTED",
+          adminNote: adminNote || null,
+          reviewedAt: new Date(),
+        },
+      });
+      await tx.auditLog.create({
+        data: {
+          action: "reject-alumni-correction",
+          targetType: "AlumniCorrectionRequest",
+          targetId: request.id,
+          adminId: admin.id,
+          before: JSON.stringify({ requestStatus: request.status }),
+          after: JSON.stringify({ requestStatus: updated.status }),
+        },
+      });
     });
 
     return NextResponse.json({ success: true, status: "REJECTED" });
@@ -154,6 +221,12 @@ export async function PATCH(
     }
     if (error instanceof SyntaxError) {
       return NextResponse.json({ error: "无效的 JSON 数据" }, { status: 400 });
+    }
+    if (error?.message === "NO_SUPPORTED_FIELDS") {
+      return NextResponse.json(
+        { error: "该申请不包含当前支持的修改字段，请驳回并请校友重新提交" },
+        { status: 400 },
+      );
     }
     return NextResponse.json(
       { error: "审核修改申请失败" },

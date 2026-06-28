@@ -1,16 +1,84 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import {
   MapPin, Building2, UsersRound, GraduationCap,
-  ChevronDown, ChevronUp, ArrowLeft, AlertCircle,
+  ChevronDown, ChevronUp, ArrowLeft,
 } from 'lucide-react';
-import { PageShell, GlassCard, PageHeader, ButtonLink, DisclaimerBanner } from '@/components/ui';
+import {
+  PageShell,
+  GlassCard,
+  PageHeader,
+  ButtonLink,
+  DisclaimerBanner,
+  EmptyState,
+  ErrorState,
+  Skeleton,
+  SkeletonText,
+} from '@/components/ui';
 import { formatGraduationClass } from '@/lib/identity-fields';
 
-const CityMapRenderer = dynamic(() => import('@/components/CityMapRenderer'), { ssr: false });
+function StatGridSkeleton() {
+  return (
+    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <div key={index} className="rounded-2xl border border-line bg-surface/30 p-5 shadow-sm">
+          <Skeleton className="h-10 w-10 rounded-xl" />
+          <Skeleton variant="text" className="mt-4 h-3 w-20" />
+          <Skeleton variant="text" className="mt-3 h-7 w-16" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function MapPanelSkeleton() {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-line bg-surface/30 shadow-sm backdrop-blur-md">
+      <Skeleton className="h-[360px] w-full rounded-none md:h-96" />
+      <div className="flex min-h-[44px] items-center gap-2 border-t border-line bg-surface/40 px-4 py-3">
+        <Skeleton variant="circle" className="h-4 w-4 shrink-0" />
+        <Skeleton variant="text" className="h-3 w-full max-w-72" />
+      </div>
+    </div>
+  );
+}
+
+function CityRankingSkeleton() {
+  return (
+    <div className="mt-8">
+      <Skeleton variant="text" className="h-6 w-24" />
+      <Skeleton variant="text" className="mt-2 h-4 w-48" />
+      <div className="mt-4 space-y-2">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div key={index} className="rounded-xl border border-line bg-surface/30 p-4">
+            <div className="flex min-h-[44px] items-center gap-3">
+              <Skeleton variant="text" className="h-4 w-5 shrink-0" />
+              <SkeletonText lines={2} className="min-w-0 flex-1" />
+              <Skeleton variant="text" className="h-6 w-14 shrink-0" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function UniversityMapSkeleton() {
+  return (
+    <div className="space-y-6" role="status" aria-label="正在加载大学城市分布">
+      <StatGridSkeleton />
+      <MapPanelSkeleton />
+      <CityRankingSkeleton />
+    </div>
+  );
+}
+
+const CityMapRenderer = dynamic(() => import('@/components/CityMapRenderer'), {
+  ssr: false,
+  loading: () => <MapPanelSkeleton />,
+});
 
 type CityStats = {
   city: string;
@@ -43,17 +111,27 @@ export default function UniversityMapPage() {
   const [error, setError] = useState<string | null>(null);
   const [expandedCity, setExpandedCity] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchStats = useCallback(() => {
+    setLoading(true);
+    setError(null);
+    setData(null);
     fetch('/api/alumni/city-stats')
       .then((res) => {
         if (res.status === 401) throw new Error('请先验证访问口令后查看');
         if (!res.ok) throw new Error('数据加载失败，请稍后重试');
         return res.json();
       })
-      .then((d) => setData(d))
+      .then((d) => {
+        setData(d);
+        setExpandedCity(null);
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
   const toggleCity = (city: string) => {
     setExpandedCity((prev) => (prev === city ? null : city));
@@ -85,44 +163,26 @@ export default function UniversityMapPage() {
 
         <div className="mt-8">
           {/* Loading state */}
-          {loading && (
-            <div className="space-y-6">
-              <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="animate-pulse rounded-2xl border border-line bg-surface/20 p-5">
-                    <div className="h-10 w-10 rounded-xl bg-surface/30" />
-                    <div className="mt-4 h-4 w-20 rounded bg-surface/30" />
-                    <div className="mt-2 h-6 w-16 rounded bg-surface/30" />
-                  </div>
-                ))}
-              </div>
-              <div className="h-[360px] animate-pulse rounded-2xl bg-surface/20 md:h-96" />
-            </div>
-          )}
+          {loading && <UniversityMapSkeleton />}
 
           {/* Error state */}
           {error && !loading && (
-            <div className="rounded-2xl border border-rose-500/20 bg-rose-500/10 p-8 text-center">
-              <AlertCircle size={32} className="mx-auto text-rose-500" />
-              <p className="mt-3 text-sm text-rose-200">{error}</p>
-              {error.includes('访问口令') && (
-                <Link
-                  href="/"
-                  className="mt-4 inline-flex items-center gap-2 rounded-xl border border-rose-500/30 px-4 py-2 text-sm text-rose-200 transition hover:bg-rose-500/20"
-                >
-                  返回首页验证
-                </Link>
-              )}
-            </div>
+            <ErrorState
+              title="城市分布暂时无法加载"
+              description={error}
+              onRetry={error.includes('访问口令') ? undefined : fetchStats}
+              homeHref={error.includes('访问口令') ? '/' : '/alumni/radar'}
+              homeLabel={error.includes('访问口令') ? '返回首页验证' : '返回通讯录'}
+            />
           )}
 
           {/* Empty state */}
           {data && data.cities.length === 0 && !loading && (
-            <div className="rounded-2xl border border-dashed border-line bg-surface/20 p-12 text-center">
-              <MapPin size={40} className="mx-auto text-brand-fg/20" />
-              <p className="mt-4 text-sm text-brand-fg/60">暂无城市分布数据</p>
-              <p className="mt-1 text-xs text-brand-fg/40">校友数据收集中，敬请期待</p>
-            </div>
+            <EmptyState
+              icon={MapPin}
+              title="暂无城市分布数据"
+              description="校友数据收集中，敬请期待"
+            />
           )}
 
           {/* Data loaded */}
@@ -144,9 +204,9 @@ export default function UniversityMapPage() {
               {/* Map */}
               <div className="mt-6 overflow-hidden rounded-2xl border border-line shadow-sm bg-surface/30 backdrop-blur-md">
                 <CityMapRenderer cities={data.cities} />
-                <div className="flex items-center gap-2 border-t border-line bg-surface/40 px-4 py-3">
-                  <MapPin size={14} className="text-brand" />
-                  <p className="text-xs text-brand-fg/50">
+                <div className="flex min-h-[44px] items-center gap-2 border-t border-line bg-surface/40 px-4 py-3">
+                  <MapPin size={14} className="shrink-0 text-brand" />
+                  <p className="min-w-0 text-xs leading-5 text-brand-fg/50">
                     共 {data.cities.length} 个城市 · 圆圈越大代表该城市校友人数越多
                   </p>
                 </div>
@@ -163,12 +223,12 @@ export default function UniversityMapPage() {
                       <button
                         type="button"
                         onClick={() => toggleCity(city.city)}
-                        className="flex w-full items-center gap-3 bg-white/50 px-4 py-3.5 text-left transition hover:bg-[#FAF5FF] md:gap-4 md:px-5"
+                        className="flex min-h-[44px] w-full items-center gap-3 bg-white/50 px-4 py-3.5 text-left transition hover:bg-surface-muted md:gap-4 md:px-5"
                       >
                         <span className="w-5 shrink-0 text-center text-sm font-bold text-[#7C3AED]/60">
                           {index + 1}
                         </span>
-                        <span className="font-heading flex-1 text-sm font-semibold text-[#4C1D95] md:text-base">
+                        <span className="font-heading min-w-0 flex-1 truncate text-sm font-semibold text-[#4C1D95] md:text-base">
                           {city.city}
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-full border border-brand/20 bg-brand/5 px-2.5 py-0.5 text-xs font-medium text-[#7C3AED] shrink-0">

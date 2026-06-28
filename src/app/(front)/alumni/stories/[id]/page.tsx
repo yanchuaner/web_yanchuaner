@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Feather } from "lucide-react";
 import { PageShell, GlassCard, ButtonLink } from "@/components/ui";
 import prisma from "@/lib/db";
+import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 
 type StoryDetail = {
   id: string;
@@ -34,8 +35,8 @@ function formatDate(isoDate: string) {
   return `${year}.${month}.${day}`;
 }
 
-export default async function StoryDetailPage({ params }: { params: { id: string } }) {
-  const story = await getStory(params.id);
+export default async function StoryDetailPage({ params }: { params: IdRouteParams }) {
+  const story = await getStory(await getRouteId(params));
   if (!story) notFound();
 
   return (

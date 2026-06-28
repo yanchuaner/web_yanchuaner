@@ -38,6 +38,22 @@ export async function GET(req: NextRequest) {
         orderBy: { createdAt: "desc" },
         skip: (page - 1) * pageSize,
         take: pageSize,
+        select: {
+          id: true,
+          rosterId: true,
+          currentName: true,
+          currentGraduationClass: true,
+          currentClassName: true,
+          requestedName: true,
+          requestedGraduationClass: true,
+          requestedClassName: true,
+          contact: true,
+          reason: true,
+          status: true,
+          adminNote: true,
+          createdAt: true,
+          reviewedAt: true,
+        },
       }),
     ]);
 

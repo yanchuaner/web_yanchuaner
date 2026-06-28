@@ -2,17 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
 import { readJsonBody } from "@/lib/auth-utils";
+import { isSafeLocalImagePath, normalizeOptionalText } from "@/lib/content-safety";
+import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: IdRouteParams }
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {
+    const id = await getRouteId(params);
     const event = await prisma.event.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { _count: { select: { registrations: true } } },
     });
     if (!event) {
@@ -27,13 +30,14 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: IdRouteParams }
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {
-    const existing = await prisma.event.findUnique({ where: { id: params.id } });
+    const id = await getRouteId(params);
+    const existing = await prisma.event.findUnique({ where: { id } });
     if (!existing) {
       return NextResponse.json({ error: "活动不存在" }, { status: 404 });
     }
@@ -50,14 +54,14 @@ export async function PUT(
       status?: unknown;
     }>(req, 524288); // 512KB limit (contains long text)
 
-    const title = typeof body.title === "string" ? body.title.trim() : "";
-    const summary = typeof body.summary === "string" ? body.summary.trim() : "";
-    const content = typeof body.content === "string" ? body.content.trim() : "";
-    const location = typeof body.location === "string" ? body.location.trim() : "";
-    const coverImage = typeof body.coverImage === "string" ? body.coverImage.trim() : "";
-    const status = typeof body.status === "string" ? body.status.trim() : "";
-    const eventDate = typeof body.eventDate === "string" ? body.eventDate.trim() : "";
-    const endDate = typeof body.endDate === "string" ? body.endDate.trim() : "";
+    const title = normalizeOptionalText(body.title);
+    const summary = normalizeOptionalText(body.summary);
+    const content = normalizeOptionalText(body.content);
+    const location = normalizeOptionalText(body.location);
+    const coverImage = normalizeOptionalText(body.coverImage);
+    const status = normalizeOptionalText(body.status);
+    const eventDate = normalizeOptionalText(body.eventDate);
+    const endDate = normalizeOptionalText(body.endDate);
     const maxAttendees = body.maxAttendees;
 
     if (!title) {
@@ -80,6 +84,9 @@ export async function PUT(
     }
     if (coverImage.length > 254) {
       return NextResponse.json({ error: "封面链接长度不超过254字" }, { status: 400 });
+    }
+    if (!isSafeLocalImagePath(coverImage)) {
+      return NextResponse.json({ error: "封面图片仅支持站内上传路径" }, { status: 400 });
     }
     if (status && !["DRAFT", "PUBLISHED"].includes(status)) {
       return NextResponse.json({ error: "无效的状态值" }, { status: 400 });
@@ -111,7 +118,7 @@ export async function PUT(
     }
 
     const event = await prisma.event.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title,
         summary: summary || null,
@@ -140,14 +147,15 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: IdRouteParams }
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {
+    const id = await getRouteId(params);
     const existing = await prisma.event.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { _count: { select: { registrations: true } } },
     });
     if (!existing) {
@@ -161,7 +169,7 @@ export async function DELETE(
       );
     }
 
-    await prisma.event.delete({ where: { id: params.id } });
+    await prisma.event.delete({ where: { id } });
 
     return NextResponse.json({ success: true });
   } catch (error) {

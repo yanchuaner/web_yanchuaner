@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
 import { readJsonBody } from "@/lib/auth-utils";
+import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 import {
   isAchievementCategory,
   isAchievementStatus,
@@ -13,14 +14,15 @@ import {
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: IdRouteParams },
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {
+    const id = await getRouteId(params);
     const existing = await prisma.achievement.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
     if (!existing) {
       return NextResponse.json({ error: "成就记录不存在" }, { status: 404 });
@@ -91,7 +93,7 @@ export async function PUT(
     }
 
     const achievement = await prisma.achievement.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         alumniName,
         title,
@@ -122,20 +124,21 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: IdRouteParams },
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {
+    const id = await getRouteId(params);
     const existing = await prisma.achievement.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
     if (!existing) {
       return NextResponse.json({ error: "成就记录不存在" }, { status: 404 });
     }
 
-    await prisma.achievement.delete({ where: { id: params.id } });
+    await prisma.achievement.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Admin achievements DELETE error:", error);

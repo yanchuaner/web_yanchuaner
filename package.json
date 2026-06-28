@@ -6,11 +6,12 @@
     "dev": "next dev -H 0.0.0.0",
     "build": "prisma generate && prisma db push && prisma db seed && next build",
     "start": "next start -H 0.0.0.0",
-    "lint": "next lint",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "audit:prod": "npm audit --omit=dev --audit-level=high",
     "fresh": "bash scripts/clean.sh && npm run dev",
     "update-list": "node scripts/build_list.js",
     "create-admin": "tsx scripts/create_admin.ts",
-    "normalize-identity-fields": "tsx scripts/normalize_identity_fields.ts",
+    "normalize-identity-fields": "node scripts/normalize_identity_fields.js",
     "migrate-users": "tsx scripts/migrate_users.ts",
     "smoke": "node scripts/smoke-test.js",
     "seed": "tsx prisma/seed.ts",
@@ -35,7 +36,7 @@
     "ioredis": "^5.10.1",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.542.0",
-    "next": "14.2.30",
+    "next": "15.5.19",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-leaflet": "^4.2.1",
@@ -49,14 +50,15 @@
     "@types/react-dom": "^18.3.7",
     "autoprefixer": "^10.4.21",
     "eslint": "^8.57.0",
-    "eslint-config-next": "^14.2.30",
+    "eslint-config-next": "15.5.19",
     "postcss": "^8.5.6",
     "prisma": "^7.8.0",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.20.3",
     "typescript": "^5.9.2"
   },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
+  "overrides": {
+    "@hono/node-server": "2.0.6",
+    "hono": "4.12.27"
   }
 }

@@ -2,11 +2,12 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Award, BarChart3, Users, FileText, Newspaper, CalendarDays, BookUser, FileEdit, Images, Home, Menu, X, LogOut, GraduationCap, Feather, ChevronRight, User } from 'lucide-react';
+import { Award, BarChart3, Users, FileText, Newspaper, CalendarDays, BookUser, FileEdit, Images, Home, Menu, X, LogOut, GraduationCap, Feather, User } from 'lucide-react';
 import { cn } from '@/components/ui/cn';
+import { AdminBreadcrumb } from '@/components/admin/AdminBreadcrumb';
 import { useAuth } from '@/components/AuthProvider';
 
 type NavItem = { href: string; label: string; icon: typeof Award; exact?: boolean };
@@ -47,56 +48,13 @@ const NAV_SECTIONS: NavSection[] = [
   },
 ];
 
-function AdminBreadcrumbs() {
-  const pathname = usePathname() || '/admin';
-  const segments = pathname.split('/').filter(Boolean);
-
-  const segmentLabels: Record<string, string> = {
-    admin: '控制中心',
-    users: '用户审核',
-    'user-claims': '旧资料认领',
-    posts: '内容审核',
-    'alumni-corrections': '信息修改申请',
-    news: '新闻管理',
-    events: '活动管理',
-    stories: '燕中故事',
-    pending: '故事审核',
-    achievements: '校友成就墙',
-    memories: '燕中记忆',
-    teachers: '教师频道',
-    content: '页面内容',
-    alumni: '校友名单',
-  };
-
-  return (
-    <div className="flex items-center gap-1.5 text-xs text-brand-fg/50 md:text-sm">
-      {segments.map((segment, idx) => {
-        const isLast = idx === segments.length - 1;
-        const label = segmentLabels[segment] || segment;
-        const path = '/' + segments.slice(0, idx + 1).join('/');
-
-        return (
-          <div key={path} className="flex items-center gap-1.5 font-heading">
-            {idx > 0 && <ChevronRight size={14} className="text-brand-fg/30" />}
-            {isLast ? (
-              <span className="font-semibold text-brand">{label}</span>
-            ) : (
-              <Link href={path} className="hover:text-brand-fg transition">
-                {label}
-              </Link>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname() || '/admin';
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user: currentUser } = useAuth();
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const sidebarRef = useRef<HTMLElement>(null);
 
   const handleLogout = useCallback(async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -104,10 +62,37 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     router.refresh();
   }, [router]);
 
+  const closeSidebar = useCallback(() => {
+    setSidebarOpen(false);
+    menuButtonRef.current?.focus();
+  }, []);
+
   const isActive = (href: string, exact?: boolean) => {
     if (exact) return pathname === href;
     return pathname === href || pathname.startsWith(`${href}/`);
   };
+
+  useEffect(() => {
+    if (!sidebarOpen) return;
+
+    const prevOverflow = document.body.style.overflow;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeSidebar();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => {
+      sidebarRef.current?.querySelector<HTMLAnchorElement>('a[href]')?.focus();
+    }, 100);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [closeSidebar, sidebarOpen]);
 
   return (
     <div className="flex min-h-screen bg-[#03010b]">
@@ -115,19 +100,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
-          onClick={() => setSidebarOpen(false)}
+          onClick={closeSidebar}
           aria-hidden="true"
         />
       )}
 
       {/* Sidebar (Z-index: 50) */}
       <aside
+        ref={sidebarRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="后台导航"
         className={cn(
-          'fixed left-0 top-0 z-50 flex h-screen w-64 flex-col border-r border-white/10 bg-[#05030e]/95 backdrop-blur-2xl transition-transform duration-300 md:translate-x-0 shadow-[4px_0_24px_rgba(0,0,0,0.5)]',
+          'fixed left-0 top-0 z-50 flex h-[100dvh] w-80 max-w-[88vw] flex-col border-r border-white/10 bg-[#05030e]/95 pb-safe pt-safe backdrop-blur-2xl transition-transform duration-300 md:w-64 md:max-w-none md:translate-x-0 shadow-[4px_0_24px_rgba(0,0,0,0.5)]',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >
-        <div className="flex items-center justify-between border-b border-white/5 px-6 py-5">
+        <div className="flex items-center justify-between border-b border-white/5 px-5 py-4 md:px-6 md:py-5">
           <div>
             <h1 className="text-lg font-bold tracking-wide text-brand-fg font-heading">
               燕中数字母港
@@ -136,8 +125,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
           <button
             type="button"
-            onClick={() => setSidebarOpen(false)}
-            className="text-brand-fg/50 hover:text-brand-fg md:hidden cursor-pointer"
+            onClick={closeSidebar}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-brand-fg/50 hover:bg-brand/10 hover:text-brand-fg md:hidden cursor-pointer touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
             aria-label="关闭侧边栏"
           >
             <X size={18} />
@@ -158,9 +147,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       key={item.href}
                       href={item.href}
                       aria-current={active ? 'page' : undefined}
-                      onClick={() => setSidebarOpen(false)}
+                      onClick={closeSidebar}
                       className={cn(
-                        'relative flex items-center gap-3 rounded-xl py-3 pr-3 text-sm transition cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
+                        'relative flex min-h-[44px] items-center gap-3 rounded-xl py-3 pr-3 text-sm transition cursor-pointer touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
                         active
                           ? 'pl-5 bg-brand/15 text-brand font-bold shadow-[inset_0_0_12px_rgba(167,139,250,0.15)]'
                           : 'pl-3 text-brand-fg/70 hover:bg-brand/10 hover:text-brand',
@@ -186,7 +175,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <button
             type="button"
             onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm text-brand-fg/50 transition hover:bg-rose-500/10 hover:text-rose-400 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+            className="flex min-h-[44px] w-full items-center gap-3 rounded-xl px-3 py-3 text-sm text-brand-fg/50 transition hover:bg-rose-500/10 hover:text-rose-400 cursor-pointer touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
           >
             <LogOut size={18} className="shrink-0" />
             退出登录
@@ -196,24 +185,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Right-side content wrapper */}
-      <div className="flex-1 md:pl-64 flex flex-col min-h-screen">
+      <div className="flex min-h-screen flex-1 flex-col md:pl-64">
         {/* Admin Header (Z-index: 30) */}
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-white/5 bg-[#05030e]/85 px-6 backdrop-blur-md">
-          <div className="flex items-center gap-3">
+        <header className="sticky top-0 z-30 flex min-h-16 flex-wrap items-center justify-between gap-3 border-b border-white/5 bg-[#05030e]/85 px-4 py-3 backdrop-blur-md sm:h-16 sm:px-6">
+          <div className="flex min-w-0 items-center gap-3">
             <button
               type="button"
+              ref={menuButtonRef}
               onClick={() => setSidebarOpen(true)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-brand/20 bg-brand/5 text-brand cursor-pointer md:hidden hover:bg-brand/10 transition"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-brand/20 bg-brand/5 text-brand cursor-pointer touch-manipulation transition hover:bg-brand/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface md:hidden"
               aria-label="打开侧边栏"
             >
               <Menu size={20} />
             </button>
-            <AdminBreadcrumbs />
+            <div className="min-w-0 overflow-x-auto whitespace-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+              <AdminBreadcrumb />
+            </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-4">
             {/* User Profile info */}
-            <div className="flex items-center gap-2.5 rounded-full border border-white/5 bg-[#0a081a]/40 py-1 pl-1.5 pr-3 text-xs md:text-sm">
+            <div className="hidden items-center gap-2.5 rounded-full border border-white/5 bg-[#0a081a]/40 py-1 pl-1.5 pr-3 text-xs md:flex md:text-sm">
               <div className="flex h-6 w-6 items-center justify-center rounded-full bg-brand/20 text-brand shadow-inner">
                 <User size={14} />
               </div>
@@ -229,7 +221,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {/* Quick home button */}
             <Link
               href="/"
-              className="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-line bg-surface/30 px-4 py-2 text-xs font-semibold text-brand transition hover:border-[#7C3AED]/50 hover:bg-brand/5 focus:outline-none"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-line bg-surface/30 px-3 py-2 text-xs font-semibold text-brand transition hover:border-[#7C3AED]/50 hover:bg-brand/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface touch-manipulation sm:px-4"
+              aria-label="返回前台首页"
             >
               <Home size={14} />
               <span className="hidden sm:inline">前台首页</span>

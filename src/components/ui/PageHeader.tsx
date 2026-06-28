@@ -29,9 +29,9 @@ export function PageHeader({
   return (
     <RevealSection className={className}>
       <header
-        className="flex flex-wrap items-start justify-between gap-4"
+        className="flex flex-col items-start justify-between gap-4 sm:flex-row"
       >
-        <div className="min-w-0">
+        <div className="w-full min-w-0 sm:flex-1">
           {eyebrow ? (
             <p className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-3 py-1 text-xs tracking-[0.18em] text-brand">
               {EyebrowIcon ? <EyebrowIcon size={14} aria-hidden="true" /> : null}
@@ -47,7 +47,11 @@ export function PageHeader({
             </p>
           ) : null}
         </div>
-        {action}
+        {action ? (
+          <div className="flex w-full justify-stretch sm:w-auto sm:justify-end [&>*]:w-full sm:[&>*]:w-auto">
+            {action}
+          </div>
+        ) : null}
       </header>
     </RevealSection>
   );

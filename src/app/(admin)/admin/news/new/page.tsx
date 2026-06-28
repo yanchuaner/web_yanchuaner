@@ -121,31 +121,31 @@ export default function AdminNewsNewPage() {
               onChange={(e) => setForm((prev) => ({ ...prev, content: e.target.value }))}
               className="input w-full"
               rows={12}
-              placeholder="新闻正文（支持 HTML）"
+              placeholder="新闻正文（支持换行）"
             />
           </div>
 
           <div>
             <label htmlFor="imageUrl" className="mb-1.5 block text-sm font-medium text-brand-fg">封面图片</label>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <label className="inline-flex cursor-pointer items-center gap-2 rounded-btn border border-brand/20 bg-brand/5 px-4 py-2.5 text-sm text-brand transition hover:bg-brand/10">
                 <Upload size={16} />
                 {uploading ? '上传中...' : '选择图片'}
                 <input
                   id="imageUrl"
                   type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  accept="image/jpeg,image/png,image/webp"
                   onChange={handleImageUpload}
                   className="hidden"
                   disabled={uploading}
                 />
               </label>
               {form.imageUrl && (
-                <span className="text-sm text-brand-fg/60">{form.imageUrl}</span>
+                <span className="break-all text-sm text-brand-fg/60">{form.imageUrl}</span>
               )}
             </div>
             {form.imageUrl && (
-              <div className="relative mt-2 h-32 w-48 overflow-hidden rounded-card border border-line">
+              <div className="relative mt-2 aspect-video w-full max-w-48 overflow-hidden rounded-card border border-line">
                 <Image
                   src={form.imageUrl}
                   alt="封面预览"

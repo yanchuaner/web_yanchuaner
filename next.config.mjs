@@ -1,7 +1,35 @@
+import path from "node:path";
+
+const contentSecurityPolicyReportOnly = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  "object-src 'none'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data:",
+  "connect-src 'self' https: ws: wss:",
+  "worker-src 'self' blob:",
+  "media-src 'self' blob:",
+  "manifest-src 'self'",
+].join("; ");
+
+const securityHeaders = [
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
+  { key: "Content-Security-Policy-Report-Only", value: contentSecurityPolicyReportOnly },
+];
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   output: "standalone",
+  outputFileTracingRoot: path.resolve("."),
+  serverExternalPackages: ["better-sqlite3"],
   compress: true,
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
@@ -11,7 +39,6 @@ const nextConfig = {
     deviceSizes: [375, 640, 768, 1024, 1440, 1920],
   },
   experimental: {
-    serverComponentsExternalPackages: ["better-sqlite3"],
     optimizePackageImports: ["lucide-react"],
     cpus: 1,
   },
@@ -20,11 +47,7 @@ const nextConfig = {
     return [
       {
         source: "/(.*)",
-        headers: [
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "X-Frame-Options", value: "DENY" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-        ],
+        headers: securityHeaders,
       },
     ];
   },

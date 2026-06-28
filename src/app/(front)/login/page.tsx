@@ -86,9 +86,19 @@ export default function LoginPage() {
             {loading ? "登录中…" : "登录"}
           </Button>
         </form>
-        <div className="mt-6 flex justify-between text-sm">
-          <Link href="/register" className="text-brand hover:text-brand-fg transition-colors">注册账号</Link>
-          <Link href="/reset-password" className="text-brand hover:text-brand-fg transition-colors">忘记密码</Link>
+        <div className="mt-6 flex justify-between gap-3 text-sm">
+          <Link
+            href="/register"
+            className="inline-flex min-h-[44px] items-center rounded-full px-3 text-brand transition-colors hover:bg-brand/5 hover:text-brand-fg"
+          >
+            注册账号
+          </Link>
+          <Link
+            href="/reset-password"
+            className="inline-flex min-h-[44px] items-center rounded-full px-3 text-brand transition-colors hover:bg-brand/5 hover:text-brand-fg"
+          >
+            忘记密码
+          </Link>
         </div>
       </GlassCard>
     </PageShell>

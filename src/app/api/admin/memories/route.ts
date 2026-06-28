@@ -3,6 +3,7 @@ import prisma from '@/lib/db';
 import { requireAdmin } from '@/lib/admin-auth';
 import { renameToCategoryPath } from '@/lib/memories';
 import { readJsonBody } from '@/lib/auth-utils';
+import { isSafeLocalImagePath, normalizeOptionalText } from '@/lib/content-safety';
 
 export async function GET(req: NextRequest) {
   const auth = await requireAdmin(req);
@@ -34,12 +35,12 @@ export async function POST(req: NextRequest) {
       icon?: unknown;
     }>(req, 16384); // 16KB limit
 
-    const title = typeof body.title === "string" ? body.title.trim() : "";
-    const subtitle = typeof body.subtitle === "string" ? body.subtitle.trim() : "";
-    const description = typeof body.description === "string" ? body.description.trim() : "";
-    const imagePath = typeof body.imagePath === "string" ? body.imagePath.trim() : "";
-    const imageAlt = typeof body.imageAlt === "string" ? body.imageAlt.trim() : "";
-    const icon = typeof body.icon === "string" ? body.icon.trim() : "camera";
+    const title = normalizeOptionalText(body.title);
+    const subtitle = normalizeOptionalText(body.subtitle);
+    const description = normalizeOptionalText(body.description);
+    const imagePath = normalizeOptionalText(body.imagePath);
+    const imageAlt = normalizeOptionalText(body.imageAlt);
+    const icon = normalizeOptionalText(body.icon) || "camera";
 
     if (!title) {
       return NextResponse.json({ error: '标题不能为空' }, { status: 400 });
@@ -55,6 +56,9 @@ export async function POST(req: NextRequest) {
     }
     if (imagePath.length > 254) {
       return NextResponse.json({ error: '图片路径不超过254字' }, { status: 400 });
+    }
+    if (!isSafeLocalImagePath(imagePath)) {
+      return NextResponse.json({ error: '图片仅支持站内上传路径' }, { status: 400 });
     }
     if (imageAlt.length > 200) {
       return NextResponse.json({ error: '图片 ALT 说明不超过200字' }, { status: 400 });

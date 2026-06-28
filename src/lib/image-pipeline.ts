@@ -6,6 +6,11 @@ import { randomBytes } from "crypto";
 export const CARD_TARGET_WIDTH = 2752;
 export const CARD_TARGET_HEIGHT = 1548;
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+export const ALLOWED_UPLOAD_MIME_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
 
 export type ProcessResult = { width: number; height: number; bytes: number };
 
@@ -69,5 +74,5 @@ export function getBackupDir(): string {
 }
 
 export function isImageMime(mime: string | null | undefined): boolean {
-  return !!mime && mime.startsWith("image/");
+  return !!mime && ALLOWED_UPLOAD_MIME_TYPES.has(mime);
 }

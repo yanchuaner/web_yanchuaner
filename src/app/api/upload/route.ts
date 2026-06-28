@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import { requireAdmin } from '@/lib/admin-auth';
-import { processToCard16x9, MAX_UPLOAD_BYTES } from '@/lib/image-pipeline';
-
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+import { processToCard16x9, MAX_UPLOAD_BYTES, isImageMime } from '@/lib/image-pipeline';
 
 export async function POST(req: NextRequest) {
   const auth = await requireAdmin(req);
@@ -13,11 +11,11 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const file = formData.get('file') as File | null;
 
-    if (!file) {
+    if (!(file instanceof File)) {
       return NextResponse.json({ error: '未提供上传文件' }, { status: 400 });
     }
 
-    if (!ALLOWED_TYPES.includes(file.type)) {
+    if (!isImageMime(file.type)) {
       return NextResponse.json({ error: '无效的文件类型。仅支持 jpeg, png, webp' }, { status: 400 });
     }
 
@@ -43,8 +41,15 @@ export async function POST(req: NextRequest) {
     const url = `/uploads/${filename}`;
 
     return NextResponse.json({ url, filename }, { status: 201 });
-  } catch (error) {
-    console.error('Upload error:', error);
+  } catch (error: any) {
+    const msg = error instanceof Error ? error.message : '';
+    if (msg === 'INVALID_OR_TOO_SMALL') {
+      return NextResponse.json(
+        { error: '图片无效或尺寸过小（最小 320×180）' },
+        { status: 400 },
+      );
+    }
+    console.error('Upload error:', msg || error);
     return NextResponse.json({ error: '图片上传失败' }, { status: 500 });
   }
 }

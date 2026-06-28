@@ -30,6 +30,8 @@ const PUBLIC_APIS = new Set([
   "/api/auth/graduation-classes",
 ]);
 
+const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+
 function base64UrlToBytes(value: string) {
   const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
   const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
@@ -91,13 +93,72 @@ function isStatic(pathname: string) {
   );
 }
 
+function normalizeOrigin(value: string | null) {
+  if (!value || value === "null") return null;
+  try {
+    return new URL(value).origin;
+  } catch {
+    return null;
+  }
+}
+
+function getAllowedOrigins(req: NextRequest) {
+  const allowed = new Set<string>();
+  allowed.add(req.nextUrl.origin);
+
+  const appOrigin = normalizeOrigin(process.env.APP_URL || null);
+  if (appOrigin) allowed.add(appOrigin);
+
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+  if (host) {
+    const proto =
+      req.headers.get("x-forwarded-proto") ||
+      req.nextUrl.protocol.replace(":", "");
+    allowed.add(`${proto}://${host}`);
+    allowed.add(`https://${host}`);
+    if (process.env.NODE_ENV !== "production") {
+      allowed.add(`http://${host}`);
+    }
+  }
+
+  return allowed;
+}
+
+function requiresSameOriginCheck(req: NextRequest, pathname: string) {
+  return (
+    pathname.startsWith("/api/") &&
+    MUTATING_METHODS.has(req.method.toUpperCase()) &&
+    !PUBLIC_APIS.has(pathname)
+  );
+}
+
+function isSameOriginRequest(req: NextRequest) {
+  const allowedOrigins = getAllowedOrigins(req);
+  const origin = normalizeOrigin(req.headers.get("origin"));
+  if (origin) return allowedOrigins.has(origin);
+  if (req.headers.has("origin")) return false;
+
+  const referer = normalizeOrigin(req.headers.get("referer"));
+  if (referer) return allowedOrigins.has(referer);
+
+  return false;
+}
+
 export async function middleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
   const headers = new Headers(req.headers);
   headers.set("x-pathname", pathname);
   const next = () => NextResponse.next({ request: { headers } });
 
-  if (isStatic(pathname) || PUBLIC_APIS.has(pathname)) {
+  if (isStatic(pathname)) {
+    return next();
+  }
+
+  if (requiresSameOriginCheck(req, pathname) && !isSameOriginRequest(req)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  if (PUBLIC_APIS.has(pathname)) {
     return next();
   }
 

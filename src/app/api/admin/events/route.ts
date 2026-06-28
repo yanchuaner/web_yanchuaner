@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
 import { readJsonBody } from "@/lib/auth-utils";
+import { isSafeLocalImagePath, normalizeOptionalText } from "@/lib/content-safety";
 
 export async function GET(req: NextRequest) {
   const auth = await requireAdmin(req);
@@ -55,14 +56,14 @@ export async function POST(req: NextRequest) {
       status?: unknown;
     }>(req, 524288); // 512KB limit (contains long text)
 
-    const title = typeof body.title === "string" ? body.title.trim() : "";
-    const summary = typeof body.summary === "string" ? body.summary.trim() : "";
-    const content = typeof body.content === "string" ? body.content.trim() : "";
-    const location = typeof body.location === "string" ? body.location.trim() : "";
-    const coverImage = typeof body.coverImage === "string" ? body.coverImage.trim() : "";
-    const status = typeof body.status === "string" ? body.status.trim() : "";
-    const eventDate = typeof body.eventDate === "string" ? body.eventDate.trim() : "";
-    const endDate = typeof body.endDate === "string" ? body.endDate.trim() : "";
+    const title = normalizeOptionalText(body.title);
+    const summary = normalizeOptionalText(body.summary);
+    const content = normalizeOptionalText(body.content);
+    const location = normalizeOptionalText(body.location);
+    const coverImage = normalizeOptionalText(body.coverImage);
+    const status = normalizeOptionalText(body.status);
+    const eventDate = normalizeOptionalText(body.eventDate);
+    const endDate = normalizeOptionalText(body.endDate);
     const maxAttendees = body.maxAttendees;
 
     if (!title) {
@@ -85,6 +86,9 @@ export async function POST(req: NextRequest) {
     }
     if (coverImage.length > 254) {
       return NextResponse.json({ error: "封面链接长度不超过254字" }, { status: 400 });
+    }
+    if (!isSafeLocalImagePath(coverImage)) {
+      return NextResponse.json({ error: "封面图片仅支持站内上传路径" }, { status: 400 });
     }
     if (!eventDate) {
       return NextResponse.json({ error: "活动时间不能为空" }, { status: 400 });

@@ -323,7 +323,6 @@ export default function AlumniCertificatePage() {
   const [avatarFileName, setAvatarFileName] = useState("");
   const [bgUrl, setBgUrl] = useState("");
   const [bgFileName, setBgFileName] = useState("");
-  const [bgUploading, setBgUploading] = useState(false);
   const [previewDataUrl, setPreviewDataUrl] = useState("");
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
   const [isRendering, setIsRendering] = useState(false);
@@ -389,27 +388,23 @@ export default function AlumniCertificatePage() {
       return;
     }
 
-    setBgUploading(true);
-    try {
-      const fd = new FormData();
-      fd.append("file", selectedFile);
-      const res = await fetch("/api/alumni/certificate/upload-bg", {
-        method: "POST",
-        body: fd,
-      });
-      const data = await res.json().catch(() => null);
-      if (!res.ok || !data?.url) {
-        toast.error(data?.error || "背景上传失败，请重试");
+    const reader = new FileReader();
+    reader.onload = () => {
+      const nextDataUrl = typeof reader.result === "string" ? reader.result : "";
+      if (!nextDataUrl) {
+        toast.error("背景读取失败，请重试");
         return;
       }
-      setBgUrl(data.url);
+
+      setBgUrl(nextDataUrl);
       setBgFileName(selectedFile.name);
-    } catch {
-      toast.error("背景上传失败，请检查网络后重试");
-    } finally {
-      setBgUploading(false);
+    };
+    reader.onerror = () => {
+      toast.error("背景读取失败，请重试");
       event.target.value = "";
-    }
+    };
+    reader.readAsDataURL(selectedFile);
+    event.target.value = "";
   }, []);
 
   const clearBg = useCallback(() => {
@@ -830,11 +825,10 @@ export default function AlumniCertificatePage() {
                 <button
                   type="button"
                   onClick={() => bgInputRef.current?.click()}
-                  disabled={bgUploading}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-line bg-surface/30 px-4 py-3 text-sm font-medium text-brand shadow-sm transition hover:border-brand hover:bg-surface/50 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-line bg-surface/30 px-4 py-3 text-sm font-medium text-brand shadow-sm transition hover:border-brand hover:bg-surface/50"
                 >
                   <ImagePlus size={16} aria-hidden="true" />
-                  <span>{bgUploading ? "背景处理中…" : "上传专属背景（16:9）"}</span>
+                  <span>{"选择专属背景（16:9）"}</span>
                 </button>
                 <div className="space-y-2">
                   {bgUrl ? (

@@ -230,14 +230,14 @@ export default function AdminPostsPage() {
               <button
                 onClick={() => { setConfirmDelete(null); setDeleting(null); }}
                 disabled={!!deleting}
-                className="w-full sm:w-auto min-h-[44px] sm:min-h-0 rounded-btn border border-line bg-surface/50 px-4 py-2 text-sm text-brand-fg/70 transition hover:bg-brand/5 hover:text-brand cursor-pointer"
+                className="w-full sm:w-auto min-h-[44px] rounded-btn border border-line bg-surface/50 px-4 py-2 text-sm text-brand-fg/70 transition hover:bg-brand/5 hover:text-brand cursor-pointer"
               >
                 取消
               </button>
               <button
                 onClick={handleDelete}
                 disabled={!!deleting}
-                className="inline-flex w-full sm:w-auto min-h-[44px] sm:min-h-0 items-center justify-center gap-2 rounded-btn border border-rose-500/20 bg-rose-500/10 px-4 py-2 text-sm text-rose-400 transition hover:bg-rose-500/20 cursor-pointer disabled:opacity-50"
+                className="inline-flex w-full sm:w-auto min-h-[44px] items-center justify-center gap-2 rounded-btn border border-rose-500/20 bg-rose-500/10 px-4 py-2 text-sm text-rose-400 transition hover:bg-rose-500/20 cursor-pointer disabled:opacity-50"
               >
                 {deleting ? '删除中...' : '确认删除'}
               </button>

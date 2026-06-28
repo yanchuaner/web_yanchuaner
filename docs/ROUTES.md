@@ -5,7 +5,7 @@
 | 标记 | 说明 |
 |------|------|
 | 公开 | 无需任何凭据即可访问 |
-| 登录用户 | 需要个人账号登录（httpOnly cookie: `yc_access_token`, role=user） |
+| 登录用户 | 需要账号登录（httpOnly cookie: `yc_access_token`） |
 | 认证校友 | 需要账号已通过校友认证（role=ALUMNI, status=VERIFIED），或管理员 |
 | 管理员 | 需要数据库管理员账号登录（role=ADMIN） |
 
@@ -15,7 +15,7 @@
 
 | 功能 | 涉及路由 | 说明 |
 |------|----------|------|
-| 站内故事投稿 | `POST /api/stories` | 登录用户在站内直接撰写、提交故事，替代旧版邮箱投稿 |
+| 站内故事投稿 | `POST /api/stories` | 认证校友或管理员在站内直接撰写、提交故事，替代旧版邮箱投稿 |
 | 投稿状态追踪 | `GET /api/me/posts` | 用户在「我的投稿」查看 PENDING/PUBLISHED/REJECTED/DRAFT 状态 |
 | 投稿撤回/删除 | `DELETE /api/stories/[id]` | 作者可在 PENDING/DRAFT 状态下撤回或删除自己的投稿 |
 | 管理员审稿队列 | `GET /api/admin/stories/pending` | 管理员查看所有待审核故事（含作者信息） |
@@ -34,21 +34,22 @@
 | `/verify-email` | 公开 | 邮箱验证（一次性 Token） |
 | `/reset-password` | 公开 | 密码重置（一次性 Token） |
 | `/about` | 公开 | 学校介绍（航天特色、办学理念、时间线，数据库驱动） |
-| `/news` | 公开 | 新闻列表 |
-| `/news/[id]` | 公开 | 新闻详情 |
-| `/events` | 公开 | 活动列表（含封面图） |
-| `/events/[id]` | 公开 | 活动详情与在线报名 |
-| `/contact` | 公开 | 联系我们（数据库驱动，管理员可编辑） |
-| `/teachers` | 公开 | 教师频道（数据库驱动，管理员可编辑版块） |
-| `/students` | 公开 | 在校生资源站首页（数据库驱动，管理员可编辑卡片） |
-| `/students/application-guide` | 公开 | 志愿填报参考 |
-| `/students/university-insights` | 公开 | 大学与专业观察 |
-| `/students/senior-qa` | 公开 | 学长问答 |
-| `/students/learning-methods` | 公开 | 学习方法 |
-| `/students/alumni-messages` | 公开 | 校友寄语 |
+| `/news` | 认证校友 | 新闻列表 |
+| `/news/[id]` | 认证校友 | 新闻详情 |
+| `/events` | 认证校友 | 活动列表（含封面图） |
+| `/events/[id]` | 认证校友 | 活动详情与在线报名 |
+| `/contact` | 认证校友 | 联系我们（数据库驱动，管理员可编辑） |
+| `/teachers` | 认证校友 | 教师频道（数据库驱动，管理员可编辑版块） |
+| `/students` | 认证校友 | 在校生资源站首页（数据库驱动，管理员可编辑卡片） |
+| `/students/application-guide` | 认证校友 | 志愿填报参考 |
+| `/students/university-insights` | 认证校友 | 大学与专业观察 |
+| `/students/senior-qa` | 认证校友 | 学长问答 |
+| `/students/learning-methods` | 认证校友 | 学习方法 |
+| `/students/alumni-messages` | 认证校友 | 校友寄语 |
 | `/me` | 登录用户 | 个人中心首页（姓名、邮箱、角色、认证状态） |
-| `/me/edit` | 登录用户 | 编辑资料（修改用户名、联系方式） |
+| `/me/edit` | 登录用户 | 编辑资料（修改用户名、联系方式、城市、院校、专业、行业） |
 | `/me/posts` | 登录用户 | 我的投稿列表（显示状态：PENDING/PUBLISHED/REJECTED/DRAFT，支持撤销/删除） |
+| `/me/submit` | 登录用户 | 故事投稿入口 |
 | `/me/change-password` | 登录用户 | 修改密码（成功后旧会话失效） |
 | `/alumni/certificate` | 认证校友 | 电子校友纪念卡（姓名+班级验证，生成专属卡片） |
 | `/alumni/university-map` | 认证校友 | 校友大学城市分布地图（Leaflet + 城市聚合 + 校友明细） |
@@ -56,7 +57,7 @@
 | `/alumni/memories` | 认证校友 | 燕中记忆文化长廊（数据库驱动，16:9 图片展示） |
 | `/alumni/stories` | 认证校友 | 燕中故事（数据库驱动 + 站内投稿表单） |
 | `/alumni/achievements` | 认证校友 | 校友成就墙（类别筛选，仅展示已发布记录） |
-| `/alumni/correction` | 认证校友 | 校友信息修改申请（搜索姓名 → 提交修改） |
+| `/alumni/correction` | 认证校友 | 校友基础身份修正申请（姓名、届别、班级；其他资料走个人中心，邮箱变更联系管理员） |
 
 > 未登录访问受保护页面时，middleware 自动跳转至 `/login?redirect=<原路径>`。
 > 校友数据 API 通过 `requireVerifiedAlumni()` 保护。未登录时返回 401，未通过校友认证时返回 403。
@@ -78,7 +79,8 @@
 | `/admin/alumni` | 管理员 | 校友名单管理（CRUD + CSV 导入/导出） |
 | `/admin/alumni-corrections` | 管理员 | 校友信息修改申请审核（筛选、通过/驳回） |
 | `/admin/memories` | 管理员 | 燕中记忆管理（CRUD、排序、图片上传） |
-| `/admin/stories` | 管理员 | 燕中故事管理（含待审核队列、审核操作） |
+| `/admin/stories` | 管理员 | 燕中故事管理 |
+| `/admin/stories/pending` | 管理员 | 故事待审核工作台 |
 | `/admin/achievements` | 管理员 | 校友成就墙管理（CRUD、发布状态、排序） |
 | `/admin/teachers` | 管理员 | 教师频道管理（版块 CRUD、排序） |
 | `/admin/content` | 管理员 | 页面内容管理（about/contact/students/teachers 统一管理） |
@@ -96,10 +98,10 @@
 
 | 限制等级 | 大小 | 适用路由 |
 |----------|------|----------|
-| 基础校验 | 4 KB | `auth/login`, `auth/verify-email`, `auth/resend-verification`, `auth/forgot-password`, `events/[id]`, `test-email`, `admin/users/[id]/actions` |
+| 基础校验 | 4 KB | `auth/login`, `auth/verify-email`, `auth/resend-verification`, `auth/forgot-password`, `events/[id]`, `admin/users/[id]/actions` |
 | 标准默认 | 16 KB | 大多数路由（未显式传参时），如 `auth/register`, `admin/news`, `admin/events`, `admin/alumni`, `admin/memories`, `admin/alumni-corrections/[id]`, `admin/achievements`, `admin/content`, `admin/teachers`, `admin/user-claims/[id]`, `admin/stories/[id]/review`, `admin/posts`, `me/profile`, `me/change-password` |
 | 中等容量 | 64 KB | `posts`（旧版投稿：title 200 字 + content 20000 字） |
-| 富文本容量 | 512 KB | `stories`（用户投稿）, `admin/stories`（管理员创建/编辑故事） |
+| 长文容量 | 512 KB | `stories`（用户投稿）, `admin/stories`（管理员创建/编辑故事） |
 
 ---
 
@@ -124,29 +126,28 @@
 | 路由 | 权限 | 方法 | 说明 |
 |------|------|------|------|
 | `/api/health` | 公开 | GET | 健康检查 |
-| `/api/news` | 公开 | GET | 公开新闻列表 |
-| `/api/news/[id]` | 公开 | GET | 新闻详情 |
-| `/api/events` | 公开 | GET | 公开活动列表 |
-| `/api/events/[id]` | 公开 | GET | 活动详情 |
-| `/api/memories` | 公开 | GET | 燕中记忆展品列表（含图片存在性检查） |
-| `/api/stories` | 公开 | GET | 燕中故事列表（仅返回 status=PUBLISHED 的故事，按日期降序） |
-| `/api/stories` | 登录用户（限流） | POST | **512 KB** | 站内提交故事（status 强制 PENDING，绑定当前用户 authorId） |
-| `/api/stories/[id]` | 公开 | GET | 故事详情 |
-| `/api/stories/[id]` | 作者本人 | DELETE | 撤回/删除自己的投稿（仅 PENDING/DRAFT 状态可操作） |
-| `/api/test-email` | 公开（仅开发调测） | POST | 4 KB | 测试邮件发送通道以确认 Resend API 联调状态 |
 
 > [!NOTE]
-> **V2.0 故事投稿工作流**：`/api/stories` 的 GET 和 POST 是两套权限模型。GET 是公开只读（仅已发布），POST 要求登录用户且创建的故事强制 PENDING 状态。作者可在 `/me/posts` 查看投稿状态，管理员通过 `/api/admin/stories/pending` 审核。
+> middleware 只将健康检查和账号流程 API 设为公开；新闻、活动、记忆、故事等内容 API 默认需要登录或校友认证，避免游客直接拉取校友内部内容。
 
 ---
 
-### 旧版投稿 API
+### 内容 API（需认证校友或管理员）
 
-| 路由 | 权限 | 方法 | Payload 限制 | 说明 |
-|------|------|------|-------------|------|
-| `/api/posts` | 认证校友或管理员（限流） | POST | 64 KB | 旧版投稿入口（title ≤200, content ≤20000, type: STORY/EVENT/JOB） |
+| 路由 | 权限 | 方法 | 说明 |
+|------|------|------|------|
+| `/api/news` | 认证校友 | GET | 新闻列表 |
+| `/api/news/[id]` | 认证校友 | GET | 新闻详情 |
+| `/api/events` | 认证校友 | GET | 活动列表 |
+| `/api/events/[id]` | 认证校友 | GET | 活动详情 |
+| `/api/events/[id]` | 认证校友（限流） | POST | 活动报名 |
+| `/api/memories` | 认证校友 | GET | 燕中记忆展品列表（含图片存在性检查） |
 
-> 旧版 Post 模型投稿接口，新功能建议使用 `/api/stories`。管理员仍可通过 `/admin/posts` 管理旧投稿。
+---
+
+### 旧版投稿数据
+
+旧版 Post 模型不再开放前台提交接口；新投稿统一使用 `/api/stories`。历史投稿数据仍可由管理员通过 `/admin/posts` 和 `/api/admin/posts` 管理。
 
 ---
 
@@ -159,7 +160,10 @@
 | `/api/alumni/map` | 认证校友 | GET | 校友地图数据（姓名+城市聚合） |
 | `/api/alumni/city-stats` | 认证校友 | GET | 校友城市聚合统计（含成员明细：姓名、大学、专业、班级） |
 | `/api/alumni/correction-requests` | 认证校友 | POST | 提交校友信息修改申请（含限流） |
-| `/api/alumni/certificate/upload-bg` | 管理员 | POST | 上传校友证背景图 |
+| `/api/stories` | 认证校友 | GET | 燕中故事列表（仅返回 status=PUBLISHED 的故事，按日期降序） |
+| `/api/stories` | 认证校友（限流） | POST | 站内提交故事（status 强制 PENDING，绑定当前用户 authorId） |
+| `/api/stories/[id]` | 登录用户 | GET | 故事详情 |
+| `/api/stories/[id]` | 作者本人 | DELETE | 撤回/删除自己的投稿（仅 PENDING/DRAFT 状态可操作） |
 
 ---
 
@@ -168,7 +172,7 @@
 | 路由 | 权限 | 方法 | Payload 限制 | 说明 |
 |------|------|------|-------------|------|
 | `/api/me/profile` | 登录用户 | GET | — | 获取个人资料 |
-| `/api/me/profile` | 登录用户 | PATCH | 16 KB | 修改个人资料（仅可修改用户名和联系方式） |
+| `/api/me/profile` | 登录用户 | PATCH | 16 KB | 修改个人资料（用户名、联系方式、城市、院校、专业、行业；姓名、邮箱、届别、班级只读） |
 | `/api/me/posts` | 登录用户 | GET | — | 我的投稿列表（包含 status 状态、tags、创建时间，用于撤稿/删除操作） |
 | `/api/me/change-password` | 登录用户 | POST | 16 KB | 修改密码（旧密码验证，sessionVersion 递增使旧会话失效） |
 
@@ -260,10 +264,10 @@
 
 > [!IMPORTANT]
 > **V2.0 CMS 故事审核工作流**：
-> 1. 用户在 `/alumni/stories` 页面通过 `POST /api/stories` 提交故事，状态自动设为 PENDING。
+> 1. 认证校友在 `/alumni/stories` 页面通过 `POST /api/stories` 提交故事，状态自动设为 PENDING。
 > 2. 管理员在 `/admin/stories` 看到待审核队列（调用 `GET /api/admin/stories/pending`），含作者身份信息。
 > 3. 管理员调用 `PATCH /api/admin/stories/[id]/review` 通过或驳回。
-> 4. 审核通过后故事状态变为 PUBLISHED，`GET /api/stories` 公开可见。
+> 4. 审核通过后故事状态变为 PUBLISHED，`GET /api/stories` 对认证校友可见。
 > 5. 用户在 `/me/posts` 实时查看投稿状态。
 > 6. 审核操作在 `auditLog` 表中记录，与故事状态更新在同一 Prisma 事务中执行。
 
@@ -376,7 +380,7 @@
 | 路由 | 功能 | 可修改字段 | 只读字段 |
 |------|------|------------|----------|
 | `/me` | 个人中心首页 | — | 姓名、邮箱、用户名、届别、班级、认证状态 |
-| `/me/edit` | 编辑资料 | 用户名、联系方式 | 姓名、邮箱、届别、班级 |
+| `/me/edit` | 编辑资料 | 用户名、联系方式、城市、院校、专业、行业 | 姓名、邮箱、届别、班级 |
 | `/me/posts` | 投稿列表 | — | 标题、正文摘要、标签、状态 (PENDING/PUBLISHED/REJECTED/DRAFT)、创建时间 |
 | `/me/change-password` | 修改密码 | 密码 | — |
 
@@ -405,15 +409,15 @@
 
 `/alumni/stories` 页面现在是完整的站内 CMS 系统：
 
-- **前台**：用户通过站内表单 `POST /api/stories` 直接提交故事，无需邮箱。提交后状态为 PENDING。
+- **前台**：认证校友通过站内表单 `POST /api/stories` 直接提交故事，无需邮箱。提交后状态为 PENDING。
 - **状态追踪**：用户在 `/me/posts` 查看投稿状态（PENDING 待审 / PUBLISHED 已发布 / REJECTED 已驳回 / DRAFT 草稿）。可撤销或删除自己的 PENDING/DRAFT 投稿。
 - **管理员审核**：管理员通过 `/admin/stories` 查看待审核队列（`GET /api/admin/stories/pending`），可逐一审核通过或驳回（`PATCH /api/admin/stories/[id]/review`），操作记录写入 AuditLog。
-- **公开展示**：`GET /api/stories` 仅返回 status=PUBLISHED 的故事，支持标签筛选。
-- **Payload 安全**：故事正文使用 512 KB 上限的 `readJsonBody`，支持富文本内容。审核操作使用 16 KB 默认限制。
+- **前台展示**：`GET /api/stories` 仅返回 status=PUBLISHED 的故事，支持标签筛选，接口需校友认证。
+- **Payload 安全**：故事正文使用 512 KB 上限的 `readJsonBody`，用于长文纯文本投稿。审核操作使用 16 KB 默认限制。
 
 ### 旧版 Post 投稿
 
-`/api/posts` 是旧版投稿接口，Post 模型独立于 Story 模型。新功能优先使用 `/api/stories`。管理员仍可通过 `/admin/posts` 管理历史投稿数据。
+旧版前台提交接口已下线，Post 模型仅保留为历史投稿数据。新投稿统一使用 `/api/stories`。管理员仍可通过 `/admin/posts` 管理历史投稿数据。
 
 ### 校友成就墙管理（`/admin/achievements`）
 

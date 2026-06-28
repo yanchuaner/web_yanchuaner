@@ -5,12 +5,14 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowLeft, Calendar } from "lucide-react";
 import prisma from "@/lib/db";
+import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 
 const SITE_URL = process.env.SITE_URL || "https://yanchuaner.cn";
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: IdRouteParams }): Promise<Metadata> {
+  const id = await getRouteId(params);
   const article = await prisma.news.findFirst({
-    where: { id: params.id, status: "PUBLISHED" },
+    where: { id, status: "PUBLISHED" },
     select: { title: true, summary: true },
   });
 
@@ -24,14 +26,15 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     openGraph: {
       title: article.title,
       description: article.summary || article.title,
-      url: `${SITE_URL}/news/${params.id}`,
+      url: `${SITE_URL}/news/${id}`,
     },
   };
 }
 
-export default async function NewsDetailPage({ params }: { params: { id: string } }) {
+export default async function NewsDetailPage({ params }: { params: IdRouteParams }) {
+  const id = await getRouteId(params);
   const article = await prisma.news.findFirst({
-    where: { id: params.id, status: "PUBLISHED" },
+    where: { id, status: "PUBLISHED" },
   });
 
   if (!article) {

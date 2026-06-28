@@ -2,7 +2,6 @@ export const dynamic = "force-dynamic";
 
 import { Suspense } from "react";
 import Link from "next/link";
-import nextDynamic from "next/dynamic";
 import {
   GalleryVerticalEnd,
   MapPin,
@@ -11,27 +10,20 @@ import {
   Users,
   Newspaper,
   CalendarDays,
+  FileEdit,
   Lock,
 } from "lucide-react";
 import { RevealSection } from "@/components/ui";
 import MessageOrbit from "@/components/MessageOrbit";
 import CosmicBackground from "@/components/CosmicBackground";
-import { JoinTriggerButton } from "@/components/JoinRequestModal";
+import AlumniMapClient from "@/components/AlumniMapClient";
+import { JoinTriggerButton } from "@/components/JoinTriggerButton";
 import LatestUpdatesSection, {
   LatestUpdatesSkeleton,
 } from "@/components/LatestUpdatesSection";
 import { getCachedOrFetch } from "@/lib/cache";
 import prisma from "@/lib/db";
 import { getPageUser } from "@/lib/admin-auth";
-
-const AlumniMap = nextDynamic(() => import("@/components/AlumniMap"), {
-  ssr: false,
-  loading: () => (
-    <div className="flex h-80 items-center justify-center rounded-2xl border border-[#A78BFA]/20 bg-white/30">
-      <p className="text-sm text-slate-400">正在加载校友分布图...</p>
-    </div>
-  ),
-});
 
 type TeamMember = {
   name: string;
@@ -251,7 +243,7 @@ export default async function HomePage() {
               热门频道
             </h2>
           </RevealSection>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             <RevealSection delay={0} className="h-full flex flex-col">
               <Link
                 href="/news"
@@ -316,6 +308,22 @@ export default async function HomePage() {
                 </p>
               </Link>
             </RevealSection>
+            <RevealSection delay={0.4} className="h-full flex flex-col">
+              <Link
+                href="/alumni/correction"
+                className="card h-full w-full glass-card-base group flex flex-col items-start rounded-2xl border border-[#A78BFA]/20 bg-white/60 p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#7C3AED]/40 hover:bg-white hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF5FF]"
+              >
+                <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[#7C3AED]/10 text-[#7C3AED] transition-colors group-hover:bg-[#7C3AED] group-hover:text-white">
+                  <FileEdit size={24} />
+                </span>
+                <h3 className="mt-4 font-heading text-lg font-bold text-slate-800">
+                  信息修正
+                </h3>
+                <p className="mt-2 text-sm text-slate-500">
+                  申请修正姓名、届别与班级
+                </p>
+              </Link>
+            </RevealSection>
           </div>
         </section>
 
@@ -348,16 +356,16 @@ export default async function HomePage() {
               </div>
               <Link
                 href="/alumni/radar"
-                className="text-sm font-medium text-[#7C3AED] hover:text-[#4C1D95] transition-colors"
+                className="inline-flex min-h-[44px] shrink-0 items-center rounded-full px-3 text-sm font-medium text-[#7C3AED] transition-colors hover:bg-brand/5 hover:text-[#4C1D95] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF5FF]"
               >
                 查看完整名录 &rarr;
               </Link>
             </div>
             <div className="rounded-2xl overflow-hidden border border-[#A78BFA]/20 bg-white shadow-sm">
               {canViewPrivate ? (
-                <AlumniMap />
+                <AlumniMapClient />
               ) : (
-                <div className="relative overflow-hidden min-h-[320px] flex flex-col items-center justify-center rounded-2xl border border-purple-500/30 p-8 text-center bg-[#0f0a1d]">
+                <div className="relative flex min-h-[240px] flex-col items-center justify-center overflow-hidden rounded-2xl border border-purple-500/30 bg-[#0f0a1d] p-6 text-center sm:min-h-[320px] sm:p-8">
                   {/* 模糊伪数据背景 */}
                   <div
                     className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/40 via-[#0f0a1d]/85 to-[#0f0a1d] blur-md scale-105 pointer-events-none"
@@ -402,7 +410,7 @@ export default async function HomePage() {
                 href="#top"
                 aria-label="返回顶部"
                 tabIndex={0}
-                className="rounded-full border border-[#A78BFA]/30 bg-white px-4 py-2 text-sm font-medium text-[#7C3AED] hover:bg-[#F3E8FF] transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF5FF]"
+                className="inline-flex min-h-[44px] items-center rounded-full border border-[#A78BFA]/30 bg-white px-4 text-sm font-medium text-[#7C3AED] transition-all duration-300 hover:bg-[#F3E8FF] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF5FF]"
               >
                 返回顶部
               </a>

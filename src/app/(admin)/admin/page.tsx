@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Users, FileText, TrendingUp, Newspaper, CalendarDays, Plus } from 'lucide-react';
 import prisma from '@/lib/db';
 import { getCachedOrFetch } from '@/lib/cache';
@@ -70,42 +71,42 @@ export default async function AdminDashboard() {
       <div className="mt-8 rounded-card border border-brand/15 bg-surface/50 p-6 backdrop-blur-sm">
         <h3 className="text-lg font-semibold text-brand-fg font-heading">快速操作</h3>
         <div className="mt-4 flex flex-wrap gap-3">
-          <a href="/admin/users?status=PENDING"
+          <Link href="/admin/users?status=PENDING"
             className="inline-flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-700 transition hover:bg-amber-100 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
           >
             <Users size={16} />
             查看待审核用户
-          </a>
-          <a href="/admin/posts?status=PENDING"
+          </Link>
+          <Link href="/admin/posts?status=PENDING"
             className="inline-flex items-center gap-2 rounded-xl border border-brand/20 bg-brand/5 px-4 py-2.5 text-sm text-brand transition hover:bg-brand/10 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
           >
             <FileText size={16} />
             查看待审核内容
-          </a>
-          <a href="/admin/news"
+          </Link>
+          <Link href="/admin/news"
             className="inline-flex items-center gap-2 rounded-xl border border-brand/20 bg-brand/5 px-4 py-2.5 text-sm text-brand transition hover:bg-brand/10 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
           >
             <Newspaper size={16} />
             新闻管理
-          </a>
-          <a href="/admin/news/new"
+          </Link>
+          <Link href="/admin/news/new"
             className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-surface/50 px-4 py-2.5 text-sm text-brand-fg/60 transition hover:border-brand/30 hover:text-brand cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
           >
             <Plus size={16} />
             发布新闻
-          </a>
-          <a href="/admin/events"
+          </Link>
+          <Link href="/admin/events"
             className="inline-flex items-center gap-2 rounded-xl border border-brand/20 bg-brand/5 px-4 py-2.5 text-sm text-brand transition hover:bg-brand/10 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
           >
             <CalendarDays size={16} />
             活动管理
-          </a>
-          <a href="/admin/events/new"
+          </Link>
+          <Link href="/admin/events/new"
             className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-surface/50 px-4 py-2.5 text-sm text-brand-fg/60 transition hover:border-brand/30 hover:text-brand cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
           >
             <Plus size={16} />
             创建活动
-          </a>
+          </Link>
         </div>
       </div>
     </AdminPageShell>

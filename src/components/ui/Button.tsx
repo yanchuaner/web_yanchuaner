@@ -21,13 +21,13 @@ const VARIANTS: Record<Variant, string> = {
 };
 
 const SIZES: Record<Size, string> = {
-  sm: "px-3 py-1.5 text-sm gap-1.5",
-  md: "px-5 py-2.5 text-sm gap-2",
+  sm: "min-h-[44px] px-3 py-1.5 text-sm gap-1.5",
+  md: "min-h-[44px] px-5 py-2.5 text-sm gap-2",
 };
 
 function classesFor(variant: Variant, size: Size, className?: string) {
   return cn(
-    "inline-flex items-center justify-center rounded-btn font-semibold transition-all duration-150 active:scale-[0.97] disabled:active:scale-100 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60",
+    "inline-flex min-h-[44px] items-center justify-center rounded-btn font-semibold transition-all duration-150 active:scale-[0.97] disabled:active:scale-100 cursor-pointer touch-manipulation disabled:cursor-not-allowed disabled:opacity-60",
     VARIANTS[variant],
     SIZES[size],
     FOCUS_RING,
