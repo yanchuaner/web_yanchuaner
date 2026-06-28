@@ -1,17 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
+import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: IdRouteParams }
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {
+    const id = await getRouteId(params);
     const event = await prisma.event.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: {
         id: true,
         title: true,
@@ -26,7 +28,7 @@ export async function GET(
     }
 
     const registrations = await prisma.eventRegistration.findMany({
-      where: { eventId: params.id },
+      where: { eventId: id },
       orderBy: { createdAt: "desc" },
       take: 300, // 防御大量数据导致 OOM
       select: {

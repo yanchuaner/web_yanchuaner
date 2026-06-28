@@ -3,12 +3,13 @@ import prisma from "@/lib/db";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { requireVerifiedAlumni } from "@/lib/admin-auth";
 import { readJsonBody } from "@/lib/auth-utils";
+import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: IdRouteParams }) {
   const auth = await requireVerifiedAlumni(req);
   if (auth) return auth;
   try {
-    const id = params.id;
+    const id = await getRouteId(params);
     if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
     const event = await prisma.event.findFirst({
@@ -33,7 +34,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: IdRouteParams }) {
   const auth = await requireVerifiedAlumni(req);
   if (auth) return auth;
   // 限流：每 30 秒 3 次
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
 
   try {
-    const id = params.id;
+    const id = await getRouteId(params);
     if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
     const body = await readJsonBody<any>(req, 4096);

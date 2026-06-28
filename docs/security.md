@@ -518,7 +518,8 @@ export function safeRedirect(value: unknown, fallback = "/") {
 - [ ] 生产环境通过浏览器控制台或上报日志确认 CSP 无误伤后，切换为正式 `Content-Security-Policy`
 - [ ] 添加请求频率异常告警（同上 IP 在多个账号间切换）
 - [ ] Admin 操作双因素认证（可选）
-- [ ] 定期依赖审计（`npm audit`）
+- [x] CI 增加生产依赖高危审计（`npm run audit:prod`）
+- [ ] 持续跟踪 Next 内置 PostCSS 中等公告，并在官方补丁可用时升级
 
 ---
 

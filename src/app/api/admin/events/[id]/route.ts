@@ -3,17 +3,19 @@ import prisma from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
 import { readJsonBody } from "@/lib/auth-utils";
 import { isSafeLocalImagePath, normalizeOptionalText } from "@/lib/content-safety";
+import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: IdRouteParams }
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {
+    const id = await getRouteId(params);
     const event = await prisma.event.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { _count: { select: { registrations: true } } },
     });
     if (!event) {
@@ -28,13 +30,14 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: IdRouteParams }
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {
-    const existing = await prisma.event.findUnique({ where: { id: params.id } });
+    const id = await getRouteId(params);
+    const existing = await prisma.event.findUnique({ where: { id } });
     if (!existing) {
       return NextResponse.json({ error: "活动不存在" }, { status: 404 });
     }
@@ -115,7 +118,7 @@ export async function PUT(
     }
 
     const event = await prisma.event.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title,
         summary: summary || null,
@@ -144,14 +147,15 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: IdRouteParams }
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {
+    const id = await getRouteId(params);
     const existing = await prisma.event.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { _count: { select: { registrations: true } } },
     });
     if (!existing) {
@@ -165,7 +169,7 @@ export async function DELETE(
       );
     }
 
-    await prisma.event.delete({ where: { id: params.id } });
+    await prisma.event.delete({ where: { id } });
 
     return NextResponse.json({ success: true });
   } catch (error) {

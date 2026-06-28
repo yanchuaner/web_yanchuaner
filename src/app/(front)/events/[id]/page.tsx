@@ -6,12 +6,14 @@ import type { Metadata } from "next";
 import { ArrowLeft, Clock, MapPin, Users } from "lucide-react";
 import prisma from "@/lib/db";
 import EventRegistrationForm from "@/components/EventRegistrationForm";
+import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 
 const SITE_URL = process.env.SITE_URL || "https://yanchuaner.cn";
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: IdRouteParams }): Promise<Metadata> {
+  const id = await getRouteId(params);
   const event = await prisma.event.findFirst({
-    where: { id: params.id, status: "PUBLISHED" },
+    where: { id, status: "PUBLISHED" },
     select: { title: true, summary: true },
   });
 
@@ -25,14 +27,15 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     openGraph: {
       title: event.title,
       description: event.summary || event.title,
-      url: `${SITE_URL}/events/${params.id}`,
+      url: `${SITE_URL}/events/${id}`,
     },
   };
 }
 
-export default async function EventDetailPage({ params }: { params: { id: string } }) {
+export default async function EventDetailPage({ params }: { params: IdRouteParams }) {
+  const id = await getRouteId(params);
   const event = await prisma.event.findFirst({
-    where: { id: params.id, status: "PUBLISHED" },
+    where: { id, status: "PUBLISHED" },
     include: {
       _count: {
         select: { registrations: true },

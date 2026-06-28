@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
 import { readJsonBody } from "@/lib/auth-utils";
+import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 import {
   normalizeClassName,
   normalizeGraduationClass,
@@ -11,14 +12,15 @@ import {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: IdRouteParams },
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {
+    const id = await getRouteId(params);
     const alumni = await prisma.whitelistRoster.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
     if (!alumni) {
       return NextResponse.json({ error: "校友不存在" }, { status: 404 });
@@ -35,14 +37,15 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: IdRouteParams },
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {
+    const id = await getRouteId(params);
     const existing = await prisma.whitelistRoster.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
     if (!existing) {
       return NextResponse.json({ error: "校友不存在" }, { status: 404 });
@@ -104,7 +107,7 @@ export async function PUT(
     }
 
     const alumni = await prisma.whitelistRoster.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name,
         graduationClass: graduationClass || null,
@@ -137,14 +140,15 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: IdRouteParams },
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {
+    const id = await getRouteId(params);
     const existing = await prisma.whitelistRoster.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
     if (!existing) {
       return NextResponse.json({ error: "校友不存在" }, { status: 404 });
@@ -152,7 +156,7 @@ export async function DELETE(
 
     // 检查关联的待处理修正申请
     const pendingCount = await prisma.alumniCorrectionRequest.count({
-      where: { rosterId: params.id, status: "PENDING" },
+      where: { rosterId: id, status: "PENDING" },
     });
     if (pendingCount > 0) {
       return NextResponse.json(
@@ -162,7 +166,7 @@ export async function DELETE(
     }
 
     await prisma.whitelistRoster.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ success: true });

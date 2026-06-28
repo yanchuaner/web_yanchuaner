@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { getAuthenticatedUser } from '@/lib/admin-auth';
 import { readJsonBody } from '@/lib/auth-utils';
+import { getRouteId, type IdRouteParams } from '@/lib/route-params';
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: IdRouteParams }
 ) {
   const admin = await getAuthenticatedUser(req);
   if (!admin || admin.role !== 'ADMIN') {
@@ -13,8 +14,7 @@ export async function PATCH(
   }
 
   try {
-    const resolvedParams = await params;
-    const id = resolvedParams.id;
+    const id = await getRouteId(params);
 
     const existing = await prisma.story.findUnique({ where: { id } });
     if (!existing) {

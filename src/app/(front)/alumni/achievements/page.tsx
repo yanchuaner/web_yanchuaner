@@ -56,9 +56,10 @@ const CATEGORY_TONES = {
 export default async function AlumniAchievementsPage({
   searchParams,
 }: {
-  searchParams?: { category?: string; submit?: string };
+  searchParams?: Promise<{ category?: string; submit?: string }>;
 }) {
-  const requestedCategory = searchParams?.category || "";
+  const resolvedSearchParams = await searchParams;
+  const requestedCategory = resolvedSearchParams?.category || "";
   const activeCategory = ACHIEVEMENT_CATEGORIES.includes(
     requestedCategory as AchievementCategory,
   )

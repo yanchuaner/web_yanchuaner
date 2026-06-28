@@ -16,7 +16,7 @@ export const options = {
 
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:3000';
 
-export default function () {
+export default function runSmokeLoad() {
   // Hit homepage
   const home = http.get(`${BASE_URL}/`);
   check(home, { 'homepage OK': (r) => r.status === 200 });

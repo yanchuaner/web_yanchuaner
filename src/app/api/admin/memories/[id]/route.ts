@@ -4,17 +4,17 @@ import { requireAdmin } from '@/lib/admin-auth';
 import { renameToCategoryPath } from '@/lib/memories';
 import { readJsonBody } from '@/lib/auth-utils';
 import { isSafeLocalImagePath, normalizeOptionalText } from '@/lib/content-safety';
+import { getRouteId, type IdRouteParams } from '@/lib/route-params';
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: IdRouteParams }
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {
-    const resolvedParams = await params;
-    const id = resolvedParams.id;
+    const id = await getRouteId(params);
     const existing = await prisma.memoryItem.findUnique({ where: { id } });
     if (!existing) {
       return NextResponse.json({ error: '记忆条目不存在' }, { status: 404 });
@@ -105,14 +105,13 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: IdRouteParams }
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {
-    const resolvedParams = await params;
-    const id = resolvedParams.id;
+    const id = await getRouteId(params);
     const existing = await prisma.memoryItem.findUnique({ where: { id } });
     if (!existing) {
       return NextResponse.json({ error: '记忆条目不存在' }, { status: 404 });

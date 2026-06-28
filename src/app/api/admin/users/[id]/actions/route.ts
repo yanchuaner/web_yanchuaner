@@ -7,6 +7,7 @@ import {
   sendVerificationEmail,
 } from "@/lib/email";
 import { upsertRosterEntry } from "@/lib/roster";
+import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 
 type ActionName =
   | "approve-alumni"
@@ -39,13 +40,14 @@ function snapshot(user: {
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: IdRouteParams },
 ) {
   const admin = await getAuthenticatedUser(req);
   if (!admin || admin.role !== "ADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   try {
+    const id = await getRouteId(params);
     const body = await readJsonBody<{ action?: unknown }>(req, 4096);
     const action = typeof body.action === "string" ? (body.action.trim() as ActionName) : null;
 
@@ -71,7 +73,7 @@ export async function POST(
       return NextResponse.json({ error: "不支持的操作" }, { status: 400 });
     }
 
-    const target = await prisma.user.findUnique({ where: { id: params.id } });
+    const target = await prisma.user.findUnique({ where: { id } });
     if (!target) return NextResponse.json({ error: "用户不存在" }, { status: 404 });
 
     // Root Admin 防线：普通管理员（ADMIN）之间不能互相“停用”或“撤销”对方的权限

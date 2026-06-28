@@ -2,16 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { getAuthenticatedUser } from "@/lib/admin-auth";
 import { readJsonBody } from "@/lib/auth-utils";
+import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: IdRouteParams },
 ) {
   const admin = await getAuthenticatedUser(req);
   if (!admin || admin.role !== "ADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   try {
+    const id = await getRouteId(params);
     const body = await readJsonBody<{
       action?: unknown;
       oldUserId?: unknown;
@@ -34,7 +36,7 @@ export async function POST(
 
     if (action === "reject-claim") {
       const claim = await prisma.$transaction(async (tx) => {
-        const current = await tx.userClaimRequest.findUnique({ where: { id: params.id } });
+        const current = await tx.userClaimRequest.findUnique({ where: { id } });
         if (!current || current.status !== "PENDING") throw new Error("CLAIM_INVALID");
         const updated = await tx.userClaimRequest.update({
           where: { id: current.id },
@@ -64,7 +66,7 @@ export async function POST(
       return NextResponse.json({ error: "请选择旧资料" }, { status: 400 });
     }
     const claim = await prisma.$transaction(async (tx) => {
-      const current = await tx.userClaimRequest.findUnique({ where: { id: params.id } });
+      const current = await tx.userClaimRequest.findUnique({ where: { id } });
       if (!current || current.status !== "PENDING") throw new Error("CLAIM_INVALID");
       const oldUser = await tx.user.findUnique({ where: { id: oldUserId } });
       if (

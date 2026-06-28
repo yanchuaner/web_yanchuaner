@@ -1,3 +1,5 @@
+import path from "node:path";
+
 const contentSecurityPolicyReportOnly = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -26,6 +28,8 @@ const securityHeaders = [
 const nextConfig = {
   reactStrictMode: true,
   output: "standalone",
+  outputFileTracingRoot: path.resolve("."),
+  serverExternalPackages: ["better-sqlite3"],
   compress: true,
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
@@ -35,7 +39,6 @@ const nextConfig = {
     deviceSizes: [375, 640, 768, 1024, 1440, 1920],
   },
   experimental: {
-    serverComponentsExternalPackages: ["better-sqlite3"],
     optimizePackageImports: ["lucide-react"],
     cpus: 1,
   },

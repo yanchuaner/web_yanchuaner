@@ -35,6 +35,9 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
 
+      - name: Audit production dependencies
+        run: npm run audit:prod
+
       - name: Typecheck
         run: npx tsc --noEmit
 

@@ -6,7 +6,7 @@
 
 项目已具备的基础能力：
 
-- Next.js 14 App Router + TypeScript + Tailwind 语义设计令牌。
+- Next.js 15 App Router + TypeScript + Tailwind 语义设计令牌。
 - Prisma 7 + better-sqlite3 + SQLite WAL，适合公益站点低运维部署。
 - HMAC-SHA256 httpOnly cookie 鉴权，密码使用 bcrypt。
 - 管理员后台、内容审核、校友名册、故事投稿、校友纠错等核心闭环。
@@ -224,7 +224,7 @@
 
 Next.js 已有路由级分割，后续重点是避免重组件误入首页。
 
-- [ ] 用 `next build` 输出定期检查首页和关键页面 First Load JS。
+- [x] 用 `next build` 输出定期检查首页和关键页面 First Load JS。
 - [ ] 地图、图表、后台专用组件保持动态加载或路由隔离。
 - [ ] 避免在全局 layout 引入只在少数页面使用的重库。
 - [ ] 对 Leaflet、地图数据、Canvas 特效做移动端性能审查。
@@ -248,8 +248,10 @@ Next.js 已有路由级分割，后续重点是避免重组件误入首页。
 
 ### 17. 依赖安全与升级节奏
 
-- [ ] 增加定期 `npm audit` 检查，并区分生产依赖和开发依赖风险。
-- [ ] 对 Next.js、Prisma、React、Sharp、bcryptjs 等关键依赖建立升级窗口。
+- [x] 增加生产依赖高危审计脚本 `npm run audit:prod`，并接入 CI。
+- [x] 将 Next.js 升级到 15.5 稳定线；用 overrides 收口 Prisma CLI 传递的 Hono 高危公告。
+- [ ] 持续跟踪 Next 内置 PostCSS 中等公告，等待官方补丁版本后升级。
+- [ ] 对 Prisma、React、Sharp、bcryptjs 等关键依赖建立升级窗口。
 - [ ] 避免为轻量动效引入大型依赖；优先使用 Tailwind transition 和原生 API。
 
 验收标准：

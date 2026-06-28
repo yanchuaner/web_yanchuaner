@@ -1,7 +1,7 @@
 # 🚀 燕中校友数字母港 · Yanzhong Alumni Hub
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Next.js-14.2-black?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" />
+  <img src="https://img.shields.io/badge/Next.js-15.5-black?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" />
   <img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Prisma-7.x-2D3748?style=for-the-badge&logo=prisma&logoColor=white" alt="Prisma" />
   <img src="https://img.shields.io/badge/SQLite-WAL-blue?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite" />
@@ -256,6 +256,7 @@ web_yanchuaner/
 | `npm run build` | 一站式生产构建（生成→建表→播种→编译） |
 | `npm run start` | 启动 Standalone 生产服务 |
 | `npm run lint` | ESLint 静态检查 |
+| `npm run audit:prod` | 生产依赖高危审计 |
 | `npm run smoke` | 核心路由安全冒烟测试 |
 | `npm run seed` | 幂等种子注入（仅 `prisma/seed.ts`） |
 | `npm run seed-all` | 全量种子注入（名册+内容+记忆+故事） |

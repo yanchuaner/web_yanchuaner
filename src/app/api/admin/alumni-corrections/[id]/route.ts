@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { getAuthenticatedUser } from "@/lib/admin-auth";
 import { readJsonBody } from "@/lib/auth-utils";
+import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 import {
   normalizeClassName,
   normalizeGraduationClass,
@@ -40,14 +41,15 @@ const correctionSelect = {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: IdRouteParams },
 ) {
   const admin = await requireAdminUser(req);
   if (admin instanceof NextResponse) return admin;
 
   try {
+    const id = await getRouteId(params);
     const request = await prisma.alumniCorrectionRequest.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: correctionSelect,
     });
     if (!request) {
@@ -65,12 +67,13 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: IdRouteParams },
 ) {
   const admin = await requireAdminUser(req);
   if (admin instanceof NextResponse) return admin;
 
   try {
+    const id = await getRouteId(params);
     const body = await readJsonBody<{
       action?: unknown;
       adminNote?: unknown;
@@ -93,7 +96,7 @@ export async function PATCH(
     }
 
     const request = await prisma.alumniCorrectionRequest.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: correctionSelect,
     });
     if (!request) {
@@ -123,7 +126,7 @@ export async function PATCH(
       await prisma.$transaction(async (tx) => {
         // 1. 更新审核状态
         const updatedRequest = await tx.alumniCorrectionRequest.update({
-          where: { id: params.id },
+          where: { id },
           data: { status: "APPROVED", adminNote: adminNote || null, reviewedAt: new Date() },
         });
 
@@ -191,7 +194,7 @@ export async function PATCH(
     // reject
     await prisma.$transaction(async (tx) => {
       const updated = await tx.alumniCorrectionRequest.update({
-        where: { id: params.id },
+        where: { id },
         data: {
           status: "REJECTED",
           adminNote: adminNote || null,

@@ -2,7 +2,6 @@ export const dynamic = "force-dynamic";
 
 import { Suspense } from "react";
 import Link from "next/link";
-import nextDynamic from "next/dynamic";
 import {
   GalleryVerticalEnd,
   MapPin,
@@ -17,6 +16,7 @@ import {
 import { RevealSection } from "@/components/ui";
 import MessageOrbit from "@/components/MessageOrbit";
 import CosmicBackground from "@/components/CosmicBackground";
+import AlumniMapClient from "@/components/AlumniMapClient";
 import { JoinTriggerButton } from "@/components/JoinRequestModal";
 import LatestUpdatesSection, {
   LatestUpdatesSkeleton,
@@ -24,15 +24,6 @@ import LatestUpdatesSection, {
 import { getCachedOrFetch } from "@/lib/cache";
 import prisma from "@/lib/db";
 import { getPageUser } from "@/lib/admin-auth";
-
-const AlumniMap = nextDynamic(() => import("@/components/AlumniMap"), {
-  ssr: false,
-  loading: () => (
-    <div className="flex h-80 items-center justify-center rounded-2xl border border-[#A78BFA]/20 bg-white/30">
-      <p className="text-sm text-slate-400">正在加载校友分布图...</p>
-    </div>
-  ),
-});
 
 type TeamMember = {
   name: string;
@@ -372,7 +363,7 @@ export default async function HomePage() {
             </div>
             <div className="rounded-2xl overflow-hidden border border-[#A78BFA]/20 bg-white shadow-sm">
               {canViewPrivate ? (
-                <AlumniMap />
+                <AlumniMapClient />
               ) : (
                 <div className="relative flex min-h-[240px] flex-col items-center justify-center overflow-hidden rounded-2xl border border-purple-500/30 bg-[#0f0a1d] p-6 text-center sm:min-h-[320px] sm:p-8">
                   {/* 模糊伪数据背景 */}

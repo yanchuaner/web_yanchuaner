@@ -589,7 +589,7 @@ function Combobox({ options, defaultValue, name, placeholder }: ComboboxProps) {
 
 ```bash
 npx tsc --noEmit     # 类型检查，必须零报错
-npx next lint        # 代码规范，必须零警告
+npm run lint         # 代码规范，必须零警告
 ```
 
 两项都通过，才能提交 PR。

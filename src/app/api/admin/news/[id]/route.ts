@@ -3,16 +3,18 @@ import prisma from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
 import { readJsonBody } from "@/lib/auth-utils";
 import { isSafeLocalImagePath, normalizeOptionalText } from "@/lib/content-safety";
+import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: IdRouteParams }
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {
-    const news = await prisma.news.findUnique({ where: { id: params.id } });
+    const id = await getRouteId(params);
+    const news = await prisma.news.findUnique({ where: { id } });
     if (!news) {
       return NextResponse.json({ error: "新闻不存在" }, { status: 404 });
     }
@@ -25,13 +27,14 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: IdRouteParams }
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {
-    const existing = await prisma.news.findUnique({ where: { id: params.id } });
+    const id = await getRouteId(params);
+    const existing = await prisma.news.findUnique({ where: { id } });
     if (!existing) {
       return NextResponse.json({ error: "新闻不存在" }, { status: 404 });
     }
@@ -90,7 +93,7 @@ export async function PUT(
     }
 
     const news = await prisma.news.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title,
         summary: summary || null,
@@ -116,18 +119,19 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: IdRouteParams }
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
 
   try {
-    const existing = await prisma.news.findUnique({ where: { id: params.id } });
+    const id = await getRouteId(params);
+    const existing = await prisma.news.findUnique({ where: { id } });
     if (!existing) {
       return NextResponse.json({ error: "新闻不存在" }, { status: 404 });
     }
 
-    await prisma.news.delete({ where: { id: params.id } });
+    await prisma.news.delete({ where: { id } });
 
     return NextResponse.json({ success: true });
   } catch (error) {
