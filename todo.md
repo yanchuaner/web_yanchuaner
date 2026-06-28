@@ -28,10 +28,12 @@
 背景：PR #23 已统一届别、班级存储口径：数据库只存 `2025`、`1`，展示层格式化为 `2025届`、`1班`。
 
 - [x] 将 `npm run normalize-identity-fields` 改为生产部署包可执行的 Node.js 脚本，并支持 `-- --dry-run`。
-- [ ] 生产部署前备份生产 SQLite 数据库和上传目录。
-- [ ] 在生产环境先执行 dry-run，再执行 `node scripts/normalize_identity_fields.js`。
-- [ ] 抽查 `User`、`WhitelistRoster`、`Achievement`、`AlumniCorrectionRequest` 中的旧值是否完成清洗。
-- [ ] 验证注册、后台新增/编辑校友、校友纠错审核、成果管理均能保存纯数字格式。
+- [x] 生产部署前备份生产 SQLite 数据库和上传目录。
+- [x] 在生产环境先执行 dry-run，再执行 `node scripts/normalize_identity_fields.js`。
+- [x] 抽查 `User`、`WhitelistRoster`、`Achievement`、`AlumniCorrectionRequest` 中的旧值是否完成清洗。
+- [x] 验证注册、后台新增/编辑校友、校友纠错审核、成果管理均能保存纯数字格式。
+
+执行记录：2026-06-28 已按真实本地数据库 `prisma/dev.db` 执行。备份位于本地忽略目录 `backups/pre-p0-20260628-185506/`，包含 `dev.db`、WAL/SHM 和 `public/uploads` 压缩包；dry-run 显示将更新 18 行，正式清洗已更新 18 行，清洗后目标字段旧格式计数为 0。
 
 验收标准：
 
