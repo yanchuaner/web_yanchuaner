@@ -40,7 +40,7 @@
 │                                                        │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐ │
 │  │  Front Pages │  │  Admin Pages │  │  API Routes  │ │
-│  │  (21 routes) │  │  (18 routes) │  │  (60+ routes)│ │
+│  │  (30+ pages) │  │  (18 routes) │  │  (50+ routes)│ │
 │  │              │  │              │  │              │ │
 │  │ SSR / CSR    │  │ CSR only     │  │ REST JSON    │ │
 │  │ force-dynamic│  │ force-dynamic│  │              │ │
@@ -375,9 +375,8 @@ const cities = Array.from(cityMap.entries())
 
 | 端点 | 方法 | 鉴权 | 说明 |
 |------|------|------|------|
-| `/api/stories` | `POST` | 登录用户 | 提交新故事，自动设为 `PENDING` |
-| `/api/stories` | `GET` | 公开 | 获取已发布的故事列表 |
-| `/api/stories/[id]` | `PATCH` | 作者本人 | 用户编辑/撤销自己的投稿 |
+| `/api/stories` | `POST` | 认证校友或管理员 | 提交新故事，自动设为 `PENDING` |
+| `/api/stories` | `GET` | 认证校友或管理员 | 获取已发布的故事列表 |
 | `/api/stories/[id]` | `DELETE` | 作者本人 | 用户删除自己的投稿 |
 | `/api/admin/stories/pending` | `GET` | ADMIN | 获取待审核故事列表 |
 | `/api/admin/stories/[id]/review` | `PATCH` | ADMIN | 审核通过/驳回 |
@@ -420,8 +419,8 @@ await tx.auditLog.create({
                └── 定期清理过期桶 (每 60s)
 ```
 
-`authLimiter`：滑动窗口，每 IP 5 次/分钟
-`emailLimiter`：双窗口组合，1 次/分钟 + 10 次/天
+- `authLimiter`：滑动窗口，每 IP 5 次/分钟。
+- `emailLimiter`：双窗口组合，1 次/分钟 + 10 次/天。
 
 ### 缓存策略
 

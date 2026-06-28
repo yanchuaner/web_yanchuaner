@@ -1,6 +1,6 @@
 # 运营指南
 
-本文档覆盖本地开发、环境配置、数据库操作、脚本工具使用和日常运维的全部流程，已针对 V2.0 全面升级。
+本文档覆盖本地开发、环境配置、数据库操作、脚本工具使用和日常运维流程。项目包含校友身份与联系方式等敏感信息，所有数据库、上传文件和导入名册都应按真实数据谨慎处理。
 
 ---
 
@@ -22,7 +22,7 @@ npm run lint                   # ESLint 代码检查
 npm run build                  # 生产构建
 ```
 
-Windows 本地开发使用 SQLite `prisma/dev.db`，所有数据变更可通过 Prisma schema + `db push` 或后台 UI 操作完成。
+Windows 本地开发使用 SQLite `prisma/dev.db`。当前本地库可能已经包含真实校友数据，调试时不要在日志、截图、文档或 PR 中暴露个人信息。
 
 ---
 
@@ -50,7 +50,7 @@ npm run build
 **注意事项**：
 - 仍可在本地单独执行各子步骤（如 `npm run db:push` 只同步 schema）
 - 构建前建议通过 `npx tsc --noEmit` 验证一次类型
-- 生产构建必须在 WSL 或 Linux 中执行（Windows 不兼容）
+- 生产构建必须在 WSL 或 Linux 原生文件系统中执行，不要在 Windows 目录或 `/mnt/c/...` 下构建后直接上线
 
 ---
 
@@ -70,7 +70,7 @@ npm run build
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST Token（配合上面使用） | 否（未配置时降级） |
 | `ROOT_ADMIN_EMAIL` | 超级管理员唯一邮箱标识（默认 `yanchuaner@yanchuaner.cn`） | 否 |
 | `PORT` | 服务端口（默认 3000） | 否 |
-| `UPLOAD_DIR` | 文件上传目录 | 否 |
+| `UPLOAD_DIR` | 文件上传目录；为空时默认 `public/uploads/`，生产推荐 `/var/www/alumni-site/uploads` | 否 |
 | `BACKUP_DIR` | 备份目录 | 否 |
 
 **V2.0 新增变量说明**：
@@ -180,7 +180,7 @@ UPDATE WhitelistRoster SET city = '北京' WHERE id = 'xxx';
 .quit
 ```
 
-> **警告**：直接操作生产数据库前必须先备份！参考 [BACKUP_GUIDE.md](BACKUP_GUIDE.md)。
+> **警告**：直接操作生产数据库前必须先备份！参考 [deployment.md](deployment.md) 的备份章节，或使用 `scripts/backup.sh`。
 
 **方式五：通过 CSV 导入/导出**
 
@@ -214,7 +214,7 @@ cp prisma/dev.db "prisma/dev.db.backup-$(date +%Y%m%d-%H%M%S)"
 cp /var/www/alumni-site/data/prod.db "/var/www/alumni-site/backups/prod.db.$(date +%Y%m%d-%H%M%S)"
 ```
 
-详细备份策略见 [BACKUP_GUIDE.md](BACKUP_GUIDE.md)。
+详细备份策略见 [deployment.md](deployment.md) 的备份章节。
 
 ---
 
@@ -312,8 +312,8 @@ const updated = await prisma.$transaction(async (tx) => {
 | maxBytes | 端点类型 | 原因 |
 |----------|---------|------|
 | 4096 | 认证类（登录/注册/验证/密码重置） | 仅字段名和简短值 |
-| 16384 (16KB) | 管理类写入（新闻/活动/故事/审核） | 含富文本内容 |
-| 524288 (512KB) | 站内故事投稿（`/api/stories`、`/api/admin/stories`） | 长文投稿 |
+| 16384 (16KB) | 管理类写入（新闻/活动/审核/内容块） | 结构化文本字段 |
+| 524288 (512KB) | 站内故事投稿（`/api/stories`、`/api/admin/stories`） | 长文纯文本投稿 |
 
 如果请求体超过限制，返回 `413 Payload Too Large` 错误。
 
@@ -326,7 +326,7 @@ const updated = await prisma.$transaction(async (tx) => {
 | `npm run seed` | Prisma 种子填充（幂等） | 初次填充白名单 + 故事基础数据 |
 | `npm run seed-all` | 全量种子脚本（白名单、页面内容、记忆、故事） | 首次部署或完全重置 |
 | `npm run create-admin` | 创建数据库管理员账号（交互式） | 首次部署或新增管理员 |
-| `npm run smoke` | 关键路径回归测试 | 部署前验证认证、后台流程是否正常 |
+| `npm run smoke` | 关键路径冒烟测试 | 验证健康检查、受保护路由、旧接口下线；配置 `SMOKE_*` 后额外验证管理员登录和后台 API |
 | `npm run fresh` | 清理构建产物后重新开发 | 遇到奇怪的缓存/构建问题 |
 | `npm run update-list` | 构建校友列表文件 | 数据更新后重新生成静态文件 |
 | `npm run normalize-identity-fields` | 清洗届别/班级历史后缀 | PR #23 后生产执行一次，支持 `-- --dry-run` |
@@ -393,7 +393,7 @@ SMOKE_PASSWORD=yourpassword \
 npm run smoke
 ```
 
-测试覆盖：用户注册 → 邮箱验证 → 用户登录 → 管理员登录 → 后台 API 访问 → 校友数据 API 访问。
+测试覆盖：健康检查、游客访问受保护页面/API 的拒绝行为、旧共享口令/旧 join API 下线、sitemap 暴露范围；配置 `SMOKE_USERNAME` 和 `SMOKE_PASSWORD` 后，额外验证数据库管理员登录、后台统计 API 和登出。
 
 ### 7.5 证书编号管理（gen_cert_numbers.js）
 
@@ -520,8 +520,10 @@ node scripts/seed_memories.js
 
 | 环境 | 路径 |
 |------|------|
-| 本地开发 | `public/uploads/` |
-| 生产环境 | `/var/www/alumni-site/uploads/`（通过 Nginx `/uploads/` 路径对外服务） |
+| 本地开发 | `public/uploads/`，目录不入库，首次上传时自动创建 |
+| 生产环境 | `/var/www/alumni-site/uploads/`，通过 `UPLOAD_DIR` 指定，并由 Nginx `/uploads/` 对外服务 |
+
+`/api/upload` 会调用图片管道自动 `mkdir -p` 目标目录，因此用户删除本地 `public/uploads/` 后不需要手动恢复；下一次后台上传会自动创建。生产环境仍建议提前创建目录并确认 `www-data` 有写权限。
 
 ---
 
@@ -559,9 +561,9 @@ sudo systemctl start alumni-site
 ## 11. 注意事项
 
 - **不要用本地 dev.db 覆盖线上 prod.db**
-- **不要**提交 `.env`、`.env.local`、`.env.production`、`credentials.local.json`、`.claude/`、`*.db` 到 git
+- **不要**提交 `.env`、`.env.local`、`.env.production`、`credentials.local.json`、`.claude/`、`.agents/`、`*.db`、`public/uploads/`、`backups/` 到 git
 - **不要在服务器上直接编辑业务代码**
-- **构建和部署必须**在 WSL 或 Linux 中执行（Windows 下 `next build` 不完全兼容）
+- **构建和部署必须**在 WSL 或 Linux 原生文件系统中执行（Windows 下 `next build` 不完全兼容）
 - **不要使用** `output: "export"` 静态部署（项目依赖 API 路由、数据库、上传等动态功能）
 - **所有** `/api/admin/*` 接口必须经过 `requireAdmin()` 保护
 - 认证 API 默认走限流（注册/登录/邮箱验证/密码重置等）

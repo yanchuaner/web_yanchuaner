@@ -294,7 +294,7 @@ export default function MyPage() {
 ```tsx
 // 结构定义（简化示意）
 NAV_GROUPS = [
-  { label: "校友空间", items: [星空通讯录, 电子校友证, 校友成就墙, 燕中故事, 燕中记忆] },
+  { label: "校友空间", items: [星空通讯录, 电子校友证, 信息修正, 校友成就墙, 燕中故事, 燕中记忆] },
   { label: "校园资讯", items: [新闻公告, 校友活动] },
   { label: "资源",     items: [在校生资源站, 教师频道] },
   { label: "关于",     items: [学校介绍, 联系我们] },
@@ -600,7 +600,7 @@ npm run lint         # 代码规范，必须零警告
 
 | 我想…… | 该动的文件 |
 |--------|-----------|
-| 改全站主色 / 主题色 | `src/app/globals.css` 的 `:root` 部分（改 `--color-primary`、`--color-cta` 等，以及对应的 `*-rgb` 变量） |
+| 改全站主色 / 主题色 | `src/app/globals.css` 的 `:root` 部分（改 `--color-brand`、`--color-brand-soft`、`--color-cta` 等，以及对应的 `*-rgb` 变量） |
 | 改卡片/按钮的统一外观 | `src/components/ui/GlassCard.tsx` / `src/components/ui/Button.tsx` |
 | 改毛玻璃效果参数 | `src/app/globals.css` 的 `.glass-card-base` / `.glass-card-premium` 类 |
 | 改圆角/阴影/字体的全站值 | `tailwind.config.ts` 的 `borderRadius` / `boxShadow` / `fontFamily` |
@@ -624,7 +624,7 @@ npm run lint         # 代码规范，必须零警告
 | 设计令牌：CSS 变量 | `src/app/globals.css` (`:root`) |
 | 设计令牌：Tailwind 映射 | `tailwind.config.ts` |
 | CSS 组件类 | `src/app/globals.css` (`@layer components`) |
-| UI 基础组件 | `src/components/ui/` (9 个文件) |
+| UI 基础组件 | `src/components/ui/` |
 | 类名合并工具 | `src/components/ui/cn.ts` |
 | 前台主导航 | `src/components/MobileNav.tsx` |
 | 后台侧边栏 + 面包屑 | `src/app/(admin)/layout.tsx` |
