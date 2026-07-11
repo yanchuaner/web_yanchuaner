@@ -1,0 +1,411 @@
+.frame {
+  position: absolute;
+  top: 51%;
+  left: 50%;
+  z-index: 8;
+  width: min(94vw, 700px);
+  height: min(78dvh, 720px);
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  transition: opacity 500ms ease;
+}
+
+.frame:not([data-stage="hidden"]):not([data-stage="departed"]) {
+  opacity: 1;
+}
+
+.workshop {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.blueprintGrid {
+  fill: none;
+  stroke: rgb(var(--space-cyan-rgb) / 0.12);
+  stroke-width: 1;
+  opacity: 0;
+  transition: opacity 700ms ease;
+}
+
+.frame[data-stage="assembly"] .blueprintGrid,
+.frame[data-stage="ready"] .blueprintGrid {
+  opacity: 0.72;
+}
+
+.blueprintGrid path:nth-child(2n) {
+  stroke: rgb(var(--brand-rgb) / 0.13);
+}
+
+.energyRings {
+  fill: none;
+  stroke: rgb(var(--space-cyan-rgb) / 0.48);
+  stroke-width: 2;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.frame[data-stage="ready"] .energyRings,
+.frame[data-stage="ignition"] .energyRings {
+  opacity: 1;
+  animation: energyScan 1.6s ease-in-out infinite;
+}
+
+.scaffold,
+.launchPad {
+  fill: none;
+  stroke: rgb(var(--brand-rgb) / 0.48);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+}
+
+.scaffold > *,
+.launchPad > * {
+  vector-effect: non-scaling-stroke;
+}
+
+.frame[data-stage="crew"] .scaffold,
+.frame[data-stage="assembly"] .scaffold,
+.frame[data-stage="ready"] .scaffold,
+.frame[data-stage="ignition"] .scaffold,
+.frame[data-stage="crew"] .launchPad,
+.frame[data-stage="assembly"] .launchPad,
+.frame[data-stage="ready"] .launchPad,
+.frame[data-stage="ignition"] .launchPad {
+  animation: traceStructure 1.1s ease forwards;
+}
+
+.crewMember {
+  --tool-scale: 1;
+  fill: rgb(var(--surface-rgb) / 0.86);
+  stroke: rgb(var(--brand-fg-rgb) / 0.86);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+
+.crewMember[data-mirrored] {
+  --tool-scale: -1;
+}
+
+.crewHead {
+  fill: rgb(var(--surface-rgb) / 0.92);
+}
+
+.crewBody,
+.crewPack,
+.toolArm,
+.tool {
+  fill: none;
+}
+
+.crewLight {
+  fill: rgb(var(--space-cyan-rgb));
+  stroke: none;
+  filter: drop-shadow(0 0 7px rgb(var(--space-cyan-rgb) / 0.8));
+}
+
+.crewOne { --crew-x: 112px; --crew-y: 640px; --entry-x: -130px; --crew-scale: 1; transform: translate(var(--crew-x), var(--crew-y)) translateX(var(--entry-x)) scale(var(--crew-scale)); }
+.crewTwo { --crew-x: 224px; --crew-y: 648px; --entry-x: -160px; --crew-scale: 0.88; transform: translate(var(--crew-x), var(--crew-y)) translateX(var(--entry-x)) scale(var(--crew-scale)); }
+.crewThree { --crew-x: 476px; --crew-y: 648px; --entry-x: 160px; --crew-scale: 0.88; transform: translate(var(--crew-x), var(--crew-y)) translateX(var(--entry-x)) scale(var(--crew-scale)); }
+.crewFour { --crew-x: 588px; --crew-y: 640px; --entry-x: 130px; --crew-scale: 1; transform: translate(var(--crew-x), var(--crew-y)) translateX(var(--entry-x)) scale(var(--crew-scale)); }
+
+.frame:not([data-stage="hidden"]) .crewMember {
+  animation: crewArrive 1.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.frame:not([data-stage="hidden"]) .crewTwo { animation-delay: 140ms; }
+.frame:not([data-stage="hidden"]) .crewThree { animation-delay: 260ms; }
+.frame:not([data-stage="hidden"]) .crewFour { animation-delay: 380ms; }
+
+.frame[data-stage="assembly"] .toolArm {
+  animation: toolWork 430ms ease-in-out infinite alternate;
+}
+
+.frame[data-stage="ready"] .crewMember,
+.frame[data-stage="ignition"] .crewMember {
+  opacity: 1;
+  animation: crewClear 900ms ease-in forwards;
+}
+
+.blueprintRocket {
+  fill: none;
+  stroke: rgb(var(--space-cyan-rgb) / 0.72);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  stroke-dasharray: 12 14;
+  filter: drop-shadow(0 0 10px rgb(var(--space-cyan-rgb) / 0.24));
+}
+
+.frame[data-stage="assembly"] .blueprintRocket {
+  opacity: 1;
+  animation: blueprintPulse 1.1s ease-in-out infinite;
+}
+
+.frame[data-stage="ready"] .blueprintRocket,
+.frame[data-stage="ignition"] .blueprintRocket {
+  opacity: 0.22;
+}
+
+.rocketFlight {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.rocketBody {
+  filter:
+    drop-shadow(0 0 12px rgb(var(--brand-rgb) / 0.3))
+    drop-shadow(0 0 26px rgb(var(--space-cyan-rgb) / 0.12));
+}
+
+.rocketPart {
+  opacity: 0;
+  stroke: rgb(var(--brand-fg-rgb) / 0.76);
+  stroke-width: 3;
+  stroke-linejoin: round;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.nose,
+.shell {
+  fill: url(#rocket-shell);
+}
+
+.nose { transform: translateY(-130px); }
+.shell { transform: scaleY(0.08); }
+.leftFin { fill: url(#rocket-fin); transform: translateX(-130px) rotate(-14deg); }
+.rightFin { fill: url(#rocket-fin); transform: translateX(130px) rotate(14deg); }
+.band { fill: rgb(var(--space-amber-rgb) / 0.92); transform: scaleX(0.1); }
+.window { fill: url(#rocket-window); transform: scale(0); }
+.windowRim { fill: none; stroke: rgb(var(--space-cyan-rgb)); transform: scale(0); }
+.nozzle { fill: rgb(var(--surface-rgb)); transform: translateY(80px); }
+.brandSlot { fill: rgb(var(--surface-muted-rgb) / 0.62); stroke: rgb(var(--space-amber-rgb)); transform: scale(0); }
+
+.frame[data-stage="assembly"] .rocketPart,
+.frame[data-stage="ready"] .rocketPart,
+.frame[data-stage="ignition"] .rocketPart,
+.frame[data-stage="launching"] .rocketPart {
+  animation: installPart 780ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.frame[data-stage="assembly"] .shell,
+.frame[data-stage="ready"] .shell,
+.frame[data-stage="ignition"] .shell,
+.frame[data-stage="launching"] .shell { animation-delay: 180ms; }
+.frame[data-stage="assembly"] .leftFin,
+.frame[data-stage="ready"] .leftFin,
+.frame[data-stage="ignition"] .leftFin,
+.frame[data-stage="launching"] .leftFin { animation-delay: 740ms; }
+.frame[data-stage="assembly"] .rightFin,
+.frame[data-stage="ready"] .rightFin,
+.frame[data-stage="ignition"] .rightFin,
+.frame[data-stage="launching"] .rightFin { animation-delay: 900ms; }
+.frame[data-stage="assembly"] .nozzle,
+.frame[data-stage="ready"] .nozzle,
+.frame[data-stage="ignition"] .nozzle,
+.frame[data-stage="launching"] .nozzle { animation-delay: 1220ms; }
+.frame[data-stage="assembly"] .band,
+.frame[data-stage="ready"] .band,
+.frame[data-stage="ignition"] .band,
+.frame[data-stage="launching"] .band { animation-delay: 1480ms; }
+.frame[data-stage="assembly"] .window,
+.frame[data-stage="assembly"] .windowRim,
+.frame[data-stage="ready"] .window,
+.frame[data-stage="ready"] .windowRim,
+.frame[data-stage="ignition"] .window,
+.frame[data-stage="ignition"] .windowRim,
+.frame[data-stage="launching"] .window,
+.frame[data-stage="launching"] .windowRim { animation-delay: 1820ms; }
+.frame[data-stage="assembly"] .brandSlot,
+.frame[data-stage="ready"] .brandSlot,
+.frame[data-stage="ignition"] .brandSlot,
+.frame[data-stage="launching"] .brandSlot { animation-delay: 2180ms; }
+
+.realAsset {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.frame[data-stage="ready"] .realAsset,
+.frame[data-stage="ignition"] .realAsset,
+.frame[data-stage="launching"] .realAsset {
+  animation: revealRealAsset 900ms ease forwards;
+}
+
+.weldingSparks {
+  fill: rgb(var(--space-amber-rgb));
+  opacity: 0;
+  filter: drop-shadow(0 0 6px rgb(var(--space-orange-rgb) / 0.86));
+}
+
+.frame[data-stage="assembly"] .weldingSparks {
+  opacity: 1;
+}
+
+.frame[data-stage="assembly"] .weldingSparks circle {
+  animation: weldingSpark 780ms ease-out infinite;
+  animation-delay: var(--spark-delay);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.flameGroup,
+.exhaustCloud {
+  opacity: 0;
+}
+
+.outerFlame { fill: url(#rocket-flame); }
+.innerFlame { fill: rgb(var(--brand-fg-rgb) / 0.92); }
+
+.exhaustCloud {
+  fill: rgb(var(--space-cyan-rgb) / 0.2);
+  filter: blur(9px);
+}
+
+.frame[data-stage="ignition"] .flameGroup,
+.frame[data-stage="launching"] .flameGroup {
+  opacity: 1;
+  animation: flameThrust 120ms ease-in-out infinite alternate;
+  transform-box: fill-box;
+  transform-origin: top;
+}
+
+.frame[data-stage="ignition"] .exhaustCloud,
+.frame[data-stage="launching"] .exhaustCloud {
+  opacity: 1;
+  animation: exhaustExpand 900ms ease-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.frame[data-stage="ignition"] .rocketFlight {
+  animation: ignitionRumble 100ms linear infinite;
+}
+
+.frame[data-stage="launching"] .rocketFlight {
+  animation: workshopLaunch 2.35s cubic-bezier(0.42, 0, 0.68, 0.36) forwards;
+}
+
+.frame[data-stage="launching"] .scaffold,
+.frame[data-stage="launching"] .launchPad,
+.frame[data-stage="launching"] .blueprintGrid,
+.frame[data-stage="launching"] .energyRings,
+.frame[data-stage="departed"] {
+  opacity: 0;
+}
+
+@keyframes traceStructure {
+  from { opacity: 0; stroke-dashoffset: 1; }
+  to { opacity: 1; stroke-dashoffset: 0; }
+}
+
+@keyframes crewArrive {
+  from { opacity: 0; transform: translate(var(--crew-x), var(--crew-y)) translateX(var(--entry-x)) scale(var(--crew-scale)); }
+  to { opacity: 1; transform: translate(var(--crew-x), var(--crew-y)) translateX(0) scale(var(--crew-scale)); }
+}
+
+@keyframes toolWork {
+  from { transform: scaleX(var(--tool-scale)) rotate(-8deg); }
+  to { transform: scaleX(var(--tool-scale)) rotate(13deg); }
+}
+
+@keyframes crewClear {
+  from { opacity: 1; transform: translate(var(--crew-x), var(--crew-y)) scale(var(--crew-scale)); }
+  to { opacity: 0; transform: translate(var(--crew-x), calc(var(--crew-y) + 24px)) scale(var(--crew-scale)); }
+}
+
+@keyframes blueprintPulse {
+  0%, 100% { stroke-dashoffset: 0; opacity: 0.46; }
+  50% { stroke-dashoffset: -24; opacity: 1; }
+}
+
+@keyframes installPart {
+  0% { opacity: 0; }
+  74% { opacity: 1; }
+  100% { opacity: 1; transform: none; }
+}
+
+@keyframes revealRealAsset {
+  from { opacity: 0; transform: scale(0.92); filter: blur(8px); }
+  to { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+@keyframes weldingSpark {
+  0% { opacity: 0; transform: rotate(var(--spark-angle)) translateX(0) scale(0.5); }
+  18% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--spark-angle)) translateX(var(--spark-distance)) scale(0); }
+}
+
+@keyframes energyScan {
+  0%, 100% { opacity: 0.24; transform: scale(0.84); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes ignitionRumble {
+  0%, 100% { transform: translateX(-1px) rotate(-0.3deg); }
+  50% { transform: translateX(1px) rotate(0.3deg); }
+}
+
+@keyframes flameThrust {
+  from { transform: scaleY(0.82) scaleX(1.08); }
+  to { transform: scaleY(1.18) scaleX(0.92); }
+}
+
+@keyframes exhaustExpand {
+  from { opacity: 0.72; transform: scale(0.55); }
+  to { opacity: 0; transform: scale(1.7) translateY(24px); }
+}
+
+@keyframes workshopLaunch {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  12% { transform: translate3d(2px, -12px, 0) scale(1.01); }
+  100% { transform: translate3d(18px, -940px, 0) scale(0.58); }
+}
+
+@media (max-width: 480px) {
+  .frame {
+    top: 53%;
+    width: 98vw;
+    height: min(69dvh, 590px);
+  }
+
+  .crewMember {
+    stroke-width: 7;
+  }
+
+  .scaffold,
+  .launchPad,
+  .blueprintRocket {
+    stroke-width: 6;
+  }
+}
+
+@media (max-height: 680px) {
+  .frame {
+    top: 53%;
+    height: 78dvh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frame,
+  .frame * {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}

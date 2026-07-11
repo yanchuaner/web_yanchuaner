@@ -8,10 +8,14 @@ import {
   ConstellationEmblem,
   type ConstellationStage,
 } from "./ConstellationEmblem";
+import { RocketWorkshop, type WorkshopStage } from "./RocketWorkshop";
 import styles from "./StarfieldExperience.module.css";
 
 type FlightState =
   | "idle"
+  | "crewGather"
+  | "assembly"
+  | "rocketReady"
   | "ignition"
   | "launching"
   | "constellationGather"
@@ -21,8 +25,29 @@ type FlightState =
   | "complete";
 
 const SPEED_LINES = [12, 21, 31, 43, 55, 67, 77, 88];
-const SPARKS = [0, 1, 2, 3, 4, 5, 6, 7];
 const LAUNCH_COUNT_KEY = "yc-starfield-launch-count";
+const PERFORMANCE_TIMELINE = {
+  assembly: 1700,
+  rocketReady: 4700,
+  ignition: 6200,
+  launching: 7000,
+  constellationGather: 9300,
+  constellationConnect: 11300,
+  constellationGlow: 13000,
+  reveal: 14300,
+  complete: 15800,
+} as const;
+
+const STAGE_LABELS: Partial<Record<FlightState, string>> = {
+  crewGather: "星光集结",
+  assembly: "共同建造",
+  rocketReady: "整装待发",
+  ignition: "点火程序",
+  launching: "奔赴群星",
+  constellationGather: "群星归位",
+  constellationConnect: "轨迹相连",
+  constellationGlow: "星徽点亮",
+};
 
 export function StarfieldExperience() {
   const [flightState, setFlightState] = useState<FlightState>("idle");
@@ -71,17 +96,20 @@ export function StarfieldExperience() {
       return;
     }
 
-    setFlightState("ignition");
+    setFlightState("crewGather");
     timersRef.current.push(
-      setTimeout(() => setFlightState("launching"), 700),
-      setTimeout(() => setFlightState("constellationGather"), 3200),
-      setTimeout(() => setFlightState("constellationConnect"), 5800),
-      setTimeout(() => setFlightState("constellationGlow"), 7500),
-      setTimeout(() => setFlightState("reveal"), 8800),
+      setTimeout(() => setFlightState("assembly"), PERFORMANCE_TIMELINE.assembly),
+      setTimeout(() => setFlightState("rocketReady"), PERFORMANCE_TIMELINE.rocketReady),
+      setTimeout(() => setFlightState("ignition"), PERFORMANCE_TIMELINE.ignition),
+      setTimeout(() => setFlightState("launching"), PERFORMANCE_TIMELINE.launching),
+      setTimeout(() => setFlightState("constellationGather"), PERFORMANCE_TIMELINE.constellationGather),
+      setTimeout(() => setFlightState("constellationConnect"), PERFORMANCE_TIMELINE.constellationConnect),
+      setTimeout(() => setFlightState("constellationGlow"), PERFORMANCE_TIMELINE.constellationGlow),
+      setTimeout(() => setFlightState("reveal"), PERFORMANCE_TIMELINE.reveal),
       setTimeout(() => {
         setFlightState("complete");
         setCanSkip(true);
-      }, 10300),
+      }, PERFORMANCE_TIMELINE.complete),
     );
   };
 
@@ -103,6 +131,20 @@ export function StarfieldExperience() {
     flightState === "constellationConnect" ||
     flightState === "constellationGlow" ||
     messageVisible;
+  const workshopStage: WorkshopStage =
+    flightState === "crewGather"
+      ? "crew"
+      : flightState === "assembly"
+        ? "assembly"
+        : flightState === "rocketReady"
+          ? "ready"
+          : flightState === "ignition"
+            ? "ignition"
+            : flightState === "launching"
+              ? "launching"
+              : launchFinished
+                ? "departed"
+                : "hidden";
   const constellationStage: ConstellationStage =
     flightState === "constellationGather"
       ? "gather"
@@ -137,6 +179,7 @@ export function StarfieldExperience() {
         ))}
       </div>
 
+      <RocketWorkshop stage={workshopStage} />
       <ConstellationEmblem stage={constellationStage} />
 
       <Link
@@ -166,6 +209,13 @@ export function StarfieldExperience() {
         <p>所有远行，都从一次勇敢的点火开始</p>
       </header>
 
+      {STAGE_LABELS[flightState] ? (
+        <p className={styles.performanceStatus} aria-live="polite">
+          <span aria-hidden="true" />
+          {STAGE_LABELS[flightState]}
+        </p>
+      ) : null}
+
       <section
         className={styles.message}
         aria-hidden={!messageVisible}
@@ -180,31 +230,20 @@ export function StarfieldExperience() {
         <p className={styles.flightRecord}>第 {launchCount} 次从燕中星港出发</p>
       </section>
 
-      <div className={styles.launchZone} aria-hidden={launchFinished}>
+      <div className={styles.launchZone} aria-hidden={sequenceActive}>
         <div className={styles.orbitMarker} aria-hidden="true" />
-        <div className={styles.rocketAssembly}>
-          <button
-            type="button"
-            className={styles.rocketButton}
-            onClick={launch}
-            disabled={sequenceActive}
-            aria-label="点火发射"
-            title="点火发射"
-          >
-            <span className={styles.rocketBody}>
-              <Rocket size={50} strokeWidth={1.55} aria-hidden="true" />
-            </span>
-            <span className={styles.flame} aria-hidden="true" />
-            <span className={styles.exhaust} aria-hidden="true" />
-            <span className={styles.sparks} aria-hidden="true">
-              {SPARKS.map((spark) => (
-                <span key={spark} style={{ "--spark": spark } as React.CSSProperties} />
-              ))}
-            </span>
-          </button>
-        </div>
+        <button
+          type="button"
+          className={styles.launchControl}
+          onClick={launch}
+          disabled={sequenceActive}
+          aria-label="启动星港演出"
+          title="启动星港演出"
+        >
+          <Rocket size={42} strokeWidth={1.55} aria-hidden="true" />
+        </button>
         <p className={styles.launchHint}>
-          {flightState === "idle" ? "点击火箭点火" : "航向设定 · 正在升空"}
+          点击启动星港
         </p>
       </div>
 
@@ -225,6 +264,9 @@ export function StarfieldExperience() {
       ) : null}
 
       <p className="sr-only" aria-live="assertive">
+        {flightState === "crewGather" ? "星光工程师正在集结" : null}
+        {flightState === "assembly" ? "大家正在共同建造火箭" : null}
+        {flightState === "rocketReady" ? "火箭已经整装待发" : null}
         {flightState === "ignition" ? "火箭正在点火" : null}
         {flightState === "launching" ? "火箭正在升空" : null}
         {flightState === "constellationGather" ? "星光正在汇聚" : null}
