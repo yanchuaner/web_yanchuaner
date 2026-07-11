@@ -50,12 +50,16 @@
   animation: drawTrace 1.45s ease forwards;
 }
 
-.traces > *:nth-child(2n) {
-  animation-delay: 90ms !important;
+.innerTrace {
+  animation-delay: 180ms !important;
 }
 
-.traces > *:nth-child(3n) {
-  animation-delay: 180ms !important;
+.orbitTrace {
+  animation-delay: 420ms !important;
+}
+
+.glyphTrace {
+  animation-delay: 760ms !important;
 }
 
 .drone,
@@ -76,7 +80,7 @@
 
 .frame:not([data-stage="hidden"]) .drone,
 .frame:not([data-stage="hidden"]) .accentDrone {
-  animation: droneGather 1.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: droneGather 1.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   animation-delay: var(--drone-delay);
 }
 

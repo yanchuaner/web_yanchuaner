@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, RotateCcw, Rocket } from "lucide-react";
+import { ArrowLeft, FastForward, RotateCcw, Rocket } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { InteractiveStarfield } from "@/components/ui";
 import {
@@ -22,10 +22,13 @@ type FlightState =
 
 const SPEED_LINES = [12, 21, 31, 43, 55, 67, 77, 88];
 const SPARKS = [0, 1, 2, 3, 4, 5, 6, 7];
+const LAUNCH_COUNT_KEY = "yc-starfield-launch-count";
 
 export function StarfieldExperience() {
   const [flightState, setFlightState] = useState<FlightState>("idle");
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [launchCount, setLaunchCount] = useState(0);
+  const [canSkip, setCanSkip] = useState(false);
   const timersRef = useRef<Array<ReturnType<typeof setTimeout>>>([]);
 
   useEffect(() => {
@@ -34,6 +37,13 @@ export function StarfieldExperience() {
     update();
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    const stored = Number.parseInt(window.localStorage.getItem(LAUNCH_COUNT_KEY) || "0", 10);
+    const count = Number.isFinite(stored) && stored > 0 ? stored : 0;
+    setLaunchCount(count);
+    setCanSkip(count > 0);
   }, []);
 
   useEffect(() => () => {
@@ -48,10 +58,16 @@ export function StarfieldExperience() {
   const launch = () => {
     if (flightState !== "idle") return;
     clearTimers();
+    const nextLaunchCount = launchCount + 1;
+    setLaunchCount(nextLaunchCount);
+    window.localStorage.setItem(LAUNCH_COUNT_KEY, String(nextLaunchCount));
 
     if (reducedMotion) {
       setFlightState("reveal");
-      timersRef.current.push(setTimeout(() => setFlightState("complete"), 500));
+      timersRef.current.push(setTimeout(() => {
+        setFlightState("complete");
+        setCanSkip(true);
+      }, 500));
       return;
     }
 
@@ -62,13 +78,22 @@ export function StarfieldExperience() {
       setTimeout(() => setFlightState("constellationConnect"), 5800),
       setTimeout(() => setFlightState("constellationGlow"), 7500),
       setTimeout(() => setFlightState("reveal"), 8800),
-      setTimeout(() => setFlightState("complete"), 10300),
+      setTimeout(() => {
+        setFlightState("complete");
+        setCanSkip(true);
+      }, 10300),
     );
   };
 
   const replay = () => {
     clearTimers();
     setFlightState("idle");
+  };
+
+  const skipSequence = () => {
+    clearTimers();
+    setFlightState("complete");
+    setCanSkip(true);
   };
 
   const sequenceActive = flightState !== "idle";
@@ -123,6 +148,18 @@ export function StarfieldExperience() {
         <ArrowLeft size={20} aria-hidden="true" />
       </Link>
 
+      {canSkip && sequenceActive && !messageVisible ? (
+        <button
+          type="button"
+          className={styles.skipButton}
+          onClick={skipSequence}
+          aria-label="跳过演出"
+          title="跳过演出"
+        >
+          <FastForward size={20} aria-hidden="true" />
+        </button>
+      ) : null}
+
       <header className={styles.missionHeader} aria-hidden={sequenceActive}>
         <p className={styles.missionCode}>YC-01 · YANCHUAN SPACEPORT</p>
         <h1>燕中星港</h1>
@@ -140,6 +177,7 @@ export function StarfieldExperience() {
           <span>也永远记得从燕川出发</span>
         </h2>
         <p className={styles.signature}>深圳市燕川中学 · 燕中校友汇</p>
+        <p className={styles.flightRecord}>第 {launchCount} 次从燕中星港出发</p>
       </section>
 
       <div className={styles.launchZone} aria-hidden={launchFinished}>

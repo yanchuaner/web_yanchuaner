@@ -498,6 +498,16 @@ body::after {
   100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+@keyframes starfield-secret-pulse {
+  0% { opacity: 0; transform: scale(0.5) rotate(-18deg); }
+  35% { opacity: 1; transform: scale(1.2) rotate(4deg); }
+  100% { opacity: 0; transform: scale(0.8) rotate(18deg); }
+}
+
+.animate-starfield-secret-pulse {
+  animation: starfield-secret-pulse 520ms ease-out both;
+}
+
 .animate-fade-in-up {
   animation: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   opacity: 0;
