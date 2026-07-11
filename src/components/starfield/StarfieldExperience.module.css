@@ -22,6 +22,9 @@
 }
 
 .scene[data-flight-state="launching"] .deepSpace,
+.scene[data-flight-state="constellationGather"] .deepSpace,
+.scene[data-flight-state="constellationConnect"] .deepSpace,
+.scene[data-flight-state="constellationGlow"] .deepSpace,
 .scene[data-flight-state="reveal"] .deepSpace,
 .scene[data-flight-state="complete"] .deepSpace {
   opacity: 0.58;
@@ -320,7 +323,7 @@
 
 .message {
   position: absolute;
-  top: 50%;
+  top: 65%;
   left: 50%;
   z-index: 10;
   width: min(88vw, 760px);
@@ -446,6 +449,10 @@
 
   .message h2 {
     font-size: clamp(27px, 8.2vw, 36px);
+  }
+
+  .message {
+    top: 66%;
   }
 
   .horizon {

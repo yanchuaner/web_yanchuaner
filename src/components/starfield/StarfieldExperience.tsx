@@ -4,9 +4,21 @@ import Link from "next/link";
 import { ArrowLeft, RotateCcw, Rocket } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { InteractiveStarfield } from "@/components/ui";
+import {
+  ConstellationEmblem,
+  type ConstellationStage,
+} from "./ConstellationEmblem";
 import styles from "./StarfieldExperience.module.css";
 
-type FlightState = "idle" | "ignition" | "launching" | "reveal" | "complete";
+type FlightState =
+  | "idle"
+  | "ignition"
+  | "launching"
+  | "constellationGather"
+  | "constellationConnect"
+  | "constellationGlow"
+  | "reveal"
+  | "complete";
 
 const SPEED_LINES = [12, 21, 31, 43, 55, 67, 77, 88];
 const SPARKS = [0, 1, 2, 3, 4, 5, 6, 7];
@@ -46,8 +58,11 @@ export function StarfieldExperience() {
     setFlightState("ignition");
     timersRef.current.push(
       setTimeout(() => setFlightState("launching"), 700),
-      setTimeout(() => setFlightState("reveal"), 3200),
-      setTimeout(() => setFlightState("complete"), 4700),
+      setTimeout(() => setFlightState("constellationGather"), 3200),
+      setTimeout(() => setFlightState("constellationConnect"), 5800),
+      setTimeout(() => setFlightState("constellationGlow"), 7500),
+      setTimeout(() => setFlightState("reveal"), 8800),
+      setTimeout(() => setFlightState("complete"), 10300),
     );
   };
 
@@ -58,6 +73,23 @@ export function StarfieldExperience() {
 
   const sequenceActive = flightState !== "idle";
   const messageVisible = flightState === "reveal" || flightState === "complete";
+  const launchFinished =
+    flightState === "constellationGather" ||
+    flightState === "constellationConnect" ||
+    flightState === "constellationGlow" ||
+    messageVisible;
+  const constellationStage: ConstellationStage =
+    flightState === "constellationGather"
+      ? "gather"
+      : flightState === "constellationConnect"
+        ? "connect"
+        : flightState === "constellationGlow"
+          ? "glow"
+          : flightState === "reveal"
+            ? "reveal"
+            : flightState === "complete"
+              ? "complete"
+              : "hidden";
 
   return (
     <main
@@ -79,6 +111,8 @@ export function StarfieldExperience() {
           />
         ))}
       </div>
+
+      <ConstellationEmblem stage={constellationStage} />
 
       <Link
         href="/"
@@ -108,7 +142,7 @@ export function StarfieldExperience() {
         <p className={styles.signature}>深圳市燕川中学 · 燕中校友汇</p>
       </section>
 
-      <div className={styles.launchZone} aria-hidden={messageVisible}>
+      <div className={styles.launchZone} aria-hidden={launchFinished}>
         <div className={styles.orbitMarker} aria-hidden="true" />
         <div className={styles.rocketAssembly}>
           <button
@@ -155,6 +189,9 @@ export function StarfieldExperience() {
       <p className="sr-only" aria-live="assertive">
         {flightState === "ignition" ? "火箭正在点火" : null}
         {flightState === "launching" ? "火箭正在升空" : null}
+        {flightState === "constellationGather" ? "星光正在汇聚" : null}
+        {flightState === "constellationConnect" ? "会徽轮廓正在连接" : null}
+        {flightState === "constellationGlow" ? "星座会徽已经点亮" : null}
         {messageVisible ? "愿你奔赴群星，也永远记得从燕川出发" : null}
       </p>
     </main>
