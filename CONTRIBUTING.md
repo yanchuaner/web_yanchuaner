@@ -16,6 +16,7 @@
 - [docs/architecture.md](docs/architecture.md) — 系统架构详解
 - [docs/ui-guide.md](docs/ui-guide.md) — 前端开发：设计令牌、UI 组件库、安全改样式指南
 - [docs/operations-guide.md](docs/operations-guide.md) — 本地开发流程
+- [docs/starfield-contribution.md](docs/starfield-contribution.md) — 星空彩蛋的分镜、点阵编队与可认领任务
 
 ## 开发流程
 
@@ -139,6 +140,20 @@ npm run build          # 生产构建
 - 修改 `README.md` 或 `docs/*.md`
 - 提交时使用 `docs:` 前缀
 - 不需要本地构建验证
+
+## 星空彩蛋专项共建
+
+`/starfield` 是面向燕中航天特色设计的隐藏互动演出，当前初版包含单人物星点叙事、火箭建造与升空、校友会会徽编队和纪念寄语。欢迎校友参与动作姿态、正式火箭点阵、移动端性能、可访问性和视觉节奏优化。
+
+开始前请阅读 [docs/starfield-contribution.md](docs/starfield-contribution.md)。改动应遵守以下边界：
+
+- 人物、火箭和会徽继续使用星点编队语言，不重新加入实体插画或大面积填充图形。
+- 会徽编队不添加中文或英文文字。
+- 不默认播放声音；未来音效必须由用户主动开启。
+- 保留 `prefers-reduced-motion`、重复观看跳过和单屏无溢出行为。
+- 不引入大型动画依赖，优先使用现有 SVG、Canvas、CSS 和状态机。
+
+提交 PR 时请附上关键阶段截图或短视频，并说明验证过的视口尺寸和设备。
 
 ## 问题反馈
 
