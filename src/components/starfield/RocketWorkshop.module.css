@@ -36,8 +36,8 @@
   transform-box: fill-box;
   transform-origin: center;
   transition:
-    transform 1.28s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 720ms ease;
+    transform 1.55s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 900ms ease;
   transition-delay: var(--move-delay);
 }
 
@@ -68,18 +68,37 @@
   fill: rgb(var(--brand-rgb));
 }
 
-.frame[data-stage="crew"] .formation {
-  animation: formationAwaken 1.4s ease both;
+.frame[data-stage="personGather"] .formation {
+  animation: formationAwaken 2.1s ease both;
 }
 
-.frame[data-stage="assembly"] .formation {
+.frame[data-stage="awaken"] .formation,
+.frame[data-stage="trace"] .formation {
+  filter:
+    drop-shadow(0 0 9px rgb(var(--space-cyan-rgb) / 0.4))
+    drop-shadow(0 0 22px rgb(var(--brand-rgb) / 0.2));
+}
+
+.frame[data-stage="catch"] .amber {
+  animation: coreStarPulse 860ms ease-in-out infinite;
+}
+
+.frame[data-stage="welding"] .formation {
   filter:
     drop-shadow(0 0 9px rgb(var(--space-cyan-rgb) / 0.42))
     drop-shadow(0 0 20px rgb(var(--space-amber-rgb) / 0.18));
 }
 
+.frame[data-stage="welding"] .amber {
+  animation: weldingFlicker 420ms ease-in-out infinite;
+}
+
 .frame[data-stage="ready"] .formation {
   animation: readyRadiance 1.5s ease-in-out infinite;
+}
+
+.frame[data-stage="dissolve"] .formation {
+  animation: inheritanceGlow 1.6s ease-in-out infinite;
 }
 
 .frame[data-stage="ignition"] .formation {
@@ -107,6 +126,17 @@
   to { filter: blur(0) drop-shadow(0 0 12px rgb(var(--space-cyan-rgb) / 0.28)); }
 }
 
+@keyframes coreStarPulse {
+  0%, 100% { opacity: 0.48; transform: scale(0.72); }
+  50% { opacity: 1; transform: scale(1.42); }
+}
+
+@keyframes weldingFlicker {
+  0%, 100% { opacity: 0.24; transform: scale(0.62); }
+  38% { opacity: 1; transform: scale(1.36); }
+  61% { opacity: 0.52; transform: scale(0.84); }
+}
+
 @keyframes readyRadiance {
   0%, 100% {
     filter:
@@ -117,6 +147,19 @@
     filter:
       drop-shadow(0 0 13px rgb(var(--space-cyan-rgb) / 0.58))
       drop-shadow(0 0 32px rgb(var(--brand-rgb) / 0.34));
+  }
+}
+
+@keyframes inheritanceGlow {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 8px rgb(var(--space-cyan-rgb) / 0.34))
+      drop-shadow(0 0 18px rgb(var(--brand-rgb) / 0.2));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 15px rgb(var(--space-cyan-rgb) / 0.62))
+      drop-shadow(0 0 34px rgb(var(--space-amber-rgb) / 0.28));
   }
 }
 
