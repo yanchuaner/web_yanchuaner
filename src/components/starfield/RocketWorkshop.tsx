@@ -6,9 +6,16 @@ export type WorkshopStage =
   | "hidden"
   | "personGather"
   | "awaken"
+  | "reach"
   | "catch"
-  | "trace"
+  | "turn"
+  | "bendStart"
+  | "bendDeep"
+  | "engine"
+  | "body"
+  | "details"
   | "welding"
+  | "standUp"
   | "ready"
   | "dissolve"
   | "ignition"
@@ -34,10 +41,20 @@ type PersonPose = {
   rightLeg: Coordinate[];
 };
 
-const STAR_COUNT = 340;
+const STAR_COUNT = 360;
+
+function precise(value: number) {
+  return Math.round(value * 1000) / 1000;
+}
 
 function target([x, y]: Coordinate, tone: StarTone, opacity = 1, scale = 1): StarTarget {
-  return { x, y, tone, opacity, scale };
+  return {
+    x: precise(x),
+    y: precise(y),
+    tone,
+    opacity: precise(opacity),
+    scale: precise(scale),
+  };
 }
 
 function linePoints(
@@ -161,6 +178,15 @@ const PERSON_POSES = {
     leftLeg: [[198, 484], [191, 557], [168, 638]],
     rightLeg: [[244, 489], [259, 558], [283, 638]],
   },
+  reach: {
+    head: { cx: 235, cy: 311, rx: 29, ry: 30 },
+    shoulders: [[190, 361], [268, 370]],
+    hips: [[204, 486], [250, 491]],
+    leftArm: [[190, 373], [162, 430], [176, 483]],
+    rightArm: [[268, 382], [320, 340], [370, 278]],
+    leftLeg: [[204, 486], [196, 558], [174, 638]],
+    rightLeg: [[250, 491], [264, 559], [288, 638]],
+  },
   catch: {
     head: { cx: 239, cy: 318, rx: 29, ry: 30 },
     shoulders: [[195, 364], [272, 375]],
@@ -170,23 +196,50 @@ const PERSON_POSES = {
     leftLeg: [[211, 488], [202, 558], [180, 638]],
     rightLeg: [[257, 493], [270, 560], [292, 638]],
   },
-  trace: {
-    head: { cx: 158, cy: 393, rx: 27, ry: 29 },
-    shoulders: [[124, 438], [202, 436]],
-    hips: [[143, 548], [205, 544]],
-    leftArm: [[124, 449], [106, 500], [126, 548]],
-    rightArm: [[202, 447], [255, 422], [307, 395]],
-    leftLeg: [[143, 548], [128, 598], [111, 648]],
-    rightLeg: [[205, 544], [221, 596], [246, 648]],
+  turn: {
+    head: { cx: 221, cy: 327, rx: 28, ry: 30 },
+    shoulders: [[177, 374], [253, 379]],
+    hips: [[192, 493], [240, 496]],
+    leftArm: [[177, 386], [156, 442], [171, 491]],
+    rightArm: [[253, 391], [306, 374], [358, 350]],
+    leftLeg: [[192, 493], [182, 561], [155, 638]],
+    rightLeg: [[240, 496], [254, 562], [283, 638]],
+  },
+  bendStart: {
+    head: { cx: 235, cy: 367, rx: 28, ry: 29 },
+    shoulders: [[178, 410], [251, 433]],
+    hips: [[174, 518], [226, 522]],
+    leftArm: [[178, 422], [153, 469], [159, 514]],
+    rightArm: [[251, 445], [299, 427], [342, 402]],
+    leftLeg: [[174, 518], [151, 571], [124, 638]],
+    rightLeg: [[226, 522], [250, 576], [290, 638]],
+  },
+  bendDeep: {
+    head: { cx: 281, cy: 430, rx: 27, ry: 29 },
+    shoulders: [[202, 462], [274, 494]],
+    hips: [[166, 550], [222, 554]],
+    leftArm: [[202, 474], [164, 505], [158, 548]],
+    rightArm: [[274, 506], [316, 476], [350, 438]],
+    leftLeg: [[166, 550], [132, 589], [106, 647]],
+    rightLeg: [[222, 554], [254, 594], [296, 644]],
   },
   welding: {
-    head: { cx: 158, cy: 464, rx: 27, ry: 28 },
-    shoulders: [[128, 505], [207, 510]],
-    hips: [[151, 581], [216, 576]],
-    leftArm: [[128, 516], [190, 533], [268, 508]],
-    rightArm: [[207, 521], [257, 487], [320, 500]],
-    leftLeg: [[151, 581], [112, 608], [102, 649]],
-    rightLeg: [[216, 576], [247, 610], [288, 645]],
+    head: { cx: 277, cy: 446, rx: 27, ry: 28 },
+    shoulders: [[198, 476], [270, 507]],
+    hips: [[164, 561], [221, 565]],
+    leftArm: [[198, 488], [173, 527], [166, 558]],
+    rightArm: [[270, 519], [307, 493], [338, 500]],
+    leftLeg: [[164, 561], [128, 598], [104, 649]],
+    rightLeg: [[221, 565], [254, 603], [296, 645]],
+  },
+  standUp: {
+    head: { cx: 205, cy: 397, rx: 27, ry: 29 },
+    shoulders: [[158, 441], [232, 453]],
+    hips: [[151, 545], [205, 548]],
+    leftArm: [[158, 453], [133, 500], [145, 542]],
+    rightArm: [[232, 465], [266, 449], [298, 459]],
+    leftLeg: [[151, 545], [132, 594], [105, 648]],
+    rightLeg: [[205, 548], [227, 597], [258, 648]],
   },
   inspect: {
     head: { cx: 140, cy: 363, rx: 27, ry: 29 },
@@ -199,8 +252,16 @@ const PERSON_POSES = {
   },
 } satisfies Record<string, PersonPose>;
 
-function rocketCorePoints(includeDetails: boolean) {
-  const points: StarTarget[] = [
+function rocketEnginePoints() {
+  return [
+    ...polylinePoints([[316, 544], [322, 594], [378, 594], [384, 544]], 8, "amber"),
+    ...ellipsePoints(350, 548, 42, 18, 18, "cyan", 0.94, 0.9),
+    ...linePoints([350, 502], [350, 566], 12, "violet", 0.84, 0.8),
+  ];
+}
+
+function rocketBodyPoints() {
+  return [
     ...quadraticPoints([350, 132], [292, 190], [282, 342], 27, "cyan"),
     ...linePoints([282, 342], [282, 510], 22, "white"),
     ...linePoints([282, 510], [350, 566], 18, "violet"),
@@ -209,22 +270,26 @@ function rocketCorePoints(includeDetails: boolean) {
     ...linePoints([418, 510], [350, 566], 18, "violet"),
     ...polylinePoints([[282, 396], [232, 448], [222, 558], [282, 510]], 10, "cyan"),
     ...polylinePoints([[418, 396], [468, 448], [478, 558], [418, 510]], 10, "cyan"),
-    ...polylinePoints([[316, 544], [322, 594], [378, 594], [384, 544]], 8, "amber"),
+    ...rocketEnginePoints(),
   ];
+}
 
-  if (includeDetails) {
-    points.push(
-      ...ellipsePoints(350, 302, 43, 43, 26, "cyan", 1, 1.08),
-      ...ellipsePoints(350, 302, 24, 24, 16, "white", 0.94, 0.86),
-      ...linePoints([290, 382], [410, 382], 17, "amber", 0.96, 1.08),
-      ...linePoints([296, 420], [404, 420], 15, "violet", 0.9),
-      ...ellipsePoints(350, 474, 24, 24, 16, "amber", 0.95, 0.9),
-      ...linePoints([326, 474], [374, 474], 9, "amber", 0.92, 0.86),
-      ...linePoints([350, 450], [350, 498], 9, "amber", 0.92, 0.86),
-    );
-  }
+function rocketDetailPoints() {
+  return [
+    ...ellipsePoints(350, 302, 43, 43, 26, "cyan", 1, 1.08),
+    ...ellipsePoints(350, 302, 24, 24, 16, "white", 0.94, 0.86),
+    ...linePoints([290, 382], [410, 382], 17, "amber", 0.96, 1.08),
+    ...linePoints([296, 420], [404, 420], 15, "violet", 0.9),
+    ...ellipsePoints(350, 474, 24, 24, 16, "amber", 0.95, 0.9),
+    ...linePoints([326, 474], [374, 474], 9, "amber", 0.92, 0.86),
+    ...linePoints([350, 450], [350, 498], 9, "amber", 0.92, 0.86),
+  ];
+}
 
-  return points;
+function rocketCorePoints(includeDetails: boolean) {
+  return includeDetails
+    ? [...rocketBodyPoints(), ...rocketDetailPoints()]
+    : rocketBodyPoints();
 }
 
 function resampleTargets(points: StarTarget[], count: number) {
@@ -321,6 +386,15 @@ function buildAwakenFormation() {
   ], 17);
 }
 
+function buildReachFormation() {
+  return normalizeFormation([
+    ...articulatedPerson(PERSON_POSES.reach),
+    ...coreStar(432, 218, 1),
+    ...quadraticPoints([470, 180], [458, 198], [438, 214], 34, "amber", 0.7, 0.82),
+    ...ellipsePoints(226, 650, 158, 22, 36, "violet", 0.48, 0.68),
+  ], 20);
+}
+
 function buildCatchFormation() {
   return normalizeFormation([
     ...articulatedPerson(PERSON_POSES.catch),
@@ -331,25 +405,81 @@ function buildCatchFormation() {
   ], 23);
 }
 
-function buildTraceFormation() {
-  const rocket = resampleTargets(shiftTargets(rocketCorePoints(false), 90), 130);
+function buildTurnFormation() {
   return normalizeFormation([
-    ...resampleTargets(articulatedPerson(PERSON_POSES.trace), 128),
+    ...articulatedPerson(PERSON_POSES.turn),
+    ...coreStar(360, 350, 0.98),
+    ...quadraticPoints([402, 244], [410, 292], [365, 344], 48, "amber", 0.86, 0.9),
+    ...ellipsePoints(220, 650, 160, 22, 36, "violet", 0.44, 0.66),
+  ], 27);
+}
+
+function buildBendStartFormation() {
+  return normalizeFormation([
+    ...articulatedPerson(PERSON_POSES.bendStart),
+    ...coreStar(366, 382, 0.96),
+    ...quadraticPoints([358, 350], [378, 360], [370, 380], 34, "amber", 0.82, 0.86),
+    ...ellipsePoints(220, 650, 166, 23, 40, "violet", 0.42, 0.66),
+  ], 31);
+}
+
+function buildBendDeepFormation() {
+  return normalizeFormation([
+    ...articulatedPerson(PERSON_POSES.bendDeep),
+    ...coreStar(332, 425, 0.98),
+    ...quadraticPoints([366, 382], [354, 402], [336, 422], 36, "amber", 0.86, 0.9),
+    ...ellipsePoints(230, 650, 174, 24, 42, "violet", 0.4, 0.66),
+  ], 35);
+}
+
+function buildEngineFormation() {
+  const engine = resampleTargets(shiftTargets(rocketEnginePoints(), 90), 82);
+  return normalizeFormation([
+    ...resampleTargets(articulatedPerson(PERSON_POSES.welding), 128),
+    ...engine,
+    ...quadraticPoints([320, 500], [386, 538], [440, 548], 42, "amber", 0.9, 0.92),
+    ...weldingSparks(338, 500, 26),
+  ], 39);
+}
+
+function buildBodyFormation() {
+  const rocket = resampleTargets(shiftTargets(rocketBodyPoints(), 90), 142);
+  return normalizeFormation([
+    ...resampleTargets(articulatedPerson(PERSON_POSES.welding), 126),
     ...rocket,
-    ...quadraticPoints([306, 395], [370, 306], [440, 146], 42, "amber", 1, 1.02),
-    ...quadraticPoints([307, 400], [382, 416], [530, 498], 30, "cyan", 0.7, 0.82),
-    ...coreStar(307, 397, 0.94),
-  ], 29);
+    ...quadraticPoints([320, 500], [378, 390], [440, 222], 44, "amber", 0.92, 0.94),
+    ...weldingSparks(338, 500, 30),
+  ], 42);
+}
+
+function buildDetailsFormation() {
+  const rocket = resampleTargets(shiftTargets(rocketCorePoints(true), 90), 164);
+  return normalizeFormation([
+    ...resampleTargets(articulatedPerson(PERSON_POSES.welding), 124),
+    ...rocket,
+    ...quadraticPoints([320, 500], [382, 454], [440, 382], 32, "amber", 0.94, 0.96),
+    ...weldingSparks(338, 500, 34),
+  ], 45);
 }
 
 function buildWeldingFormation() {
-  const rocket = resampleTargets(shiftTargets(rocketCorePoints(true), 90), 154);
+  const rocket = resampleTargets(shiftTargets(rocketCorePoints(true), 90), 170);
   return normalizeFormation([
-    ...resampleTargets(articulatedPerson(PERSON_POSES.welding), 126),
+    ...resampleTargets(articulatedPerson(PERSON_POSES.welding), 122),
     ...rocket,
     ...weldingSparks(338, 500, 40),
     ...quadraticPoints([320, 500], [372, 468], [440, 382], 24, "amber", 0.92, 0.92),
   ], 37);
+}
+
+function buildStandUpFormation() {
+  const rocket = resampleTargets(shiftTargets(rocketCorePoints(true), 90), 172);
+  return normalizeFormation([
+    ...resampleTargets(articulatedPerson(PERSON_POSES.standUp), 120),
+    ...rocket,
+    ...coreStar(440, 474, 0.98),
+    ...ellipsePoints(440, 646, 148, 20, 34, "cyan", 0.54, 0.76),
+  ], 41);
 }
 
 function buildReadyFormation() {
@@ -394,10 +524,17 @@ function buildIgnitionFormation() {
 const scatterFormation = buildScatterFormation();
 const personGatherFormation = alignFormation(scatterFormation, buildPersonGatherFormation());
 const awakenFormation = alignFormation(personGatherFormation, buildAwakenFormation());
-const catchFormation = alignFormation(awakenFormation, buildCatchFormation());
-const traceFormation = alignFormation(catchFormation, buildTraceFormation());
-const weldingFormation = alignFormation(traceFormation, buildWeldingFormation());
-const readyFormation = alignFormation(weldingFormation, buildReadyFormation());
+const reachFormation = alignFormation(awakenFormation, buildReachFormation());
+const catchFormation = alignFormation(reachFormation, buildCatchFormation());
+const turnFormation = alignFormation(catchFormation, buildTurnFormation());
+const bendStartFormation = alignFormation(turnFormation, buildBendStartFormation());
+const bendDeepFormation = alignFormation(bendStartFormation, buildBendDeepFormation());
+const engineFormation = alignFormation(bendDeepFormation, buildEngineFormation());
+const bodyFormation = alignFormation(engineFormation, buildBodyFormation());
+const detailsFormation = alignFormation(bodyFormation, buildDetailsFormation());
+const weldingFormation = alignFormation(detailsFormation, buildWeldingFormation());
+const standUpFormation = alignFormation(weldingFormation, buildStandUpFormation());
+const readyFormation = alignFormation(standUpFormation, buildReadyFormation());
 const dissolveFormation = alignFormation(readyFormation, buildDissolveFormation());
 const ignitionFormation = alignFormation(dissolveFormation, buildIgnitionFormation());
 const launchingFormation = alignFormation(ignitionFormation, buildIgnitionFormation());
@@ -406,9 +543,16 @@ const FORMATIONS: Record<WorkshopStage, StarTarget[]> = {
   hidden: scatterFormation,
   personGather: personGatherFormation,
   awaken: awakenFormation,
+  reach: reachFormation,
   catch: catchFormation,
-  trace: traceFormation,
+  turn: turnFormation,
+  bendStart: bendStartFormation,
+  bendDeep: bendDeepFormation,
+  engine: engineFormation,
+  body: bodyFormation,
+  details: detailsFormation,
   welding: weldingFormation,
+  standUp: standUpFormation,
   ready: readyFormation,
   dissolve: dissolveFormation,
   ignition: ignitionFormation,

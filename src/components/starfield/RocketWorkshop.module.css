@@ -36,8 +36,8 @@
   transform-box: fill-box;
   transform-origin: center;
   transition:
-    transform 1.55s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 900ms ease;
+    transform 2.15s cubic-bezier(0.22, 0.7, 0.2, 1),
+    opacity 1.35s ease;
   transition-delay: var(--move-delay);
 }
 
@@ -73,7 +73,8 @@
 }
 
 .frame[data-stage="awaken"] .formation,
-.frame[data-stage="trace"] .formation {
+.frame[data-stage="reach"] .formation,
+.frame[data-stage="turn"] .formation {
   filter:
     drop-shadow(0 0 9px rgb(var(--space-cyan-rgb) / 0.4))
     drop-shadow(0 0 22px rgb(var(--brand-rgb) / 0.2));
@@ -83,14 +84,26 @@
   animation: coreStarPulse 860ms ease-in-out infinite;
 }
 
+.frame[data-stage="engine"] .formation,
+.frame[data-stage="body"] .formation,
+.frame[data-stage="details"] .formation,
 .frame[data-stage="welding"] .formation {
   filter:
     drop-shadow(0 0 9px rgb(var(--space-cyan-rgb) / 0.42))
     drop-shadow(0 0 20px rgb(var(--space-amber-rgb) / 0.18));
 }
 
+.frame[data-stage="engine"] .amber,
+.frame[data-stage="body"] .amber,
+.frame[data-stage="details"] .amber,
 .frame[data-stage="welding"] .amber {
   animation: weldingFlicker 420ms ease-in-out infinite;
+}
+
+.frame[data-stage="bendStart"] .starPosition,
+.frame[data-stage="bendDeep"] .starPosition,
+.frame[data-stage="standUp"] .starPosition {
+  transition-duration: 2.35s, 1.5s;
 }
 
 .frame[data-stage="ready"] .formation {

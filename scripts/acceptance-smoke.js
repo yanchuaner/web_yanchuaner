@@ -75,6 +75,19 @@ async function main() {
   check(alumniLogin.response.ok && alumniCookie.includes("yc_access_token="), "website alumni login");
   const alumniPage = await request("/me", { headers: { Cookie: alumniCookie } });
   check(alumniPage.ok, "website alumni protected page", `${alumniPage.status}`);
+
+  const pendingLogin = await jsonRequest("/api/auth/login", {
+    method: "POST",
+    headers: { Origin: baseUrl },
+    body: JSON.stringify({ username: "acceptance-pending", password: "AcceptancePass!2026" }),
+  });
+  check(
+    pendingLogin.response.status === 403 &&
+      pendingLogin.body?.accountState === "REVIEW_PENDING" &&
+      !pendingLogin.response.headers.get("set-cookie"),
+    "website pending account shows review state without session",
+  );
+
   const webProfile = await request("/api/me/profile", { headers: { Cookie: alumniCookie } });
   check(webProfile.ok, "website alumni profile", `${webProfile.status}`);
   const story = await jsonRequest("/api/stories", {

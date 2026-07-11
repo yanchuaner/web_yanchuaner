@@ -5,7 +5,27 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
 import { PageShell, GlassCard, Button } from "@/components/ui";
+import { AccountStatusPanel } from "@/components/auth/AccountStatusPanel";
 import { api } from "@/lib/apiClient";
+import type { WebAccountState } from "@/lib/web-account-state";
+
+type BlockedAccountState = Exclude<WebAccountState, "ACTIVE">;
+type LoginResult = {
+  role?: string;
+  accountState?: BlockedAccountState;
+  account?: {
+    name?: string | null;
+    graduationClass?: string | null;
+    className?: string | null;
+  };
+};
+
+const BLOCKED_STATES = new Set<BlockedAccountState>([
+  "EMAIL_NOT_VERIFIED",
+  "REVIEW_PENDING",
+  "REVIEW_REJECTED",
+  "ACCOUNT_DISABLED",
+]);
 
 function safeRedirect(value: string | null, fallback: string) {
   return value &&
@@ -23,26 +43,30 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [needsVerification, setNeedsVerification] = useState(false);
+  const [accountState, setAccountState] = useState<BlockedAccountState | null>(null);
+  const [account, setAccount] = useState<LoginResult["account"]>();
   const [loading, setLoading] = useState(false);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
     setLoading(true);
     setError("");
-    setNeedsVerification(false);
+    setAccountState(null);
+    setAccount(undefined);
     try {
       // 429/413/401 等错误会由 apiClient 自动弹出 Toast，这里只处理业务逻辑
-      const { data, error: apiError, status, code } = await api.post<{ role?: string }>(
+      const { data, error: apiError, status, code, raw } = await api.post<LoginResult>(
         "/api/auth/login",
         { username, password },
         [401, 403] // 401/403 由下面的 setError 处理，不重复弹 Toast
       );
 
       if (apiError || !data) {
-        if (status === 403 && code === "EMAIL_NOT_VERIFIED") {
-          setNeedsVerification(true);
-          throw new Error("你的邮箱还没有完成验证，请先验证邮箱后再登录。");
+        if (status === 403 && code && BLOCKED_STATES.has(code as BlockedAccountState)) {
+          const blocked = raw as LoginResult | null;
+          setAccountState(code as BlockedAccountState);
+          setAccount(blocked?.account);
+          return;
         }
         throw new Error(apiError || "登录失败");
       }
@@ -56,6 +80,25 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function switchAccount() {
+    setAccountState(null);
+    setAccount(undefined);
+    setPassword("");
+    setError("");
+  }
+
+  if (accountState) {
+    return (
+      <PageShell size="narrow" className="flex min-h-[70vh] items-center">
+        <AccountStatusPanel
+          state={accountState}
+          account={account}
+          onSwitchAccount={switchAccount}
+        />
+      </PageShell>
+    );
   }
 
   return (
@@ -72,16 +115,7 @@ export default function LoginPage() {
             密码
             <input className="input mt-1 w-full" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
           </label>
-          {error ? (
-            <p className={needsVerification ? "text-sm text-brand-fg/70" : "text-sm text-rose-600"}>
-              {error}
-            </p>
-          ) : null}
-          {needsVerification ? (
-            <Link className="text-sm text-brand underline" href="/verify-email">
-              前往验证 / 重新发送验证邮件
-            </Link>
-          ) : null}
+          {error ? <p className="text-sm text-rose-600">{error}</p> : null}
           <Button type="submit" variant="primary" className="w-full mt-2" disabled={loading}>
             {loading ? "登录中…" : "登录"}
           </Button>

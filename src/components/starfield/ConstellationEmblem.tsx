@@ -22,10 +22,17 @@ type Point = {
 
 type Coordinate = [number, number];
 
+function precise(value: number) {
+  return Math.round(value * 1000) / 1000;
+}
+
 function circlePoints(cx: number, cy: number, radius: number, count: number) {
   return Array.from({ length: count }, (_, index): Coordinate => {
     const angle = (Math.PI * 2 * index) / count - Math.PI / 2;
-    return [cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius];
+    return [
+      precise(cx + Math.cos(angle) * radius),
+      precise(cy + Math.sin(angle) * radius),
+    ];
   });
 }
 
@@ -33,8 +40,8 @@ function segmentPoints(start: Coordinate, end: Coordinate, count: number) {
   return Array.from({ length: count }, (_, index): Coordinate => {
     const progress = count === 1 ? 0 : index / (count - 1);
     return [
-      start[0] + (end[0] - start[0]) * progress,
-      start[1] + (end[1] - start[1]) * progress,
+      precise(start[0] + (end[0] - start[0]) * progress),
+      precise(start[1] + (end[1] - start[1]) * progress),
     ];
   });
 }
@@ -48,12 +55,12 @@ function polylinePoints(nodes: Coordinate[], pointsPerSegment: number) {
 
 function buildTargetGroups() {
   const outer = [
-    ...circlePoints(640, 640, 616, 42),
-    ...circlePoints(640, 640, 582, 38),
+    ...circlePoints(640, 640, 616, 52),
+    ...circlePoints(640, 640, 582, 47),
   ];
   const inner = [
-    ...circlePoints(640, 640, 446, 34),
-    ...circlePoints(640, 640, 270, 30),
+    ...circlePoints(640, 640, 446, 44),
+    ...circlePoints(640, 640, 270, 40),
     [108, 598] as Coordinate,
     [1172, 598] as Coordinate,
   ];
@@ -64,7 +71,7 @@ function buildTargetGroups() {
     [[758, 1070], [466, 862]],
     [[252, 870], [374, 536]],
   ];
-  const orbit = orbitSegments.flatMap(([start, end]) => segmentPoints(start, end, 10));
+  const orbit = orbitSegments.flatMap(([start, end]) => segmentPoints(start, end, 14));
 
   const glyphLines: Coordinate[][] = [
     [[456, 492], [548, 492], [548, 434], [584, 434]],
@@ -80,7 +87,7 @@ function buildTargetGroups() {
     [[640, 780], [640, 842]],
     [[824, 780], [732, 780], [732, 842]],
   ];
-  const glyph = glyphLines.flatMap((line) => polylinePoints(line, 4));
+  const glyph = glyphLines.flatMap((line) => polylinePoints(line, 5));
   return [
     { points: outer, baseDelay: 0 },
     { points: inner, baseDelay: 260 },
@@ -94,15 +101,15 @@ function buildFlightPoints(): Point[] {
   return buildTargetGroups().flatMap((group) =>
     group.points.map(([x, y], groupIndex) => {
       const index = globalIndex++;
-      const angle = ((index * 137.508 + 23) * Math.PI) / 180;
-      const distance = 330 + ((index * 47) % 360);
+      const lane = (index % 12) - 5.5;
+      const depth = Math.floor(index / 12);
       return {
         x,
         y,
-        fromX: Math.cos(angle) * distance,
-        fromY: Math.sin(angle) * distance,
+        fromX: precise(lane * 17 + Math.sin(index * 0.9) * 28),
+        fromY: 520 + depth * 9,
         delay: group.baseDelay + (groupIndex % 14) * 24,
-        accent: index % 11 === 0,
+        accent: index % 30 === 0,
       };
     }),
   );

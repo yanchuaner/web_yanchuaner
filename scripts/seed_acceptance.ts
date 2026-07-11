@@ -85,6 +85,24 @@ async function main() {
     passwordHash,
   });
   await upsertUser({
+    id: "acceptance-pending-web",
+    username: "acceptance-pending",
+    email: "acceptance-pending@example.test",
+    name: "待审核校友",
+    verificationStatus: "NOT_SUBMITTED",
+    identityType: "ALUMNI",
+    passwordHash,
+  });
+  await prisma.user.update({
+    where: { id: "acceptance-pending-web" },
+    data: {
+      status: "PENDING",
+      verificationStatus: "PENDING",
+      graduationClass: "2025",
+      className: "1",
+    },
+  });
+  await upsertUser({
     id: ACCEPTANCE_IDS.deletion,
     username: "acceptance-deletion",
     email: "acceptance-deletion@example.test",
