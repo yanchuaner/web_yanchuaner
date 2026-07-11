@@ -1,0 +1,401 @@
+.scene {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
+  color: rgb(var(--brand-fg-rgb));
+  background: rgb(var(--surface-muted-rgb));
+}
+
+.deepSpace {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 115%, rgb(var(--brand-rgb) / 0.22), transparent 38%),
+    radial-gradient(circle at 18% 24%, rgb(var(--space-cyan-rgb) / 0.07), transparent 24%),
+    radial-gradient(circle at 82% 18%, rgb(var(--space-amber-rgb) / 0.05), transparent 20%);
+  transition: opacity 900ms ease;
+}
+
+.scene[data-flight-state="launching"] .deepSpace,
+.scene[data-flight-state="constellationGather"] .deepSpace,
+.scene[data-flight-state="constellationConnect"] .deepSpace,
+.scene[data-flight-state="constellationGlow"] .deepSpace,
+.scene[data-flight-state="reveal"] .deepSpace,
+.scene[data-flight-state="complete"] .deepSpace {
+  opacity: 0.58;
+}
+
+.backButton,
+.skipButton,
+.replayButton {
+  position: absolute;
+  z-index: 20;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid rgb(var(--brand-rgb) / 0.28);
+  border-radius: 50%;
+  color: rgb(var(--brand-fg-rgb) / 0.82);
+  background: rgb(var(--surface-rgb) / 0.58);
+  backdrop-filter: blur(14px);
+  transition: transform 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+
+.backButton {
+  top: max(18px, env(safe-area-inset-top));
+  left: max(18px, env(safe-area-inset-left));
+}
+
+.skipButton {
+  top: max(18px, env(safe-area-inset-top));
+  right: max(18px, env(safe-area-inset-right));
+}
+
+.replayButton {
+  right: max(18px, env(safe-area-inset-right));
+  bottom: max(20px, env(safe-area-inset-bottom));
+  animation: controlReveal 500ms ease both;
+}
+
+.backButton:hover,
+.skipButton:hover,
+.replayButton:hover {
+  transform: translateY(-2px);
+  color: rgb(var(--brand-fg-rgb));
+  background: rgb(var(--brand-rgb) / 0.16);
+}
+
+.backButton:focus-visible,
+.skipButton:focus-visible,
+.replayButton:focus-visible,
+.launchControl:focus-visible {
+  outline: 2px solid rgb(var(--brand-rgb));
+  outline-offset: 4px;
+}
+
+.missionHeader {
+  position: absolute;
+  top: clamp(88px, 14dvh, 148px);
+  left: 50%;
+  z-index: 5;
+  width: min(88vw, 620px);
+  transform: translateX(-50%);
+  text-align: center;
+  transition: opacity 600ms ease, transform 600ms ease;
+}
+
+.missionHeader[aria-hidden="true"] {
+  opacity: 0;
+  transform: translate(-50%, -16px);
+}
+
+.missionCode,
+.messageEyebrow {
+  margin: 0;
+  color: rgb(var(--space-cyan-rgb) / 0.78);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.missionHeader h1 {
+  margin: 12px 0 0;
+  font-family: var(--font-heading, inherit);
+  font-size: clamp(32px, 7vw, 54px);
+  line-height: 1.08;
+}
+
+.missionHeader > p:last-child {
+  margin: 14px 0 0;
+  color: rgb(var(--brand-fg-rgb) / 0.58);
+  font-size: clamp(13px, 2.5vw, 15px);
+}
+
+.performanceStatus {
+  position: absolute;
+  top: max(28px, env(safe-area-inset-top));
+  left: 50%;
+  z-index: 20;
+  display: inline-flex;
+  margin: 0;
+  transform: translateX(-50%);
+  align-items: center;
+  gap: 9px;
+  color: rgb(var(--brand-fg-rgb) / 0.62);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
+  animation: statusReveal 500ms ease both;
+}
+
+.performanceStatus span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgb(var(--space-cyan-rgb));
+  box-shadow: 0 0 12px rgb(var(--space-cyan-rgb) / 0.8);
+  animation: statusPulse 900ms ease-in-out infinite;
+}
+
+.launchZone {
+  position: absolute;
+  left: 50%;
+  bottom: max(54px, calc(env(safe-area-inset-bottom) + 34px));
+  z-index: 8;
+  display: flex;
+  width: 180px;
+  transform: translateX(-50%);
+  flex-direction: column;
+  align-items: center;
+  transition: opacity 500ms ease;
+}
+
+.launchZone[aria-hidden="true"] {
+  pointer-events: none;
+  opacity: 0;
+}
+
+.orbitMarker {
+  position: absolute;
+  bottom: 42px;
+  width: 150px;
+  height: 42px;
+  border: 1px solid rgb(var(--brand-rgb) / 0.22);
+  border-radius: 50%;
+  transform: perspective(120px) rotateX(64deg);
+  animation: orbitPulse 2.4s ease-in-out infinite;
+}
+
+.launchControl {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: 78px;
+  height: 78px;
+  place-items: center;
+  cursor: pointer;
+  border: 1px solid rgb(var(--brand-rgb) / 0.4);
+  border-radius: 50%;
+  color: rgb(var(--brand-fg-rgb));
+  background: rgb(var(--surface-rgb) / 0.76);
+  box-shadow:
+    0 0 0 8px rgb(var(--brand-rgb) / 0.05),
+    0 0 38px rgb(var(--brand-rgb) / 0.24);
+  backdrop-filter: blur(14px);
+  touch-action: manipulation;
+  animation: rocketIdle 2.8s ease-in-out infinite;
+  transition: color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.launchControl:hover {
+  color: rgb(var(--space-cyan-rgb));
+  border-color: rgb(var(--space-cyan-rgb) / 0.72);
+  box-shadow:
+    0 0 0 11px rgb(var(--space-cyan-rgb) / 0.07),
+    0 0 48px rgb(var(--space-cyan-rgb) / 0.34);
+}
+
+.launchControl:disabled {
+  cursor: default;
+}
+
+.launchHint {
+  min-height: 20px;
+  margin: 10px 0 0;
+  color: rgb(var(--brand-fg-rgb) / 0.52);
+  font-size: 12px;
+}
+
+.horizon {
+  position: absolute;
+  right: -8%;
+  bottom: -35px;
+  left: -8%;
+  z-index: 4;
+  height: 88px;
+  border-top: 1px solid rgb(var(--space-cyan-rgb) / 0.22);
+  border-radius: 50% 50% 0 0;
+  background: rgb(var(--surface-rgb) / 0.62);
+  box-shadow: 0 -16px 54px rgb(var(--brand-rgb) / 0.12);
+}
+
+.horizon span {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: min(60vw, 420px);
+  height: 7px;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  background: rgb(var(--space-cyan-rgb) / 0.2);
+  filter: blur(5px);
+}
+
+.speedLines {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.speedLines span {
+  position: absolute;
+  top: -30vh;
+  left: var(--line-left);
+  width: 1px;
+  height: 22vh;
+  background: linear-gradient(to bottom, transparent, rgb(var(--brand-fg-rgb) / 0.65));
+  animation-delay: var(--line-delay);
+}
+
+.scene[data-flight-state="launching"] .speedLines {
+  opacity: 0.62;
+}
+
+.scene[data-flight-state="launching"] .speedLines span {
+  animation: speedLine 700ms linear infinite;
+}
+
+.message {
+  position: absolute;
+  top: 65%;
+  left: 50%;
+  z-index: 10;
+  width: min(88vw, 760px);
+  transform: translate(-50%, -45%);
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.message[aria-hidden="false"] {
+  animation: messageReveal 1.35s ease both;
+}
+
+.message h2 {
+  display: flex;
+  margin: 18px 0 0;
+  flex-direction: column;
+  gap: 8px;
+  font-family: var(--font-heading, inherit);
+  font-size: clamp(28px, 6vw, 52px);
+  line-height: 1.3;
+}
+
+.message h2 span:last-child {
+  color: rgb(var(--brand-rgb));
+}
+
+.signature {
+  margin: 22px 0 0;
+  color: rgb(var(--brand-fg-rgb) / 0.58);
+  font-size: clamp(12px, 2.4vw, 14px);
+}
+
+.flightRecord {
+  margin: 10px 0 0;
+  color: rgb(var(--space-cyan-rgb) / 0.62);
+  font-size: 11px;
+}
+
+@keyframes rocketIdle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes orbitPulse {
+  0%, 100% { opacity: 0.34; transform: perspective(120px) rotateX(64deg) scale(0.92); }
+  50% { opacity: 0.8; transform: perspective(120px) rotateX(64deg) scale(1.04); }
+}
+
+@keyframes statusReveal {
+  from { opacity: 0; transform: translate(-50%, -8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 0.45; transform: scale(0.78); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes speedLine {
+  from { transform: translateY(-25vh); opacity: 0; }
+  18% { opacity: 1; }
+  to { transform: translateY(150vh); opacity: 0; }
+}
+
+@keyframes messageReveal {
+  from { opacity: 0; transform: translate(-50%, -38%); filter: blur(10px); }
+  to { opacity: 1; transform: translate(-50%, -50%); filter: blur(0); }
+}
+
+@keyframes controlReveal {
+  from { opacity: 0; transform: rotate(-45deg) scale(0.7); }
+  to { opacity: 1; transform: rotate(0) scale(1); }
+}
+
+@media (max-height: 680px) {
+  .missionHeader {
+    top: 72px;
+  }
+
+  .missionHeader h1 {
+    margin-top: 7px;
+  }
+
+  .missionHeader > p:last-child {
+    margin-top: 8px;
+  }
+
+  .launchZone {
+    bottom: 28px;
+  }
+
+  .launchHint {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .missionHeader {
+    top: max(86px, calc(env(safe-area-inset-top) + 70px));
+  }
+
+  .message h2 {
+    font-size: clamp(27px, 8.2vw, 36px);
+  }
+
+  .message {
+    top: 66%;
+  }
+
+  .horizon {
+    right: -20%;
+    left: -20%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene *,
+  .scene *::before,
+  .scene *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+
+  .message[aria-hidden="false"] {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+    filter: none;
+  }
+}
