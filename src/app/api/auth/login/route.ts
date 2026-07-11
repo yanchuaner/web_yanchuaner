@@ -5,6 +5,7 @@ import { normalizeUsername, readJsonBody } from "@/lib/auth-utils";
 import { AUTH_COOKIE } from "@/lib/admin-auth";
 import { getClientIp, authLimiter } from "@/lib/rate-limit";
 import { signToken, TOKEN_TTL_SECONDS } from "@/lib/verify-token";
+import { resolveWebAccountState } from "@/lib/web-account-state";
 
 type LoginBody = { username?: unknown; password?: unknown };
 
@@ -29,15 +30,32 @@ export async function POST(req: NextRequest) {
       !!user?.passwordHash && password.length <= 64
         ? await compare(password, user.passwordHash)
         : false;
-    if (!user || !passwordOk || user.accountStatus !== "ACTIVE") {
+    if (!user || !passwordOk) {
       return NextResponse.json(
         { error: "用户名或密码错误" },
         { status: 401 },
       );
     }
-    if (!user.emailVerified) {
+
+    const accountState = resolveWebAccountState(user);
+    if (accountState !== "ACTIVE") {
+      const messages = {
+        EMAIL_NOT_VERIFIED: "邮箱尚未验证",
+        REVIEW_PENDING: "邮箱已验证，身份资料正在审核中",
+        REVIEW_REJECTED: "身份审核未通过，请联系管理员核对资料",
+        ACCOUNT_DISABLED: "账号已停用，请联系管理员",
+      } as const;
       return NextResponse.json(
-        { error: "邮箱尚未验证", code: "EMAIL_NOT_VERIFIED" },
+        {
+          error: messages[accountState],
+          code: accountState,
+          accountState,
+          account: {
+            name: user.name,
+            graduationClass: user.graduationClass,
+            className: user.className,
+          },
+        },
         { status: 403 },
       );
     }

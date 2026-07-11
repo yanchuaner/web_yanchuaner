@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/db";
 import { TokenPayload, verifyToken } from "@/lib/verify-token";
+import { resolveWebAccountState } from "@/lib/web-account-state";
 
 export const AUTH_COOKIE = "yc_access_token";
 
@@ -79,9 +80,10 @@ export async function resolveAuthenticatedUser(
 export async function getAuthenticatedUser(
   req: NextRequest,
 ): Promise<AuthenticatedUser | null> {
-  return resolveAuthenticatedUser(tokenFromRequest(req), {
+  const user = await resolveAuthenticatedUser(tokenFromRequest(req), {
     requireVerifiedEmail: true,
   });
+  return user && resolveWebAccountState(user) === "ACTIVE" ? user : null;
 }
 
 export async function requireUser(
@@ -115,9 +117,10 @@ export async function requireAdmin(
 
 async function pageUser() {
   const token = (await cookies()).get(AUTH_COOKIE)?.value;
-  return resolveAuthenticatedUser(token ? verifyToken(token) : null, {
+  const user = await resolveAuthenticatedUser(token ? verifyToken(token) : null, {
     requireVerifiedEmail: true,
   });
+  return user && resolveWebAccountState(user) === "ACTIVE" ? user : null;
 }
 
 export async function getPageUser() {

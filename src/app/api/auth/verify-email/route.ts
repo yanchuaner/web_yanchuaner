@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { hashToken, readJsonBody } from "@/lib/auth-utils";
 import { getClientIp, emailLimiter } from "@/lib/rate-limit";
+import { resolveWebAccountState } from "@/lib/web-account-state";
 
 export async function POST(req: NextRequest) {
   // 使用 Upstash Redis 对邀请验证接口限流（1次/分钟，单日10次），无 Redis 时自动降级为内存限流
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest) {
     if (!user.emailVerifyExpiresAt || user.emailVerifyExpiresAt <= new Date()) {
       return NextResponse.json({ error: "验证链接已过期" }, { status: 400 });
     }
-    await prisma.user.update({
+    const updated = await prisma.user.update({
       where: { id: user.id },
       data: {
         emailVerified: new Date(),
@@ -35,7 +36,15 @@ export async function POST(req: NextRequest) {
         emailVerifyExpiresAt: null,
       },
     });
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      accountState: resolveWebAccountState(updated),
+      account: {
+        name: updated.name,
+        graduationClass: updated.graduationClass,
+        className: updated.className,
+      },
+    });
   } catch {
     return NextResponse.json({ error: "邮箱验证失败" }, { status: 500 });
   }

@@ -60,7 +60,7 @@ export default function RegisterPage() {
     <PageShell size="narrow">
       <GlassCard className="p-7">
         <h1 className="text-2xl font-bold text-brand-fg">注册校友账号</h1>
-        <p className="mt-2 text-sm text-brand-fg/60">加入数字母港。邮箱验证与校友认证相互独立。</p>
+        <p className="mt-2 text-sm text-brand-fg/60">创建账号后，请依次完成邮箱验证与校友身份审核。</p>
         <form onSubmit={submit} className="mt-6 grid gap-4 md:grid-cols-2">
           <label className="text-sm">
             用户名 <span className="text-xs text-brand-fg/50">仅用于登录账号</span>
@@ -80,7 +80,12 @@ export default function RegisterPage() {
             <input name="claimOldProfile" type="checkbox" className="h-5 w-5 shrink-0" />
             我曾通过入轨联络舱提交过申请，需要人工认领旧资料
           </label>
-          {message ? <p className="text-sm text-emerald-700 md:col-span-2">{message}</p> : null}
+          {message ? (
+            <div className="space-y-1 text-sm text-emerald-700 md:col-span-2">
+              <p>{message}</p>
+              <p className="text-brand-fg/60">邮箱验证完成后，申请将进入管理员审核。</p>
+            </div>
+          ) : null}
           {emailSent === false ? (
             <Link
               href={`/verify-email?email=${encodeURIComponent(registeredEmail)}`}
