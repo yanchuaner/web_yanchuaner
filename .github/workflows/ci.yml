@@ -33,7 +33,13 @@ jobs:
         run: npm ci
 
       - name: Generate Prisma client
-        run: npx prisma generate
+        run: npm run db:generate
+
+      - name: Initialize isolated CI database
+        run: npm run db:init
+
+      - name: Seed isolated CI database
+        run: npm run seed
 
       - name: Audit production dependencies
         run: npm run audit:prod
@@ -41,8 +47,32 @@ jobs:
       - name: Typecheck
         run: npx tsc --noEmit
 
+      - name: Test mini program auth contract
+        run: npm run test:mp-auth
+
       - name: Lint
         run: npm run lint
 
+      - name: Enforce UI token debt budget
+        run: npm run audit:ui-tokens
+
       - name: Build
         run: npm run build
+
+      - name: Start application for smoke test
+        run: |
+          npm run start > /tmp/yanchuaner-next.log 2>&1 &
+          echo $! > /tmp/yanchuaner-next.pid
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:3000/api/health > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/yanchuaner-next.log
+          exit 1
+
+      - name: Smoke test public and protected boundaries
+        env:
+          SMOKE_BASE_URL: http://127.0.0.1:3000
+        run: npm run smoke

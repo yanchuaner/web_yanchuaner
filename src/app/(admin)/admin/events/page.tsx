@@ -6,6 +6,10 @@ import Link from 'next/link';
 import { AdminPageShell } from '@/components/admin/AdminPageShell';
 import { EmptyState } from '@/components/ui';
 import { toast } from 'sonner';
+import { useDialogA11y } from '@/hooks/useDialogA11y';
+import { AdminPagination } from '@/components/admin/AdminPagination';
+
+const PAGE_SIZE = 20;
 
 type EventItem = {
   id: string;
@@ -26,6 +30,11 @@ export default function AdminEventsPage() {
   const [search, setSearch] = useState('');
   const [deleting, setDeleting] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<EventItem | null>(null);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const deleteDialogRef = useDialogA11y(!!confirmDelete, () => {
+    if (!deleting) setConfirmDelete(null);
+  });
 
   const filteredEvents = useMemo(() => {
     if (!search.trim()) return events;
@@ -37,11 +46,16 @@ export default function AdminEventsPage() {
     setLoading(true);
     setError(null);
     try {
-      const params = statusFilter === 'ALL' ? '' : `?status=${statusFilter}`;
-      const res = await fetch(`/api/admin/events${params}`);
+      const params = new URLSearchParams({
+        limit: String(PAGE_SIZE),
+        offset: String((page - 1) * PAGE_SIZE),
+      });
+      if (statusFilter !== 'ALL') params.set('status', statusFilter);
+      const res = await fetch(`/api/admin/events?${params}`);
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
       setEvents(data.events || []);
+      setTotal(data.total || 0);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -61,6 +75,7 @@ export default function AdminEventsPage() {
         throw new Error(data.error || '删除失败');
       }
       setEvents((prev) => prev.filter((e) => e.id !== confirmDelete.id));
+      setTotal((current) => Math.max(0, current - 1));
       toast.success('活动已删除');
       setConfirmDelete(null);
     } catch (err: any) {
@@ -73,7 +88,7 @@ export default function AdminEventsPage() {
   useEffect(() => {
     fetchEvents();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusFilter]);
+  }, [page, statusFilter]);
 
   const statusBadge = (s: string) => {
     const map: Record<string, string> = {
@@ -110,7 +125,7 @@ export default function AdminEventsPage() {
           {filters.map((f) => (
             <button
               key={f}
-              onClick={() => setStatusFilter(f)}
+              onClick={() => { setStatusFilter(f); setPage(1); }}
               className={`rounded-lg border px-3 py-1.5 text-xs transition cursor-pointer ${
                 statusFilter === f
                   ? 'border-[#7C3AED]/50 bg-[#7C3AED]/10 text-[#7C3AED]'
@@ -134,6 +149,9 @@ export default function AdminEventsPage() {
           />
         </div>
       </div>
+      <p className="text-xs text-brand-fg/45">
+        当前筛选：{statusLabel[statusFilter] || '全部'} · 显示 {filteredEvents.length} 条
+      </p>
 
       {error && (
         <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
@@ -208,9 +226,12 @@ export default function AdminEventsPage() {
         </div>
       )}
 
+      <AdminPagination page={page} total={total} pageSize={PAGE_SIZE} disabled={loading} onPageChange={setPage} />
+
       {/* 删除确认弹窗 */}
       {confirmDelete && (
         <div 
+          ref={deleteDialogRef}
           className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm px-4 pb-safe sm:pb-4 animate-fade-in"
           role="dialog"
           aria-modal="true"

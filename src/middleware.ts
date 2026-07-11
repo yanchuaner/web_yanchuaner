@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { extractBearerToken } from "@/lib/mp-auth-contract";
+import { MP_ERROR_CODES, mpError } from "@/lib/mp-api";
 
 const SESSION_SECRET = process.env.SESSION_SECRET || "";
 
@@ -17,6 +19,7 @@ const PUBLIC_PAGES = new Set([
   "/register",
   "/verify-email",
   "/reset-password",
+  "/starfield",
 ]);
 
 const PUBLIC_APIS = new Set([
@@ -28,6 +31,11 @@ const PUBLIC_APIS = new Set([
   "/api/auth/forgot-password",
   "/api/auth/reset-password",
   "/api/auth/graduation-classes",
+]);
+
+const PUBLIC_MP_APIS = new Set([
+  "/api/mp/auth/dev-login",
+  "/api/mp/auth/wechat-login",
 ]);
 
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
@@ -127,6 +135,7 @@ function getAllowedOrigins(req: NextRequest) {
 function requiresSameOriginCheck(req: NextRequest, pathname: string) {
   return (
     pathname.startsWith("/api/") &&
+    !pathname.startsWith("/api/mp/") &&
     MUTATING_METHODS.has(req.method.toUpperCase()) &&
     !PUBLIC_APIS.has(pathname)
   );
@@ -158,12 +167,34 @@ export async function middleware(req: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  if (PUBLIC_APIS.has(pathname)) {
+  if (PUBLIC_APIS.has(pathname) || PUBLIC_MP_APIS.has(pathname)) {
     return next();
   }
 
-  const token = req.cookies.get("yc_access_token")?.value;
+  const isMpApi = pathname.startsWith("/api/mp/");
+  const bearer = isMpApi ? extractBearerToken(req) : null;
+  const token = isMpApi
+    ? bearer?.ok
+      ? bearer.token
+      : undefined
+    : req.cookies.get("yc_access_token")?.value;
   const payload = token ? await verifyTokenEdge(token) : null;
+
+  if (isMpApi && !payload) {
+    const code = bearer && !bearer.ok && bearer.reason === "MALFORMED"
+      ? MP_ERROR_CODES.AUTH_HEADER_INVALID
+      : bearer?.ok
+        ? MP_ERROR_CODES.TOKEN_INVALID
+        : MP_ERROR_CODES.AUTH_REQUIRED;
+    const message = bearer?.ok
+      ? "登录状态已失效，请重新登录"
+      : bearer?.reason === "MALFORMED"
+        ? "Authorization 请求头格式无效"
+        : "需要登录";
+    return mpError(code, message, 401, {
+      headers: { "WWW-Authenticate": "Bearer" },
+    });
+  }
 
   if (pathname === "/admin/login") {
     if (payload?.role === "admin") {

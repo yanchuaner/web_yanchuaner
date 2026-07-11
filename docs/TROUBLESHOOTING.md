@@ -296,13 +296,13 @@ const Component = dynamic(() => import('./Component'), { ssr: false });
 1. **检查 city 字段是否填充**：
    ```sql
    -- 查询无城市信息的校友数量
-   SELECT COUNT(*) FROM WhitelistRoster WHERE city IS NULL AND (tags IS NULL OR tags = '');
+   SELECT COUNT(*) FROM WhitelistRoster WHERE city IS NULL OR city = '';
    ```
-   地图数据 API（`/api/alumni/map`）优先读取 `city` 独立字段，为空时回退到 `tags` 解析。
+   地图数据 API 只读取结构化 `city` 字段。
 
 2. **检查 cityCoordinates 映射**：`src/data/cityCoordinates.ts` 中是否有对应城市的经纬度。不在映射表中的城市会被归入 `uncounted`，不作地图标记。
 
-3. **检查 tags 回退兼容**：如果 `city` 字段为空，系统会自动从旧版 `tags` 字符串中解析城市（`parseTags()` 函数）。确保 `tags` 格式为 `大学 | 专业 | 城市`。此回退机制确保历史数据不丢失。
+3. **检查旧数据是否完成迁移**：旧版 `tags` 拼接字段已经停止支持。将城市、院校和专业拆分写入 `city`、`university`、`major` 后再刷新地图。
 
 4. **检查 Redis 缓存**：地图数据 API 使用 `getCachedOrFetch('api:alumni:map', 300, ...)` 缓存 300 秒。如果刚修改了数据，最多等待 5 分钟后刷新。
 
@@ -332,16 +332,19 @@ const Component = dynamic(() => import('./Component'), { ssr: false });
 
 **修复**：升级到最新 V2.0 代码，PUT `/api/admin/memories/[id]` 已支持部分更新。
 
-### 21. MemoryItem 表不存在 / prisma db push 失败
+### 21. 数据表不存在 / Prisma migration 失败
 
 **现象**：访问 `/api/memories` 报 500，日志显示 `no such table: MemoryItem`
 
 **修复**：
 ```bash
 cd /var/www/alumni-site/app
-DATABASE_URL="file:/var/www/alumni-site/data/prod.db" npx prisma db push
+DATABASE_URL="file:/var/www/alumni-site/data/prod.db" npx prisma migrate status
+DATABASE_URL="file:/var/www/alumni-site/data/prod.db" npx prisma migrate deploy
 systemctl restart alumni-site
 ```
+
+生产环境禁止用 `db push` 绕过 migration 历史。若这是既有生产库首次纳管，先按部署指南完成 baseline 流程。
 
 ### 22. 邮件发送失败（如 Invalid from field 等 Resend API 异常）
 
@@ -371,13 +374,13 @@ systemctl restart alumni-site
 ### 23. 部署后首页正常但后台 500
 
 **可能原因**：
-- Prisma schema 未在服务器同步（`npx prisma db push` 未执行）
+- Prisma migration 尚未在服务器应用
 - 数据库文件路径不正确
 
 **修复**：
 1. SSH 登录服务器
 2. 进入应用目录：`cd /var/www/alumni-site/app`
-3. 执行：`npx prisma db push`
+3. 执行：`npx prisma migrate status`，确认后运行 `npx prisma migrate deploy`
 4. 确认 `.env` 中 `DATABASE_URL` 指向正确的数据库路径
 5. 重启服务
 
@@ -433,7 +436,7 @@ scp deploy.tar.gz root@<服务器IP>:/tmp/
 
 ### 28. Prisma 7.x 报 `datasource.url is required`
 
-**现象**：执行 `npx prisma db push` 时报错
+**现象**：执行 `npx prisma migrate deploy`、`migrate status` 或本地 `db push` 时报错
 
 **原因**：Prisma 7.x 不再读 schema 中的 `url`，必须通过 `prisma.config.ts` 或 `DATABASE_URL` 环境变量
 
@@ -450,7 +453,11 @@ export default defineConfig({
 
 如果 `.env` 不在当前目录，运行命令时显式指定：
 ```bash
-DATABASE_URL="file:/var/www/alumni-site/data/prod.db" npx prisma db push
+# 生产环境
+DATABASE_URL="file:/var/www/alumni-site/data/prod.db" npx prisma migrate deploy
+
+# 仅限可丢弃的本地实验库
+DATABASE_URL="file:./.tmp/scratch.db" npx prisma db push
 ```
 
 > **注意**：`prisma.config.ts` 在项目根目录，部署打包时别忘了 `cp prisma.config.ts deploy/`（部署指南已包含此步骤）。

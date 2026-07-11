@@ -24,6 +24,8 @@ function snapshot(user: {
   id: string;
   role: string;
   status: string;
+  verificationStatus: string;
+  identityType: string | null;
   accountStatus: string;
   emailVerified: Date | null;
   sessionVersion: number;
@@ -32,6 +34,8 @@ function snapshot(user: {
     id: user.id,
     role: user.role,
     status: user.status,
+    verificationStatus: user.verificationStatus,
+    identityType: user.identityType,
     accountStatus: user.accountStatus,
     emailVerified: user.emailVerified,
     sessionVersion: user.sessionVersion,
@@ -184,9 +188,20 @@ export async function POST(
       }
       const data =
         action === "approve-alumni"
-          ? { role: "ALUMNI", status: "VERIFIED", sessionVersion: { increment: 1 } }
+          ? {
+              role: target.role === "ADMIN" ? "ADMIN" : "ALUMNI",
+              status: "VERIFIED",
+              verificationStatus: "VERIFIED" as const,
+              identityType: "ALUMNI" as const,
+              sessionVersion: { increment: 1 },
+            }
           : action === "reject-alumni"
-            ? { role: "GUEST", status: "REJECTED", sessionVersion: { increment: 1 } }
+            ? {
+                role: target.role === "ADMIN" ? "ADMIN" : "GUEST",
+                status: "REJECTED",
+                verificationStatus: "REJECTED" as const,
+                sessionVersion: { increment: 1 },
+              }
             : action === "disable-account"
               ? { accountStatus: "DISABLED", sessionVersion: { increment: 1 } }
               : action === "enable-account"

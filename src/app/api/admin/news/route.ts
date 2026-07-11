@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { requireAdmin } from "@/lib/admin-auth";
+import { getAuthenticatedUser, requireAdmin } from "@/lib/admin-auth";
 import { readJsonBody } from "@/lib/auth-utils";
 import { isSafeLocalImagePath, normalizeOptionalText } from "@/lib/content-safety";
+import { invalidateCachePrefix } from "@/lib/cache";
 
 export async function GET(req: NextRequest) {
   const auth = await requireAdmin(req);
@@ -41,6 +42,10 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
+  const admin = await getAuthenticatedUser(req);
+  if (!admin || admin.role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   try {
     const body = await readJsonBody<{
@@ -88,16 +93,33 @@ export async function POST(req: NextRequest) {
       publishedAt = new Date();
     }
 
-    const news = await prisma.news.create({
-      data: {
-        title,
-        summary: summary || null,
-        content,
-        imageUrl: imageUrl || null,
-        status: status || "DRAFT",
-        publishedAt,
-      },
+    const news = await prisma.$transaction(async (tx) => {
+      const created = await tx.news.create({
+        data: {
+          title,
+          summary: summary || null,
+          content,
+          imageUrl: imageUrl || null,
+          status: status || "DRAFT",
+          publishedAt,
+        },
+      });
+      await tx.auditLog.create({
+        data: {
+          action: "news-create",
+          targetType: "News",
+          targetId: created.id,
+          adminId: admin.id,
+          after: JSON.stringify({
+            title: created.title,
+            status: created.status,
+            publishedAt: created.publishedAt,
+          }),
+        },
+      });
+      return created;
     });
+    await invalidateCachePrefix("published:news:");
 
     return NextResponse.json({ news }, { status: 201 });
   } catch (error: any) {

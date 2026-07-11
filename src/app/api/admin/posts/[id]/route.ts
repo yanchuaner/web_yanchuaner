@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { requireAdmin } from "@/lib/admin-auth";
+import { getAuthenticatedUser, requireAdmin } from "@/lib/admin-auth";
 import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 
 export async function DELETE(
@@ -9,6 +9,10 @@ export async function DELETE(
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
+  const admin = await getAuthenticatedUser(req);
+  if (!admin || admin.role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   try {
     const id = await getRouteId(params);
@@ -17,7 +21,18 @@ export async function DELETE(
       return NextResponse.json({ error: "内容不存在" }, { status: 404 });
     }
 
-    await prisma.post.delete({ where: { id } });
+    await prisma.$transaction(async (tx) => {
+      await tx.post.delete({ where: { id } });
+      await tx.auditLog.create({
+        data: {
+          action: "post-delete",
+          targetType: "Post",
+          targetId: existing.id,
+          adminId: admin.id,
+          before: JSON.stringify({ title: existing.title, status: existing.status }),
+        },
+      });
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

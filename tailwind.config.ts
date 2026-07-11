@@ -22,14 +22,14 @@ const config: Config = {
       colors: {
         // ── 语义令牌（推荐使用，支持透明度修饰符如 bg-brand/10）──
         brand: {
-          DEFAULT: "rgb(var(--brand-rgb) / <alpha-value>)",   // #7C3AED 主色
-          soft: "rgb(var(--brand-soft-rgb) / <alpha-value>)", // #A78BFA 辅助色
-          fg: "rgb(var(--brand-fg-rgb) / <alpha-value>)",     // #4C1D95 主文本
+          DEFAULT: "rgb(var(--brand-rgb) / <alpha-value>)",
+          soft: "rgb(var(--brand-soft-rgb) / <alpha-value>)",
+          fg: "rgb(var(--brand-fg-rgb) / <alpha-value>)",
         },
         accent: "rgb(var(--accent-rgb) / <alpha-value>)",     // #22C55E CTA 绿
         surface: {
-          DEFAULT: "rgb(var(--surface-rgb) / <alpha-value>)",       // #FFFFFF 卡片
-          muted: "rgb(var(--surface-muted-rgb) / <alpha-value>)",   // #FAF5FF 背景
+          DEFAULT: "rgb(var(--surface-rgb) / <alpha-value>)",
+          muted: "rgb(var(--surface-muted-rgb) / <alpha-value>)",
         },
         line: "var(--color-line)",           // 统一描边色（固定透明度）
 

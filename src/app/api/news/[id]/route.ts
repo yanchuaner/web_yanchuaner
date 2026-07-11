@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
 import { requireVerifiedAlumni } from "@/lib/admin-auth";
+import { getPublishedNews } from "@/lib/published-content";
 import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 
 export async function GET(req: NextRequest, { params }: { params: IdRouteParams }) {
@@ -10,10 +10,7 @@ export async function GET(req: NextRequest, { params }: { params: IdRouteParams 
     const id = await getRouteId(params);
     if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
-    const article = await prisma.news.findFirst({
-      where: { id, status: "PUBLISHED" },
-      select: { id: true, title: true, summary: true, content: true, imageUrl: true, publishedAt: true, createdAt: true },
-    });
+    const article = await getPublishedNews(id);
 
     if (!article) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });

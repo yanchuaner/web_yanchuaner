@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import getRedisClient from "@/lib/redis";
 import { Redis } from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
+import { logRateLimitDenied } from "@/lib/security-events";
 
 export type RateLimitResult = {
   ok: boolean;
@@ -19,6 +20,28 @@ export interface LimiterResult {
 
 export interface Limiter {
   limit: (key: string) => Promise<LimiterResult>;
+}
+
+function reportLimiterResult(
+  key: string,
+  result: LimiterResult,
+  backend: "redis" | "memory",
+) {
+  if (!result.success) {
+    logRateLimitDenied({ key, retryAfter: result.retryAfter, backend });
+  }
+  return result;
+}
+
+function reportRateLimitResult(key: string, result: RateLimitResult) {
+  if (!result.ok) {
+    logRateLimitDenied({
+      key,
+      retryAfter: result.retryAfter,
+      backend: result.fallback,
+    });
+  }
+  return result;
 }
 
 // Legacy fixed-window memory store
@@ -169,17 +192,21 @@ export const authLimiter: Limiter = {
     if (authLimiterRedis) {
       try {
         const res = await authLimiterRedis.limit(key);
-        return {
+        return reportLimiterResult(key, {
           success: res.success,
           remaining: res.remaining,
           reset: res.reset,
           retryAfter: res.success ? 0 : Math.max(1, Math.ceil((res.reset - Date.now()) / 1000)),
-        };
+        }, "redis");
       } catch (err) {
         console.error("Upstash authLimiter error, falling back to memory:", err);
       }
     }
-    return slidingWindowMemoryLimit(`auth:${key}`, 5, 60_000);
+    return reportLimiterResult(
+      `auth:${key}`,
+      slidingWindowMemoryLimit(`auth:${key}`, 5, 60_000),
+      "memory",
+    );
   },
 };
 
@@ -190,33 +217,37 @@ export const emailLimiter: Limiter = {
       try {
         const minRes = await emailMinLimiterRedis.limit(key);
         if (!minRes.success) {
-          return {
+          return reportLimiterResult(key, {
             success: false,
             remaining: minRes.remaining,
             reset: minRes.reset,
             retryAfter: Math.max(1, Math.ceil((minRes.reset - Date.now()) / 1000)),
-          };
+          }, "redis");
         }
         const dayRes = await emailDayLimiterRedis.limit(key);
         if (!dayRes.success) {
-          return {
+          return reportLimiterResult(key, {
             success: false,
             remaining: dayRes.remaining,
             reset: dayRes.reset,
             retryAfter: Math.max(1, Math.ceil((dayRes.reset - Date.now()) / 1000)),
-          };
+          }, "redis");
         }
-        return {
+        return reportLimiterResult(key, {
           success: true,
           remaining: Math.min(minRes.remaining, dayRes.remaining),
           reset: Math.max(minRes.reset, dayRes.reset),
           retryAfter: 0,
-        };
+        }, "redis");
       } catch (err) {
         console.error("Upstash emailLimiter error, falling back to memory:", err);
       }
     }
-    return emailLimiterMemory(key);
+    return reportLimiterResult(
+      `email:${key}`,
+      emailLimiterMemory(key),
+      "memory",
+    );
   },
 };
 
@@ -241,12 +272,12 @@ export async function rateLimit(
       }
       const ttl = await upstashRedis.pttl(redisKey);
       const retryAfter = ttl > 0 ? Math.ceil(ttl / 1000) : Math.ceil(windowMs / 1000);
-      return {
+      return reportRateLimitResult(key, {
         ok: count <= limit,
         remaining: Math.max(0, limit - count),
         retryAfter,
         fallback: "redis",
-      };
+      });
     } catch (err) {
       console.error("Upstash Redis error in legacy rateLimit, falling back:", err);
     }
@@ -263,12 +294,12 @@ export async function rateLimit(
       }
       const ttl = await redis.pttl(redisKey);
       const retryAfter = ttl > 0 ? Math.ceil(ttl / 1000) : Math.ceil(windowMs / 1000);
-      return {
+      return reportRateLimitResult(key, {
         ok: count <= limit,
         remaining: Math.max(0, limit - count),
         retryAfter,
         fallback: "redis",
-      };
+      });
     } catch (err) {
       console.error("ioredis error in legacy rateLimit, falling back:", err);
     }
@@ -279,18 +310,18 @@ export async function rateLimit(
   const bucket = legacyMemoryStore.get(key);
   if (!bucket || bucket.resetAt <= now) {
     legacyMemoryStore.set(key, { count: 1, resetAt: now + windowMs });
-    return {
+    return reportRateLimitResult(key, {
       ok: true,
       remaining: limit - 1,
       retryAfter: Math.ceil(windowMs / 1000),
       fallback: "memory",
-    };
+    });
   }
   bucket.count += 1;
-  return {
+  return reportRateLimitResult(key, {
     ok: bucket.count <= limit,
     remaining: Math.max(0, limit - bucket.count),
     retryAfter: Math.max(1, Math.ceil((bucket.resetAt - now) / 1000)),
     fallback: "memory",
-  };
+  });
 }

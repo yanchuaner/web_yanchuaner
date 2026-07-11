@@ -155,8 +155,8 @@ export default function UniversityMapPage() {
           title="大学城市分布"
           description="看看燕中校友的大学足迹点亮了哪些城市"
           action={
-            <ButtonLink href="/alumni/radar" variant="secondary" icon={ArrowLeft} size="sm">
-              返回通讯录
+            <ButtonLink href="/" variant="secondary" icon={ArrowLeft} size="sm">
+              返回指挥中心
             </ButtonLink>
           }
         />
@@ -171,8 +171,8 @@ export default function UniversityMapPage() {
               title="城市分布暂时无法加载"
               description={error}
               onRetry={error.includes('访问口令') ? undefined : fetchStats}
-              homeHref={error.includes('访问口令') ? '/' : '/alumni/radar'}
-              homeLabel={error.includes('访问口令') ? '返回首页验证' : '返回通讯录'}
+              homeHref="/"
+              homeLabel={error.includes('访问口令') ? '返回首页验证' : '返回指挥中心'}
             />
           )}
 

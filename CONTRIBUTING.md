@@ -108,6 +108,8 @@ npm run build          # 生产构建
 
 ### 7. 提交 Pull Request
 
+合并前必须等待 CI 中的类型检查、lint、构建、依赖审计、契约测试和 smoke 全部通过。仓库管理员应在 GitHub 分支保护中将 CI 设为必需状态检查，禁止绕过失败检查直接合并。
+
 1. Push 到你的 fork：`git push origin feat/your-feature-name`
 2. 在 GitHub 上创建 PR，目标分支 `main`
 3. PR 标题遵循 commit 规范

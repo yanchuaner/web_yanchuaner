@@ -81,6 +81,16 @@
 3. **Edge Middleware 先行拦截**：在请求到达 App Router 前完成 Token 验签
 4. **双层鉴权**：Middleware 做路由级守卫，API Route 内部做 RBAC 权限细粒度校验
 
+### 跨端共享边界
+
+网站、小程序和后续 App 共用 Prisma 数据模型与领域服务，但保持传输层独立：
+
+- 网站接口使用 httpOnly Cookie，并返回网站既有 JSON 结构。
+- 小程序接口使用 Bearer Token，并通过 `mpSuccess` / `mpError` 返回统一信封。
+- 已发布新闻和活动的列表、详情查询统一由 `src/lib/published-content.ts` 提供。
+- 活动报名状态机统一由 `src/lib/event-registration.ts` 提供。
+- API Route 只负责鉴权、参数解析和响应格式，不再复制数据库查询与业务规则。
+
 ---
 
 ## 2. 请求生命周期
@@ -212,35 +222,13 @@ WhitelistRoster.city       = "深圳"
 WhitelistRoster.university = "清华大学"
 WhitelistRoster.major      = "计算机科学"
 WhitelistRoster.industry   = "互联网"
-WhitelistRoster.tags       = "..."  -- 保留兼容，但新代码不再依赖
 ```
 
-### 兼容性设计
+### 当前状态
 
-`parseTags()` 函数作为过渡层兜底：
+名册迁移已完成，`WhitelistRoster.tags` 已从 Prisma 模型删除。名册导入、搜索和地图只读取 `city`、`university`、`major`、`industry` 等结构化字段，不再提供旧 tags 回退。
 
-```typescript
-// src/lib/tags.ts
-export function parseTags(tags: string | null): ParsedTags {
-  // 优先按 | 拆分，失败则尝试逗号
-  // 返回 { university, major, city }
-}
-```
-
-地图 API 的数据读取逻辑：
-
-```typescript
-// 1. 优先读取独立字段
-let city = r.city;
-let university = r.university;
-
-// 2. 独立字段为空时回退到 tags 解析（兼容历史数据）
-if (!city || !university) {
-  const parsed = parseTags(r.tags);
-  if (!city) city = parsed.city;
-  if (!university) university = parsed.university;
-}
-```
+`Story.tags` 是独立的故事标签功能，仍用于投稿分类、筛选和后台审核，与已删除的名册 tags 无关。
 
 ### CSV 导入的城市清洗
 
@@ -261,10 +249,10 @@ if (city.endsWith("市") && city.length > 1) {
 
 ```
 WhitelistRoster (数据库)
-  │ SELECT name, city, university, major, graduationClass, tags
+  │ SELECT name, city, university, major, graduationClass
   ▼
 city-stats API (/api/alumni/city-stats)
-  │ parseTags() 兜底 → 城市清洗 → cityCoords 坐标匹配
+  │ 结构化城市字段 → 城市清洗 → cityCoords 坐标匹配
   │ Map<city, { count, universities[], majors[], members[] }>
   ▼
   {
@@ -308,8 +296,8 @@ const cityMap = new Map<string, {
 }>();
 
 for (const record of allRecords) {
-  // 1. 城市解析：独立字段优先，tags 兜底
-  let city = record.city || parseTags(record.tags).city;
+  // 1. 读取结构化城市字段
+  const city = record.city;
   if (!city) { uncounted++; continue; }
 
   // 2. 坐标匹配：查静态坐标系

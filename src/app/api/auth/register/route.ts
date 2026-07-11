@@ -17,6 +17,7 @@ import { getClientIp, rateLimit } from "@/lib/rate-limit";
 import {
   normalizeClassName,
   normalizeGraduationClass,
+  normalizeIdentityName,
   validClassName,
   validGraduationClass,
 } from "@/lib/identity-fields";
@@ -49,7 +50,7 @@ export async function POST(req: NextRequest) {
     const password = typeof body.password === "string" ? body.password : "";
     const confirmPassword =
       typeof body.confirmPassword === "string" ? body.confirmPassword : "";
-    const name = typeof body.name === "string" ? body.name.trim() : "";
+    const name = normalizeIdentityName(body.name);
     const graduationClass = normalizeGraduationClass(body.graduationClass);
     const className = normalizeClassName(body.className);
     const contact =
@@ -85,18 +86,6 @@ export async function POST(req: NextRequest) {
 
     const passwordHash = await hash(password, BCRYPT_COST);
     const verification = createOneTimeToken();
-    const rosterMatch = graduationClass
-      ? await prisma.whitelistRoster.findFirst({
-          where: {
-            name,
-            graduationClass,
-            className: className || null,
-            email,
-          },
-          select: { id: true },
-        })
-      : null;
-
     const user = await prisma.$transaction(async (tx) => {
       const created = await tx.user.create({
         data: {
@@ -107,8 +96,10 @@ export async function POST(req: NextRequest) {
           graduationClass: graduationClass || null,
           className: className || null,
           contact: contact || null,
-          role: rosterMatch ? "ALUMNI" : "GUEST",
-          status: rosterMatch ? "VERIFIED" : "PENDING",
+          role: "GUEST",
+          status: "PENDING",
+          verificationStatus: "PENDING",
+          identityType: "ALUMNI",
           accountStatus: "ACTIVE",
           emailVerifyTokenHash: verification.hash,
           emailVerifyExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Trash2, Clock, ArrowLeft, FileText } from "lucide-react";
 import { PageShell, GlassCard, PageHeader, Button, ButtonLink, EmptyState, ErrorState, Badge, Skeleton, SkeletonText } from "@/components/ui";
+import { useDialogA11y } from "@/hooks/useDialogA11y";
 
 type UserPost = {
   id: string;
@@ -20,6 +21,9 @@ export default function MyPostsPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<UserPost | null>(null);
+  const deleteDialogRef = useDialogA11y(!!confirmDelete, () => {
+    if (!deletingId) setConfirmDelete(null);
+  });
 
   const fetchPosts = () => {
     setLoading(true);
@@ -210,6 +214,7 @@ export default function MyPostsPage() {
       {/* 删除确认弹窗 */}
       {confirmDelete && (
         <div 
+          ref={deleteDialogRef}
           className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm px-4 pb-safe sm:pb-4 animate-fade-in"
           role="dialog"
           aria-modal="true"

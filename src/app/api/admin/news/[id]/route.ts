@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { requireAdmin } from "@/lib/admin-auth";
+import { getAuthenticatedUser, requireAdmin } from "@/lib/admin-auth";
 import { readJsonBody } from "@/lib/auth-utils";
 import { isSafeLocalImagePath, normalizeOptionalText } from "@/lib/content-safety";
 import { getRouteId, type IdRouteParams } from "@/lib/route-params";
+import { invalidateCachePrefix } from "@/lib/cache";
 
 export async function GET(
   req: NextRequest,
@@ -31,6 +32,10 @@ export async function PUT(
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
+  const admin = await getAuthenticatedUser(req);
+  if (!admin || admin.role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   try {
     const id = await getRouteId(params);
@@ -92,17 +97,39 @@ export async function PUT(
       publishedAt = new Date();
     }
 
-    const news = await prisma.news.update({
-      where: { id },
-      data: {
-        title,
-        summary: summary || null,
-        content,
-        imageUrl: imageUrl || null,
-        status: status || existing.status,
-        publishedAt,
-      },
+    const news = await prisma.$transaction(async (tx) => {
+      const updated = await tx.news.update({
+        where: { id },
+        data: {
+          title,
+          summary: summary || null,
+          content,
+          imageUrl: imageUrl || null,
+          status: status || existing.status,
+          publishedAt,
+        },
+      });
+      await tx.auditLog.create({
+        data: {
+          action: "news-update",
+          targetType: "News",
+          targetId: updated.id,
+          adminId: admin.id,
+          before: JSON.stringify({
+            title: existing.title,
+            status: existing.status,
+            publishedAt: existing.publishedAt,
+          }),
+          after: JSON.stringify({
+            title: updated.title,
+            status: updated.status,
+            publishedAt: updated.publishedAt,
+          }),
+        },
+      });
+      return updated;
     });
+    await invalidateCachePrefix("published:news:");
 
     return NextResponse.json({ news });
   } catch (error: any) {
@@ -123,6 +150,10 @@ export async function DELETE(
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
+  const admin = await getAuthenticatedUser(req);
+  if (!admin || admin.role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   try {
     const id = await getRouteId(params);
@@ -131,7 +162,23 @@ export async function DELETE(
       return NextResponse.json({ error: "新闻不存在" }, { status: 404 });
     }
 
-    await prisma.news.delete({ where: { id } });
+    await prisma.$transaction(async (tx) => {
+      await tx.news.delete({ where: { id } });
+      await tx.auditLog.create({
+        data: {
+          action: "news-delete",
+          targetType: "News",
+          targetId: existing.id,
+          adminId: admin.id,
+          before: JSON.stringify({
+            title: existing.title,
+            status: existing.status,
+            publishedAt: existing.publishedAt,
+          }),
+        },
+      });
+    });
+    await invalidateCachePrefix("published:news:");
 
     return NextResponse.json({ success: true });
   } catch (error) {

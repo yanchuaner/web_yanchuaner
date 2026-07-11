@@ -4,6 +4,7 @@ import * as path from "path";
 import {
   normalizeClassName,
   normalizeGraduationClass,
+  normalizeIdentityName,
   validClassName,
   validGraduationClass,
 } from "../src/lib/identity-fields";
@@ -78,7 +79,7 @@ async function main() {
     let updatedCount = 0;
 
     for (const row of rows) {
-      const name = (row.name || "").trim();
+      const name = normalizeIdentityName(row.name);
       if (!name) continue;
 
       const graduationClass = normalizeGraduationClass(row.graduationClass) || null;
@@ -94,8 +95,6 @@ async function main() {
       }
       const email = (row.email || "").trim().toLowerCase() || null;
       const contact = (row.contact || "").trim() || null;
-      const tags = (row.tags || "").trim() || null;
-
       let city = (row.city || "").trim() || null;
       if (city) {
         if (city.endsWith("市") && city.length > 1) {

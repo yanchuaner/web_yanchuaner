@@ -3,6 +3,10 @@ export const USERNAME_INPUT_PATTERN = "[\\u4E00-\\u9FFFA-Za-z0-9_-]{1,32}";
 export const GRADUATION_CLASS_PATTERN = /^20\d{2}$/;
 export const CLASS_NAME_PATTERN = /^[1-9]\d?$/;
 
+export function normalizeIdentityName(value: unknown) {
+  return typeof value === "string" ? value.trim().normalize("NFC") : "";
+}
+
 export function normalizeUsername(value: unknown) {
   return typeof value === "string"
     ? value.trim().normalize("NFC").toLowerCase()

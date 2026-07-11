@@ -10,40 +10,48 @@ datasource db {
 }
 
 model User {
-  id                     String             @id @default(uuid())
-  username               String?            @unique
-  passwordHash           String?
-  email                  String?            @unique
-  emailVerified          DateTime?
-  emailVerifyTokenHash   String?
-  emailVerifyExpiresAt   DateTime?
-  passwordResetTokenHash String?
-  passwordResetExpiresAt DateTime?
-  name                   String?
-  contact                String?
-  identityCode           String?
-  graduationClass        String?
-  className              String?
-  city                   String?
-  university             String?
-  major                  String?
-  industry               String?
-  role                   String             @default("GUEST")
-  status                 String             @default("PENDING")
-  accountStatus          String             @default("ACTIVE")
-  sessionVersion         Int                @default(0)
-  claimedAt              DateTime?
-  mergedIntoUserId       String?
-  mergedIntoUser         User?              @relation("UserMerged", fields: [mergedIntoUserId], references: [id])
-  mergedUsers            User[]             @relation("UserMerged")
-  createdAt              DateTime           @default(now())
-  updatedAt              DateTime           @updatedAt
-  posts                  Post[]
-  stories                Story[]            @relation("StoryAuthor")
-  auditLogs              AuditLog[]         @relation("AuditLogAdmin")
-  claimRequests          UserClaimRequest[] @relation("ClaimRequestClaimant")
-  oldUserClaimRequests   UserClaimRequest[] @relation("ClaimRequestOldUser")
-  reviewedClaimRequests  UserClaimRequest[] @relation("ClaimRequestReviewer")
+  id                           String                        @id @default(uuid())
+  username                     String?                       @unique
+  passwordHash                 String?
+  email                        String?                       @unique
+  emailVerified                DateTime?
+  emailVerifyTokenHash         String?
+  emailVerifyExpiresAt         DateTime?
+  passwordResetTokenHash       String?
+  passwordResetExpiresAt       DateTime?
+  name                         String?
+  contact                      String?
+  identityCode                 String?
+  graduationClass              String?
+  className                    String?
+  city                         String?
+  university                   String?
+  major                        String?
+  industry                     String?
+  verificationStatus           VerificationStatus            @default(NOT_SUBMITTED)
+  identityType                 IdentityType?
+  teacherPosition              String?
+  contactVisibility            ContactVisibility             @default(PRIVATE)
+  role                         String                        @default("GUEST")
+  status                       String                        @default("PENDING")
+  accountStatus                String                        @default("ACTIVE")
+  sessionVersion               Int                           @default(0)
+  claimedAt                    DateTime?
+  mergedIntoUserId             String?
+  mergedIntoUser               User?                         @relation("UserMerged", fields: [mergedIntoUserId], references: [id])
+  mergedUsers                  User[]                        @relation("UserMerged")
+  createdAt                    DateTime                      @default(now())
+  updatedAt                    DateTime                      @updatedAt
+  posts                        Post[]
+  stories                      Story[]                       @relation("StoryAuthor")
+  auditLogs                    AuditLog[]                    @relation("AuditLogAdmin")
+  claimRequests                UserClaimRequest[]            @relation("ClaimRequestClaimant")
+  oldUserClaimRequests         UserClaimRequest[]            @relation("ClaimRequestOldUser")
+  reviewedClaimRequests        UserClaimRequest[]            @relation("ClaimRequestReviewer")
+  wechatIdentities             WechatIdentity[]
+  verificationRequests         IdentityVerificationRequest[] @relation("VerificationApplicant")
+  reviewedVerificationRequests IdentityVerificationRequest[] @relation("VerificationReviewer")
+  eventRegistrations           EventRegistration[]
 
   @@index([status])
   @@index([role])
@@ -53,6 +61,25 @@ model User {
   @@index([passwordResetTokenHash])
   @@index([graduationClass])
   @@index([mergedIntoUserId])
+  @@index([verificationStatus])
+  @@index([identityType])
+}
+
+model WechatIdentity {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appId       String
+  openid      String
+  unionid     String?
+  lastLoginAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([appId, openid])
+  @@unique([userId, appId])
+  @@index([userId])
+  @@index([unionid])
 }
 
 model AuditLog {
@@ -93,23 +120,50 @@ model UserClaimRequest {
 }
 
 model WhitelistRoster {
-  id              String   @id @default(uuid())
-  name            String
-  gender          String?
-  graduationClass String?
-  className       String?
-  email           String?
-  contact         String?
-  city            String?
-  university      String?
-  major           String?
-  industry        String?
-  certificateNo   String?
-  createdAt       DateTime @default(now())
+  id                   String                        @id @default(uuid())
+  name                 String
+  gender               String?
+  graduationClass      String?
+  className            String?
+  email                String?
+  contact              String?
+  city                 String?
+  university           String?
+  major                String?
+  industry             String?
+  certificateNo        String?
+  createdAt            DateTime                      @default(now())
+  verificationRequests IdentityVerificationRequest[]
 
   @@index([name])
   @@index([graduationClass])
   @@index([email])
+}
+
+model IdentityVerificationRequest {
+  id              String                    @id @default(uuid())
+  userId          String
+  user            User                      @relation("VerificationApplicant", fields: [userId], references: [id], onDelete: Cascade)
+  identityType    IdentityType
+  name            String
+  graduationClass String?
+  className       String?
+  teacherPosition String?
+  matchResult     VerificationMatchResult
+  matchedRosterId String?
+  matchedRoster   WhitelistRoster?          @relation(fields: [matchedRosterId], references: [id], onDelete: SetNull)
+  status          VerificationRequestStatus @default(PENDING)
+  adminNote       String?
+  reviewedById    String?
+  reviewedBy      User?                     @relation("VerificationReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewedAt      DateTime?
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+
+  @@index([userId, status])
+  @@index([status, createdAt])
+  @@index([matchedRosterId])
+  @@index([reviewedById])
 }
 
 model AlumniCorrectionRequest {
@@ -187,15 +241,22 @@ model Event {
 }
 
 model EventRegistration {
-  id        String   @id @default(uuid())
-  eventId   String
-  event     Event    @relation(fields: [eventId], references: [id])
-  name      String
-  contact   String?
-  message   String?
-  createdAt DateTime @default(now())
+  id          String                  @id @default(uuid())
+  eventId     String
+  event       Event                   @relation(fields: [eventId], references: [id])
+  userId      String?
+  user        User?                   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name        String
+  contact     String?
+  message     String?
+  status      EventRegistrationStatus @default(APPROVED)
+  cancelledAt DateTime?
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
 
-  @@index([eventId])
+  @@unique([eventId, userId])
+  @@index([eventId, status])
+  @@index([userId, status])
   @@index([createdAt])
 }
 
@@ -247,6 +308,44 @@ enum PostStatus {
   PENDING
   PUBLISHED
   REJECTED
+}
+
+enum IdentityType {
+  ALUMNI
+  STUDENT
+  TEACHER
+}
+
+enum VerificationStatus {
+  NOT_SUBMITTED
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum VerificationRequestStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum VerificationMatchResult {
+  MATCHED
+  CONFLICT
+  NOT_FOUND
+  NOT_APPLICABLE
+}
+
+enum ContactVisibility {
+  PRIVATE
+  VERIFIED_USERS
+}
+
+enum EventRegistrationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
 }
 
 model Story {

@@ -11,6 +11,7 @@ import { ChevronRight, Home } from 'lucide-react';
 const SEGMENT_LABELS: Record<string, string> = {
   admin: '控制台',
   users: '用户审核',
+  'identity-verifications': '身份认证',
   posts: '内容审核',
   news: '新闻管理',
   events: '活动管理',
@@ -22,6 +23,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   alumni: '校友名单',
   'alumni-corrections': '信息修改申请',
   registrations: '报名名单',
+  pending: '待审核',
   new: '新建',
 };
 
@@ -38,7 +40,7 @@ export function AdminBreadcrumb() {
   });
 
   return (
-    <nav aria-label="面包屑" className="mb-4 flex items-center gap-1.5 text-sm text-brand-fg/50">
+    <nav aria-label="面包屑" className="flex items-center gap-1.5 text-sm text-brand-fg/50">
       <Link href="/admin" className="inline-flex items-center gap-1 hover:text-brand transition-colors">
         <Home size={14} aria-hidden="true" />
         <span className="sr-only">控制台首页</span>

@@ -58,7 +58,7 @@ npm ci
 cat > .env << 'EOF'
 NODE_ENV="production"
 PORT="3000"
-DATABASE_URL="file:./prisma/dev.db"
+DATABASE_URL="file:./.tmp/build.db"
 SESSION_SECRET="build-temp-key-replace-in-production"
 APP_URL="http://localhost:3000"
 SITE_URL="http://localhost:3000"
@@ -69,10 +69,13 @@ EOF
 npx tsc --noEmit
 npm run lint
 npm run audit:prod
+mkdir -p .tmp
+touch .tmp/build.db
+npm run db:migrate:deploy
 npm run build
 ```
 
-`npm run build` 会执行 `prisma generate && prisma db push && prisma db seed && next build`。构建前确认 `DATABASE_URL` 指向的是构建用数据库，不要误连生产库。
+这里的 `db:migrate:deploy` 只在一次性构建库 `.tmp/build.db` 上应用已提交 migration，供 ISR 页面在构建期间读取空 schema。`npm run build` 本身只执行 `prisma generate && next build`，不会迁移 schema 或运行 seed。构建环境禁止使用生产 `DATABASE_URL`；seed 也不属于常规构建步骤。
 
 ### 3.3 打包部署文件
 
@@ -135,7 +138,7 @@ ROOT_ADMIN_EMAIL="yanchuaner@yanchuaner.cn"
 RESEND_API_KEY=""
 RESEND_FROM_EMAIL="燕中数字母港 <noreply@yanchuaner.cn>"
 UPLOAD_DIR="/var/www/alumni-site/uploads"
-BACKUP_DIR="/var/www/alumni-site/backups"
+BACKUP_DIR="/var/backups/alumni-site"
 UPSTASH_REDIS_REST_URL=""
 UPSTASH_REDIS_REST_TOKEN=""
 REDIS_URL=""
@@ -146,9 +149,62 @@ sudo chown www-data:www-data /var/www/alumni-site/.env
 sudo chmod 640 /var/www/alumni-site/.env
 ```
 
+### 4.1 首次纳管现有生产库（仅执行一次）
+
+本项目的现有生产库早于 Prisma migration 历史。首次部署包含 `prisma/migrations` 的版本时，不能直接应用 baseline，否则会尝试重复创建现有表。以下流程仅适用于“已有业务表、尚无 `_prisma_migrations` 表”的生产库；全新空库直接执行 `migrate deploy`。
+
+先从生产备份制作受控副本，在本次发布源码目录中演练。不要对仍在提供服务的生产文件做实验：
+
+```bash
+mkdir -p .tmp
+cp /secure/path/prod-copy.db .tmp/prod-migration-rehearsal.db
+export DATABASE_URL="file:./.tmp/prod-migration-rehearsal.db"
+
+npx prisma migrate diff \
+  --from-config-datasource \
+  --to-schema prisma/schema.prisma \
+  --script \
+  --output .tmp/prod-to-current.sql
+```
+
+人工审阅 `.tmp/prod-to-current.sql`。对本次首次纳管，它应当只包含 `WechatIdentity` 表、外键和索引的新增。若出现删除表/列、重建既有表或其他非预期差异，立即停止，不得执行 `migrate resolve`。
+
+差异确认后，只在副本上标记 baseline，并应用剩余增量：
+
+```bash
+npx prisma migrate resolve --applied 20260710000000_baseline
+npx prisma migrate deploy
+npx prisma migrate status
+npx prisma migrate diff \
+  --from-config-datasource \
+  --to-schema prisma/schema.prisma \
+  --exit-code
+```
+
+最后一条 diff 必须以状态码 0 结束，且副本的记录数、唯一约束、登录和后台关键路径检查必须通过。随后在首次生产发布窗口中，完成备份并停止服务，在真实生产库上重新生成 diff：
+
+```bash
+export DATABASE_URL="file:/var/www/alumni-site/data/prod.db"
+npx prisma migrate diff \
+  --from-config-datasource \
+  --to-schema prisma/schema.prisma \
+  --script \
+  --output /tmp/prod-to-current.sql
+```
+
+再次人工审阅 `/tmp/prod-to-current.sql`，确认与副本演练的预期增量一致后，才执行：
+
+```bash
+npx prisma migrate resolve --applied 20260710000000_baseline
+npx prisma migrate deploy
+npx prisma migrate status
+```
+
+只允许将 `20260710000000_baseline` 标记为已应用；不得手工 resolve `20260710001000_add_wechat_identity` 或后续增量。完成一次性纳管后，所有发布都只运行 `migrate deploy`。
+
 ## 5. 发布新版本
 
-每次发布前先备份数据库和上传文件。
+每次发布前先备份数据库和上传文件。若这是首次纳管既有生产库，必须先完成 4.1 节的副本演练和生产 baseline 标记。
 
 ```bash
 ssh root@<服务器IP>
@@ -185,7 +241,8 @@ chown -R www-data:www-data /var/www/alumni-site/app /var/www/alumni-site/uploads
 
 cd /var/www/alumni-site/app
 npm install prisma@7.8.0 --omit=dev
-DATABASE_URL="file:/var/www/alumni-site/data/prod.db" npx prisma db push
+DATABASE_URL="file:/var/www/alumni-site/data/prod.db" npx prisma migrate deploy
+DATABASE_URL="file:/var/www/alumni-site/data/prod.db" npx prisma migrate status
 
 # 历史身份字段仍带“届/班”后缀时执行；已清洗过的环境再次执行也应为 0 改动。
 DATABASE_URL="file:/var/www/alumni-site/data/prod.db" node scripts/normalize_identity_fields.js --dry-run
@@ -208,7 +265,7 @@ systemctl start alumni-site
 curl -s http://127.0.0.1:3000/api/health
 ```
 
-如果 schema 已经写入不兼容变更，需要同时从部署前备份恢复数据库。恢复生产数据库前先停止服务，并保留当前损坏现场备份。
+Prisma migration 是前向执行，不要用 `migrate resolve` 伪装回滚。如果 schema 已经写入不兼容变更，需要同时从部署前备份恢复数据库。恢复生产数据库前先停止服务，并保留当前损坏现场备份。
 
 ## 7. systemd
 
@@ -354,6 +411,8 @@ cron 示例：
 sudo crontab -e
 0 2 * * * /var/www/alumni-site/app/scripts/backup.sh >> /var/log/alumni-backup.log 2>&1
 ```
+
+`backup.sh` 使用 SQLite 在线备份 API，并在落盘后执行 `PRAGMA quick_check` 和 SHA-256 校验。本机 `/var/backups/alumni-site` 仍可能与生产数据位于同一块云盘；正式测试前必须再同步至少一份到独立云盘或对象存储，并定期从该副本执行恢复演练。
 
 ## 10. 上线后验证
 

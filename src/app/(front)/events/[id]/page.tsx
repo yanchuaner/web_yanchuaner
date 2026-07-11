@@ -1,6 +1,7 @@
 export const revalidate = 60;
 
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowLeft, Clock, MapPin, Users } from "lucide-react";
@@ -14,7 +15,7 @@ export async function generateMetadata({ params }: { params: IdRouteParams }): P
   const id = await getRouteId(params);
   const event = await prisma.event.findFirst({
     where: { id, status: "PUBLISHED" },
-    select: { title: true, summary: true },
+    select: { title: true, summary: true, coverImage: true },
   });
 
   if (!event) {
@@ -28,6 +29,11 @@ export async function generateMetadata({ params }: { params: IdRouteParams }): P
       title: event.title,
       description: event.summary || event.title,
       url: `${SITE_URL}/events/${id}`,
+      images: event.coverImage ? [event.coverImage] : ["/card.jpg"],
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: [event.coverImage || "/card.jpg"],
     },
   };
 }
@@ -67,6 +73,19 @@ export default async function EventDetailPage({ params }: { params: IdRouteParam
 
         <h1 className="font-heading text-2xl font-bold text-[#4C1D95] md:text-3xl">{event.title}</h1>
         {event.summary && <p className="mt-3 text-sm leading-7 text-gray-700 md:text-base">{event.summary}</p>}
+
+        {event.coverImage ? (
+          <div className="relative mt-6 aspect-video overflow-hidden rounded-card border border-line">
+            <Image
+              src={event.coverImage}
+              alt={event.title}
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 768px"
+              className="object-cover"
+            />
+          </div>
+        ) : null}
 
         <div className="mt-6 space-y-3 rounded-2xl border border-[#A78BFA]/20 bg-[#FAF5FF] p-5">
           <div className="flex items-center gap-3 text-sm text-gray-700">

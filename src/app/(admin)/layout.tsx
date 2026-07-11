@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Award, BarChart3, Users, FileText, Newspaper, CalendarDays, BookUser, FileEdit, Images, Home, Menu, X, LogOut, GraduationCap, Feather, User } from 'lucide-react';
+import { Award, BadgeCheck, BarChart3, Users, FileText, Newspaper, CalendarDays, BookUser, FileEdit, Images, Home, Menu, X, LogOut, GraduationCap, Feather, User } from 'lucide-react';
 import { cn } from '@/components/ui/cn';
 import { AdminBreadcrumb } from '@/components/admin/AdminBreadcrumb';
 import { useAuth } from '@/components/AuthProvider';
@@ -21,6 +21,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     heading: '审核',
     items: [
+      { href: '/admin/identity-verifications', label: '身份认证', icon: BadgeCheck },
       { href: '/admin/users', label: '用户审核', icon: Users },
       { href: '/admin/user-claims', label: '旧资料认领', icon: Users },
       { href: '/admin/stories/pending', label: '故事审核', icon: Feather },
@@ -185,7 +186,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Right-side content wrapper */}
-      <div className="flex min-h-screen flex-1 flex-col md:pl-64">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col md:pl-64">
         {/* Admin Header (Z-index: 30) */}
         <header className="sticky top-0 z-30 flex min-h-16 flex-wrap items-center justify-between gap-3 border-b border-white/5 bg-[#05030e]/85 px-4 py-3 backdrop-blur-md sm:h-16 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
@@ -231,7 +232,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </header>
 
         {/* Main Content Area */}
-        <main id="main" className="flex-1 p-4 md:p-8">
+        <main id="main" className="min-w-0 max-w-full flex-1 p-4 md:p-8">
           {children}
         </main>
 

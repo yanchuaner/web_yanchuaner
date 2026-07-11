@@ -30,3 +30,25 @@ export async function getCachedOrFetch<T>(
 
   return data;
 }
+
+export async function invalidateCachePrefix(prefix: string): Promise<void> {
+  const redis = getRedisClient();
+  if (!redis) return;
+
+  try {
+    let cursor = '0';
+    do {
+      const [nextCursor, keys] = await redis.scan(
+        cursor,
+        'MATCH',
+        `${prefix}*`,
+        'COUNT',
+        100,
+      );
+      if (keys.length > 0) await redis.del(...keys);
+      cursor = nextCursor;
+    } while (cursor !== '0');
+  } catch {
+    // Cache invalidation failure falls back to the short TTL.
+  }
+}

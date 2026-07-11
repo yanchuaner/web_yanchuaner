@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Toaster } from "sonner";
 import UUIDCompat from "@/components/UUIDCompat";
 import AuthProvider from "@/components/AuthProvider";
-import { InteractiveStarfield } from "@/components/ui";
 import "./globals.css";
 
 const SITE_URL = process.env.SITE_URL || "https://yanchuaner.cn";
@@ -88,14 +87,19 @@ export default function RootLayout({
         </a>
         <AuthProvider>
           <UUIDCompat />
-          <div className="relative min-h-[100dvh] overflow-hidden bg-gradient-to-b from-[#FAF5FF] to-[#F3E8FF]">
+          <div className="relative min-h-[100dvh] overflow-hidden bg-[var(--color-background)]">
             {/* 全局宇宙氛围背景（使所有子页面的磨砂玻璃卡片背后折射出流星与星空） */}
             <div
               className="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-60"
               aria-hidden="true"
             >
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_15%,rgba(124,58,237,0.06),transparent_40%),radial-gradient(circle_at_85%_80%,rgba(167,139,250,0.08),transparent_40%)]" />
-              <InteractiveStarfield />
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    "radial-gradient(circle at 10% 15%, rgb(var(--brand-rgb) / 0.06), transparent 40%), radial-gradient(circle at 85% 80%, rgb(var(--brand-soft-rgb) / 0.08), transparent 40%)",
+                }}
+              />
               <div className="meteor-layer absolute inset-0 opacity-[0.10]" />
             </div>
 
@@ -106,20 +110,20 @@ export default function RootLayout({
             position="top-right"
             toastOptions={{
               style: {
-                background: "rgba(15, 10, 29, 0.85)",
+                background: "rgb(var(--surface-rgb) / 0.92)",
                 backdropFilter: "blur(12px)",
                 WebkitBackdropFilter: "blur(12px)",
-                border: "1px solid rgba(168, 85, 247, 0.30)",
-                color: "#e9d5ff",
+                border: "1px solid rgb(var(--brand-rgb) / 0.30)",
+                color: "var(--color-text)",
                 borderRadius: "12px",
-                boxShadow: "0 8px 32px rgba(124, 58, 237, 0.20), 0 0 0 1px rgba(168,85,247,0.10)",
+                boxShadow: "0 8px 32px rgb(var(--brand-rgb) / 0.20)",
                 fontSize: "14px",
               },
               classNames: {
-                title: "text-purple-100 font-semibold",
-                description: "text-purple-300/80 text-xs mt-0.5",
-                actionButton: "bg-purple-600 text-white hover:bg-purple-500",
-                cancelButton: "bg-purple-900/50 text-purple-200",
+                title: "text-brand-fg font-semibold",
+                description: "text-brand-fg/70 text-xs mt-0.5",
+                actionButton: "bg-brand text-surface-muted hover:bg-brand/85",
+                cancelButton: "bg-surface-muted/70 text-brand-fg",
               },
             }}
           />
