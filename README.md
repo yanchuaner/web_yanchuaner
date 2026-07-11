@@ -236,6 +236,7 @@ npm run build
 | [docs/TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md) | 常见故障排查 |
 | [docs/ui-guide.md](./docs/ui-guide.md) | UI 组件、设计令牌、导航和后台 CRUD 约定 |
 | [docs/roadmap-decisions.md](./docs/roadmap-decisions.md) | TODO 收口、缓存、隐私、对象存储与依赖升级决策 |
+| [docs/starfield-contribution.md](./docs/starfield-contribution.md) | 星空彩蛋设计、点阵编队架构与专项共建指南 |
 
 ## 贡献方式
 
