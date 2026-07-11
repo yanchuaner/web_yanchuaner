@@ -13,9 +13,13 @@ import styles from "./StarfieldExperience.module.css";
 
 type FlightState =
   | "idle"
-  | "crewGather"
-  | "assembly"
+  | "personGather"
+  | "personAwake"
+  | "starCatch"
+  | "rocketTrace"
+  | "welding"
   | "rocketReady"
+  | "personDissolve"
   | "ignition"
   | "launching"
   | "constellationGather"
@@ -27,21 +31,29 @@ type FlightState =
 const SPEED_LINES = [12, 21, 31, 43, 55, 67, 77, 88];
 const LAUNCH_COUNT_KEY = "yc-starfield-launch-count";
 const PERFORMANCE_TIMELINE = {
-  assembly: 1700,
-  rocketReady: 4700,
-  ignition: 6200,
-  launching: 7000,
-  constellationGather: 9300,
-  constellationConnect: 11300,
-  constellationGlow: 13000,
-  reveal: 14300,
-  complete: 15800,
+  personAwake: 3000,
+  starCatch: 6200,
+  rocketTrace: 9400,
+  welding: 13200,
+  rocketReady: 17400,
+  personDissolve: 20400,
+  ignition: 22600,
+  launching: 24400,
+  constellationGather: 26900,
+  constellationConnect: 28800,
+  constellationGlow: 30400,
+  reveal: 31800,
+  complete: 33500,
 } as const;
 
 const STAGE_LABELS: Partial<Record<FlightState, string>> = {
-  crewGather: "星光集结",
-  assembly: "共同建造",
+  personGather: "星光成形",
+  personAwake: "仰望星光",
+  starCatch: "接住微光",
+  rocketTrace: "绘出航向",
+  welding: "点亮梦想",
   rocketReady: "整装待发",
+  personDissolve: "星光相承",
   ignition: "点火程序",
   launching: "奔赴群星",
   constellationGather: "群星归位",
@@ -96,10 +108,14 @@ export function StarfieldExperience() {
       return;
     }
 
-    setFlightState("crewGather");
+    setFlightState("personGather");
     timersRef.current.push(
-      setTimeout(() => setFlightState("assembly"), PERFORMANCE_TIMELINE.assembly),
+      setTimeout(() => setFlightState("personAwake"), PERFORMANCE_TIMELINE.personAwake),
+      setTimeout(() => setFlightState("starCatch"), PERFORMANCE_TIMELINE.starCatch),
+      setTimeout(() => setFlightState("rocketTrace"), PERFORMANCE_TIMELINE.rocketTrace),
+      setTimeout(() => setFlightState("welding"), PERFORMANCE_TIMELINE.welding),
       setTimeout(() => setFlightState("rocketReady"), PERFORMANCE_TIMELINE.rocketReady),
+      setTimeout(() => setFlightState("personDissolve"), PERFORMANCE_TIMELINE.personDissolve),
       setTimeout(() => setFlightState("ignition"), PERFORMANCE_TIMELINE.ignition),
       setTimeout(() => setFlightState("launching"), PERFORMANCE_TIMELINE.launching),
       setTimeout(() => setFlightState("constellationGather"), PERFORMANCE_TIMELINE.constellationGather),
@@ -132,19 +148,27 @@ export function StarfieldExperience() {
     flightState === "constellationGlow" ||
     messageVisible;
   const workshopStage: WorkshopStage =
-    flightState === "crewGather"
-      ? "crew"
-      : flightState === "assembly"
-        ? "assembly"
-        : flightState === "rocketReady"
-          ? "ready"
-          : flightState === "ignition"
-            ? "ignition"
-            : flightState === "launching"
-              ? "launching"
-              : launchFinished
-                ? "departed"
-                : "hidden";
+    flightState === "personGather"
+      ? "personGather"
+      : flightState === "personAwake"
+        ? "awaken"
+        : flightState === "starCatch"
+          ? "catch"
+          : flightState === "rocketTrace"
+            ? "trace"
+            : flightState === "welding"
+              ? "welding"
+              : flightState === "rocketReady"
+                ? "ready"
+                : flightState === "personDissolve"
+                  ? "dissolve"
+                  : flightState === "ignition"
+                    ? "ignition"
+                    : flightState === "launching"
+                      ? "launching"
+                      : launchFinished
+                        ? "departed"
+                        : "hidden";
   const constellationStage: ConstellationStage =
     flightState === "constellationGather"
       ? "gather"
@@ -264,9 +288,13 @@ export function StarfieldExperience() {
       ) : null}
 
       <p className="sr-only" aria-live="assertive">
-        {flightState === "crewGather" ? "星光工程师正在集结" : null}
-        {flightState === "assembly" ? "大家正在共同建造火箭" : null}
+        {flightState === "personGather" ? "星光正在组成一位仰望天空的少年" : null}
+        {flightState === "personAwake" ? "少年抬头望向远方的星光" : null}
+        {flightState === "starCatch" ? "少年伸手接住一颗星" : null}
+        {flightState === "rocketTrace" ? "掌心星光正在绘出火箭轮廓" : null}
+        {flightState === "welding" ? "少年俯身点亮火箭" : null}
         {flightState === "rocketReady" ? "火箭已经整装待发" : null}
+        {flightState === "personDissolve" ? "少年化作星流汇入火箭" : null}
         {flightState === "ignition" ? "火箭正在点火" : null}
         {flightState === "launching" ? "火箭正在升空" : null}
         {flightState === "constellationGather" ? "星光正在汇聚" : null}
