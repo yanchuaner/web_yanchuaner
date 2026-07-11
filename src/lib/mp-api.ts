@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+export const MP_API_VERSION = "1";
+
 export const MP_ERROR_CODES = {
   AUTH_REQUIRED: "MP_AUTH_REQUIRED",
   AUTH_HEADER_INVALID: "MP_AUTH_HEADER_INVALID",
@@ -45,6 +47,7 @@ export type MpErrorBody = {
 function noStoreHeaders(headers?: HeadersInit) {
   const result = new Headers(headers);
   result.set("Cache-Control", "no-store");
+  result.set("X-MP-API-Version", MP_API_VERSION);
   return result;
 }
 
@@ -61,15 +64,18 @@ export function mpError(
   status: number,
   init: Omit<ResponseInit, "status"> = {},
 ) {
+  const requestId = crypto.randomUUID();
+  const headers = noStoreHeaders(init.headers);
+  headers.set("X-Request-ID", requestId);
   return NextResponse.json<MpErrorBody>(
     {
       ok: false,
       error: {
         code,
         message,
-        requestId: crypto.randomUUID(),
+        requestId,
       },
     },
-    { ...init, status, headers: noStoreHeaders(init.headers) },
+    { ...init, status, headers },
   );
 }

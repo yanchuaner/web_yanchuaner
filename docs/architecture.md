@@ -87,6 +87,7 @@
 
 - 网站接口使用 httpOnly Cookie，并返回网站既有 JSON 结构。
 - 小程序接口使用 Bearer Token，并通过 `mpSuccess` / `mpError` 返回统一信封。
+- 跨端 DTO、端点注册表和兼容规则由 `src/lib/mp-contract.ts` 与 `docs/mp-api-contract.md` 固化；所有响应携带 `X-MP-API-Version`。
 - 已发布新闻和活动的列表、详情查询统一由 `src/lib/published-content.ts` 提供。
 - 活动报名状态机统一由 `src/lib/event-registration.ts` 提供。
 - API Route 只负责鉴权、参数解析和响应格式，不再复制数据库查询与业务规则。

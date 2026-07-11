@@ -50,6 +50,9 @@ jobs:
       - name: Test mini program auth contract
         run: npm run test:mp-auth
 
+      - name: Test mini program API contract
+        run: npm run test:mp-contract
+
       - name: Lint
         run: npm run lint
 

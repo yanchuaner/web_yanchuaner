@@ -41,6 +41,8 @@ SMOKE_PASSWORD="<管理员密码>" \
 npm run smoke
 ```
 
+涉及账号、认证、活动报名或小程序 API 时，必须在隔离数据库执行 [acceptance-plan.md](acceptance-plan.md) 的自动化闭环。
+
 ## 3. 数据安全
 
 - [ ] 本地 `prisma/dev.db` 可能是真实数据，测试脚本不要打印完整姓名、邮箱、手机号、token 或密码哈希。
@@ -60,6 +62,7 @@ npm ci
 npx tsc --noEmit
 npm run lint
 npm run audit:prod
+npm run test:mp-contract
 mkdir -p .tmp
 npm run db:migrate:deploy
 npm run build

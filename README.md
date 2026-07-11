@@ -226,6 +226,9 @@ npm run build
 | [docs/architecture.md](./docs/architecture.md) | 架构、请求生命周期、数据库解耦、缓存与地图聚合 |
 | [docs/security.md](./docs/security.md) | Payload 限制、IDOR、防 CSRF 同源校验、Token、限流、上传安全 |
 | [docs/deployment.md](./docs/deployment.md) | Windows 开发、WSL/Linux 构建、服务器部署、systemd、Nginx、备份 |
+| [docs/staging-deployment.md](./docs/staging-deployment.md) | 隔离测试环境、Docker Compose 与候选版本门槛 |
+| [docs/acceptance-plan.md](./docs/acceptance-plan.md) | 自动化全流程验收与 5-50 人试运营矩阵 |
+| [docs/mp-api-contract.md](./docs/mp-api-contract.md) | 网站、小程序与后续 App 的 API v1 契约 |
 | [docs/launch-checklist.md](./docs/launch-checklist.md) | 上线前后检查清单 |
 | [docs/operations-guide.md](./docs/operations-guide.md) | 本地开发、环境变量、数据库、脚本、CSV、上传和日常运维 |
 | [docs/admin-guide.md](./docs/admin-guide.md) | 管理员后台操作手册 |
