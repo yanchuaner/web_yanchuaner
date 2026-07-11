@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import styles from "./RocketWorkshop.module.css";
 
 export type WorkshopStage =
@@ -12,153 +11,289 @@ export type WorkshopStage =
   | "launching"
   | "departed";
 
-type RocketWorkshopProps = {
-  stage: WorkshopStage;
-  assetSrc?: string;
+type Coordinate = [number, number];
+type StarTone = "white" | "cyan" | "amber" | "violet";
+type StarTarget = {
+  x: number;
+  y: number;
+  opacity: number;
+  scale: number;
+  tone: StarTone;
 };
 
-const SPARKS = Array.from({ length: 18 }, (_, index) => ({
-  angle: index * 47 + 12,
-  distance: 24 + (index % 5) * 9,
-  delay: (index % 7) * 70,
-}));
+const STAR_COUNT = 340;
 
-function CrewMember({ className, mirrored = false }: { className: string; mirrored?: boolean }) {
-  return (
-    <g className={`${styles.crewMember} ${className}`} data-mirrored={mirrored || undefined}>
-      <circle className={styles.crewHead} cx="0" cy="-64" r="14" />
-      <path className={styles.crewBody} d="M 0 -48 L 0 8 M 0 -27 L -29 -2 M 0 -27 L 29 -6 M 0 8 L -22 49 M 0 8 L 24 49" />
-      <path className={styles.crewPack} d="M -15 -42 Q -30 -33 -26 -9 L -9 -12" />
-      <circle className={styles.crewLight} cx="5" cy="-67" r="3.5" />
-      <g className={styles.toolArm}>
-        <path d="M 27 -7 L 51 -28" />
-        <path className={styles.tool} d="M 47 -34 L 60 -21 M 54 -40 L 66 -28" />
-      </g>
-    </g>
-  );
+function target([x, y]: Coordinate, tone: StarTone, opacity = 1, scale = 1): StarTarget {
+  return { x, y, tone, opacity, scale };
 }
 
-export function RocketWorkshop({ stage, assetSrc }: RocketWorkshopProps) {
-  const sparks = useMemo(() => SPARKS, []);
+function linePoints(
+  start: Coordinate,
+  end: Coordinate,
+  count: number,
+  tone: StarTone = "white",
+  opacity = 1,
+  scale = 1,
+) {
+  return Array.from({ length: count }, (_, index) => {
+    const progress = count === 1 ? 0 : index / (count - 1);
+    return target([
+      start[0] + (end[0] - start[0]) * progress,
+      start[1] + (end[1] - start[1]) * progress,
+    ], tone, opacity, scale);
+  });
+}
+
+function polylinePoints(
+  nodes: Coordinate[],
+  pointsPerSegment: number,
+  tone: StarTone = "white",
+  opacity = 1,
+  scale = 1,
+) {
+  return nodes.flatMap((node, index) => {
+    const next = nodes[index + 1];
+    return next ? linePoints(node, next, pointsPerSegment, tone, opacity, scale) : [];
+  });
+}
+
+function ellipsePoints(
+  cx: number,
+  cy: number,
+  rx: number,
+  ry: number,
+  count: number,
+  tone: StarTone = "white",
+  opacity = 1,
+  scale = 1,
+  startAngle = -Math.PI / 2,
+  sweep = Math.PI * 2,
+) {
+  return Array.from({ length: count }, (_, index) => {
+    const angle = startAngle + (sweep * index) / Math.max(1, count - 1);
+    return target([cx + Math.cos(angle) * rx, cy + Math.sin(angle) * ry], tone, opacity, scale);
+  });
+}
+
+function quadraticPoints(
+  start: Coordinate,
+  control: Coordinate,
+  end: Coordinate,
+  count: number,
+  tone: StarTone = "white",
+) {
+  return Array.from({ length: count }, (_, index) => {
+    const t = index / Math.max(1, count - 1);
+    const inverse = 1 - t;
+    return target([
+      inverse * inverse * start[0] + 2 * inverse * t * control[0] + t * t * end[0],
+      inverse * inverse * start[1] + 2 * inverse * t * control[1] + t * t * end[1],
+    ], tone);
+  });
+}
+
+function personPoints(
+  cx: number,
+  baseline: number,
+  scale: number,
+  facing: -1 | 1,
+  working: boolean,
+) {
+  const point = (x: number, y: number): Coordinate => [cx + x * scale, baseline + y * scale];
+  const shoulder = point(0, -105);
+  const innerHand = working ? point(63 * facing, -88) : point(34 * facing, -48);
+  const outerHand = working ? point(-32 * facing, -72) : point(-38 * facing, -42);
+
+  return [
+    ...ellipsePoints(cx, baseline - 142 * scale, 19 * scale, 20 * scale, 14, "cyan", 1, 1.12),
+    ...linePoints(point(0, -120), point(0, -48), 8, "white"),
+    ...polylinePoints([shoulder, point(28 * facing, -96), innerHand], 6, "white"),
+    ...polylinePoints([shoulder, point(-24 * facing, -90), outerHand], 6, "white"),
+    ...linePoints(point(0, -48), point(-27, 0), 7, "white"),
+    ...linePoints(point(0, -48), point(28, 0), 7, "white"),
+    ...linePoints(point(-13, -112), point(-24, -72), 5, "violet", 0.72, 0.82),
+  ];
+}
+
+function rocketCorePoints(includeDetails: boolean) {
+  const points: StarTarget[] = [
+    ...quadraticPoints([350, 132], [292, 190], [282, 342], 27, "cyan"),
+    ...linePoints([282, 342], [282, 510], 22, "white"),
+    ...linePoints([282, 510], [350, 566], 18, "violet"),
+    ...quadraticPoints([350, 132], [408, 190], [418, 342], 27, "cyan"),
+    ...linePoints([418, 342], [418, 510], 22, "white"),
+    ...linePoints([418, 510], [350, 566], 18, "violet"),
+    ...polylinePoints([[282, 396], [232, 448], [222, 558], [282, 510]], 10, "cyan"),
+    ...polylinePoints([[418, 396], [468, 448], [478, 558], [418, 510]], 10, "cyan"),
+    ...polylinePoints([[316, 544], [322, 594], [378, 594], [384, 544]], 8, "amber"),
+  ];
+
+  if (includeDetails) {
+    points.push(
+      ...ellipsePoints(350, 302, 43, 43, 26, "cyan", 1, 1.08),
+      ...ellipsePoints(350, 302, 24, 24, 16, "white", 0.94, 0.86),
+      ...linePoints([290, 382], [410, 382], 17, "amber", 0.96, 1.08),
+      ...linePoints([296, 420], [404, 420], 15, "violet", 0.9),
+      ...ellipsePoints(350, 474, 24, 24, 16, "amber", 0.95, 0.9),
+      ...linePoints([326, 474], [374, 474], 9, "amber", 0.92, 0.86),
+      ...linePoints([350, 450], [350, 498], 9, "amber", 0.92, 0.86),
+    );
+  }
+
+  return points;
+}
+
+function ambientPoints(count: number, salt: number) {
+  return Array.from({ length: count }, (_, index) => {
+    const x = 72 + ((index * 89 + salt * 43) % 556);
+    const y = 92 + ((index * 137 + salt * 61) % 570);
+    const opacity = 0.1 + ((index * 17 + salt) % 15) / 100;
+    const tone: StarTone = index % 9 === 0 ? "amber" : index % 4 === 0 ? "cyan" : "white";
+    return target([x, y], tone, opacity, 0.56 + (index % 4) * 0.08);
+  });
+}
+
+function normalizeFormation(points: StarTarget[], salt: number) {
+  if (points.length >= STAR_COUNT) {
+    return Array.from({ length: STAR_COUNT }, (_, index) =>
+      points[Math.floor((index * points.length) / STAR_COUNT)],
+    );
+  }
+  return [...points, ...ambientPoints(STAR_COUNT - points.length, salt)];
+}
+
+function alignFormation(previous: StarTarget[], next: StarTarget[]) {
+  const remaining = [...next];
+  return previous.map((source) => {
+    let closestIndex = 0;
+    let closestDistance = Number.POSITIVE_INFINITY;
+    remaining.forEach((candidate, index) => {
+      const distance = (candidate.x - source.x) ** 2 + (candidate.y - source.y) ** 2;
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestIndex = index;
+      }
+    });
+    return remaining.splice(closestIndex, 1)[0];
+  });
+}
+
+function buildScatterFormation() {
+  return Array.from({ length: STAR_COUNT }, (_, index) => {
+    const angle = ((index * 137.508 + 29) * Math.PI) / 180;
+    const radius = 190 + ((index * 53) % 310);
+    return target([
+      350 + Math.cos(angle) * radius,
+      382 + Math.sin(angle) * radius,
+    ], index % 13 === 0 ? "amber" : index % 5 === 0 ? "cyan" : "white", 0.08, 0.45);
+  });
+}
+
+function buildCrewFormation() {
+  const points = [
+    ...personPoints(110, 620, 0.82, 1, false),
+    ...personPoints(255, 630, 0.92, 1, false),
+    ...personPoints(445, 630, 0.92, -1, false),
+    ...personPoints(590, 620, 0.82, -1, false),
+    ...ellipsePoints(350, 642, 282, 28, 48, "violet", 0.64, 0.72),
+    ...ellipsePoints(350, 356, 286, 236, 44, "cyan", 0.34, 0.66, Math.PI * 1.08, Math.PI * 0.84),
+  ];
+  return normalizeFormation(points, 11);
+}
+
+function buildAssemblyFormation() {
+  const points = [
+    ...personPoints(92, 630, 0.72, 1, true),
+    ...personPoints(214, 638, 0.78, 1, true),
+    ...personPoints(486, 638, 0.78, -1, true),
+    ...personPoints(608, 630, 0.72, -1, true),
+    ...rocketCorePoints(false),
+    ...ellipsePoints(350, 382, 112, 154, 34, "cyan", 0.42, 0.72),
+    ...ellipsePoints(350, 418, 176, 206, 30, "violet", 0.26, 0.6),
+    ...Array.from({ length: 22 }, (_, index) => {
+      const angle = ((index * 67 + 14) * Math.PI) / 180;
+      const radius = 18 + (index % 5) * 11;
+      return target([
+        350 + Math.cos(angle) * radius,
+        410 + Math.sin(angle) * radius,
+      ], "amber", 1, 1.15);
+    }),
+  ];
+  return normalizeFormation(points, 23);
+}
+
+function buildReadyFormation() {
+  const points = [
+    ...rocketCorePoints(true),
+    ...ellipsePoints(350, 644, 156, 24, 44, "cyan", 0.72, 0.86),
+    ...ellipsePoints(350, 644, 224, 36, 52, "violet", 0.46, 0.72),
+    ...ellipsePoints(350, 370, 238, 282, 54, "cyan", 0.22, 0.58),
+  ];
+  return normalizeFormation(points, 37);
+}
+
+function buildIgnitionFormation() {
+  const flame = [
+    ...polylinePoints([[326, 586], [336, 642], [350, 718]], 14, "amber", 1, 1.18),
+    ...polylinePoints([[374, 586], [364, 642], [350, 718]], 14, "amber", 1, 1.18),
+    ...polylinePoints([[340, 590], [346, 654], [350, 690]], 12, "white", 1, 1.08),
+    ...polylinePoints([[360, 590], [354, 654], [350, 690]], 12, "cyan", 1, 1.08),
+  ];
+  const points = [
+    ...rocketCorePoints(true),
+    ...flame,
+    ...ellipsePoints(350, 648, 112, 20, 34, "cyan", 0.86, 0.92),
+    ...ellipsePoints(350, 652, 204, 38, 42, "violet", 0.5, 0.76),
+  ];
+  return normalizeFormation(points, 49);
+}
+
+const scatterFormation = buildScatterFormation();
+const crewFormation = alignFormation(scatterFormation, buildCrewFormation());
+const assemblyFormation = alignFormation(crewFormation, buildAssemblyFormation());
+const readyFormation = alignFormation(assemblyFormation, buildReadyFormation());
+const ignitionFormation = alignFormation(readyFormation, buildIgnitionFormation());
+const launchingFormation = alignFormation(ignitionFormation, buildIgnitionFormation());
+
+const FORMATIONS: Record<WorkshopStage, StarTarget[]> = {
+  hidden: scatterFormation,
+  crew: crewFormation,
+  assembly: assemblyFormation,
+  ready: readyFormation,
+  ignition: ignitionFormation,
+  launching: launchingFormation,
+  departed: launchingFormation,
+};
+
+export function RocketWorkshop({ stage }: { stage: WorkshopStage }) {
+  const formation = FORMATIONS[stage];
 
   return (
     <div className={styles.frame} data-stage={stage} aria-hidden="true">
-      <svg className={styles.workshop} viewBox="0 0 700 800" role="presentation">
-        <defs>
-          <linearGradient id="rocket-shell" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="rgb(var(--brand-fg-rgb))" />
-            <stop offset="0.52" stopColor="rgb(var(--brand-rgb))" />
-            <stop offset="1" stopColor="rgb(var(--space-cyan-rgb))" />
-          </linearGradient>
-          <linearGradient id="rocket-fin" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="rgb(var(--space-cyan-rgb))" />
-            <stop offset="1" stopColor="rgb(var(--brand-rgb))" />
-          </linearGradient>
-          <radialGradient id="rocket-window">
-            <stop offset="0" stopColor="rgb(var(--brand-fg-rgb))" />
-            <stop offset="0.45" stopColor="rgb(var(--space-cyan-rgb))" />
-            <stop offset="1" stopColor="rgb(var(--surface-muted-rgb))" />
-          </radialGradient>
-          <linearGradient id="rocket-flame" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="rgb(var(--brand-fg-rgb))" />
-            <stop offset="0.35" stopColor="rgb(var(--space-cyan-rgb))" />
-            <stop offset="0.72" stopColor="rgb(var(--space-amber-rgb))" />
-            <stop offset="1" stopColor="rgb(var(--space-orange-rgb) / 0)" />
-          </linearGradient>
-        </defs>
-
-        <g className={styles.blueprintGrid}>
-          {[160, 220, 280, 340, 400, 460, 520, 580].map((x) => <path key={`v-${x}`} d={`M ${x} 108 V 676`} />)}
-          {[150, 210, 270, 330, 390, 450, 510, 570, 630].map((y) => <path key={`h-${y}`} d={`M 118 ${y} H 582`} />)}
-          <circle cx="350" cy="370" r="176" />
-          <circle cx="350" cy="370" r="118" />
-        </g>
-
-        <g className={styles.energyRings}>
-          <ellipse cx="350" cy="656" rx="196" ry="34" />
-          <ellipse cx="350" cy="656" rx="132" ry="22" />
-          <ellipse cx="350" cy="656" rx="72" ry="12" />
-        </g>
-
-        <g className={styles.scaffold}>
-          <path d="M 183 644 V 238 M 517 644 V 238 M 164 644 H 536" />
-          <path d="M 183 286 H 260 M 440 286 H 517 M 183 404 H 258 M 442 404 H 517 M 183 520 H 250 M 450 520 H 517" />
-          <path d="M 183 260 L 222 286 L 183 312 M 517 260 L 478 286 L 517 312 M 183 378 L 222 404 L 183 430 M 517 378 L 478 404 L 517 430" />
-        </g>
-
-        <g className={styles.crewGroup}>
-          <CrewMember className={styles.crewOne} />
-          <CrewMember className={styles.crewTwo} mirrored />
-          <CrewMember className={styles.crewThree} />
-          <CrewMember className={styles.crewFour} mirrored />
-        </g>
-
-        <g className={styles.blueprintRocket}>
-          <path d="M 350 142 C 302 194 286 261 286 354 V 520 L 350 566 L 414 520 V 354 C 414 261 398 194 350 142 Z" />
-          <path d="M 286 413 C 242 448 226 510 234 571 L 286 524 M 414 413 C 458 448 474 510 466 571 L 414 524" />
-          <circle cx="350" cy="304" r="44" />
-          <path d="M 306 383 H 394 M 318 548 L 318 588 M 350 566 L 350 604 M 382 548 L 382 588" />
-        </g>
-
-        <g className={styles.rocketFlight}>
-          <g className={styles.rocketBody}>
-            <path className={`${styles.rocketPart} ${styles.nose}`} d="M 350 142 C 315 180 298 222 290 272 H 410 C 402 222 385 180 350 142 Z" />
-            <path className={`${styles.rocketPart} ${styles.shell}`} d="M 290 272 H 410 C 414 298 414 324 414 354 V 520 L 350 566 L 286 520 V 354 C 286 324 286 298 290 272 Z" />
-            <path className={`${styles.rocketPart} ${styles.leftFin}`} d="M 286 413 C 242 448 226 510 234 571 L 286 524 Z" />
-            <path className={`${styles.rocketPart} ${styles.rightFin}`} d="M 414 413 C 458 448 474 510 466 571 L 414 524 Z" />
-            <path className={`${styles.rocketPart} ${styles.band}`} d="M 287 381 Q 350 397 413 381 V 421 Q 350 437 287 421 Z" />
-            <circle className={`${styles.rocketPart} ${styles.window}`} cx="350" cy="304" r="43" />
-            <circle className={`${styles.rocketPart} ${styles.windowRim}`} cx="350" cy="304" r="51" />
-            <path className={`${styles.rocketPart} ${styles.nozzle}`} d="M 316 544 H 384 L 374 588 H 326 Z" />
-            <path className={`${styles.rocketPart} ${styles.brandSlot}`} d="M 330 454 H 370 V 494 H 330 Z" />
-            {assetSrc ? (
-              <image
-                className={styles.realAsset}
-                href={assetSrc}
-                x="224"
-                y="128"
-                width="252"
-                height="468"
-                preserveAspectRatio="xMidYMid meet"
-              />
-            ) : null}
-          </g>
-
-          <g className={styles.flameGroup}>
-            <path className={styles.outerFlame} d="M 326 578 Q 350 702 374 578 Z" />
-            <path className={styles.innerFlame} d="M 338 578 Q 350 660 362 578 Z" />
-          </g>
-
-          <g className={styles.exhaustCloud}>
-            <circle cx="350" cy="650" r="34" />
-            <circle cx="303" cy="662" r="28" />
-            <circle cx="397" cy="662" r="28" />
-            <circle cx="260" cy="676" r="20" />
-            <circle cx="440" cy="676" r="20" />
-          </g>
-        </g>
-
-        <g className={styles.weldingSparks}>
-          {sparks.map((spark, index) => (
-            <circle
+      <svg className={styles.stage} viewBox="0 0 700 800" role="presentation">
+        <g className={styles.formation}>
+          {formation.map((star, index) => (
+            <g
               key={index}
-              cx="350"
-              cy="414"
-              r={index % 4 === 0 ? 4 : 2.4}
+              className={styles.starPosition}
               style={{
-                "--spark-angle": `${spark.angle}deg`,
-                "--spark-distance": `${spark.distance}px`,
-                "--spark-delay": `${spark.delay}ms`,
+                "--star-x": `${star.x}px`,
+                "--star-y": `${star.y}px`,
+                "--star-opacity": star.opacity,
+                "--star-scale": star.scale,
+                "--move-delay": `${(index % 17) * 7}ms`,
               } as React.CSSProperties}
-            />
+            >
+              <circle
+                className={`${styles.star} ${styles[star.tone]}`}
+                r={index % 19 === 0 ? 5.4 : index % 7 === 0 ? 4.2 : 3.2}
+                style={{
+                  "--twinkle-delay": `${-((index * 83) % 2100)}ms`,
+                  "--twinkle-duration": `${1500 + (index % 9) * 170}ms`,
+                } as React.CSSProperties}
+              />
+            </g>
           ))}
-        </g>
-
-        <g className={styles.launchPad}>
-          <path d="M 238 646 H 462 L 492 678 H 208 Z" />
-          <path d="M 276 646 L 300 612 H 400 L 424 646" />
-          <circle cx="236" cy="662" r="5" />
-          <circle cx="464" cy="662" r="5" />
         </g>
       </svg>
     </div>
