@@ -41,6 +41,8 @@ SMOKE_PASSWORD="<管理员密码>" \
 npm run smoke
 ```
 
+涉及账号、认证、活动报名或小程序 API 时，必须在隔离数据库执行 [acceptance-plan.md](acceptance-plan.md) 的自动化闭环。
+
 ## 3. 数据安全
 
 - [ ] 本地 `prisma/dev.db` 可能是真实数据，测试脚本不要打印完整姓名、邮箱、手机号、token 或密码哈希。
@@ -52,7 +54,7 @@ npm run smoke
 
 - [ ] 从 Windows 项目复制到 WSL 原生文件系统，例如 `~/web_yanchuaner`。
 - [ ] 删除 Windows 的 `node_modules`，用 Linux 重新安装依赖。
-- [ ] 确认 `.env` 指向构建用数据库，不指向生产数据库。
+- [ ] 确认 `.env` 指向一次性构建数据库（推荐 `file:./.tmp/build.db`），不指向生产数据库。
 - [ ] 执行：
 
 ```bash
@@ -60,8 +62,13 @@ npm ci
 npx tsc --noEmit
 npm run lint
 npm run audit:prod
+npm run test:mp-contract
+mkdir -p .tmp
+npm run db:migrate:deploy
 npm run build
 ```
+
+- [ ] 确认 `npm run build` 未隐式执行 migration、`db:push` 或 seed；上面的 `db:migrate:deploy` 只作用于一次性构建库。
 
 - [ ] 打包 `.next/standalone`、`.next/static`、`public`、`prisma`、`prisma.config.ts`、`scripts`。
 
@@ -71,7 +78,9 @@ npm run build
 - [ ] 新版本部署到 `/var/www/alumni-site/app`，旧版本保留为 `/var/www/alumni-site/app.old`。
 - [ ] `/var/www/alumni-site/app/.env` 软链接到 `/var/www/alumni-site/.env`。
 - [ ] `/var/www/alumni-site/app/public/uploads` 指向 `/var/www/alumni-site/uploads`。
-- [ ] 执行 `DATABASE_URL="file:/var/www/alumni-site/data/prod.db" npx prisma db push`。
+- [ ] 既有生产库首次纳管 migration 时，已在生产副本核对 schema diff，且差异只有预期增量。
+- [ ] 首次纳管时只将 `20260710000000_baseline` resolve 为 applied；未手工 resolve 任何增量 migration。
+- [ ] 常规发布显式执行 `DATABASE_URL="file:/var/www/alumni-site/data/prod.db" npx prisma migrate deploy`，并用 `migrate status` 确认完成；生产禁止 `db push`。
 - [ ] 如涉及身份字段清洗，先 dry-run，再正式执行。
 - [ ] 重启 `alumni-site` 后检查日志无持续 500 或启动错误。
 
@@ -99,7 +108,7 @@ sudo journalctl -u alumni-site -n 100 --no-pager
 
 - 登录、注册、校友认证、管理员后台大面积不可用。
 - 首页或主要校友页面静态资源 404，清缓存和重启仍不能恢复。
-- Prisma schema 同步后出现持续数据库错误。
+- Prisma migration 后出现持续数据库错误。
 - 上传目录或生产数据库权限异常，影响后台发布内容。
 
 回滚命令见 [deployment.md](deployment.md)。

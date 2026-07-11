@@ -1,10 +1,13 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { ArrowLeft, Feather } from "lucide-react";
 import { PageShell, GlassCard, ButtonLink } from "@/components/ui";
 import prisma from "@/lib/db";
 import { getRouteId, type IdRouteParams } from "@/lib/route-params";
+
+const SITE_URL = process.env.SITE_URL || "https://yanchuaner.cn";
 
 type StoryDetail = {
   id: string;
@@ -33,6 +36,34 @@ async function getStory(id: string): Promise<StoryDetail | null> {
 function formatDate(isoDate: string) {
   const [year, month, day] = isoDate.split("-");
   return `${year}.${month}.${day}`;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: IdRouteParams;
+}): Promise<Metadata> {
+  const id = await getRouteId(params);
+  const story = await getStory(id);
+  if (!story) return { title: "故事未找到" };
+  const description = story.body.slice(0, 120) || story.title;
+  return {
+    title: story.title,
+    description,
+    openGraph: {
+      type: "article",
+      title: story.title,
+      description,
+      url: `${SITE_URL}/alumni/stories/${id}`,
+      images: ["/card.jpg"],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: story.title,
+      description,
+      images: ["/card.jpg"],
+    },
+  };
 }
 
 export default async function StoryDetailPage({ params }: { params: IdRouteParams }) {

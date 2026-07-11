@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { requireAdmin } from "@/lib/admin-auth";
+import { getAuthenticatedUser, requireAdmin } from "@/lib/admin-auth";
 import { readJsonBody } from "@/lib/auth-utils";
 import { isSafeLocalImagePath, normalizeOptionalText } from "@/lib/content-safety";
 import { getRouteId, type IdRouteParams } from "@/lib/route-params";
+import { invalidateCachePrefix } from "@/lib/cache";
+import { ACTIVE_EVENT_REGISTRATION_STATUSES } from "@/lib/event-registration";
 
 export async function GET(
   req: NextRequest,
@@ -16,7 +18,17 @@ export async function GET(
     const id = await getRouteId(params);
     const event = await prisma.event.findUnique({
       where: { id },
-      include: { _count: { select: { registrations: true } } },
+      include: {
+        _count: {
+          select: {
+            registrations: {
+              where: {
+                status: { in: [...ACTIVE_EVENT_REGISTRATION_STATUSES] },
+              },
+            },
+          },
+        },
+      },
     });
     if (!event) {
       return NextResponse.json({ error: "活动不存在" }, { status: 404 });
@@ -34,6 +46,10 @@ export async function PUT(
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
+  const admin = await getAuthenticatedUser(req);
+  if (!admin || admin.role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   try {
     const id = await getRouteId(params);
@@ -117,20 +133,42 @@ export async function PUT(
       }
     }
 
-    const event = await prisma.event.update({
-      where: { id },
-      data: {
-        title,
-        summary: summary || null,
-        content,
-        location: location || null,
-        eventDate: parsedEventDate,
-        endDate: parsedEndDate,
-        coverImage: coverImage || null,
-        maxAttendees: parsedMax,
-        status: status || existing.status,
-      },
+    const event = await prisma.$transaction(async (tx) => {
+      const updated = await tx.event.update({
+        where: { id },
+        data: {
+          title,
+          summary: summary || null,
+          content,
+          location: location || null,
+          eventDate: parsedEventDate,
+          endDate: parsedEndDate,
+          coverImage: coverImage || null,
+          maxAttendees: parsedMax,
+          status: status || existing.status,
+        },
+      });
+      await tx.auditLog.create({
+        data: {
+          action: "event-update",
+          targetType: "Event",
+          targetId: updated.id,
+          adminId: admin.id,
+          before: JSON.stringify({
+            title: existing.title,
+            status: existing.status,
+            eventDate: existing.eventDate,
+          }),
+          after: JSON.stringify({
+            title: updated.title,
+            status: updated.status,
+            eventDate: updated.eventDate,
+          }),
+        },
+      });
+      return updated;
     });
+    await invalidateCachePrefix("published:events:");
 
     return NextResponse.json({ event });
   } catch (error: any) {
@@ -151,6 +189,10 @@ export async function DELETE(
 ) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
+  const admin = await getAuthenticatedUser(req);
+  if (!admin || admin.role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   try {
     const id = await getRouteId(params);
@@ -169,7 +211,23 @@ export async function DELETE(
       );
     }
 
-    await prisma.event.delete({ where: { id } });
+    await prisma.$transaction(async (tx) => {
+      await tx.event.delete({ where: { id } });
+      await tx.auditLog.create({
+        data: {
+          action: "event-delete",
+          targetType: "Event",
+          targetId: existing.id,
+          adminId: admin.id,
+          before: JSON.stringify({
+            title: existing.title,
+            status: existing.status,
+            eventDate: existing.eventDate,
+          }),
+        },
+      });
+    });
+    await invalidateCachePrefix("published:events:");
 
     return NextResponse.json({ success: true });
   } catch (error) {

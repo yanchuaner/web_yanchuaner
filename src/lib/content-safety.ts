@@ -12,7 +12,7 @@ export function isSafeLocalImagePath(value: string) {
   if (value.includes("\\") || value.includes("..")) return false;
   return (
     value === "/card.jpg" ||
-    /^\/uploads\/[A-Za-z0-9._-]+\.(?:avif|gif|jpe?g|png|webp)$/i.test(value)
+    /^\/uploads\/[\p{L}\p{N}._-]+\.(?:avif|gif|jpe?g|png|webp)$/iu.test(value)
   );
 }
 

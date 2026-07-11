@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { requireAdmin } from "@/lib/admin-auth";
+import { getAuthenticatedUser, requireAdmin } from "@/lib/admin-auth";
 import { readJsonBody } from "@/lib/auth-utils";
 import { isSafeLocalImagePath, normalizeOptionalText } from "@/lib/content-safety";
+import { ACTIVE_EVENT_REGISTRATION_STATUSES } from "@/lib/event-registration";
+import { invalidateCachePrefix } from "@/lib/cache";
 
 export async function GET(req: NextRequest) {
   const auth = await requireAdmin(req);
@@ -24,7 +26,17 @@ export async function GET(req: NextRequest) {
     const [events, total] = await Promise.all([
       prisma.event.findMany({
         where,
-        include: { _count: { select: { registrations: true } } },
+        include: {
+          _count: {
+            select: {
+              registrations: {
+                where: {
+                  status: { in: [...ACTIVE_EVENT_REGISTRATION_STATUSES] },
+                },
+              },
+            },
+          },
+        },
         orderBy: { updatedAt: "desc" },
         take: limit,
         skip: offset,
@@ -42,6 +54,10 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
+  const admin = await getAuthenticatedUser(req);
+  if (!admin || admin.role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   try {
     const body = await readJsonBody<{
@@ -118,19 +134,36 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const event = await prisma.event.create({
-      data: {
-        title,
-        summary: summary || null,
-        content,
-        location: location || null,
-        eventDate: parsedEventDate,
-        endDate: parsedEndDate,
-        coverImage: coverImage || null,
-        maxAttendees: parsedMax,
-        status: status || "DRAFT",
-      },
+    const event = await prisma.$transaction(async (tx) => {
+      const created = await tx.event.create({
+        data: {
+          title,
+          summary: summary || null,
+          content,
+          location: location || null,
+          eventDate: parsedEventDate,
+          endDate: parsedEndDate,
+          coverImage: coverImage || null,
+          maxAttendees: parsedMax,
+          status: status || "DRAFT",
+        },
+      });
+      await tx.auditLog.create({
+        data: {
+          action: "event-create",
+          targetType: "Event",
+          targetId: created.id,
+          adminId: admin.id,
+          after: JSON.stringify({
+            title: created.title,
+            status: created.status,
+            eventDate: created.eventDate,
+          }),
+        },
+      });
+      return created;
     });
+    await invalidateCachePrefix("published:events:");
 
     return NextResponse.json({ event }, { status: 201 });
   } catch (error: any) {

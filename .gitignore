@@ -1,8 +1,9 @@
 node_modules
 # Keep environment variables out of version control
 .env
-.env.local
-.env.production
+.env.*
+!.env.example
+!.env.staging.example
 .env.bak.*
 
 # Local credential rotation file (real values; never commit)

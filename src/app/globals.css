@@ -72,6 +72,11 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  :where(a, button, input, textarea, select, [role="button"]):focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+  }
+
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Poppins', 'Noto Sans SC', sans-serif;
   }

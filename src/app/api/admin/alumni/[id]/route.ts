@@ -6,6 +6,7 @@ import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 import {
   normalizeClassName,
   normalizeGraduationClass,
+  normalizeIdentityName,
   validClassName,
   validGraduationClass,
 } from "@/lib/identity-fields";
@@ -64,7 +65,7 @@ export async function PUT(
       certificateNo?: unknown;
     }>(req, 16384); // Roster forms are small, 16KB limit
 
-    const name = typeof body.name === "string" ? body.name.trim() : "";
+    const name = normalizeIdentityName(body.name);
     const graduationClass = normalizeGraduationClass(body.graduationClass);
     const className = normalizeClassName(body.className);
     const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";

@@ -22,10 +22,12 @@ export function InteractiveStarfield() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let animationFrameId: number;
+    let animationFrameId: number | undefined;
     let particles: Particle[] = [];
-    const particleCount = 45;
-    const connectDistance = 120;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const compactMode = window.matchMedia("(max-width: 768px), (pointer: coarse)").matches;
+    const particleCount = reducedMotion ? 18 : compactMode ? 24 : 45;
+    const connectDistance = compactMode ? 90 : 120;
     const repelRadius = 130;
     const mouse = { x: -1000, y: -1000 };
 
@@ -63,14 +65,15 @@ export function InteractiveStarfield() {
     };
 
     window.addEventListener("resize", resize);
-    window.addEventListener("mousemove", handleMouseMove);
+    if (!compactMode && !reducedMotion) {
+      window.addEventListener("mousemove", handleMouseMove);
+    }
     document.addEventListener("mouseleave", handleMouseLeave);
     
     resize();
     init();
 
-    // 动画循环
-    const animate = () => {
+    const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       // 暗色模式粒子颜色设定
@@ -85,7 +88,7 @@ export function InteractiveStarfield() {
         const dx = p.x - mouse.x;
         const dy = p.y - mouse.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < repelRadius) {
+        if (!compactMode && !reducedMotion && dist > 0 && dist < repelRadius) {
           const force = (repelRadius - dist) / repelRadius;
           // 平滑向外排开
           p.x += (dx / dist) * force * 1.5;
@@ -124,22 +127,47 @@ export function InteractiveStarfield() {
         }
       }
 
+    };
+
+    const animate = () => {
+      animationFrameId = undefined;
+      draw();
       animationFrameId = requestAnimationFrame(animate);
     };
 
-    animate();
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        if (animationFrameId !== undefined) {
+          cancelAnimationFrame(animationFrameId);
+          animationFrameId = undefined;
+        }
+        return;
+      }
+      if (!reducedMotion && animationFrameId === undefined) {
+        animationFrameId = requestAnimationFrame(animate);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    if (reducedMotion) {
+      draw();
+    } else {
+      animationFrameId = requestAnimationFrame(animate);
+    }
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      if (animationFrameId !== undefined) cancelAnimationFrame(animationFrameId);
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseleave", handleMouseLeave);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 
   return (
     <canvas
       ref={canvasRef}
+      aria-hidden="true"
       className="fixed inset-0 pointer-events-none z-0 block"
       style={{ mixBlendMode: "screen" }}
     />

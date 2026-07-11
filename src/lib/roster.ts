@@ -2,6 +2,7 @@ import { Prisma, PrismaClient } from "@prisma/client";
 import {
   normalizeClassName,
   normalizeGraduationClass,
+  normalizeIdentityName,
 } from "@/lib/identity-fields";
 
 type RosterClient = PrismaClient | Prisma.TransactionClient;
@@ -36,7 +37,7 @@ export async function upsertRosterEntry(
   input: RosterWrite,
 ) {
   const identity = {
-    name: input.name.trim(),
+    name: normalizeIdentityName(input.name),
     graduationClass: optionalGraduationClass(input.graduationClass),
     className: optionalClassName(input.className),
     email: optional(input.email)?.toLowerCase() || null,

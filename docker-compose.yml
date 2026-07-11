@@ -4,26 +4,55 @@
 # ============================================
 
 services:
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    env_file:
+      - .env.staging
+    environment:
+      DATABASE_URL: file:/data/staging.db
+    volumes:
+      - ./.tmp/staging-data:/data
+      - ./.tmp/staging-uploads:/uploads
+    command:
+      - sh
+      - -c
+      - >-
+        mkdir -p /data /uploads &&
+        touch /data/staging.db &&
+        npx prisma migrate deploy &&
+        chown -R 1001:1001 /data /uploads
+    restart: "no"
+
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: yanchuan-alumni
+    container_name: yanchuan-alumni-staging
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "${STAGING_PORT:-3100}:3000"
+    env_file:
+      - .env.staging
     environment:
-      - NODE_ENV=production
-      - DATABASE_URL=file:/data/prod.db
-      - PORT=3000
-      # Redis (可选):
-      # - REDIS_URL=redis://redis:6379
+      DATABASE_URL: file:/data/staging.db
+      UPLOAD_DIR: /app/public/uploads
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
     volumes:
-      # 持久化目录
-      - ./data:/data
-      - ./uploads:/var/www/alumni-site/uploads
+      - ./.tmp/staging-data:/data
+      - ./.tmp/staging-uploads:/app/public/uploads
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      test:
+        - CMD
+        - node
+        - -e
+        - >-
+          fetch('http://127.0.0.1:3000/api/health').then((response) =>
+          process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))
       interval: 30s
       timeout: 10s
       retries: 3

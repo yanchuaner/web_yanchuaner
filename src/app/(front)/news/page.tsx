@@ -2,6 +2,7 @@ export const revalidate = 60;
 
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { Newspaper, Calendar, ArrowRight } from "lucide-react";
 import prisma from "@/lib/db";
 import { PageShell, GlassCard, PageHeader, ButtonLink, EmptyState } from "@/components/ui";
@@ -42,6 +43,17 @@ export default async function NewsPage() {
             <div className="grid gap-4 md:grid-cols-2">
               {news.map((item) => (
                 <GlassCard key={item.id} as="article" className="p-5">
+                  {item.imageUrl ? (
+                    <div className="relative -mx-5 -mt-5 mb-4 aspect-video overflow-hidden border-b border-line">
+                      <Image
+                        src={item.imageUrl}
+                        alt={item.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : null}
                   <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-2.5 py-1 text-xs text-brand">
                     <Calendar size={12} />
                     {item.publishedAt ? new Date(item.publishedAt).toLocaleDateString("zh-CN") : ""}

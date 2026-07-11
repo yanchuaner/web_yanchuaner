@@ -5,6 +5,10 @@ import { CheckCircle, XCircle, FileText, Trash2 } from 'lucide-react';
 import { AdminPageShell } from '@/components/admin/AdminPageShell';
 import { EmptyState, ResponsiveTabs } from '@/components/ui';
 import { toast } from 'sonner';
+import { useDialogA11y } from '@/hooks/useDialogA11y';
+import { AdminPagination } from '@/components/admin/AdminPagination';
+
+const PAGE_SIZE = 20;
 
 type PostRecord = {
   id: string;
@@ -25,15 +29,21 @@ export default function AdminPostsPage() {
   const [statusFilter, setStatusFilter] = useState('PENDING');
   const [deleting, setDeleting] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<PostRecord | null>(null);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const deleteDialogRef = useDialogA11y(!!confirmDelete, () => {
+    if (!deleting) setConfirmDelete(null);
+  });
 
   const fetchPosts = async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/admin/posts?status=${statusFilter}&limit=100`);
+      const res = await fetch(`/api/admin/posts?status=${statusFilter}&limit=${PAGE_SIZE}&offset=${(page - 1) * PAGE_SIZE}`);
       if (!res.ok) throw new Error('获取内容列表失败');
       const data = await res.json();
       setPosts(data.posts || []);
+      setTotal(data.total || 0);
     } catch (err: any) {
       setError(err.message);
       toast.error('获取内容列表失败: ' + err.message);
@@ -45,9 +55,11 @@ export default function AdminPostsPage() {
   useEffect(() => {
     fetchPosts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusFilter]);
+  }, [page, statusFilter]);
 
   const updatePost = async (id: string, status: string) => {
+    const actionLabel = status === 'PUBLISHED' ? '发布' : '驳回或下架';
+    if (!window.confirm(`确认${actionLabel}这条内容吗？操作会写入审计日志。`)) return;
     try {
       const res = await fetch('/api/admin/posts', {
         method: 'PATCH',
@@ -75,6 +87,7 @@ export default function AdminPostsPage() {
       }
       toast.success('删除成功');
       setPosts((prev) => prev.filter((p) => p.id !== confirmDelete.id));
+      setTotal((current) => Math.max(0, current - 1));
       setConfirmDelete(null);
     } catch (err: any) {
       toast.error('删除失败: ' + err.message);
@@ -110,12 +123,15 @@ export default function AdminPostsPage() {
     >
       <div className="space-y-4">
         {/* Filter tabs */}
-        <ResponsiveTabs
+      <ResponsiveTabs
           tabs={tabItems}
           activeTab={statusFilter}
-          onChange={setStatusFilter}
+          onChange={(value) => { setStatusFilter(value); setPage(1); }}
           className="mb-4"
-        />
+      />
+      <p className="mt-2 text-xs text-brand-fg/45">
+        当前筛选：{statusLabel[statusFilter] || statusFilter} · 显示 {posts.length} 条
+      </p>
 
         {error && (
           <div className="mb-4 rounded-card border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
@@ -211,11 +227,13 @@ export default function AdminPostsPage() {
             </table>
           </div>
         )}
+        <AdminPagination page={page} total={total} pageSize={PAGE_SIZE} disabled={loading} onPageChange={setPage} />
       </div>
 
       {/* 删除确认弹窗 */}
       {confirmDelete && (
         <div 
+          ref={deleteDialogRef}
           className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm px-4 pb-safe sm:pb-4"
           role="dialog"
           aria-modal="true"

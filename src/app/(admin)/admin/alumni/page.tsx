@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { AdminPageShell } from '@/components/admin/AdminPageShell';
 import { toast } from 'sonner';
+import { useDialogA11y } from '@/hooks/useDialogA11y';
 import {
   CLASS_NAME_PATTERN,
   formatClassName,
@@ -110,6 +111,12 @@ export default function AdminAlumniPage() {
   // 删除确认
   const [deleteTarget, setDeleteTarget] = useState<AlumniItem | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const formDialogRef = useDialogA11y(showForm, () => {
+    if (!formSaving) setShowForm(false);
+  });
+  const deleteDialogRef = useDialogA11y(!!deleteTarget, () => {
+    if (!deleting) setDeleteTarget(null);
+  });
 
   // CSV 导入
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -359,6 +366,10 @@ export default function AdminAlumniPage() {
     >
       <div className="space-y-4">
 
+      <div className="rounded-card border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+        批量导入会写入校友名册。执行前请使用 UTF-8 CSV、核对届别与班级格式，并先备份数据库。导出的文件包含联系方式，仅限管理员在受控设备中使用。
+      </div>
+
       {/* 搜索栏 */}
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-[200px]">
@@ -540,6 +551,7 @@ export default function AdminAlumniPage() {
       {/* 新增/编辑弹窗 */}
       {showForm && (
         <div 
+          ref={formDialogRef}
           className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4 pb-safe sm:pb-4 animate-fade-in"
           role="dialog"
           aria-modal="true"
@@ -723,6 +735,7 @@ export default function AdminAlumniPage() {
       {/* 删除确认弹窗 */}
       {deleteTarget && (
         <div 
+          ref={deleteDialogRef}
           className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4 pb-safe sm:pb-4 animate-fade-in"
           role="dialog"
           aria-modal="true"

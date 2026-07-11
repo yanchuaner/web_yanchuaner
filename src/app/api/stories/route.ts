@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { requireVerifiedAlumni, getAuthenticatedUser } from '@/lib/admin-auth';
 import { readJsonBody } from '@/lib/auth-utils';
+import { getClientIp, rateLimit } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,6 +53,24 @@ export async function POST(req: NextRequest) {
       (user.role !== "ALUMNI" || user.status !== "VERIFIED"))
   ) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const [userLimit, ipLimit] = await Promise.all([
+    rateLimit(`story-submit:user:${user.id}`, 10, 60 * 60_000),
+    rateLimit(`story-submit:ip:${getClientIp(req)}`, 30, 60 * 60_000),
+  ]);
+  if (!userLimit.ok || !ipLimit.ok) {
+    return NextResponse.json(
+      { error: "投稿过于频繁，请稍后再试" },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(
+            Math.max(userLimit.retryAfter, ipLimit.retryAfter),
+          ),
+        },
+      },
+    );
   }
 
   try {

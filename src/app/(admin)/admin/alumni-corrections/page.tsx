@@ -15,6 +15,7 @@ import {
 import { AdminPageShell } from '@/components/admin/AdminPageShell';
 import { EmptyState } from '@/components/ui';
 import { toast } from 'sonner';
+import { useDialogA11y } from '@/hooks/useDialogA11y';
 
 type CorrectionRequest = {
   id: string;
@@ -67,6 +68,12 @@ export default function AdminAlumniCorrectionsPage() {
   const [adminNote, setAdminNote] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState('');
+  const actionDialogRef = useDialogA11y(!!actionTarget && !!actionType, () => {
+    if (!actionLoading) {
+      setActionTarget(null);
+      setActionType(null);
+    }
+  });
 
   const fetchRequests = useCallback(async () => {
     setLoading(true);
@@ -527,6 +534,7 @@ export default function AdminAlumniCorrectionsPage() {
       {/* 审核确认弹窗 */}
       {actionTarget && actionType && (
         <div 
+          ref={actionDialogRef}
           className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm px-4 pb-safe sm:pb-4 animate-fade-in"
           role="dialog"
           aria-modal="true"

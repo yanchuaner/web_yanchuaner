@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { requireAdmin } from '@/lib/admin-auth';
+import { getAuthenticatedUser, requireAdmin } from '@/lib/admin-auth';
 import { readJsonBody } from '@/lib/auth-utils';
 
 export async function GET(req: NextRequest) {
@@ -40,6 +40,10 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
+  const admin = await getAuthenticatedUser(req);
+  if (!admin || admin.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
   try {
     const body = await readJsonBody<{ id?: unknown; status?: unknown }>(req, 16384); // 16KB limit
     const id = typeof body.id === "string" ? body.id.trim() : "";
@@ -53,9 +57,30 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: '无效的状态值' }, { status: 400 });
     }
 
-    const post = await prisma.post.update({
+    const existing = await prisma.post.findUnique({
       where: { id },
-      data: { status },
+      select: { id: true, title: true, status: true },
+    });
+    if (!existing) {
+      return NextResponse.json({ error: '内容不存在' }, { status: 404 });
+    }
+
+    const post = await prisma.$transaction(async (tx) => {
+      const updated = await tx.post.update({
+        where: { id },
+        data: { status },
+      });
+      await tx.auditLog.create({
+        data: {
+          action: 'post-status-update',
+          targetType: 'Post',
+          targetId: updated.id,
+          adminId: admin.id,
+          before: JSON.stringify({ title: existing.title, status: existing.status }),
+          after: JSON.stringify({ title: existing.title, status: updated.status }),
+        },
+      });
+      return updated;
     });
 
     return NextResponse.json({ post });

@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { Users, ArrowLeft, Download, CalendarDays } from 'lucide-react';
 import Link from 'next/link';
 import { AdminPageShell } from '@/components/admin/AdminPageShell';
-import { EmptyState } from '@/components/ui';
+import { Badge, EmptyState } from '@/components/ui';
 import { toast } from 'sonner';
 
 type Registration = {
@@ -13,7 +13,10 @@ type Registration = {
   name: string;
   contact: string | null;
   message: string | null;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+  cancelledAt: string | null;
   createdAt: string;
+  updatedAt: string;
 };
 
 type EventInfo = {
@@ -22,44 +25,29 @@ type EventInfo = {
   eventDate: string;
   maxAttendees: number | null;
   registrationCount: number;
+  activeRegistrationCount: number;
+  totalRegistrationCount: number;
 };
 
-function csvEscape(value: string): string {
-  if (value.includes(',') || value.includes('"') || value.includes('\n') || value.includes('\r')) {
-    return `"${value.replace(/"/g, '""')}"`;
+const STATUS_BADGES = {
+  PENDING: { label: '待审核', tone: 'warning' },
+  APPROVED: { label: '有效', tone: 'success' },
+  REJECTED: { label: '未通过', tone: 'danger' },
+  CANCELLED: { label: '已取消', tone: 'neutral' },
+} as const;
+
+function exportFilename(response: Response) {
+  const disposition = response.headers.get('Content-Disposition') || '';
+  const encoded = /filename\*=UTF-8''([^;]+)/i.exec(disposition)?.[1];
+  if (!encoded) return 'event-registrations.csv';
+  try {
+    return decodeURIComponent(encoded);
+  } catch {
+    return 'event-registrations.csv';
   }
-  return value;
 }
 
-const INJECTION_RE = /^\s*[=+\-@]/;
-
-function csvSafe(value: string): string {
-  if (INJECTION_RE.test(value)) {
-    return csvEscape("'" + value);
-  }
-  return csvEscape(value);
-}
-
-function sanitizeFilename(name: string): string {
-  return name.replace(/[/\\:*?"<>|\n\r]/g, '').slice(0, 40);
-}
-
-function generateCSV(registrations: Registration[]): string {
-  const BOM = '﻿';
-  const header = ['序号', '姓名', '联系方式', '留言', '报名时间'];
-  const rows = registrations.map((r, i) => [
-    String(i + 1),
-    csvSafe(r.name),
-    csvSafe(r.contact || ''),
-    csvSafe(r.message || ''),
-    csvEscape(new Date(r.createdAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })),
-  ]);
-  const csv = [header, ...rows].map((row) => row.join(',')).join('\n');
-  return BOM + csv;
-}
-
-function downloadCSV(content: string, filename: string) {
-  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+function downloadCSV(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -75,6 +63,7 @@ export default function AdminEventRegistrationsPage() {
   const [event, setEvent] = useState<EventInfo | null>(null);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = async () => {
@@ -98,11 +87,25 @@ export default function AdminEventRegistrationsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (!event) return;
-    const csv = generateCSV(registrations);
-    const filename = `报名名单_${sanitizeFilename(event.title)}_${new Date().toISOString().slice(0, 10)}.csv`;
-    downloadCSV(csv, filename);
+    setExporting(true);
+    try {
+      const response = await fetch(
+        `/api/admin/events/${params.id}/registrations/export`,
+        { method: 'POST' },
+      );
+      if (!response.ok) {
+        const body = await response.json().catch(() => null) as { error?: string } | null;
+        throw new Error(body?.error || '导出报名名单失败');
+      }
+      downloadCSV(await response.blob(), exportFilename(response));
+      toast.success('报名名单已导出');
+    } catch (exportError) {
+      toast.error(exportError instanceof Error ? exportError.message : '导出报名名单失败');
+    } finally {
+      setExporting(false);
+    }
   };
 
   return (
@@ -113,11 +116,13 @@ export default function AdminEventRegistrationsPage() {
         <div className="flex gap-2">
           {registrations.length > 0 && (
             <button
-              onClick={handleExport}
-              className="inline-flex items-center gap-2 rounded-btn border border-emerald-500/20 bg-emerald-500/10 px-4 py-2.5 text-sm text-emerald-400 transition hover:bg-emerald-500/20 cursor-pointer"
+              type="button"
+              onClick={() => void handleExport()}
+              disabled={exporting}
+              className="inline-flex items-center gap-2 rounded-btn border border-emerald-500/20 bg-emerald-500/10 px-4 py-2.5 text-sm text-emerald-400 transition hover:bg-emerald-500/20 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Download size={16} />
-              导出 CSV
+              {exporting ? '导出中' : '导出 CSV'}
             </button>
           )}
           <Link
@@ -142,11 +147,16 @@ export default function AdminEventRegistrationsPage() {
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Users size={15} className="text-[#7C3AED]" />
-              报名：{event.registrationCount}{event.maxAttendees ? ` / ${event.maxAttendees}` : ''}
+              有效报名：{event.activeRegistrationCount}{event.maxAttendees ? ` / ${event.maxAttendees}` : ''}
             </span>
+            <span>全部记录：{event.totalRegistrationCount}</span>
           </div>
         </div>
       )}
+
+      <div className="rounded-card border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+        CSV 可能包含姓名、联系方式和留言。导出操作会写入审计日志；文件仅限活动服务使用，完成后应从下载目录及时删除，禁止转发到无关群聊或公开网盘。
+      </div>
 
       {error && (
         <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
@@ -170,6 +180,7 @@ export default function AdminEventRegistrationsPage() {
                 <th className="px-4 py-3 font-medium w-12">#</th>
                 <th className="px-4 py-3 font-medium">姓名</th>
                 <th className="px-4 py-3 font-medium">联系方式</th>
+                <th className="px-4 py-3 font-medium">状态</th>
                 <th className="px-4 py-3 font-medium hidden sm:table-cell">留言</th>
                 <th className="px-4 py-3 font-medium hidden md:table-cell">报名时间</th>
               </tr>
@@ -180,6 +191,11 @@ export default function AdminEventRegistrationsPage() {
                   <td className="px-4 py-3 text-[#4C1D95]/40">{i + 1}</td>
                   <td className="px-4 py-3 font-medium text-[#4C1D95]">{r.name}</td>
                   <td className="px-4 py-3">{r.contact || '-'}</td>
+                  <td className="px-4 py-3">
+                    <Badge tone={STATUS_BADGES[r.status].tone}>
+                      {STATUS_BADGES[r.status].label}
+                    </Badge>
+                  </td>
                   <td className="px-4 py-3 max-w-xs truncate hidden sm:table-cell">{r.message || '-'}</td>
                   <td className="px-4 py-3 whitespace-nowrap hidden md:table-cell">
                     {new Date(r.createdAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}

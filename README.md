@@ -90,7 +90,7 @@ cd web_yanchuaner
 npm ci
 cp .env.example .env
 npm run db:generate
-npm run db:push
+npm run db:init
 npm run seed
 npm run dev
 ```
@@ -174,20 +174,23 @@ docs/
 | 命令 | 说明 |
 | --- | --- |
 | `npm run dev` | 启动开发服务 |
-| `npm run build` | `prisma generate && prisma db push && prisma db seed && next build` |
+| `npm run build` | 生成 Prisma Client 并执行 Next.js 生产构建，不改数据库 schema、不运行种子 |
 | `npm run start` | 启动生产服务 |
 | `npx tsc --noEmit` | TypeScript 类型检查 |
 | `npm run lint` | ESLint 检查 |
 | `npm run audit:prod` | 生产依赖高危审计 |
 | `npm run smoke` | 冒烟测试，需要本地服务；管理员登录部分需配置 `SMOKE_*` |
 | `npm run db:generate` | 生成 Prisma Client |
-| `npm run db:push` | 同步 schema 到数据库 |
+| `npm run db:init` | 仅在非生产环境创建空 SQLite 文件并应用 migrations |
+| `npm run db:migrate:deploy` | 对已存在数据库应用待执行 migration；常规生产发布使用 |
+| `npm run db:migrate:status` | 查看 migration 应用状态 |
+| `npm run db:push` | 直接同步 schema，仅限一次性本地实验库，生产禁用 |
 | `npm run seed` | 执行 Prisma 幂等种子 |
-| `npm run seed-all` | 执行全量种子脚本 |
+| `npm run seed-all` | 执行 Prisma seed，再补齐页面内容与记忆馆种子 |
 | `npm run create-admin` | 创建管理员账号 |
 | `npm run normalize-identity-fields` | 清洗届别/班级历史后缀，支持 `-- --dry-run` |
 
-`npm run build` 会同步数据库并运行种子脚本。执行前确认 `.env` 指向的是可变更的目标数据库；不要把本地 `dev.db` 覆盖到生产环境。
+`npm run build` 不再隐式执行 schema 迁移或 seed。首次本地初始化应显式运行 `npm run db:init` 和 `npm run seed`；`db:init` 在生产环境会直接拒绝执行。生产发布只允许在备份和迁移演练通过后执行 `prisma migrate deploy`，禁止使用 `db push`。部分 ISR 页面会在构建时读取数据库，因此构建环境仍应使用隔离的临时数据库，不能指向生产库。已有生产库首次纳入 Prisma Migrate 时必须先按 [部署指南](./docs/deployment.md) 完成一次性基线采用流程。
 
 ## 数据与隐私
 
@@ -223,12 +226,16 @@ npm run build
 | [docs/architecture.md](./docs/architecture.md) | 架构、请求生命周期、数据库解耦、缓存与地图聚合 |
 | [docs/security.md](./docs/security.md) | Payload 限制、IDOR、防 CSRF 同源校验、Token、限流、上传安全 |
 | [docs/deployment.md](./docs/deployment.md) | Windows 开发、WSL/Linux 构建、服务器部署、systemd、Nginx、备份 |
+| [docs/staging-deployment.md](./docs/staging-deployment.md) | 隔离测试环境、Docker Compose 与候选版本门槛 |
+| [docs/acceptance-plan.md](./docs/acceptance-plan.md) | 自动化全流程验收与 5-50 人试运营矩阵 |
+| [docs/mp-api-contract.md](./docs/mp-api-contract.md) | 网站、小程序与后续 App 的 API v1 契约 |
 | [docs/launch-checklist.md](./docs/launch-checklist.md) | 上线前后检查清单 |
 | [docs/operations-guide.md](./docs/operations-guide.md) | 本地开发、环境变量、数据库、脚本、CSV、上传和日常运维 |
 | [docs/admin-guide.md](./docs/admin-guide.md) | 管理员后台操作手册 |
 | [docs/ROUTES.md](./docs/ROUTES.md) | 页面与 API 路由清单 |
 | [docs/TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md) | 常见故障排查 |
 | [docs/ui-guide.md](./docs/ui-guide.md) | UI 组件、设计令牌、导航和后台 CRUD 约定 |
+| [docs/roadmap-decisions.md](./docs/roadmap-decisions.md) | TODO 收口、缓存、隐私、对象存储与依赖升级决策 |
 
 ## 贡献方式
 

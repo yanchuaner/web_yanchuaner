@@ -30,6 +30,10 @@ function normalizeGraduationClass(value) {
   return match ? match[1] : normalized;
 }
 
+function normalizeIdentityName(value) {
+  return typeof value === "string" ? value.trim().normalize("NFC") : "";
+}
+
 function normalizeClassName(value) {
   if (typeof value !== "string") return "";
   const normalized = value.trim().normalize("NFC");
@@ -41,6 +45,7 @@ const targets = [
   {
     table: "User",
     fields: [
+      ["name", normalizeIdentityName],
       ["graduationClass", normalizeGraduationClass],
       ["className", normalizeClassName],
     ],
@@ -48,6 +53,7 @@ const targets = [
   {
     table: "WhitelistRoster",
     fields: [
+      ["name", normalizeIdentityName],
       ["graduationClass", normalizeGraduationClass],
       ["className", normalizeClassName],
     ],

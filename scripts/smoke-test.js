@@ -38,6 +38,12 @@ async function main() {
   const healthText = await health.text().catch(() => "");
   record("health_is_public", health.ok, `${health.status} ${healthText}`);
 
+  const homepage = await request("/");
+  record("homepage_is_available", homepage.status === 200, String(homepage.status));
+
+  const loginPage = await request("/login");
+  record("login_page_is_available", loginPage.status === 200, String(loginPage.status));
+
   const privatePage = await request("/news");
   record(
     "guest_private_page_redirects",
@@ -73,13 +79,18 @@ async function main() {
     String(oldJoin.status),
   );
 
-  const sitemap = await (await request("/sitemap.xml")).text();
+  const sitemapResponse = await request("/sitemap.xml");
+  const sitemap = await sitemapResponse.text();
+  record("sitemap_is_available", sitemapResponse.ok, String(sitemapResponse.status));
   record(
     "sitemap_only_has_public_content",
     !/\/(?:news|events|students|teachers|alumni|admin|me)(?:\/|<)/.test(
       sitemap,
     ),
   );
+
+  const robots = await request("/robots.txt");
+  record("robots_is_available", robots.ok, String(robots.status));
 
   if (username && password) {
     const login = await request("/api/auth/login", {

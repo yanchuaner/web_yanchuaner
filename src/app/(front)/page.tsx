@@ -13,7 +13,7 @@ import {
   FileEdit,
   Lock,
 } from "lucide-react";
-import { RevealSection } from "@/components/ui";
+import { InteractiveStarfield, RevealSection } from "@/components/ui";
 import MessageOrbit from "@/components/MessageOrbit";
 import CosmicBackground from "@/components/CosmicBackground";
 import AlumniMapClient from "@/components/AlumniMapClient";
@@ -142,9 +142,10 @@ export default async function HomePage() {
   return (
     <section
       id="top"
-      className="relative min-h-screen overflow-hidden bg-[#FAF5FF]"
+      className="relative min-h-screen overflow-hidden bg-surface-muted"
     >
       <CosmicBackground />
+      <InteractiveStarfield />
       <MessageOrbit />
       <div
         className="home-atmo-layer opacity-40 mix-blend-multiply"

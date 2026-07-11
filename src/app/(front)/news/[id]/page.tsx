@@ -1,6 +1,7 @@
 export const revalidate = 60;
 
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowLeft, Calendar } from "lucide-react";
@@ -13,7 +14,7 @@ export async function generateMetadata({ params }: { params: IdRouteParams }): P
   const id = await getRouteId(params);
   const article = await prisma.news.findFirst({
     where: { id, status: "PUBLISHED" },
-    select: { title: true, summary: true },
+    select: { title: true, summary: true, imageUrl: true },
   });
 
   if (!article) {
@@ -27,6 +28,11 @@ export async function generateMetadata({ params }: { params: IdRouteParams }): P
       title: article.title,
       description: article.summary || article.title,
       url: `${SITE_URL}/news/${id}`,
+      images: article.imageUrl ? [article.imageUrl] : ["/card.jpg"],
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: [article.imageUrl || "/card.jpg"],
     },
   };
 }
@@ -57,6 +63,19 @@ export default async function NewsDetailPage({ params }: { params: IdRouteParams
 
         <h1 className="font-heading text-2xl font-bold text-[#4C1D95] md:text-3xl">{article.title}</h1>
         {article.summary && <p className="mt-3 text-sm leading-7 text-gray-700 md:text-base">{article.summary}</p>}
+
+        {article.imageUrl ? (
+          <div className="relative mt-6 aspect-video overflow-hidden rounded-card border border-line">
+            <Image
+              src={article.imageUrl}
+              alt={article.title}
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 768px"
+              className="object-cover"
+            />
+          </div>
+        ) : null}
 
         <div className="mt-8 border-t border-[#7C3AED]/10 pt-6">
           <div className="max-w-none text-sm leading-7 text-gray-700 md:text-base whitespace-pre-wrap">

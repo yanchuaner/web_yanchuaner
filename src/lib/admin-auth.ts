@@ -14,6 +14,8 @@ export type AuthenticatedUser = {
   name: string | null;
   graduationClass: string | null;
   className: string | null;
+  verificationStatus: string;
+  identityType: string | null;
   role: string;
   status: string;
   accountStatus: string;
@@ -29,8 +31,29 @@ function tokenFromRequest(req: NextRequest): TokenPayload | null {
   return token ? verifyToken(token) : null;
 }
 
-async function resolveUser(payload: TokenPayload | null) {
+export function tokenMatchesUser(
+  user: AuthenticatedUser | null,
+  payload: TokenPayload,
+  requireVerifiedEmail = true,
+): user is AuthenticatedUser {
+  if (
+    !user ||
+    user.accountStatus !== "ACTIVE" ||
+    (requireVerifiedEmail && !user.emailVerified) ||
+    user.sessionVersion !== payload.sessionVersion
+  ) {
+    return false;
+  }
+  const expectedRole = user.role === "ADMIN" ? "admin" : "user";
+  return payload.role === expectedRole;
+}
+
+export async function resolveAuthenticatedUser(
+  payload: TokenPayload | null,
+  options: { requireVerifiedEmail?: boolean } = {},
+) {
   if (!payload) return null;
+  const requireVerifiedEmail = options.requireVerifiedEmail ?? true;
   const user = await prisma.user.findUnique({
     where: { id: payload.userId },
     select: {
@@ -41,29 +64,24 @@ async function resolveUser(payload: TokenPayload | null) {
       name: true,
       graduationClass: true,
       className: true,
+      verificationStatus: true,
+      identityType: true,
       role: true,
       status: true,
       accountStatus: true,
       sessionVersion: true,
     },
   });
-  if (
-    !user ||
-    user.accountStatus !== "ACTIVE" ||
-    !user.emailVerified ||
-    user.sessionVersion !== payload.sessionVersion
-  ) {
-    return null;
-  }
-  const expectedRole = user.role === "ADMIN" ? "admin" : "user";
-  if (payload.role !== expectedRole) return null;
+  if (!tokenMatchesUser(user, payload, requireVerifiedEmail)) return null;
   return user;
 }
 
 export async function getAuthenticatedUser(
   req: NextRequest,
 ): Promise<AuthenticatedUser | null> {
-  return resolveUser(tokenFromRequest(req));
+  return resolveAuthenticatedUser(tokenFromRequest(req), {
+    requireVerifiedEmail: true,
+  });
 }
 
 export async function requireUser(
@@ -97,7 +115,9 @@ export async function requireAdmin(
 
 async function pageUser() {
   const token = (await cookies()).get(AUTH_COOKIE)?.value;
-  return resolveUser(token ? verifyToken(token) : null);
+  return resolveAuthenticatedUser(token ? verifyToken(token) : null, {
+    requireVerifiedEmail: true,
+  });
 }
 
 export async function getPageUser() {
