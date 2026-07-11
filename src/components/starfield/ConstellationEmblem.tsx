@@ -46,14 +46,17 @@ function polylinePoints(nodes: Coordinate[], pointsPerSegment: number) {
   });
 }
 
-function buildTargetPoints() {
-  const points: Coordinate[] = [
+function buildTargetGroups() {
+  const outer = [
     ...circlePoints(640, 640, 616, 42),
     ...circlePoints(640, 640, 582, 38),
+  ];
+  const inner = [
     ...circlePoints(640, 640, 446, 34),
     ...circlePoints(640, 640, 270, 30),
+    [108, 598] as Coordinate,
+    [1172, 598] as Coordinate,
   ];
-
   const orbitSegments: Array<[Coordinate, Coordinate]> = [
     [[295, 346], [650, 346]],
     [[796, 214], [932, 555]],
@@ -61,7 +64,7 @@ function buildTargetPoints() {
     [[758, 1070], [466, 862]],
     [[252, 870], [374, 536]],
   ];
-  orbitSegments.forEach(([start, end]) => points.push(...segmentPoints(start, end, 10)));
+  const orbit = orbitSegments.flatMap(([start, end]) => segmentPoints(start, end, 10));
 
   const glyphLines: Coordinate[][] = [
     [[456, 492], [548, 492], [548, 434], [584, 434]],
@@ -77,24 +80,32 @@ function buildTargetPoints() {
     [[640, 780], [640, 842]],
     [[824, 780], [732, 780], [732, 842]],
   ];
-  glyphLines.forEach((line) => points.push(...polylinePoints(line, 4)));
-  points.push([108, 598], [1172, 598]);
-  return points;
+  const glyph = glyphLines.flatMap((line) => polylinePoints(line, 4));
+  return [
+    { points: outer, baseDelay: 0 },
+    { points: inner, baseDelay: 260 },
+    { points: orbit, baseDelay: 540 },
+    { points: glyph, baseDelay: 820 },
+  ];
 }
 
 function buildFlightPoints(): Point[] {
-  return buildTargetPoints().map(([x, y], index) => {
-    const angle = ((index * 137.508 + 23) * Math.PI) / 180;
-    const distance = 330 + ((index * 47) % 360);
-    return {
-      x,
-      y,
-      fromX: Math.cos(angle) * distance,
-      fromY: Math.sin(angle) * distance,
-      delay: (index % 18) * 42 + (Math.floor(index / 18) % 3) * 28,
-      accent: index % 11 === 0,
-    };
-  });
+  let globalIndex = 0;
+  return buildTargetGroups().flatMap((group) =>
+    group.points.map(([x, y], groupIndex) => {
+      const index = globalIndex++;
+      const angle = ((index * 137.508 + 23) * Math.PI) / 180;
+      const distance = 330 + ((index * 47) % 360);
+      return {
+        x,
+        y,
+        fromX: Math.cos(angle) * distance,
+        fromY: Math.sin(angle) * distance,
+        delay: group.baseDelay + (groupIndex % 14) * 24,
+        accent: index % 11 === 0,
+      };
+    }),
+  );
 }
 
 export function ConstellationEmblem({ stage }: { stage: ConstellationStage }) {
@@ -104,23 +115,23 @@ export function ConstellationEmblem({ stage }: { stage: ConstellationStage }) {
     <div className={styles.frame} data-stage={stage} aria-hidden="true">
       <svg className={styles.emblem} viewBox="0 0 1280 1280">
         <g className={styles.traces}>
-          <circle cx="640" cy="640" r="616" pathLength="1" />
-          <circle cx="640" cy="640" r="582" pathLength="1" />
-          <circle cx="640" cy="640" r="446" pathLength="1" />
-          <circle cx="640" cy="640" r="270" pathLength="1" />
+          <circle className={styles.outerTrace} cx="640" cy="640" r="616" pathLength="1" />
+          <circle className={styles.outerTrace} cx="640" cy="640" r="582" pathLength="1" />
+          <circle className={styles.innerTrace} cx="640" cy="640" r="446" pathLength="1" />
+          <circle className={styles.innerTrace} cx="640" cy="640" r="270" pathLength="1" />
 
-          <path d="M 295 346 H 650" pathLength="1" />
-          <path d="M 796 214 L 932 555" pathLength="1" />
-          <path d="M 1084 646 L 804 873" pathLength="1" />
-          <path d="M 758 1070 L 466 862" pathLength="1" />
-          <path d="M 252 870 L 374 536" pathLength="1" />
+          <path className={styles.orbitTrace} d="M 295 346 H 650" pathLength="1" />
+          <path className={styles.orbitTrace} d="M 796 214 L 932 555" pathLength="1" />
+          <path className={styles.orbitTrace} d="M 1084 646 L 804 873" pathLength="1" />
+          <path className={styles.orbitTrace} d="M 758 1070 L 466 862" pathLength="1" />
+          <path className={styles.orbitTrace} d="M 252 870 L 374 536" pathLength="1" />
 
-          <path d="M 456 492 H 548 V 434 H 584" pathLength="1" />
-          <path d="M 696 434 H 732 V 492 H 824" pathLength="1" />
-          <path d="M 430 598 H 486 M 448 658 H 486 M 482 578 V 680" pathLength="1" />
-          <path d="M 794 578 V 680 M 794 598 H 850 M 794 658 H 832" pathLength="1" />
-          <rect x="574" y="566" width="132" height="142" rx="24" pathLength="1" />
-          <path d="M 456 780 H 548 V 842 M 640 780 V 842 M 824 780 H 732 V 842" pathLength="1" />
+          <path className={styles.glyphTrace} d="M 456 492 H 548 V 434 H 584" pathLength="1" />
+          <path className={styles.glyphTrace} d="M 696 434 H 732 V 492 H 824" pathLength="1" />
+          <path className={styles.glyphTrace} d="M 430 598 H 486 M 448 658 H 486 M 482 578 V 680" pathLength="1" />
+          <path className={styles.glyphTrace} d="M 794 578 V 680 M 794 598 H 850 M 794 658 H 832" pathLength="1" />
+          <rect className={styles.glyphTrace} x="574" y="566" width="132" height="142" rx="24" pathLength="1" />
+          <path className={styles.glyphTrace} d="M 456 780 H 548 V 842 M 640 780 V 842 M 824 780 H 732 V 842" pathLength="1" />
         </g>
 
         <g className={styles.drones}>

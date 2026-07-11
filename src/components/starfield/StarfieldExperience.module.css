@@ -31,6 +31,7 @@
 }
 
 .backButton,
+.skipButton,
 .replayButton {
   position: absolute;
   z-index: 20;
@@ -51,6 +52,11 @@
   left: max(18px, env(safe-area-inset-left));
 }
 
+.skipButton {
+  top: max(18px, env(safe-area-inset-top));
+  right: max(18px, env(safe-area-inset-right));
+}
+
 .replayButton {
   right: max(18px, env(safe-area-inset-right));
   bottom: max(20px, env(safe-area-inset-bottom));
@@ -58,6 +64,7 @@
 }
 
 .backButton:hover,
+.skipButton:hover,
 .replayButton:hover {
   transform: translateY(-2px);
   color: rgb(var(--brand-fg-rgb));
@@ -65,6 +72,7 @@
 }
 
 .backButton:focus-visible,
+.skipButton:focus-visible,
 .replayButton:focus-visible,
 .rocketButton:focus-visible {
   outline: 2px solid rgb(var(--brand-rgb));
@@ -355,6 +363,12 @@
   margin: 22px 0 0;
   color: rgb(var(--brand-fg-rgb) / 0.58);
   font-size: clamp(12px, 2.4vw, 14px);
+}
+
+.flightRecord {
+  margin: 10px 0 0;
+  color: rgb(var(--space-cyan-rgb) / 0.62);
+  font-size: 11px;
 }
 
 @keyframes rocketIdle {
