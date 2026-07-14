@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SOURCE_DIR="${1:-/mnt/c/Dev/web_projects/yanchuaner}"
+SOURCE_DIR="${1:-/mnt/c/Dev/yanchuaner/web_yanchuaner}"
 BUILD_DIR="$(mktemp -d /tmp/yanchuaner-build-XXXXXX)"
 
 tar -C "$SOURCE_DIR" \

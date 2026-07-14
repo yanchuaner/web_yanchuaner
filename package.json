@@ -15,7 +15,7 @@
     "audit:prod": "npm audit --omit=dev --audit-level=high",
     "audit:images": "node scripts/audit_images.js",
     "audit:ui-tokens": "node scripts/audit_ui_tokens.js",
-    "build:check:wsl": "wsl.exe bash /mnt/c/Dev/web_projects/yanchuaner/scripts/validate_build_wsl.sh",
+    "build:check:wsl": "wsl.exe bash /mnt/c/Dev/yanchuaner/web_yanchuaner/scripts/validate_build_wsl.sh",
     "fresh": "bash scripts/clean.sh && npm run dev",
     "update-list": "node scripts/build_list.js",
     "create-admin": "tsx scripts/create_admin.ts",
