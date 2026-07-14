@@ -4,6 +4,7 @@
 # 加入 crontab: 0 2 * * * /var/www/alumni-site/app/scripts/backup.sh daily
 
 set -euo pipefail
+umask 077
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 BACKUP_DIR="${BACKUP_DIR:-/var/backups/alumni-site}"
 DB_PATH="${DATABASE_PATH:-/var/www/alumni-site/data/prod.db}"
@@ -21,6 +22,7 @@ command -v sqlite3 >/dev/null 2>&1 || {
 }
 
 mkdir -p "$BACKUP_DIR"
+chmod 700 "$BACKUP_DIR"
 
 # 使用 SQLite 在线备份 API，确保 WAL 中已提交的数据进入一致性快照。
 if [ -f "$DB_PATH" ]; then
@@ -44,7 +46,10 @@ fi
 # 上传文件完整备份（仅 daily/weekly）
 if [ "$MODE" = "daily" ] || [ "$MODE" = "weekly" ]; then
   if [ -d "$UPLOADS_PATH" ]; then
-    tar -czf "$BACKUP_DIR/uploads-$TIMESTAMP.tar.gz" -C "$(dirname "$UPLOADS_PATH")" "$(basename "$UPLOADS_PATH")"
+    UPLOADS_BACKUP="$BACKUP_DIR/uploads-$TIMESTAMP.tar.gz"
+    tar -czf "$UPLOADS_BACKUP" -C "$(dirname "$UPLOADS_PATH")" "$(basename "$UPLOADS_PATH")"
+    tar -tzf "$UPLOADS_BACKUP" >/dev/null
+    sha256sum "$UPLOADS_BACKUP" > "$UPLOADS_BACKUP.sha256"
     echo "[OK] Uploads backed: uploads-$TIMESTAMP.tar.gz"
   fi
 fi
@@ -57,5 +62,6 @@ find "$BACKUP_DIR" -name "*.daily.db.sha256" -mtime +30 -delete 2>/dev/null
 find "$BACKUP_DIR" -name "*.weekly.db" -mtime +90 -delete 2>/dev/null
 find "$BACKUP_DIR" -name "*.weekly.db.sha256" -mtime +90 -delete 2>/dev/null
 find "$BACKUP_DIR" -name "uploads-*.tar.gz" -mtime +30 -delete 2>/dev/null
+find "$BACKUP_DIR" -name "uploads-*.tar.gz.sha256" -mtime +30 -delete 2>/dev/null
 
 echo "[OK] Cleanup done."

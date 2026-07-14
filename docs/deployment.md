@@ -22,14 +22,14 @@
 
 | 组件 | 建议 |
 | --- | --- |
-| 服务器 OS | Ubuntu 22.04 LTS / Debian 12 |
-| Node.js | 20.x LTS |
+| 服务器 OS | Ubuntu 24.04 LTS |
+| Node.js | 22.x LTS |
 | npm | 10.x |
 | Nginx | 1.24+ |
 | certbot | 2.x |
 | SQLite CLI | 用于备份和应急检查 |
 
-推荐生产规格：2 核 CPU、2 GB RAM、20 GB SSD 起步。不要在低内存生产服务器上直接构建 Next.js；应在 WSL/Linux 构建后上传 standalone 包。
+网站单独部署推荐 2 核 CPU、2 GB RAM、20 GB SSD 起步。与 LiteLLM、PostgreSQL、Open WebUI 同机时推荐 2 核 CPU、4 GB RAM、40 GB 可用磁盘。`1 vCPU / 2 GB RAM` 仅适合低访问量内部使用，必须配置至少 4 GB swap，并且禁止在生产服务器构建；应在 WSL/Linux 构建后上传 standalone 包。
 
 ## 3. 构建流程
 
@@ -109,7 +109,7 @@ scp deploy.tar.gz root@<服务器IP>:/tmp/
 ## 4. 服务器初始化
 
 ```bash
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 sudo apt-get install -y nodejs nginx certbot python3-certbot-nginx sqlite3
 
 sudo mkdir -p /var/www/alumni-site/app
@@ -135,6 +135,7 @@ SITE_NAME="燕中校友数字母港"
 DATABASE_URL="file:/var/www/alumni-site/data/prod.db"
 SESSION_SECRET="<至少32字符随机串>"
 ROOT_ADMIN_EMAIL="yanchuaner@yanchuaner.cn"
+AI_WORKSPACE_URL="https://ai.yanchuaner.cn"
 RESEND_API_KEY=""
 RESEND_FROM_EMAIL="燕中数字母港 <noreply@yanchuaner.cn>"
 UPLOAD_DIR="/var/www/alumni-site/uploads"
@@ -284,9 +285,12 @@ WorkingDirectory=/var/www/alumni-site/app
 EnvironmentFile=/var/www/alumni-site/.env
 Environment=NODE_ENV=production
 Environment=PORT=3000
+Environment=NODE_OPTIONS=--max-old-space-size=384
 ExecStart=/usr/bin/node server.js
 Restart=always
 RestartSec=5
+MemoryHigh=384M
+MemoryMax=640M
 
 NoNewPrivileges=yes
 ProtectSystem=strict
@@ -382,6 +386,18 @@ sudo certbot renew --dry-run
 
 HTTPS server 中保留 HSTS 和基础安全头。CSP 当前由 `next.config.mjs` 以 `Content-Security-Policy-Report-Only` 下发，不要在 Nginx 侧重复配置不同 CSP。
 
+### 8.1 与 AI 工作台同机部署
+
+网站固定监听 `127.0.0.1:3000`，Open WebUI 必须在 AI 项目的 `.env` 中设置 `OPENWEBUI_HOST_PORT=3001`。两个域名分别由 Nginx 反向代理，LiteLLM 的 `4000` 端口只允许服务器本机和 SSH 隧道访问，PostgreSQL 不映射宿主机端口。
+
+推荐启动顺序：先确认网站健康，再启动 AI Compose，最后加载两个 Nginx 站点。检查端口时执行：
+
+```bash
+sudo ss -lntp | grep -E '127.0.0.1:(3000|3001|4000)'
+```
+
+预期三个端口各自只出现一个监听者。云安全组不得开放 `3000`、`3001`、`4000` 或 `5432`。
+
 ## 9. 备份
 
 推荐将 `scripts/backup.sh` 放到服务器并通过 cron 执行。核心逻辑如下：
@@ -412,7 +428,7 @@ sudo crontab -e
 0 2 * * * /var/www/alumni-site/app/scripts/backup.sh >> /var/log/alumni-backup.log 2>&1
 ```
 
-`backup.sh` 使用 SQLite 在线备份 API，并在落盘后执行 `PRAGMA quick_check` 和 SHA-256 校验。本机 `/var/backups/alumni-site` 仍可能与生产数据位于同一块云盘；正式测试前必须再同步至少一份到独立云盘或对象存储，并定期从该副本执行恢复演练。
+`backup.sh` 使用 SQLite 在线备份 API，并对数据库执行 `PRAGMA quick_check`，同时为数据库和上传归档生成 SHA-256 校验文件。本机 `/var/backups/alumni-site` 仍可能与生产数据位于同一块云盘；正式测试前必须再同步至少一份到独立云盘或对象存储，并定期从该副本执行恢复演练。
 
 ## 10. 上线后验证
 
