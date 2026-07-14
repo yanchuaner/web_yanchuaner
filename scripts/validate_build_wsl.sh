@@ -28,6 +28,7 @@ mkdir -p .tmp
 npm run db:generate
 npm run db:init
 npm run seed
+npm run release:check
 npm run build
 
 printf 'Isolated build passed: %s\n' "$BUILD_DIR"
