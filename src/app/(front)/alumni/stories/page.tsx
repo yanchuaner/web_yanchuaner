@@ -134,9 +134,9 @@ export default function AlumniStoriesPage() {
           <div>
             <p className="inline-flex items-center gap-2 rounded-full border border-line bg-brand/10 px-3 py-1 text-xs tracking-[0.18em] text-brand">
               <Feather size={14} />
-              STORY COLUMN
+              故事专栏
             </p>
-            <h1 className="font-heading mt-3 text-3xl font-bold text-brand-fg md:text-4xl">燕川故事 · 轻论坛专栏</h1>
+            <h1 className="font-heading mt-3 text-3xl font-bold text-brand-fg md:text-4xl">燕中故事</h1>
             <p className="mt-2 max-w-3xl text-sm leading-7 text-brand-fg/70 md:text-base">
               燕中校友的真实故事与经历分享。每一篇投稿经审核后公开发布，欢迎你的来稿。
             </p>
@@ -150,7 +150,7 @@ export default function AlumniStoriesPage() {
         <div className="mt-6 rounded-card border border-line bg-surface/30 p-3 md:p-4">
           <div className="mb-3 inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-brand">
             <Filter size={14} />
-            TAG FILTER
+            标签筛选
           </div>
           <ResponsiveTabs
             tabs={allTags.map((tag) => ({ id: tag, label: tag }))}
