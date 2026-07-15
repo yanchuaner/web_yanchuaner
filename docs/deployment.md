@@ -285,6 +285,7 @@ WorkingDirectory=/var/www/alumni-site/app
 EnvironmentFile=/var/www/alumni-site/.env
 Environment=NODE_ENV=production
 Environment=PORT=3000
+Environment=HOSTNAME=127.0.0.1
 Environment=NODE_OPTIONS=--max-old-space-size=384
 ExecStart=/usr/bin/node server.js
 Restart=always
@@ -398,6 +399,8 @@ sudo ss -lntp | grep -E '127.0.0.1:(3000|3001|4000)'
 
 预期三个端口各自只出现一个监听者。云安全组不得开放 `3000`、`3001`、`4000` 或 `5432`。
 
+2026 暑期暂时由少量受信任的校友会成员共用一个 Open WebUI 账号。网站 `/ai` 入口仍只对 `ROOT_ADMIN_EMAIL` 对应的网站超级管理员显示，其他成员直接访问 AI 域名；这不等于网站账号已经与 Open WebUI 完成统一身份集成。共享账号的聊天、图片、文件、额度和管理员权限全部共享，不得用于个人资料或其他敏感内容。长期开放前应改为独立普通账号或正式 SSO。
+
 ## 9. 备份
 
 推荐将 `scripts/backup.sh` 放到服务器并通过 cron 执行。核心逻辑如下：
@@ -421,11 +424,17 @@ find "$BACKUP_DIR" -name "*.db" -mtime +$RETENTION_DAYS -delete
 find "$BACKUP_DIR" -name "*.tar.gz" -mtime +$RETENTION_DAYS -delete
 ```
 
-cron 示例：
+与 AI 同机部署时的 cron 示例：
 
 ```bash
-sudo crontab -e
-0 2 * * * /var/www/alumni-site/app/scripts/backup.sh >> /var/log/alumni-backup.log 2>&1
+cat >/etc/cron.d/yanchuaner-backups <<'EOF'
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+15 2 * * * root /usr/bin/flock -n /run/lock/alumni-backup.lock /var/www/alumni-site/app/scripts/backup.sh daily >> /var/log/alumni-backup.log 2>&1
+0 4 * * 0 root cd /opt/yanchuaner/ai_yanchuaner && /usr/bin/flock -n /run/lock/ai-yanchuaner-backup.lock ./scripts/backup-data.sh >> /var/log/ai-yanchuaner-backup.log 2>&1
+EOF
+chmod 644 /etc/cron.d/yanchuaner-backups
 ```
 
 `backup.sh` 使用 SQLite 在线备份 API，并对数据库执行 `PRAGMA quick_check`，同时为数据库和上传归档生成 SHA-256 校验文件。本机 `/var/backups/alumni-site` 仍可能与生产数据位于同一块云盘；正式测试前必须再同步至少一份到独立云盘或对象存储，并定期从该副本执行恢复演练。

@@ -17,11 +17,13 @@ export default function FrontLayout({
       {/* 页脚 */}
       <footer className="glass relative z-10 border-t border-[#7C3AED]/10">
         <div className="mx-auto max-w-6xl px-4 py-5 md:px-8">
-          <div className="flex flex-col items-center justify-between gap-2 text-sm text-[#7C3AED]/70 md:flex-row">
-            <p>
-              © 2025-2026 燕中校友数字母港（个人公益版）
-            </p>
-            <p>{"声明：个人公益、非官方、无盈利"}</p>
+          <div className="flex flex-col items-center justify-between gap-2 text-center text-sm text-brand-fg/65 md:flex-row md:text-left">
+            <p>© 2025-2026 燕中校友数字母港</p>
+            <p>技术共建：詹勇弟、黄湘林、王俊</p>
+          </div>
+          <div className="mt-2 flex flex-col items-center justify-between gap-2 text-center text-xs text-brand-fg/45 md:flex-row md:text-left">
+            <p>运营维护：燕中校友汇</p>
+            <p>校友自主共建 · 非学校官方 · 公益无盈利</p>
           </div>
           <div className="mt-2 flex justify-center">
             <a

@@ -39,19 +39,12 @@ export default async function StudentsPage() {
           {cards.map((c) => {
             const Icon = ICON_MAP[c.icon] || BookOpen;
             const href = c.href || '#';
-            const colors = [
-              'from-[#7C3AED]/10 to-[#A78BFA]/5 border-[#7C3AED]/15',
-              'from-[#7C3AED]/8 to-[#4C1D95]/5 border-[#7C3AED]/10',
-              'from-[#A78BFA]/10 to-[#7C3AED]/5 border-[#A78BFA]/15',
-              'from-[#7C3AED]/12 to-[#4C1D95]/8 border-[#7C3AED]/10',
-            ];
-            const colorClass = colors[Math.abs(hashCode(c.id)) % colors.length];
 
             return (
               <Link
                 key={c.id}
                 href={href}
-                className={`group relative overflow-hidden rounded-card border bg-gradient-to-br ${colorClass} p-5 transition hover:shadow-lg hover:-translate-y-1`}
+                className="group relative overflow-hidden rounded-card border border-brand/15 bg-gradient-to-br from-brand/10 to-brand/5 p-5 transition hover:-translate-y-1 hover:shadow-lg"
               >
                 <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-brand/10">
                   <Icon size={22} className="text-brand" />
@@ -103,10 +96,4 @@ export default async function StudentsPage() {
       </GlassCard>
     </PageShell>
   );
-}
-
-function hashCode(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h |= 0; }
-  return h >>> 0; // 转为无符号整数，避免 Math.abs(INT_MIN) 溢出
 }

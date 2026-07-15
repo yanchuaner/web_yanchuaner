@@ -11,6 +11,7 @@ import { ChevronRight, Home } from 'lucide-react';
 const SEGMENT_LABELS: Record<string, string> = {
   admin: '控制台',
   users: '用户审核',
+  'user-claims': '旧资料认领',
   'identity-verifications': '身份认证',
   posts: '内容审核',
   news: '新闻管理',

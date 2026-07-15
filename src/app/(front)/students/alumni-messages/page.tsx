@@ -44,7 +44,7 @@ export default function AlumniMessagesPage() {
           eyebrow="ALUMNI MESSAGES"
           eyebrowIcon={BookOpen}
           title="校友寄语"
-          description="来自天南海北的学长学姐写给学弟学妹的话。当前内容为通用整理，真实校友寄语持续征集中。"
+          description="面向学弟学妹的成长建议。当前内容由编辑整理，真实校友寄语持续征集中。"
         />
 
         {/* Note */}
@@ -53,7 +53,7 @@ export default function AlumniMessagesPage() {
             <Quote size={18} className="mt-0.5 shrink-0 text-purple-500" />
             <div>
               <p className="text-sm leading-6 text-purple-700">
-                这些寄语代表了校友们共同的心声。欢迎各位校友通过下方入口分享你个人的真实寄语，我们将精选后更新在此页面。
+                当前内容为通用成长建议，不对应具体校友。欢迎各位校友通过下方入口分享真实寄语，我们将在获得授权并审核后署名发布。
               </p>
             </div>
           </div>
@@ -100,7 +100,7 @@ export default function AlumniMessagesPage() {
             <div>
               <h3 className="font-heading text-sm font-semibold text-amber-300">免责声明</h3>
               <p className="mt-1 text-xs leading-6 text-amber-300/80">
-                本页面内容为校友经验分享和通用整理，不代表燕川中学或校友会官方意见。每个人的经历和感受不同，请理性参考。
+                本页面现有内容由平台编辑整理，不代表任何具体校友、燕川中学或校友会的官方意见。每个人的经历和感受不同，请理性参考。
               </p>
             </div>
           </div>

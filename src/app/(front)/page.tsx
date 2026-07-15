@@ -21,79 +21,13 @@ import { JoinTriggerButton } from "@/components/JoinTriggerButton";
 import LatestUpdatesSection, {
   LatestUpdatesSkeleton,
 } from "@/components/LatestUpdatesSection";
+import CommunityTeamShowcase from "@/components/CommunityTeamShowcase";
 import { getCachedOrFetch } from "@/lib/cache";
 import prisma from "@/lib/db";
 import { getPageUser } from "@/lib/admin-auth";
 
-type TeamMember = {
-  name: string;
-  role: string;
-  university: string;
-  focus: string;
-  city: string;
-};
-
-const coBuilders: TeamMember[] = [
-  {
-    name: "黄湘林",
-    role: "技术支持",
-    university: "华南理工大学",
-    focus: "系统底座与数据安全",
-    city: "广州",
-  },
-  {
-    name: "左佳维",
-    role: "内容贡献",
-    university: "江西科技师范大学",
-    focus: "视觉风格与栏目策划",
-    city: "南昌",
-  },
-  {
-    name: "吴桐",
-    role: "内容贡献",
-    university: "香港树仁大学",
-    focus: "文字叙事与记忆归档",
-    city: "香港",
-  },
-  {
-    name: "杨菁",
-    role: "内容贡献",
-    university: "广东海洋大学",
-    focus: "视觉素材与文化展示",
-    city: "湛江",
-  },
-  {
-    name: "赖盈燕",
-    role: "运维协调",
-    university: "广州华商学院",
-    focus: "信息维护与流程管理",
-    city: "广州",
-  },
-  {
-    name: "朱国震",
-    role: "运维协调",
-    university: "深圳技术大学",
-    focus: "数据维护与运营支持",
-    city: "深圳",
-  },
-  {
-    name: "张正朋",
-    role: "通讯支持",
-    university: "海南大学",
-    focus: "社群联络与信息互通",
-    city: "海口",
-  },
-  {
-    name: "张一鸣",
-    role: "通讯支持",
-    university: "齐齐哈尔医学院",
-    focus: "线上互动与用户触达",
-    city: "齐齐哈尔",
-  },
-];
-
 const HOME_ANNOUNCEMENT_TEXT =
-  "📢 欢迎来到燕中校友数字母港！本站为个人公益平台，致力于连接校友、在校生与老师，打造温暖的燕中社区。";
+  "欢迎来到燕中校友数字母港。这里由校友共同建设与维护，用于连接彼此、留存记忆和支持校友协作。";
 
 async function computeDashboardStats() {
   try {
@@ -393,61 +327,9 @@ export default async function HomePage() {
           </section>
         </RevealSection>
 
-        <section
-          id="builders"
-          className="glass-card-base rounded-3xl border border-[#A78BFA]/20 bg-white/50 p-5 md:p-6 backdrop-blur-xl shadow-sm"
-        >
-          <RevealSection>
-            <div className="mb-8 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-widest text-[#7C3AED]">
-                  CO-BUILDERS
-                </p>
-                <h2 className="mt-2 font-heading text-2xl font-bold text-[#4C1D95] md:text-3xl">
-                  平台共建者
-                </h2>
-              </div>
-              <a
-                href="#top"
-                aria-label="返回顶部"
-                tabIndex={0}
-                className="inline-flex min-h-[44px] items-center rounded-full border border-[#A78BFA]/30 bg-white px-4 text-sm font-medium text-[#7C3AED] transition-all duration-300 hover:bg-[#F3E8FF] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF5FF]"
-              >
-                返回顶部
-              </a>
-            </div>
-          </RevealSection>
-
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {coBuilders.map((member, i) => (
-              <RevealSection
-                key={`${member.name}-${member.university}`}
-                delay={i * 0.08}
-                className="h-full flex flex-col"
-              >
-                <article
-                  className="card h-full w-full rounded-2xl border border-line bg-surface/50 p-4 backdrop-blur-md shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <p className="font-heading text-lg font-bold text-white">
-                    {member.name}
-                  </p>
-                  <p className="mt-1 text-sm font-medium text-brand">
-                    {member.role}
-                  </p>
-                  <p className="mt-3 text-sm text-brand-fg/70">
-                    {member.university}
-                  </p>
-                  <p className="mt-3 inline-block rounded-lg bg-purple-950/40 border border-purple-500/30 px-3 py-1 text-xs font-medium text-purple-200">
-                    {member.focus}
-                  </p>
-                  <p className="mt-3 text-sm text-brand-fg/50">
-                    城市：{member.city}
-                  </p>
-                </article>
-              </RevealSection>
-            ))}
-          </div>
-        </section>
+        <RevealSection>
+          <CommunityTeamShowcase />
+        </RevealSection>
 
         {!currentUser ? (
           /* 4. Join CTA */
@@ -473,7 +355,7 @@ export default async function HomePage() {
         <RevealSection>
           <div className="mt-8 flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-900/20 px-4 py-3 text-sm font-medium text-amber-200/90 shadow-[0_0_15px_rgba(245,158,11,0.05)] backdrop-blur-md">
             <span className="mt-0.5 text-base flex-shrink-0" aria-hidden="true">📢</span>
-            <span>声明：本站为个人发起的公益站点，非任何官方机构。全站无盈利、不收费，仅供情感连接、记忆留存与校友社区服务。</span>
+            <span>声明：本站由校友自主共建、燕中校友汇运营维护，非学校官方平台。全站无盈利、不收费，仅用于情感连接、记忆留存与校友社区服务。</span>
           </div>
         </RevealSection>
       </div>

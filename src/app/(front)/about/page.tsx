@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "学校介绍 - 深圳市燕川中学",
-  description: "深圳市新安中学(集团)燕川中学 - 航天科技特色高中，广东省智慧教育标杆校。了解燕川中学的办学历史、航天特色与校园文化。",
+  description: "了解深圳市新安中学（集团）燕川中学的办学历史、航天科技特色与校园文化。",
 };
 
 const ICON_MAP: Record<string, any> = {
@@ -33,12 +33,12 @@ export default async function AboutPage() {
       <GlassCard className="p-8 text-center flex flex-col items-center">
         <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-4 py-1.5 text-xs text-brand">
           <History size={14} />
-          深圳市新安中学(集团)成员校
+          深圳市新安中学（集团）成员校
         </div>
         <h1 className="font-heading text-3xl font-bold text-brand-fg md:text-5xl">深圳市燕川中学</h1>
         <p className="mt-4 text-lg text-brand md:text-xl font-medium">马踏飞燕 · 海纳百川 · 航天科技特色高中</p>
         <p className="mt-6 max-w-3xl mx-auto text-sm leading-7 text-gray-600 md:text-base">
-          深圳市新安中学(集团)燕川中学是深圳市委市政府高起点、高规格、高标准重点建设 of 现代化全寄宿制公办优质高中。学校坐落于粤港澳大湾区核心地带，以航天科技教育、智慧教育、个性教育三位一体的办学特色，致力于打造中国一流航天科技高中。
+          深圳市新安中学（集团）燕川中学是一所现代化全寄宿制公办高中。学校持续探索航天科技教育、智慧教育与个性教育融合发展，建设具有航天科技特色的校园文化与课程体系。
         </p>
         <div className="mt-8 flex justify-center gap-4">
           <ButtonLink href="/alumni/radar" variant="primary">查看校友通讯录</ButtonLink>
