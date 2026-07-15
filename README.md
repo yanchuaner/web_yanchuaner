@@ -78,7 +78,7 @@
 
 ### 前置条件
 
-- Node.js 20.x
+- Node.js 22.x LTS
 - npm 10.x
 - 本地开发可在 Windows 运行；生产构建必须在 WSL 或 Linux 原生文件系统中执行
 
