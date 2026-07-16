@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ArrowLeft, BookOpen, Shield } from "lucide-react";
+import { ArrowLeft, BookOpen } from "lucide-react";
 import { PageShell, GlassCard, PageHeader, ButtonLink } from "@/components/ui";
 
 export const metadata: Metadata = {
@@ -85,21 +85,6 @@ export default function LearningMethodsPage() {
               </ul>
             </div>
           ))}
-        </div>
-
-        {/* Disclaimer */}
-        <div className="mt-8 rounded-card border border-amber-500/15 bg-amber-500/5 p-5">
-          <div className="flex items-start gap-3">
-            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-500/10">
-              <Shield size={16} className="text-amber-300/80" />
-            </div>
-            <div>
-              <h3 className="font-heading text-sm font-semibold text-amber-300">免责声明</h3>
-              <p className="mt-1 text-xs leading-6 text-amber-300/80">
-                本页面内容为通用学习方法整理，仅供参考。每个人的学习习惯和节奏不同，具体学习安排应结合个人实际情况和老师建议。不构成任何学习效果承诺。
-              </p>
-            </div>
-          </div>
         </div>
 
         {/* Navigation */}

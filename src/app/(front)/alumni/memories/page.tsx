@@ -4,7 +4,7 @@ import { Camera, House, Landmark, LibraryBig, Mountain, Trees } from "lucide-rea
 import prisma from "@/lib/db";
 import fs from "node:fs";
 import path from "node:path";
-import { PageShell, GlassCard, EmptyState, DisclaimerBanner, ButtonLink } from "@/components/ui";
+import { PageShell, GlassCard, EmptyState, ButtonLink } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -104,7 +104,7 @@ export default async function AlumniMemoriesPage() {
                       />
                     ) : null}
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-overlay/60 via-transparent to-transparent opacity-80" />
 
                     {!item.hasImage ? (
                       <div className="absolute inset-0 flex items-center justify-center px-3 text-center text-xs font-semibold tracking-[0.16em] text-brand/70">
@@ -134,9 +134,6 @@ export default async function AlumniMemoriesPage() {
           </div>
         )}
 
-        <DisclaimerBanner withIcon className="mt-6">
-          合规提示：本展区仅用于文化记忆展示，不承载任何官方认证、人身证明或商业用途。
-        </DisclaimerBanner>
       </GlassCard>
     </PageShell>
   );

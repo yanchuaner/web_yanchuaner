@@ -3,10 +3,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { Search, CheckCircle2, Loader2, Send, FileEdit } from 'lucide-react';
 import { useAuth } from '@/components/AuthProvider';
-import { PageShell, GlassCard, Button, ButtonLink, EmptyState, DisclaimerBanner, FormStatus } from '@/components/ui';
+import { PageShell, GlassCard, Button, ButtonLink, EmptyState, FormStatus } from '@/components/ui';
 import { api } from '@/lib/apiClient';
 import { toast } from 'sonner';
 import { formatClassName, formatGraduationClass } from '@/lib/identity-fields';
+import { useThemeAndLocale } from '@/components/ThemeAndLocaleProvider';
 
 type AlumniResult = {
   id: string;
@@ -33,6 +34,7 @@ function fieldOrDefault(current: string | undefined | null, requested: string): 
 }
 
 export default function AlumniCorrectionPage() {
+  const { t, locale } = useThemeAndLocale();
   const { isLoggedIn, isLoading: authLoading } = useAuth();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<AlumniResult[]>([]);
@@ -79,7 +81,7 @@ export default function AlumniCorrectionPage() {
   const handleSearch = async () => {
     const q = query.trim();
     if (!q || q.length < 2) {
-      setSearchError('请输入至少2个字符');
+      setSearchError(t('correction.errors.queryLength'));
       return;
     }
     setSearching(true);
@@ -88,12 +90,12 @@ export default function AlumniCorrectionPage() {
     setSearched(true);
     try {
       const res = await fetch(`/api/alumni/search?q=${encodeURIComponent(q)}`);
-      if (!res.ok) throw new Error('搜索失败');
+      if (!res.ok) throw new Error(t('correction.errors.search'));
       const data = await res.json();
       setResults(data.results || []);
     } catch {
-      setSearchError('搜索失败，请稍后重试');
-      toast.error('搜索失败，请重试');
+      setSearchError(t('correction.errors.search'));
+      toast.error(t('correction.errors.search'));
     } finally {
       setSearching(false);
     }
@@ -114,19 +116,19 @@ export default function AlumniCorrectionPage() {
   const handleSubmit = async () => {
     if (!selected) return;
     if (!isLoggedIn) {
-      setFormError('请先登录后再提交修正申请');
+      setFormError(t('correction.errors.signIn'));
       return;
     }
     if (!contactLoaded) {
-      setFormError('正在读取个人联系方式，请稍候再提交');
+      setFormError(t('correction.errors.loadingContact'));
       return;
     }
     if (!applicantContact.trim()) {
-      setFormError('请先在个人中心补充联系方式，再提交修正申请');
+      setFormError(t('correction.errors.contactRequired'));
       return;
     }
     if (!reason.trim() || reason.trim().length < 5 || reason.trim().length > 1000) {
-      setFormError('修改说明至少5字，不超过1000字');
+      setFormError(t('correction.errors.reasonLength'));
       return;
     }
 
@@ -157,8 +159,8 @@ export default function AlumniCorrectionPage() {
         }
       }
       if (!hasDiff) {
-        setFormError('修改内容与当前信息相同，请检查后重新提交');
-        toast.warning('修改内容与当前信息相同');
+        setFormError(t('correction.errors.noChanges'));
+        toast.warning(t('correction.errors.noChanges'));
         setSubmitting(false);
         return;
       }
@@ -169,13 +171,13 @@ export default function AlumniCorrectionPage() {
       const res = await fetch('/api/alumni/correction-requests', { method: 'POST', body: fd });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || '提交失败');
+        throw new Error(t('correction.errors.submit'));
       }
       setSubmitted(true);
-      toast.success('申请提交成功');
+      toast.success(t('correction.successToast'));
     } catch (err: any) {
       setFormError(err.message);
-      toast.error('提交失败: ' + err.message);
+      toast.error(`${t('correction.errors.submit')}: ${err.message}`);
     } finally {
       setSubmitting(false);
     }
@@ -193,37 +195,37 @@ export default function AlumniCorrectionPage() {
             <p className="inline-flex items-center gap-2 rounded-full border border-line bg-brand/10 px-3 py-1 text-xs tracking-[0.18em] text-brand">
               <FileEdit size={14} /> CORRECTION
             </p>
-            <h1 className="font-heading mt-3 text-2xl font-bold text-brand-fg sm:text-3xl md:text-4xl">基础身份修正申请</h1>
-            <p className="mt-2 text-sm leading-7 text-brand-fg/70">搜索你的姓名，核对当前信息，提交姓名、届别、班级的修正申请。其他资料请在个人中心修改，邮箱如需变更请联系管理员。</p>
+            <h1 className="font-heading mt-3 text-2xl font-bold text-brand-fg sm:text-3xl md:text-4xl">{t('correction.title')}</h1>
+            <p className="mt-2 text-sm leading-7 text-brand-fg/70">{t('correction.description')}</p>
           </div>
           <ButtonLink href="/me" variant="secondary" className="w-full shrink-0 sm:w-auto">
-            返回个人中心
+            {t('correction.backProfile')}
           </ButtonLink>
         </div>
 
         <FormStatus
           tone="info"
-          title="这里只处理锁定字段"
-          description="姓名、届别、班级走修正申请；联系方式、学校、专业、城市、行业请直接在个人中心编辑。"
+          title={t('correction.lockedTitle')}
+          description={t('correction.lockedDescription')}
           className="mt-6"
         />
 
         {contactLoaded && !applicantContact.trim() ? (
           <FormStatus
             tone="warning"
-            title={isLoggedIn ? '请先补充联系方式' : '请先登录'}
-            description={isLoggedIn ? '修正申请会使用你在个人中心填写的联系方式作为回执。当前未获取到联系方式，请先去个人中心完善后再提交。' : '登录后可读取你的个人资料并提交修正申请。'}
+            title={t(isLoggedIn ? 'correction.contactTitle' : 'correction.signInTitle')}
+            description={t(isLoggedIn ? 'correction.contactDescription' : 'correction.signInDescription')}
             className="mt-3"
           />
         ) : null}
         {!isLoggedIn && contactLoaded ? (
           <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-card border border-line bg-brand/5 p-4">
             <div>
-              <p className="text-sm font-medium text-brand-fg">需要登录后提交</p>
-              <p className="mt-1 text-xs leading-6 text-brand-fg/60">你仍然可以先搜索并核对信息，提交申请前请先登录。</p>
+              <p className="text-sm font-medium text-brand-fg">{t('correction.submitRequiresLogin')}</p>
+              <p className="mt-1 text-xs leading-6 text-brand-fg/60">{t('correction.submitRequiresLoginDescription')}</p>
             </div>
             <ButtonLink href="/login" variant="secondary" size="sm" className="w-full sm:w-auto">
-              去登录
+              {t('auth.login.submit')}
             </ButtonLink>
           </div>
         ) : null}
@@ -235,7 +237,7 @@ export default function AlumniCorrectionPage() {
                 <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-brand-fg/40" />
                 <input
                   type="text"
-                  placeholder="输入你的姓名搜索..."
+                  placeholder={t('correction.searchPlaceholder')}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -245,13 +247,13 @@ export default function AlumniCorrectionPage() {
               </div>
               <Button onClick={handleSearch} disabled={searching} className="gap-1.5 w-full sm:w-auto shrink-0" variant="secondary">
                 {searching ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
-                搜索
+                {t('correction.searchAction')}
               </Button>
             </div>
             {searchError && (
               <FormStatus
                 tone="danger"
-                title="搜索未完成"
+                title={t('correction.searchErrorTitle')}
                 description={searchError}
                 className="mt-3"
               />
@@ -261,22 +263,22 @@ export default function AlumniCorrectionPage() {
                 {results.length === 0 ? (
                   <EmptyState
                     icon={Search}
-                    title="未找到匹配的校友"
-                    description="请核对姓名。如确认本人信息未入库或有误，请联系管理员。"
+                    title={t('correction.emptyTitle')}
+                    description={t('correction.emptyDescription')}
                   />
                 ) : (
                   <div className="space-y-2">
-                    <p className="text-xs text-brand-fg/40">找到 {results.length} 条记录</p>
+                    <p className="text-xs text-brand-fg/40">{t('correction.resultCount').replace('{count}', String(results.length))}</p>
                     {results.map((item) => (
                       <div key={item.id} className="flex flex-col justify-between gap-3 rounded-card border border-line bg-surface/50 px-4 py-3 transition hover:bg-brand/5 sm:flex-row sm:items-center">
                         <div className="min-w-0 flex-1">
                           <p className="break-words text-sm font-medium text-brand-fg">{item.name}</p>
                           <p className="mt-0.5 break-words text-xs text-brand-fg/50">
-                            {formatGraduationClass(item.graduationClass) || '届别未知'}{item.className && ` · ${formatClassName(item.className)}`}
+                            {item.graduationClass ? (locale === 'zh' ? formatGraduationClass(item.graduationClass) : `${item.graduationClass.replace(/\D/g, '')} Cohort`) : t('correction.unknownCohort')}{item.className && ` · ${locale === 'zh' ? formatClassName(item.className) : `Class ${item.className.replace(/\D/g, '')}`}`}
                           </p>
                         </div>
                         <Button onClick={() => openForm(item)} variant="secondary" size="sm" className="w-full sm:w-auto shrink-0">
-                          申请修改
+                          {t('correction.requestChange')}
                         </Button>
                       </div>
                     ))}
@@ -284,29 +286,26 @@ export default function AlumniCorrectionPage() {
                 )}
               </div>
             )}
-            <DisclaimerBanner withIcon className="mt-6">
-              请勿提交他人隐私信息或未经授权的联系方式。
-            </DisclaimerBanner>
           </>
         )}
 
         {selected && !submitted && (
           <div className="mt-6 space-y-4">
             <div className="rounded-card border border-line bg-brand/5 px-4 py-3">
-              <p className="text-xs text-brand-fg/40">当前信息</p>
+              <p className="text-xs text-brand-fg/40">{t('correction.currentInfo')}</p>
               <p className="mt-1 break-words text-sm font-medium text-brand-fg">{selected.name}</p>
               <p className="break-words text-xs text-brand-fg/60">
-                {formatGraduationClass(selected.graduationClass) || '届别未知'}
-                {selected.className && ` · ${formatClassName(selected.className)}`}
+                {selected.graduationClass ? (locale === 'zh' ? formatGraduationClass(selected.graduationClass) : `${selected.graduationClass.replace(/\D/g, '')} Cohort`) : t('correction.unknownCohort')}
+                {selected.className && ` · ${locale === 'zh' ? formatClassName(selected.className) : `Class ${selected.className.replace(/\D/g, '')}`}`}
               </p>
             </div>
 
             <input ref={websiteRef} type="text" name="website" tabIndex={-1} autoComplete="off" style={{ position: 'absolute', left: '-9999px' }} aria-hidden="true" />
 
             {([
-              ['requestedName', '姓名'],
-              ['requestedGraduationClass', '届别'],
-              ['requestedClassName', '班级'],
+              ['requestedName', t('correction.fields.name')],
+              ['requestedGraduationClass', t('correction.fields.cohort')],
+              ['requestedClassName', t('correction.fields.className')],
             ] as [keyof RequestForm, string][]).map(([key, label]) => (
               <div key={key}>
                 <label className="mb-1 block text-sm font-medium text-brand-fg" htmlFor={`correction-${key}`}>
@@ -318,35 +317,35 @@ export default function AlumniCorrectionPage() {
                   value={form[key]}
                   onChange={(e) => updateField(key, e.target.value)}
                   className="input w-full"
-                  placeholder="留空表示不修改"
+                  placeholder={t('correction.noChangePlaceholder')}
                 />
                 </div>
               ))}
             <div>
               <label className="mb-1 block text-sm font-medium text-brand-fg" htmlFor="correction-reason">
-                修改说明 *
+                {t('correction.reason')} *
               </label>
               <textarea
                 id="correction-reason"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 className="input w-full min-h-[80px] resize-y"
-                placeholder="请描述需要修改的内容及原因"
+                placeholder={t('correction.reasonPlaceholder')}
                 rows={3}
               />
             </div>
 
             {formError && (
-              <FormStatus tone="danger" title="申请未提交" description={formError} />
+              <FormStatus tone="danger" title={t('correction.submitErrorTitle')} description={formError} />
             )}
 
             <div className="flex flex-col-reverse items-center gap-3 sm:flex-row">
               <Button type="button" onClick={() => setSelected(null)} disabled={submitting} variant="secondary" className="w-full sm:w-auto min-h-[44px]">
-                返回
+                {t('correction.back')}
               </Button>
               <Button onClick={handleSubmit} disabled={submitting || !contactLoaded || !applicantContact.trim()} className="gap-1.5 w-full sm:w-auto min-h-[44px]" variant="primary">
                 {submitting ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-                {submitting ? '提交中...' : '提交申请'}
+                {submitting ? t('correction.submitting') : t('correction.submit')}
               </Button>
             </div>
           </div>
@@ -354,14 +353,14 @@ export default function AlumniCorrectionPage() {
 
         {submitted && (
           <div className="mt-6 space-y-4 text-center">
-            <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-card bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-card bg-success/10 text-success border border-success/20">
               <CheckCircle2 size={28} />
             </div>
-            <h2 className="font-heading mt-4 text-lg font-bold text-brand-fg">申请已提交</h2>
+            <h2 className="font-heading mt-4 text-lg font-bold text-brand-fg">{t('correction.successTitle')}</h2>
             <FormStatus
               tone="success"
-              title="请等待管理员审核"
-              description="审核通过后信息将自动更新。如还有其他记录需要修正，可以继续发起申请。"
+              title={t('correction.reviewTitle')}
+              description={t('correction.reviewDescription')}
             />
             <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
               <Button
@@ -375,10 +374,10 @@ export default function AlumniCorrectionPage() {
                 variant="secondary"
                 className="w-full sm:w-auto min-h-[44px]"
               >
-                继续提交其他申请
+                {t('correction.continueAction')}
               </Button>
               <ButtonLink href="/" variant="primary" className="w-full sm:w-auto min-h-[44px]">
-                返回首页
+                {t('common.backHome')}
               </ButtonLink>
             </div>
           </div>

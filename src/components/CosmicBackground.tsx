@@ -2,21 +2,31 @@
 
 import React, { memo } from "react";
 
-/**
- * 首页氛围背景：一层克制的渐变光晕。
- * 早期版本叠加了星空 / 流星 / 噪点多套动画，视觉过载且耗 GPU，
- * 现精简为单层柔和光晕，仅用于首页 Hero，其余页面保持纯净留白。
- */
+/** Theme-aware hero atmosphere: night sky in dark mode, orbital chart in light. */
 const CosmicBackground = memo(function CosmicBackground() {
   return (
     <div
       aria-hidden="true"
       className="pointer-events-none absolute inset-0 overflow-hidden"
     >
-      {/* 渐变星云光晕 */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(124,58,237,0.12),transparent_45%),radial-gradient(circle_at_80%_90%,rgba(167,139,250,0.15),transparent_50%)]" />
-      {/* 动态流星扫过层 */}
-      <div className="meteor-layer absolute inset-0 opacity-[0.15]" />
+      <div className="cosmic-theme-glow absolute inset-0" />
+      <div className="cosmic-night-chart absolute inset-0">
+        <span className="cosmic-night-route cosmic-night-route-a" />
+        <span className="cosmic-night-route cosmic-night-route-b" />
+        <span className="cosmic-night-node cosmic-night-node-a" />
+        <span className="cosmic-night-node cosmic-night-node-b" />
+        <span className="cosmic-night-node cosmic-night-node-c" />
+        <span className="cosmic-night-node cosmic-night-node-d" />
+      </div>
+      <div className="cosmic-daylight-chart absolute inset-0">
+        <span className="cosmic-daylight-orbit cosmic-daylight-orbit-a" />
+        <span className="cosmic-daylight-orbit cosmic-daylight-orbit-b" />
+        <span className="cosmic-daylight-axis" />
+        <span className="cosmic-daylight-node cosmic-daylight-node-a" />
+        <span className="cosmic-daylight-node cosmic-daylight-node-b" />
+        <span className="cosmic-daylight-node cosmic-daylight-node-c" />
+      </div>
+      <div className="meteor-layer absolute inset-0" />
     </div>
   );
 });

@@ -25,6 +25,7 @@ function snapshot(user: {
   role: string;
   status: string;
   verificationStatus: string;
+  verificationMethod: string | null;
   identityType: string | null;
   accountStatus: string;
   emailVerified: Date | null;
@@ -35,6 +36,7 @@ function snapshot(user: {
     role: user.role,
     status: user.status,
     verificationStatus: user.verificationStatus,
+    verificationMethod: user.verificationMethod,
     identityType: user.identityType,
     accountStatus: user.accountStatus,
     emailVerified: user.emailVerified,
@@ -192,6 +194,7 @@ export async function POST(
               role: target.role === "ADMIN" ? "ADMIN" : "ALUMNI",
               status: "VERIFIED",
               verificationStatus: "VERIFIED" as const,
+              verificationMethod: "ADMIN_REVIEW" as const,
               identityType: "ALUMNI" as const,
               sessionVersion: { increment: 1 },
             }

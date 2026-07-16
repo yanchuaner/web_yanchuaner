@@ -7,6 +7,8 @@ import { EmptyState, ResponsiveTabs } from '@/components/ui';
 import { toast } from 'sonner';
 import { useDialogA11y } from '@/hooks/useDialogA11y';
 import { AdminPagination } from '@/components/admin/AdminPagination';
+import { useAdminLocalize } from '@/components/admin/AdminLocalizedText';
+import { useThemeAndLocale } from '@/components/ThemeAndLocaleProvider';
 
 const PAGE_SIZE = 20;
 
@@ -23,6 +25,8 @@ const typeLabel: Record<string, string> = { STORY: '校友故事', EVENT: '母�
 const statusLabel: Record<string, string> = { DRAFT: '草稿', PENDING: '待审', PUBLISHED: '已发布', REJECTED: '已驳回' };
 
 export default function AdminPostsPage() {
+  const localize = useAdminLocalize();
+  const { locale } = useThemeAndLocale();
   const [posts, setPosts] = useState<PostRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,13 +44,13 @@ export default function AdminPostsPage() {
     setError(null);
     try {
       const res = await fetch(`/api/admin/posts?status=${statusFilter}&limit=${PAGE_SIZE}&offset=${(page - 1) * PAGE_SIZE}`);
-      if (!res.ok) throw new Error('获取内容列表失败');
+      if (!res.ok) throw new Error(localize('获取内容列表失败'));
       const data = await res.json();
       setPosts(data.posts || []);
       setTotal(data.total || 0);
     } catch (err: any) {
       setError(err.message);
-      toast.error('获取内容列表失败: ' + err.message);
+      toast.error(`${localize('获取内容列表失败')}: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -59,18 +63,20 @@ export default function AdminPostsPage() {
 
   const updatePost = async (id: string, status: string) => {
     const actionLabel = status === 'PUBLISHED' ? '发布' : '驳回或下架';
-    if (!window.confirm(`确认${actionLabel}这条内容吗？操作会写入审计日志。`)) return;
+    if (!window.confirm(locale === 'en'
+      ? `${status === 'PUBLISHED' ? 'Publish' : 'Reject or unpublish'} this item? The action will be written to the audit log.`
+      : `确认${actionLabel}这条内容吗？操作会写入审计日志。`)) return;
     try {
       const res = await fetch('/api/admin/posts', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, status }),
       });
-      if (!res.ok) throw new Error('更新状态失败');
-      toast.success('状态更新成功');
+      if (!res.ok) throw new Error(localize('更新状态失败'));
+      toast.success(localize('状态更新成功'));
       fetchPosts();
     } catch (err: any) {
-      toast.error('操作失败: ' + err.message);
+      toast.error(`${localize('操作失败')}: ${err.message}`);
     }
   };
 
@@ -83,14 +89,14 @@ export default function AdminPostsPage() {
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || '删除失败');
+        throw new Error(data.error || localize('删除失败'));
       }
-      toast.success('删除成功');
+      toast.success(localize('删除成功'));
       setPosts((prev) => prev.filter((p) => p.id !== confirmDelete.id));
       setTotal((current) => Math.max(0, current - 1));
       setConfirmDelete(null);
     } catch (err: any) {
-      toast.error('删除失败: ' + err.message);
+      toast.error(`${localize('删除失败')}: ${err.message}`);
     } finally {
       setDeleting(null);
     }
@@ -98,14 +104,14 @@ export default function AdminPostsPage() {
 
   const statusBadge = (s: string) => {
     const map: Record<string, string> = {
-      PENDING: 'border-amber-500/20 text-amber-400 bg-amber-500/10',
-      PUBLISHED: 'border-emerald-500/20 text-emerald-400 bg-emerald-500/10',
-      REJECTED: 'border-rose-500/20 text-rose-400 bg-rose-500/10',
+      PENDING: 'border-warning/20 text-warning bg-warning/10',
+      PUBLISHED: 'border-success/20 text-success bg-success/10',
+      REJECTED: 'border-danger/20 text-danger bg-danger/10',
       DRAFT: 'border-line text-brand-fg/60 bg-surface/50',
     };
     return (
       <span className={`inline-block rounded-full border px-2.5 py-0.5 text-xs ${map[s] || ''}`}>
-        {statusLabel[s] || s}
+        {localize(statusLabel[s] || s)}
       </span>
     );
   };
@@ -113,7 +119,7 @@ export default function AdminPostsPage() {
   const filters = ['PENDING', 'PUBLISHED', 'REJECTED', 'DRAFT'];
   const tabItems = filters.map((f) => ({
     id: f,
-    label: statusLabel[f] || f,
+    label: localize(statusLabel[f] || f),
   }));
 
   return (
@@ -130,11 +136,11 @@ export default function AdminPostsPage() {
           className="mb-4"
       />
       <p className="mt-2 text-xs text-brand-fg/45">
-        当前筛选：{statusLabel[statusFilter] || statusFilter} · 显示 {posts.length} 条
+        {localize('当前筛选')}: {localize(statusLabel[statusFilter] || statusFilter)} · {localize('显示')} {posts.length} {localize('条')}
       </p>
 
         {error && (
-          <div className="mb-4 rounded-card border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
+          <div className="mb-4 rounded-card border border-danger/20 bg-danger/10 px-4 py-3 text-sm text-danger">
             {error}
           </div>
         )}
@@ -146,32 +152,32 @@ export default function AdminPostsPage() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-8 w-8 bg-brand/50"></span>
               </span>
-              <span className="text-xs font-semibold font-heading animate-pulse">加载中...</span>
+              <span className="text-xs font-semibold font-heading animate-pulse">{localize('加载中...')}</span>
             </div>
           </div>
         ) : posts.length === 0 ? (
           <EmptyState
             icon={FileText}
-            title="暂无匹配的内容记录"
-            description="校友投稿审核处理完毕后将在此归档显示"
+            title={localize('暂无匹配的内容记录')}
+            description={localize('校友投稿审核处理完毕后将在此归档显示')}
           />
         ) : (
           <div className="overflow-x-auto rounded-card border border-line bg-surface/50 backdrop-blur-md">
             <table className="w-full text-left text-sm">
               <thead className="border-b border-line text-brand-fg/60">
                 <tr>
-                  <th className="px-4 py-3 font-medium">标题</th>
-                  <th className="px-4 py-3 font-medium hidden sm:table-cell">类型</th>
-                  <th className="px-4 py-3 font-medium hidden sm:table-cell">作者</th>
-                  <th className="px-4 py-3 font-medium">状态</th>
-                  <th className="px-4 py-3 font-medium">操作</th>
+                  <th className="px-4 py-3 font-medium">{localize('标题')}</th>
+                  <th className="px-4 py-3 font-medium hidden sm:table-cell">{localize('类型')}</th>
+                  <th className="px-4 py-3 font-medium hidden sm:table-cell">{localize('作者')}</th>
+                  <th className="px-4 py-3 font-medium">{localize('状态')}</th>
+                  <th className="px-4 py-3 font-medium">{localize('操作')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
                 {posts.map((post) => (
                   <tr key={post.id} className="text-brand-fg/70 transition hover:bg-brand/5">
                     <td className="px-4 py-3 font-medium text-brand-fg">{post.title}</td>
-                    <td className="px-4 py-3 hidden sm:table-cell">{typeLabel[post.type] || post.type}</td>
+                    <td className="px-4 py-3 hidden sm:table-cell">{localize(typeLabel[post.type] || post.type)}</td>
                     <td className="px-4 py-3 hidden sm:table-cell">{post.author?.name || '-'}</td>
                     <td className="px-4 py-3">{statusBadge(post.status)}</td>
                     <td className="px-4 py-3">
@@ -180,44 +186,44 @@ export default function AdminPostsPage() {
                           <>
                             <button
                               onClick={() => updatePost(post.id, 'PUBLISHED')}
-                              className="inline-flex items-center gap-1 rounded-btn border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-400 transition hover:bg-emerald-500/20 cursor-pointer min-h-[32px]"
+                              className="inline-flex items-center gap-1 rounded-btn border border-success/20 bg-success/10 px-2.5 py-1 text-xs text-success transition hover:bg-success/20 cursor-pointer min-h-[32px]"
                             >
                               <CheckCircle size={14} />
-                              发布
+                              {localize('发布')}
                             </button>
                             <button
                               onClick={() => updatePost(post.id, 'REJECTED')}
-                              className="inline-flex items-center gap-1 rounded-btn border border-rose-500/20 bg-rose-500/10 px-2.5 py-1 text-xs text-rose-400 transition hover:bg-rose-500/20 cursor-pointer min-h-[32px]"
+                              className="inline-flex items-center gap-1 rounded-btn border border-danger/20 bg-danger/10 px-2.5 py-1 text-xs text-danger transition hover:bg-danger/20 cursor-pointer min-h-[32px]"
                             >
                               <XCircle size={14} />
-                              驳回
+                              {localize('驳回')}
                             </button>
                           </>
                         )}
                         {post.status === 'PUBLISHED' && (
                           <button
                             onClick={() => updatePost(post.id, 'REJECTED')}
-                            className="inline-flex items-center gap-1 rounded-btn border border-rose-500/20 bg-rose-500/10 px-2.5 py-1 text-xs text-rose-400 transition hover:bg-rose-500/20 cursor-pointer min-h-[32px]"
+                            className="inline-flex items-center gap-1 rounded-btn border border-danger/20 bg-danger/10 px-2.5 py-1 text-xs text-danger transition hover:bg-danger/20 cursor-pointer min-h-[32px]"
                           >
                             <XCircle size={14} />
-                            下架
+                            {localize('下架')}
                           </button>
                         )}
                         {post.status === 'REJECTED' && (
                           <button
                             onClick={() => updatePost(post.id, 'PUBLISHED')}
-                            className="inline-flex items-center gap-1 rounded-btn border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-400 transition hover:bg-emerald-500/20 cursor-pointer min-h-[32px]"
+                            className="inline-flex items-center gap-1 rounded-btn border border-success/20 bg-success/10 px-2.5 py-1 text-xs text-success transition hover:bg-success/20 cursor-pointer min-h-[32px]"
                           >
                             <CheckCircle size={14} />
-                            重新发布
+                            {localize('重新发布')}
                           </button>
                         )}
                         <button
                           onClick={() => setConfirmDelete(post)}
-                          className="inline-flex items-center gap-1 rounded-btn border border-rose-500/20 bg-rose-500/10 px-2.5 py-1 text-xs text-rose-400 transition hover:bg-rose-500/20 cursor-pointer min-h-[32px]"
+                          className="inline-flex items-center gap-1 rounded-btn border border-danger/20 bg-danger/10 px-2.5 py-1 text-xs text-danger transition hover:bg-danger/20 cursor-pointer min-h-[32px]"
                         >
                           <Trash2 size={14} />
-                          删除
+                          {localize('删除')}
                         </button>
                       </div>
                     </td>
@@ -234,15 +240,17 @@ export default function AdminPostsPage() {
       {confirmDelete && (
         <div 
           ref={deleteDialogRef}
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm px-4 pb-safe sm:pb-4"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-overlay/60 backdrop-blur-sm px-4 pb-safe sm:pb-4"
           role="dialog"
           aria-modal="true"
           aria-labelledby="delete-confirm-title"
         >
           <div className="w-full max-w-md rounded-modal border border-line bg-surface p-6 shadow-lg backdrop-blur-md mb-4 sm:mb-0 animate-slide-in sm:animate-fade-in">
-            <h3 id="delete-confirm-title" className="text-lg font-semibold text-brand font-heading">确认删除</h3>
+            <h3 id="delete-confirm-title" className="text-lg font-semibold text-brand font-heading">{localize('确认删除')}</h3>
             <p className="mt-3 text-sm leading-6 text-brand-fg/70">
-              确定删除投稿《{confirmDelete.title}》（{confirmDelete.author?.name || '未知作者'}）吗？此操作不可撤销。
+              {locale === 'en'
+                ? `Delete submission “${confirmDelete.title}” by ${confirmDelete.author?.name || localize('未知作者')}? This action cannot be undone.`
+                : `确定删除投稿《${confirmDelete.title}》（${confirmDelete.author?.name || '未知作者'}）吗？此操作不可撤销。`}
             </p>
             <div className="mt-5 flex flex-col-reverse sm:flex-row justify-end gap-3">
               <button
@@ -250,14 +258,14 @@ export default function AdminPostsPage() {
                 disabled={!!deleting}
                 className="w-full sm:w-auto min-h-[44px] rounded-btn border border-line bg-surface/50 px-4 py-2 text-sm text-brand-fg/70 transition hover:bg-brand/5 hover:text-brand cursor-pointer"
               >
-                取消
+                {localize('取消')}
               </button>
               <button
                 onClick={handleDelete}
                 disabled={!!deleting}
-                className="inline-flex w-full sm:w-auto min-h-[44px] items-center justify-center gap-2 rounded-btn border border-rose-500/20 bg-rose-500/10 px-4 py-2 text-sm text-rose-400 transition hover:bg-rose-500/20 cursor-pointer disabled:opacity-50"
+                className="inline-flex w-full sm:w-auto min-h-[44px] items-center justify-center gap-2 rounded-btn border border-danger/20 bg-danger/10 px-4 py-2 text-sm text-danger transition hover:bg-danger/20 cursor-pointer disabled:opacity-50"
               >
-                {deleting ? '删除中...' : '确认删除'}
+                {localize(deleting ? '删除中...' : '确认删除')}
               </button>
             </div>
           </div>

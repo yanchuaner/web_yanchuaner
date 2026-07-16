@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { AdminPageShell } from '@/components/admin/AdminPageShell';
 import { toast } from 'sonner';
+import { useAdminLocalize } from '@/components/admin/AdminLocalizedText';
 
 function toLocalDatetime(isoString: string): string {
   const d = new Date(isoString);
@@ -20,6 +21,7 @@ function toISODatetime(localValue: string): string {
 }
 
 export default function AdminEventsEditPage() {
+  const localize = useAdminLocalize();
   const router = useRouter();
   const params = useParams();
   const [form, setForm] = useState({
@@ -43,7 +45,7 @@ export default function AdminEventsEditPage() {
     const fetchEvent = async () => {
       try {
         const res = await fetch(`/api/admin/events/${params.id}`);
-        if (!res.ok) throw new Error('获取活动失败');
+        if (!res.ok) throw new Error(localize('获取活动失败'));
         const data = await res.json();
         const e = data.event;
         setForm({
@@ -65,7 +67,7 @@ export default function AdminEventsEditPage() {
       }
     };
     fetchEvent();
-  }, [params.id]);
+  }, [localize, params.id]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -80,7 +82,7 @@ export default function AdminEventsEditPage() {
       const data = await res.json();
       setForm((prev) => ({ ...prev, coverImage: data.url }));
     } catch (err: any) {
-      toast.error('上传失败: ' + err.message);
+      toast.error(`${localize('上传失败')}: ${err.message}`);
     } finally {
       setUploading(false);
     }
@@ -89,7 +91,7 @@ export default function AdminEventsEditPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim() || !form.content.trim()) {
-      setError('标题和正文不能为空');
+      setError(localize('标题和正文不能为空'));
       return;
     }
 
@@ -116,20 +118,20 @@ export default function AdminEventsEditPage() {
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || '更新失败');
+        throw new Error(data.error || localize('更新失败'));
       }
-      toast.success('更新成功');
+      toast.success(localize('更新成功'));
       router.push('/admin/events');
     } catch (err: any) {
       setError(err.message);
-      toast.error(err.message || '更新失败');
+      toast.error(err.message || localize('更新失败'));
       setSubmitting(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20 text-[#4C1D95]/60">加载中...</div>
+      <div className="flex items-center justify-center py-20 text-main/60">{localize('加载中...')}</div>
     );
   }
 
@@ -143,77 +145,77 @@ export default function AdminEventsEditPage() {
           className="inline-flex items-center gap-2 rounded-btn border border-line bg-surface/50 px-4 py-2.5 text-sm text-brand transition hover:bg-brand/5 cursor-pointer"
         >
           <ArrowLeft size={16} />
-          返回列表
+          {localize('返回列表')}
         </Link>
       }
     >
       <div className="space-y-4">
 
       {error && (
-        <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        <div className="mb-4 rounded-xl border border-danger/25 bg-danger/10 px-4 py-3 text-sm text-danger">
           {error}
         </div>
       )}
 
-      <div className="mb-6 rounded-2xl border border-[#7C3AED]/10 bg-white/50 p-4 backdrop-blur-sm">
+      <div className="mb-6 rounded-2xl border border-brand/10 bg-surface/50 p-4 backdrop-blur-sm">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-[#4C1D95]/80">
-            <Users size={18} className="text-[#7C3AED]" />
+          <div className="flex items-center gap-2 text-sm text-main/80">
+            <Users size={18} className="text-brand" />
             <span>
-              当前报名人数：{registrationCount}
-              {form.maxAttendees ? ` / ${form.maxAttendees} 人` : " / 不限"}
+              {localize('当前报名人数')}: {registrationCount}
+              {form.maxAttendees ? ` / ${form.maxAttendees} ${localize('人')}` : ` / ${localize('不限')}`}
             </span>
           </div>
           <Link
             href={`/admin/events/${params.id}/registrations`}
-            className="inline-flex items-center gap-1 rounded-lg border border-[#7C3AED]/20 bg-[#7C3AED]/5 px-2.5 py-1 text-xs text-[#7C3AED] transition hover:bg-[#7C3AED]/10 cursor-pointer"
+            className="inline-flex items-center gap-1 rounded-lg border border-brand/20 bg-brand/5 px-2.5 py-1 text-xs text-brand transition hover:bg-brand/10 cursor-pointer"
           >
             <Users size={14} />
-            查看报名名单
+            {localize('查看报名名单')}
           </Link>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-[#7C3AED]/10 bg-white/50 p-6 backdrop-blur-sm">
+      <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-brand/10 bg-surface/50 p-6 backdrop-blur-sm">
         <div>
-          <label htmlFor="title" className="mb-1.5 block text-sm font-medium text-[#4C1D95]">标题 *</label>
+          <label htmlFor="title" className="mb-1.5 block text-sm font-medium text-main">{localize('标题')} *</label>
           <input
             id="title"
             type="text"
             value={form.title}
             onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
             className="input w-full"
-            placeholder="活动标题"
+            placeholder={localize('活动标题')}
           />
         </div>
 
         <div>
-          <label htmlFor="summary" className="mb-1.5 block text-sm font-medium text-[#4C1D95]">摘要</label>
+          <label htmlFor="summary" className="mb-1.5 block text-sm font-medium text-main">{localize('摘要')}</label>
           <textarea
             id="summary"
             value={form.summary}
             onChange={(e) => setForm((prev) => ({ ...prev, summary: e.target.value }))}
             className="input w-full"
             rows={3}
-            placeholder="活动摘要（可选）"
+            placeholder={localize('活动摘要（可选）')}
           />
         </div>
 
         <div>
-          <label htmlFor="content" className="mb-1.5 block text-sm font-medium text-[#4C1D95]">正文 *</label>
+          <label htmlFor="content" className="mb-1.5 block text-sm font-medium text-main">{localize('正文')} *</label>
           <textarea
             id="content"
             value={form.content}
             onChange={(e) => setForm((prev) => ({ ...prev, content: e.target.value }))}
             className="input w-full"
             rows={12}
-            placeholder="活动详情（支持换行）"
+            placeholder={localize('活动详情（支持换行）')}
           />
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2">
           <div>
-            <label htmlFor="eventDate" className="mb-1.5 block text-sm font-medium text-[#4C1D95]">活动时间 *</label>
+            <label htmlFor="eventDate" className="mb-1.5 block text-sm font-medium text-main">{localize('活动时间')} *</label>
             <input
               id="eventDate"
               type="datetime-local"
@@ -224,7 +226,7 @@ export default function AdminEventsEditPage() {
           </div>
 
           <div>
-            <label htmlFor="endDate" className="mb-1.5 block text-sm font-medium text-[#4C1D95]">结束时间</label>
+            <label htmlFor="endDate" className="mb-1.5 block text-sm font-medium text-main">{localize('结束时间')}</label>
             <input
               id="endDate"
               type="datetime-local"
@@ -235,19 +237,19 @@ export default function AdminEventsEditPage() {
           </div>
 
           <div>
-            <label htmlFor="location" className="mb-1.5 block text-sm font-medium text-[#4C1D95]">地点</label>
+            <label htmlFor="location" className="mb-1.5 block text-sm font-medium text-main">{localize('地点')}</label>
             <input
               id="location"
               type="text"
               value={form.location}
               onChange={(e) => setForm((prev) => ({ ...prev, location: e.target.value }))}
               className="input w-full"
-              placeholder="活动地点"
+              placeholder={localize('活动地点')}
             />
           </div>
 
           <div>
-            <label htmlFor="maxAttendees" className="mb-1.5 block text-sm font-medium text-[#4C1D95]">报名人数上限</label>
+            <label htmlFor="maxAttendees" className="mb-1.5 block text-sm font-medium text-main">{localize('报名人数上限')}</label>
             <input
               id="maxAttendees"
               type="number"
@@ -255,17 +257,17 @@ export default function AdminEventsEditPage() {
               value={form.maxAttendees}
               onChange={(e) => setForm((prev) => ({ ...prev, maxAttendees: e.target.value }))}
               className="input w-full"
-              placeholder="留空表示不限制"
+              placeholder={localize('留空表示不限制')}
             />
           </div>
         </div>
 
         <div>
-          <label htmlFor="coverImage" className="mb-1.5 block text-sm font-medium text-[#4C1D95]">封面图片</label>
+          <label htmlFor="coverImage" className="mb-1.5 block text-sm font-medium text-main">{localize('封面图片')}</label>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#7C3AED]/20 bg-[#7C3AED]/5 px-4 py-2.5 text-sm text-[#7C3AED] transition hover:bg-[#7C3AED]/10">
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-brand/20 bg-brand/5 px-4 py-2.5 text-sm text-brand transition hover:bg-brand/10">
               <Upload size={16} />
-              {uploading ? '上传中...' : '选择图片'}
+              {localize(uploading ? '上传中...' : '选择图片')}
               <input
                 id="coverImage"
                 type="file"
@@ -276,15 +278,15 @@ export default function AdminEventsEditPage() {
               />
             </label>
             {form.coverImage && (
-              <span className="break-all text-sm text-[#4C1D95]/60">{form.coverImage}</span>
+              <span className="break-all text-sm text-main/60">{form.coverImage}</span>
             )}
           </div>
           {form.coverImage && (
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
-              <div className="relative aspect-video w-full max-w-64 overflow-hidden rounded-lg border border-[#7C3AED]/10">
+              <div className="relative aspect-video w-full max-w-64 overflow-hidden rounded-lg border border-brand/10">
                 <Image
                   src={form.coverImage}
-                  alt="封面预览"
+                  alt={localize('封面预览')}
                   fill
                   sizes="256px"
                   className="object-cover"
@@ -293,24 +295,24 @@ export default function AdminEventsEditPage() {
               <button
                 type="button"
                 onClick={() => setForm((prev) => ({ ...prev, coverImage: '' }))}
-                className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs text-rose-600 transition hover:bg-rose-100 cursor-pointer"
+                className="rounded-lg border border-danger/25 bg-danger/10 px-3 py-1.5 text-xs text-danger transition hover:bg-danger/20 cursor-pointer"
               >
-                移除封面
+                {localize('移除封面')}
               </button>
             </div>
           )}
         </div>
 
         <div>
-          <label htmlFor="status" className="mb-1.5 block text-sm font-medium text-[#4C1D95]">状态</label>
+          <label htmlFor="status" className="mb-1.5 block text-sm font-medium text-main">{localize('状态')}</label>
           <select
             id="status"
             value={form.status}
             onChange={(e) => setForm((prev) => ({ ...prev, status: e.target.value }))}
             className="input w-full"
           >
-            <option value="DRAFT">草稿</option>
-            <option value="PUBLISHED">已发布</option>
+            <option value="DRAFT">{localize('草稿')}</option>
+            <option value="PUBLISHED">{localize('已发布')}</option>
           </select>
         </div>
 
@@ -318,15 +320,15 @@ export default function AdminEventsEditPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="inline-flex items-center gap-2 rounded-xl border border-[#7C3AED]/20 bg-[#7C3AED]/5 px-6 py-2.5 text-sm text-[#7C3AED] transition hover:bg-[#7C3AED]/10 disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-xl border border-brand/20 bg-brand/5 px-6 py-2.5 text-sm text-brand transition hover:bg-brand/10 disabled:opacity-50 cursor-pointer"
           >
-            {submitting ? '提交中...' : '保存修改'}
+            {localize(submitting ? '提交中...' : '保存修改')}
           </button>
           <Link
             href="/admin/events"
-            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 text-sm text-[#4C1D95]/60 transition hover:border-[#7C3AED]/30 hover:text-[#7C3AED] cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-xl border border-line bg-surface/50 px-4 py-2.5 text-sm text-main/60 transition hover:border-brand/30 hover:text-brand cursor-pointer"
           >
-            取消
+            {localize('取消')}
           </Link>
         </div>
       </form>

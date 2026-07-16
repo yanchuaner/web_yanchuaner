@@ -4,7 +4,7 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: ["/", "/about"],
+      allow: ["/", "/about", "/ecosystem", "/privacy"],
       disallow: ["/admin/", "/api/", "/me/", "/news/", "/events/", "/contact", "/teachers", "/students/", "/alumni/"],
     },
     sitemap: "https://yanchuaner.cn/sitemap.xml",

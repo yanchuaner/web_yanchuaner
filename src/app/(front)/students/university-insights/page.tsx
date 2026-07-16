@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, BookOpen, Mail, Shield, Lightbulb } from "lucide-react";
+import { ArrowLeft, BookOpen, Mail, Lightbulb } from "lucide-react";
 import { PageShell, GlassCard, PageHeader, ButtonLink } from "@/components/ui";
 import { insightCards } from "@/data/studentResources";
 
@@ -26,7 +26,7 @@ export default function UniversityInsightsPage() {
               <h3 className="font-heading text-base font-semibold text-brand-fg">{card.title}</h3>
               <p className="mt-2 text-sm leading-6 text-brand-fg/70">{card.summary}</p>
               {card.note && (
-                <div className="mt-3 rounded-xl border border-amber-500/15 bg-amber-500/5 px-3 py-2 text-xs leading-5 text-amber-300/80">
+                <div className="mt-3 rounded-xl border border-warning/15 bg-warning/5 px-3 py-2 text-xs leading-5 text-warning">
                   {card.note}
                 </div>
               )}
@@ -65,21 +65,6 @@ export default function UniversityInsightsPage() {
                 欢迎各位校友通过{" "}
                 <Link href="/alumni/stories" className="text-brand underline hover:text-brand-soft transition-colors">燕中故事</Link>{" "}
                 分享你的大学就读体验、专业学习心得或对在校生的建议。所有内容经审核后发布。
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Disclaimer — 暗色适配 */}
-        <div className="mt-6 rounded-card border border-amber-500/15 bg-amber-500/5 p-5">
-          <div className="flex items-start gap-3">
-            <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/10">
-              <Shield size={18} className="text-amber-400" />
-            </div>
-            <div>
-              <h3 className="font-heading text-sm font-semibold text-amber-300">免责声明</h3>
-              <p className="mt-1 text-xs leading-6 text-amber-300/80">
-                本页面内容为校友经验观察和信息整理，不代表燕川中学或校友会官方意见。每个人的体验具有个体差异，同一所学校不同专业的感受可能完全不同，请理性参考。
               </p>
             </div>
           </div>

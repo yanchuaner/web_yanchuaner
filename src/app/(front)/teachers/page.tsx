@@ -3,6 +3,7 @@ import Link from "next/link";
 import { GraduationCap, BookOpen, Star, Heart, MessageSquare, Mail, Users, CalendarDays } from "lucide-react";
 import prisma from "@/lib/db";
 import { PageShell, GlassCard, PageHeader, ButtonLink, EmptyState } from "@/components/ui";
+import { LocalizedText } from "@/components/LocalizedText";
 
 export const dynamic = "force-dynamic";
 
@@ -27,8 +28,8 @@ export default async function TeachersPage() {
         <PageHeader
           eyebrow="TEACHERS"
           eyebrowIcon={GraduationCap}
-          title="教师频道"
-          description="致燕川中学的每一位教师 — 这里是与校友保持联结、分享教育成果、感受桃李芬芳的数字窗口。"
+          title={<LocalizedText translationKey="contentPages.teachers.title" />}
+          description={<LocalizedText translationKey="contentPages.teachers.description" />}
           className="mb-8"
         />
 
@@ -44,18 +45,18 @@ export default async function TeachersPage() {
                   <Icon size={20} className="text-brand" />
                 </div>
                 <h3 className="font-heading mt-4 text-base font-semibold text-brand-fg">{s.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-gray-700">{s.description}</p>
+                <p className="mt-2 text-sm leading-6 text-main/60">{s.description}</p>
                 <div className="mt-4">
                   {s.href ? (
                     <Link
                       href={s.href}
                       className="inline-flex items-center rounded-full border border-brand/20 bg-brand/10 px-3 py-1 text-xs text-brand transition hover:bg-brand/20 focus-visible:ring-2 focus-visible:ring-brand focus:outline-none"
                     >
-                      {s.actionLabel || '查看详情'}
+                      {s.actionLabel || <LocalizedText translationKey="contentPages.teachers.detailAction" />}
                     </Link>
                   ) : (
-                    <span className="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs text-gray-500">
-                      {s.note || '敬请期待'}
+                    <span className="inline-flex items-center rounded-full border border-line bg-surface/60 px-3 py-1 text-xs text-main/60">
+                      {s.note || <LocalizedText translationKey="contentPages.teachers.comingSoon" />}
                     </span>
                   )}
                 </div>
@@ -65,7 +66,7 @@ export default async function TeachersPage() {
         </div>
 
         {sections.length === 0 && (
-          <EmptyState icon={GraduationCap} title="教师频道内容正在搭建中，敬请期待。" />
+          <EmptyState icon={GraduationCap} title={<LocalizedText translationKey="contentPages.teachers.empty" />} />
         )}
 
         <div className="mt-8 rounded-card border border-line bg-surface-muted p-5">
@@ -74,24 +75,24 @@ export default async function TeachersPage() {
               <Mail size={20} className="text-brand" />
             </div>
             <div>
-              <h3 className="font-heading text-base font-semibold text-brand-fg">补充教师资料</h3>
-              <p className="mt-1 text-sm leading-6 text-gray-600">
-                如果您是燕川中学在职或退休教师，或了解某位教师的信息，欢迎通过
+              <h3 className="font-heading text-base font-semibold text-brand-fg"><LocalizedText translationKey="contentPages.teachers.contributeTitle" /></h3>
+              <p className="mt-1 text-sm leading-6 text-main/60">
+                <LocalizedText translationKey="contentPages.teachers.contributePrefix" />{" "}
                 <Link href="/contact" className="mx-1 text-brand underline hover:text-brand-fg transition-colors">
-                  联系我们
+                  <LocalizedText translationKey="contentPages.teachers.contactLink" />
                 </Link>
-                页面提供资料。所有信息经确认后发布。
+                {" "}<LocalizedText translationKey="contentPages.teachers.contributeSuffix" />
               </p>
-              <p className="mt-1 text-xs text-gray-500">
-                为保护个人隐私，本平台不公开未经确认的教师手机号、邮箱等敏感联系方式。
+              <p className="mt-1 text-xs text-main/60">
+                <LocalizedText translationKey="contentPages.teachers.privacyNote" />
               </p>
             </div>
           </div>
         </div>
 
         <div className="mt-4 flex flex-wrap gap-3">
-          <ButtonLink href="/" variant="secondary">返回首页</ButtonLink>
-          <ButtonLink href="/contact" variant="ghost">联系我们</ButtonLink>
+          <ButtonLink href="/" variant="secondary"><LocalizedText translationKey="common.backHome" /></ButtonLink>
+          <ButtonLink href="/contact" variant="ghost"><LocalizedText translationKey="contentPages.teachers.contactLink" /></ButtonLink>
         </div>
       </GlassCard>
     </PageShell>

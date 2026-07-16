@@ -3,32 +3,34 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronRight, Home } from 'lucide-react';
+import { useThemeAndLocale } from '@/components/ThemeAndLocaleProvider';
 
 /**
  * 后台路由 → 中文标签映射。新增后台页时在此登记即可自动出现在面包屑中。
  * 仅用于「呈现」，不参与任何鉴权或路由跳转逻辑。
  */
 const SEGMENT_LABELS: Record<string, string> = {
-  admin: '控制台',
-  users: '用户审核',
-  'user-claims': '旧资料认领',
-  'identity-verifications': '身份认证',
-  posts: '内容审核',
-  news: '新闻管理',
-  events: '活动管理',
-  stories: '燕中故事',
-  achievements: '校友成就墙',
-  memories: '燕中记忆',
-  teachers: '教师频道',
-  content: '页面内容',
-  alumni: '校友名单',
-  'alumni-corrections': '信息修改申请',
-  registrations: '报名名单',
-  pending: '待审核',
-  new: '新建',
+  admin: 'admin.breadcrumb.dashboard',
+  users: 'admin.shell.userReview',
+  'registration-policy': 'admin.shell.registrationPolicy',
+  'identity-verifications': 'admin.shell.identityVerification',
+  posts: 'admin.shell.contentReview',
+  news: 'admin.shell.news',
+  events: 'admin.shell.events',
+  stories: 'admin.shell.stories',
+  achievements: 'admin.shell.achievements',
+  memories: 'admin.shell.memories',
+  teachers: 'admin.shell.teachers',
+  content: 'admin.shell.pageContent',
+  alumni: 'admin.shell.alumni',
+  'alumni-corrections': 'admin.shell.corrections',
+  registrations: 'admin.breadcrumb.registrations',
+  pending: 'admin.breadcrumb.pending',
+  new: 'admin.breadcrumb.new',
 };
 
 export function AdminBreadcrumb() {
+  const { t } = useThemeAndLocale();
   const pathname = usePathname() || '/admin';
   const segments = pathname.split('/').filter(Boolean); // e.g. ['admin','news','new']
 
@@ -36,15 +38,15 @@ export function AdminBreadcrumb() {
   const crumbs = segments.map((seg, i) => {
     const href = '/' + segments.slice(0, i + 1).join('/');
     const isId = !SEGMENT_LABELS[seg] && /^[0-9a-f-]{6,}$/i.test(seg);
-    const label = SEGMENT_LABELS[seg] || (isId ? '详情' : seg);
+    const label = SEGMENT_LABELS[seg] ? t(SEGMENT_LABELS[seg]) : isId ? t('admin.breadcrumb.details') : seg;
     return { href, label, isLast: i === segments.length - 1 };
   });
 
   return (
-    <nav aria-label="面包屑" className="flex items-center gap-1.5 text-sm text-brand-fg/50">
+    <nav aria-label={t('admin.breadcrumb.label')} className="flex items-center gap-1.5 text-sm text-brand-fg/50">
       <Link href="/admin" className="inline-flex items-center gap-1 hover:text-brand transition-colors">
         <Home size={14} aria-hidden="true" />
-        <span className="sr-only">控制台首页</span>
+        <span className="sr-only">{t('admin.breadcrumb.homeLabel')}</span>
       </Link>
       {crumbs.slice(1).map((c) => (
         <span key={c.href} className="inline-flex items-center gap-1.5">

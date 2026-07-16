@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, BookOpen, Mail, Shield, Quote } from "lucide-react";
+import { ArrowLeft, BookOpen, Mail, Quote } from "lucide-react";
 import { PageShell, GlassCard, PageHeader, ButtonLink } from "@/components/ui";
 
 export const metadata: Metadata = {
@@ -48,11 +48,11 @@ export default function AlumniMessagesPage() {
         />
 
         {/* Note */}
-        <div className="mt-6 rounded-card border border-purple-200 bg-purple-50/50 p-4">
+        <div className="mt-6 rounded-card border border-brand bg-brand/50 p-4">
           <div className="flex items-start gap-3">
-            <Quote size={18} className="mt-0.5 shrink-0 text-purple-500" />
+            <Quote size={18} className="mt-0.5 shrink-0 text-brand" />
             <div>
-              <p className="text-sm leading-6 text-purple-700">
+              <p className="text-sm leading-6 text-brand">
                 当前内容为通用成长建议，不对应具体校友。欢迎各位校友通过下方入口分享真实寄语，我们将在获得授权并审核后署名发布。
               </p>
             </div>
@@ -86,21 +86,6 @@ export default function AlumniMessagesPage() {
                   联系我们
                 </Link>{" "}
                 分享你对学弟学妹的寄语。请注明你的入学年份和想说的话，我们将在审核后发布。
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Disclaimer */}
-        <div className="mt-6 rounded-card border border-amber-500/15 bg-amber-500/5 p-5">
-          <div className="flex items-start gap-3">
-            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-500/10">
-              <Shield size={16} className="text-amber-300/80" />
-            </div>
-            <div>
-              <h3 className="font-heading text-sm font-semibold text-amber-300">免责声明</h3>
-              <p className="mt-1 text-xs leading-6 text-amber-300/80">
-                本页面现有内容由平台编辑整理，不代表任何具体校友、燕川中学或校友会的官方意见。每个人的经历和感受不同，请理性参考。
               </p>
             </div>
           </div>

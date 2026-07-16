@@ -29,6 +29,7 @@ model User {
   major                        String?
   industry                     String?
   verificationStatus           VerificationStatus            @default(NOT_SUBMITTED)
+  verificationMethod           VerificationMethod?
   identityType                 IdentityType?
   teacherPosition              String?
   contactVisibility            ContactVisibility             @default(PRIVATE)
@@ -45,9 +46,6 @@ model User {
   posts                        Post[]
   stories                      Story[]                       @relation("StoryAuthor")
   auditLogs                    AuditLog[]                    @relation("AuditLogAdmin")
-  claimRequests                UserClaimRequest[]            @relation("ClaimRequestClaimant")
-  oldUserClaimRequests         UserClaimRequest[]            @relation("ClaimRequestOldUser")
-  reviewedClaimRequests        UserClaimRequest[]            @relation("ClaimRequestReviewer")
   wechatIdentities             WechatIdentity[]
   verificationRequests         IdentityVerificationRequest[] @relation("VerificationApplicant")
   reviewedVerificationRequests IdentityVerificationRequest[] @relation("VerificationReviewer")
@@ -96,27 +94,6 @@ model AuditLog {
   @@index([adminId])
   @@index([targetType, targetId])
   @@index([createdAt])
-}
-
-model UserClaimRequest {
-  id             String    @id @default(uuid())
-  claimantUserId String
-  claimant       User      @relation("ClaimRequestClaimant", fields: [claimantUserId], references: [id])
-  oldUserId      String?
-  oldUser        User?     @relation("ClaimRequestOldUser", fields: [oldUserId], references: [id])
-  description    String?
-  status         String    @default("PENDING")
-  adminNote      String?
-  reviewedById   String?
-  reviewedBy     User?     @relation("ClaimRequestReviewer", fields: [reviewedById], references: [id])
-  reviewedAt     DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  @@index([claimantUserId, status])
-  @@index([oldUserId])
-  @@index([status])
-  @@index([reviewedById])
 }
 
 model WhitelistRoster {
@@ -323,6 +300,13 @@ enum VerificationStatus {
   REJECTED
 }
 
+enum VerificationMethod {
+  INTERNAL_CODE
+  ADMIN_REVIEW
+  IDENTITY_REVIEW
+  LEGACY
+}
+
 enum VerificationRequestStatus {
   PENDING
   VERIFIED
@@ -346,6 +330,15 @@ enum EventRegistrationStatus {
   APPROVED
   REJECTED
   CANCELLED
+}
+
+model RegistrationPolicy {
+  id                String   @id @default("default")
+  accessCodeHash    String?
+  accessCodeHint    String   @default("")
+  accessCodeEnabled Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 model Story {

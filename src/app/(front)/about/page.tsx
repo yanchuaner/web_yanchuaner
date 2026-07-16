@@ -4,7 +4,8 @@ import {
   BookOpen, Star, Heart, MessageSquare, Mail, Shield, School
 } from "lucide-react";
 import prisma from "@/lib/db";
-import { PageShell, GlassCard, ButtonLink, DisclaimerBanner } from "@/components/ui";
+import { PageShell, GlassCard, ButtonLink } from "@/components/ui";
+import { LocalizedText } from "@/components/LocalizedText";
 
 export const dynamic = "force-dynamic";
 
@@ -33,16 +34,16 @@ export default async function AboutPage() {
       <GlassCard className="p-8 text-center flex flex-col items-center">
         <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-4 py-1.5 text-xs text-brand">
           <History size={14} />
-          深圳市新安中学（集团）成员校
+          <LocalizedText translationKey="about.memberSchool" />
         </div>
-        <h1 className="font-heading text-3xl font-bold text-brand-fg md:text-5xl">深圳市燕川中学</h1>
-        <p className="mt-4 text-lg text-brand md:text-xl font-medium">马踏飞燕 · 海纳百川 · 航天科技特色高中</p>
-        <p className="mt-6 max-w-3xl mx-auto text-sm leading-7 text-gray-600 md:text-base">
-          深圳市新安中学（集团）燕川中学是一所现代化全寄宿制公办高中。学校持续探索航天科技教育、智慧教育与个性教育融合发展，建设具有航天科技特色的校园文化与课程体系。
+        <h1 className="font-heading text-3xl font-bold text-brand-fg md:text-5xl"><LocalizedText translationKey="about.schoolName" /></h1>
+        <p className="mt-4 text-lg text-brand md:text-xl font-medium"><LocalizedText translationKey="about.tagline" /></p>
+        <p className="mt-6 max-w-3xl mx-auto text-sm leading-7 text-main/60 md:text-base">
+          <LocalizedText translationKey="about.description" />
         </p>
         <div className="mt-8 flex justify-center gap-4">
-          <ButtonLink href="/alumni/radar" variant="primary">查看校友通讯录</ButtonLink>
-          <ButtonLink href="/" variant="secondary">返回首页</ButtonLink>
+          <ButtonLink href="/alumni/radar" variant="primary"><LocalizedText translationKey="about.directoryAction" /></ButtonLink>
+          <ButtonLink href="/" variant="secondary"><LocalizedText translationKey="common.backHome" /></ButtonLink>
         </div>
       </GlassCard>
 
@@ -56,7 +57,7 @@ export default async function AboutPage() {
                   <Icon size={22} className="text-brand" />
                 </div>
                 <h3 className="font-heading mt-4 text-lg font-semibold text-brand-fg">{f.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-gray-600">{f.description}</p>
+                <p className="mt-2 text-sm leading-6 text-main/60">{f.description}</p>
               </GlassCard>
             );
           })}
@@ -65,7 +66,7 @@ export default async function AboutPage() {
 
       {timelineEvents.length > 0 && (
         <GlassCard className="mt-8 p-6 md:p-8">
-          <h2 className="font-heading text-2xl font-bold text-brand-fg">发展历程</h2>
+          <h2 className="font-heading text-2xl font-bold text-brand-fg"><LocalizedText translationKey="about.timelineTitle" /></h2>
           <div className="mt-8 space-y-0">
             {timelineEvents.map((t, idx) => (
               <div key={t.id} className="relative flex gap-6 pb-6">
@@ -77,7 +78,7 @@ export default async function AboutPage() {
                 </div>
                 <div className="pt-2">
                   <span className="text-xs font-bold text-brand/70 tracking-wider">{t.yearLabel || ''}</span>
-                  <p className="mt-1 text-sm text-gray-700 leading-relaxed">{t.description}</p>
+                  <p className="mt-1 text-sm text-main/60 leading-relaxed">{t.description}</p>
                 </div>
               </div>
             ))}
@@ -85,9 +86,6 @@ export default async function AboutPage() {
         </GlassCard>
       )}
 
-      <DisclaimerBanner className="mt-8" withIcon>
-        声明：本页面内容由校友志愿者基于公开资料整理，力求准确。如有更新或修正需求，请联系站长。
-      </DisclaimerBanner>
     </PageShell>
   );
 }

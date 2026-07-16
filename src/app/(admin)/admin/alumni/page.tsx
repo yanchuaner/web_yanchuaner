@@ -25,6 +25,8 @@ import {
   normalizeClassName,
   normalizeGraduationClass,
 } from '@/lib/identity-fields';
+import { useAdminLocalize } from '@/components/admin/AdminLocalizedText';
+import { useThemeAndLocale } from '@/components/ThemeAndLocaleProvider';
 
 type AlumniItem = {
   id: string;
@@ -84,6 +86,8 @@ function alumniCSVContent(rows: AlumniItem[]): string {
 }
 
 export default function AdminAlumniPage() {
+  const localize = useAdminLocalize();
+  const { locale } = useThemeAndLocale();
   const [alumni, setAlumni] = useState<AlumniItem[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -133,7 +137,7 @@ export default function AdminAlumniPage() {
       if (search.trim()) params.set('q', search.trim());
       if (classFilter.trim()) params.set('graduationClass', classFilter.trim());
       const res = await fetch(`/api/admin/alumni?${params}`);
-      if (!res.ok) throw new Error('加载失败');
+      if (!res.ok) throw new Error(localize('加载失败'));
       const data = await res.json();
       setAlumni(data.alumni || []);
       setTotal(data.total || 0);
@@ -142,7 +146,7 @@ export default function AdminAlumniPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, search, classFilter]);
+  }, [classFilter, localize, page, search]);
 
   useEffect(() => {
     fetchAlumni();
@@ -194,27 +198,27 @@ export default function AdminAlumniPage() {
   const handleSave = async () => {
     const name = formName.trim();
     if (!name || name.length > 50) {
-      setFormError('姓名不能为空且不超过50字');
+      setFormError(localize('姓名不能为空且不超过50字'));
       return;
     }
     const gradClass = formClass.trim();
     if (gradClass && !GRADUATION_CLASS_PATTERN.test(gradClass)) {
-      setFormError('届别需为2025起的四位年份数字');
+      setFormError(localize('届别需为2025起的四位年份数字'));
       return;
     }
     const className = formClassName.trim();
     if (className && !CLASS_NAME_PATTERN.test(className)) {
-      setFormError('班级需为1-99的数字');
+      setFormError(localize('班级需为1-99的数字'));
       return;
     }
     const email = formEmail.trim().toLowerCase();
     if (email && (email.length > 254 || !email.includes('@'))) {
-      setFormError('邮箱格式无效');
+      setFormError(localize('邮箱格式无效'));
       return;
     }
     const contact = formContact.trim();
     if (contact && !/^\d{11}$/.test(contact)) {
-      setFormError('联系方式需为11位手机号');
+      setFormError(localize('联系方式需为11位手机号'));
       return;
     }
     const city = formCity.trim();
@@ -247,14 +251,14 @@ export default function AdminAlumniPage() {
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || '保存失败');
+        throw new Error(data.error || localize('保存失败'));
       }
       setShowForm(false);
-      toast.success(editingId ? '修改成功' : '新增成功');
+      toast.success(localize(editingId ? '修改成功' : '新增成功'));
       fetchAlumni();
     } catch (err: any) {
       setFormError(err.message);
-      toast.error(err.message || '保存失败');
+      toast.error(err.message || localize('保存失败'));
     } finally {
       setFormSaving(false);
     }
@@ -268,13 +272,13 @@ export default function AdminAlumniPage() {
       const res = await fetch(`/api/admin/alumni/${deleteTarget.id}`, {
         method: 'DELETE',
       });
-      if (!res.ok) throw new Error('删除失败');
+      if (!res.ok) throw new Error(localize('删除失败'));
       setDeleteTarget(null);
-      toast.success('删除成功');
+      toast.success(localize('删除成功'));
       fetchAlumni();
     } catch (err: any) {
       setDeleteTarget(null);
-      toast.error(err.message || '删除失败');
+      toast.error(err.message || localize('删除失败'));
     } finally {
       setDeleting(false);
     }
@@ -296,14 +300,14 @@ export default function AdminAlumniPage() {
       const data = await res.json();
       setImportResult(data);
       if (res.ok) {
-        toast.success(`成功导入 ${data.imported} 条记录`);
+        toast.success(locale === 'en' ? `Imported ${data.imported} records.` : `成功导入 ${data.imported} 条记录`);
         fetchAlumni();
       } else {
-        toast.error('导入失败，请检查数据格式');
+        toast.error(localize('导入失败，请检查数据格式'));
       }
     } catch {
-      setImportResult({ imported: 0, skipped: 0, failed: 1, errors: ['导入请求失败'] });
-      toast.error('导入请求失败');
+      setImportResult({ imported: 0, skipped: 0, failed: 1, errors: [localize('导入请求失败')] });
+      toast.error(localize('导入请求失败'));
     } finally {
       setImporting(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -333,41 +337,43 @@ export default function AdminAlumniPage() {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={openAdd}
-            className="inline-flex cursor-pointer items-center gap-1.5 rounded-btn border border-[#7C3AED]/20 bg-[#7C3AED]/5 px-4 py-2 text-sm text-[#7C3AED] transition hover:bg-[#7C3AED]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-btn border border-brand/20 bg-brand/5 px-4 py-2 text-sm text-brand transition hover:bg-brand/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
           >
             <Plus size={16} />
-            新增
+            {localize('新增')}
           </button>
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={importing}
-            className="inline-flex cursor-pointer items-center gap-1.5 rounded-btn border border-[#7C3AED]/20 bg-[#7C3AED]/5 px-4 py-2 text-sm text-[#7C3AED] transition hover:bg-[#7C3AED]/10 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-btn border border-brand/20 bg-brand/5 px-4 py-2 text-sm text-brand transition hover:bg-brand/10 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
           >
             {importing ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
-            导入
+            {localize('导入')}
           </button>
           <input
             ref={fileInputRef}
             type="file"
             accept=".csv"
-            aria-label="选择CSV文件导入校友"
+            aria-label={localize('选择CSV文件导入校友')}
             className="hidden"
             onChange={handleImport}
           />
           <button
             onClick={handleExport}
-            className="inline-flex cursor-pointer items-center gap-1.5 rounded-btn border border-[#7C3AED]/20 bg-[#7C3AED]/5 px-4 py-2 text-sm text-[#7C3AED] transition hover:bg-[#7C3AED]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-btn border border-brand/20 bg-brand/5 px-4 py-2 text-sm text-brand transition hover:bg-brand/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
           >
             <Download size={16} />
-            导出
+            {localize('导出')}
           </button>
         </div>
       }
     >
       <div className="space-y-4">
 
-      <div className="rounded-card border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
-        批量导入会写入校友名册。执行前请使用 UTF-8 CSV、核对届别与班级格式，并先备份数据库。导出的文件包含联系方式，仅限管理员在受控设备中使用。
+      <div className="rounded-card border border-info/20 bg-info/5 px-4 py-3 text-sm text-main/70">
+        {locale === 'en'
+          ? 'Bulk import writes to the alumni roster. Use UTF-8 CSV, verify cohort and class formats, and back up the database first. Exports include contact details and must stay on controlled administrator devices.'
+          : '批量导入会写入校友名册。执行前请使用 UTF-8 CSV、核对届别与班级格式，并先备份数据库。导出的文件包含联系方式，仅限管理员在受控设备中使用。'}
       </div>
 
       {/* 搜索栏 */}
@@ -375,22 +381,22 @@ export default function AdminAlumniPage() {
         <div className="relative flex-1 min-w-[200px]">
           <Search
             size={16}
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#7C3AED]/40"
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-brand/40"
           />
           <input
             type="text"
-            placeholder="搜索校友..."
-            aria-label="搜索校友"
+            placeholder={localize('搜索校友...')}
+            aria-label={localize('搜索校友')}
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
             className="input w-full pl-9"
           />
         </div>
-        <label htmlFor="class-filter-input" className="sr-only">按届别筛选</label>
+        <label htmlFor="class-filter-input" className="sr-only">{localize('按届别筛选')}</label>
         <input
           id="class-filter-input"
           type="text"
-          placeholder="按届别筛选"
+          placeholder={localize('按届别筛选')}
           value={classFilter}
           onChange={(e) => {
             setClassFilter(e.target.value);
@@ -402,25 +408,26 @@ export default function AdminAlumniPage() {
 
       {/* 导入结果 */}
       {importResult && (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+        <div className="rounded-2xl border border-success/25 bg-success/10 px-4 py-3 text-sm text-success">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-2">
               <CheckCircle2 size={16} />
               <span>
-                导入完成：{importResult.imported} 条新增，{importResult.skipped} 条跳过
-                {importResult.failed > 0 && `，${importResult.failed} 条错误`}
+                {locale === 'en'
+                  ? `Import complete: ${importResult.imported} added, ${importResult.skipped} skipped${importResult.failed > 0 ? `, ${importResult.failed} errors` : ''}`
+                  : <>导入完成：{importResult.imported} 条新增，{importResult.skipped} 条跳过{importResult.failed > 0 && `，${importResult.failed} 条错误`}</>}
               </span>
             </div>
             <button
               onClick={() => setImportResult(null)}
-              aria-label="关闭导入结果"
-              className="cursor-pointer text-emerald-500 hover:text-emerald-700"
+              aria-label={localize('关闭导入结果')}
+              className="cursor-pointer text-success hover:text-success"
             >
               <X size={16} />
             </button>
           </div>
           {importResult.errors.length > 0 && (
-            <ul className="mt-2 list-inside list-disc space-y-0.5 text-xs text-emerald-700/70">
+            <ul className="mt-2 list-inside list-disc space-y-0.5 text-xs text-success">
               {importResult.errors.map((e, i) => (
                 <li key={i}>{e}</li>
               ))}
@@ -430,89 +437,89 @@ export default function AdminAlumniPage() {
       )}
 
       {/* 表格 */}
-      <div className="overflow-x-auto rounded-2xl border border-[#7C3AED]/10 bg-white/60 backdrop-blur-xl">
+      <div className="overflow-x-auto rounded-2xl border border-brand/10 bg-surface/60 backdrop-blur-xl">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 size={24} className="animate-spin text-[#7C3AED]/40" />
+            <Loader2 size={24} className="animate-spin text-brand/40" />
           </div>
         ) : error ? (
-          <div className="flex items-center justify-center gap-2 py-20 text-sm text-rose-600">
+          <div className="flex items-center justify-center gap-2 py-20 text-sm text-danger">
             <AlertTriangle size={16} />
             {error}
             <button type="button" onClick={fetchAlumni} className="ml-2 underline cursor-pointer">
-              重试
+              {localize('重试')}
             </button>
           </div>
         ) : alumni.length === 0 ? (
           <div className="py-16 text-center">
-            <BookUser size={36} className="mx-auto text-[#7C3AED]/20" />
-            <p className="mt-3 text-sm text-[#4C1D95]/40">
-              {search || classFilter ? '未找到匹配的校友' : '暂无校友数据'}
+            <BookUser size={36} className="mx-auto text-brand/20" />
+            <p className="mt-3 text-sm text-main/40">
+              {localize(search || classFilter ? '未找到匹配的校友' : '暂无校友数据')}
             </p>
             {!search && !classFilter && (
               <button
                 onClick={openAdd}
-                className="mt-3 inline-flex cursor-pointer items-center gap-1.5 text-xs text-[#7C3AED]/60 hover:text-[#7C3AED]"
+                className="mt-3 inline-flex cursor-pointer items-center gap-1.5 text-xs text-brand/60 hover:text-brand"
               >
                 <Plus size={14} />
-                新增第一条校友
+                {localize('新增第一条校友')}
               </button>
             )}
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#7C3AED]/10 text-left text-xs text-[#4C1D95]/50">
-                <th className="px-4 py-3 font-medium">姓名</th>
-                <th className="px-4 py-3 font-medium">届别</th>
-                <th className="px-4 py-3 font-medium">班级</th>
-                <th className="px-4 py-3 font-medium hidden md:table-cell">邮箱</th>
-                <th className="px-4 py-3 font-medium hidden lg:table-cell">联系方式</th>
-                <th className="px-4 py-3 font-medium hidden sm:table-cell">城市</th>
-                <th className="px-4 py-3 font-medium hidden sm:table-cell">院校</th>
-                <th className="px-4 py-3 font-medium hidden lg:table-cell">专业</th>
-                <th className="px-4 py-3 font-medium hidden lg:table-cell">行业</th>
-                <th className="px-4 py-3 font-medium hidden xl:table-cell">添加时间</th>
-                <th className="w-24 px-4 py-3 font-medium">操作</th>
+              <tr className="border-b border-brand/10 text-left text-xs text-main/50">
+                <th className="px-4 py-3 font-medium">{localize('姓名')}</th>
+                <th className="px-4 py-3 font-medium">{localize('届别')}</th>
+                <th className="px-4 py-3 font-medium">{localize('班级')}</th>
+                <th className="px-4 py-3 font-medium hidden md:table-cell">{localize('邮箱')}</th>
+                <th className="px-4 py-3 font-medium hidden lg:table-cell">{localize('联系方式')}</th>
+                <th className="px-4 py-3 font-medium hidden sm:table-cell">{localize('城市')}</th>
+                <th className="px-4 py-3 font-medium hidden sm:table-cell">{localize('院校')}</th>
+                <th className="px-4 py-3 font-medium hidden lg:table-cell">{localize('专业')}</th>
+                <th className="px-4 py-3 font-medium hidden lg:table-cell">{localize('行业')}</th>
+                <th className="px-4 py-3 font-medium hidden xl:table-cell">{localize('添加时间')}</th>
+                <th className="w-24 px-4 py-3 font-medium">{localize('操作')}</th>
               </tr>
             </thead>
             <tbody>
               {alumni.map((item) => (
                 <tr
                   key={item.id}
-                  className="border-b border-[#7C3AED]/5 transition hover:bg-[#7C3AED]/[0.02]"
+                  className="border-b border-brand/5 transition hover:bg-brand/[0.02]"
                 >
-                  <td className="px-4 py-3 font-medium text-[#4C1D95]">{item.name}</td>
-                  <td className="px-4 py-3 text-[#4C1D95]/60">{formatGraduationClass(item.graduationClass) || '-'}</td>
-                  <td className="px-4 py-3 text-[#4C1D95]/60">{formatClassName(item.className) || '-'}</td>
-                  <td className="px-4 py-3 text-[#4C1D95]/60 hidden md:table-cell">{item.email || '-'}</td>
-                  <td className="px-4 py-3 text-[#4C1D95]/60 hidden lg:table-cell">{item.contact || '-'}</td>
-                  <td className="px-4 py-3 text-[#4C1D95]/60 hidden sm:table-cell">{item.city || '-'}</td>
-                  <td className="max-w-[120px] truncate px-4 py-3 text-[#4C1D95]/60 hidden sm:table-cell">
+                  <td className="px-4 py-3 font-medium text-main">{item.name}</td>
+                  <td className="px-4 py-3 text-main/60">{formatGraduationClass(item.graduationClass) || '-'}</td>
+                  <td className="px-4 py-3 text-main/60">{formatClassName(item.className) || '-'}</td>
+                  <td className="px-4 py-3 text-main/60 hidden md:table-cell">{item.email || '-'}</td>
+                  <td className="px-4 py-3 text-main/60 hidden lg:table-cell">{item.contact || '-'}</td>
+                  <td className="px-4 py-3 text-main/60 hidden sm:table-cell">{item.city || '-'}</td>
+                  <td className="max-w-[120px] truncate px-4 py-3 text-main/60 hidden sm:table-cell">
                     {item.university || '-'}
                   </td>
-                  <td className="max-w-[120px] truncate px-4 py-3 text-[#4C1D95]/60 hidden lg:table-cell">
+                  <td className="max-w-[120px] truncate px-4 py-3 text-main/60 hidden lg:table-cell">
                     {item.major || '-'}
                   </td>
-                  <td className="max-w-[120px] truncate px-4 py-3 text-[#4C1D95]/60 hidden lg:table-cell">
+                  <td className="max-w-[120px] truncate px-4 py-3 text-main/60 hidden lg:table-cell">
                     {item.industry || '-'}
                   </td>
-                  <td className="px-4 py-3 text-xs text-[#4C1D95]/40 hidden xl:table-cell">
-                    {new Date(item.createdAt).toLocaleDateString('zh-CN')}
+                  <td className="px-4 py-3 text-xs text-main/40 hidden xl:table-cell">
+                    {new Date(item.createdAt).toLocaleDateString(locale === 'en' ? 'en-US' : 'zh-CN')}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => openEdit(item)}
-                        className="inline-flex cursor-pointer items-center rounded-lg p-1.5 text-[#7C3AED]/50 transition hover:bg-[#7C3AED]/10 hover:text-[#7C3AED] min-h-[32px] min-w-[32px] justify-center"
-                        title="编辑"
+                        className="inline-flex cursor-pointer items-center rounded-lg p-1.5 text-brand/50 transition hover:bg-brand/10 hover:text-brand min-h-[32px] min-w-[32px] justify-center"
+                        title={localize('编辑')}
                       >
                         <Edit2 size={14} />
                       </button>
                       <button
                         onClick={() => setDeleteTarget(item)}
-                        className="inline-flex cursor-pointer items-center rounded-lg p-1.5 text-rose-400/60 transition hover:bg-rose-50 hover:text-rose-600 min-h-[32px] min-w-[32px] justify-center"
-                        title="删除"
+                        className="inline-flex cursor-pointer items-center rounded-lg p-1.5 text-danger transition hover:bg-danger/10 hover:text-danger min-h-[32px] min-w-[32px] justify-center"
+                        title={localize('删除')}
                       >
                         <Trash2 size={14} />
                       </button>
@@ -531,19 +538,19 @@ export default function AdminAlumniPage() {
           <button
             onClick={() => setPage(Math.max(1, page - 1))}
             disabled={page === 1}
-            className="cursor-pointer rounded-lg px-3 py-1.5 text-[#7C3AED]/60 transition hover:bg-[#7C3AED]/10 hover:text-[#7C3AED] disabled:opacity-30 disabled:cursor-not-allowed"
+            className="cursor-pointer rounded-lg px-3 py-1.5 text-brand/60 transition hover:bg-brand/10 hover:text-brand disabled:opacity-30 disabled:cursor-not-allowed"
           >
-            上一页
+            {localize('上一页')}
           </button>
-          <span className="text-[#4C1D95]/60">
+          <span className="text-main/60">
             {page} / {totalPages}
           </span>
           <button
             onClick={() => setPage(Math.min(totalPages, page + 1))}
             disabled={page === totalPages}
-            className="cursor-pointer rounded-lg px-3 py-1.5 text-[#7C3AED]/60 transition hover:bg-[#7C3AED]/10 hover:text-[#7C3AED] disabled:opacity-30 disabled:cursor-not-allowed"
+            className="cursor-pointer rounded-lg px-3 py-1.5 text-brand/60 transition hover:bg-brand/10 hover:text-brand disabled:opacity-30 disabled:cursor-not-allowed"
           >
-            下一页
+            {localize('下一页')}
           </button>
         </div>
       )}
@@ -558,153 +565,153 @@ export default function AdminAlumniPage() {
           aria-labelledby="form-modal-title"
         >
           <div
-            className="absolute inset-0 bg-[#4C1D95]/20 backdrop-blur-sm"
+            className="absolute inset-0 bg-main/20 backdrop-blur-sm"
             onClick={() => !formSaving && setShowForm(false)}
           />
-          <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-[#7C3AED]/10 bg-white p-6 shadow-xl z-10 animate-slide-in sm:animate-fade-in mb-4 sm:mb-0">
+          <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-brand/10 bg-surface p-6 shadow-xl z-10 animate-slide-in sm:animate-fade-in mb-4 sm:mb-0">
             <button
               onClick={() => !formSaving && setShowForm(false)}
-              aria-label="关闭表单"
-              className="absolute right-4 top-4 cursor-pointer text-[#4C1D95]/40 hover:text-[#4C1D95]"
+              aria-label={localize('关闭表单')}
+              className="absolute right-4 top-4 cursor-pointer text-main/40 hover:text-main"
             >
               <X size={18} />
             </button>
-            <h2 id="form-modal-title" className="font-heading text-lg font-bold text-[#4C1D95]">
-              {editingId ? '编辑校友' : '新增校友'}
+            <h2 id="form-modal-title" className="font-heading text-lg font-bold text-main">
+              {localize(editingId ? '编辑校友' : '新增校友')}
             </h2>
 
             <div className="mt-5 space-y-4">
               <div>
-                <label htmlFor="form-name" className="mb-1 block text-sm font-medium text-[#4C1D95]">姓名 *</label>
+                <label htmlFor="form-name" className="mb-1 block text-sm font-medium text-main">{localize('姓名')} *</label>
                 <input
                   id="form-name"
                   type="text"
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
-                  className="input w-full bg-white"
-                  placeholder="请输入姓名"
+                  className="input w-full bg-surface"
+                  placeholder={localize('请输入姓名')}
                   disabled={formSaving}
                   autoFocus
                 />
               </div>
               <div>
-                <label htmlFor="form-class" className="mb-1 block text-sm font-medium text-[#4C1D95]">届别</label>
+                <label htmlFor="form-class" className="mb-1 block text-sm font-medium text-main">{localize('届别')}</label>
                 <input
                   id="form-class"
                   type="text"
                   value={formClass}
                   onChange={(e) => setFormClass(e.target.value)}
-                  className="input w-full bg-white"
+                  className="input w-full bg-surface"
                   maxLength={4}
                   pattern={GRADUATION_CLASS_PATTERN.source}
-                  placeholder="例如：2025"
+                  placeholder={localize('例如：2025')}
                   disabled={formSaving}
                 />
               </div>
               <div>
-                <label htmlFor="form-classname" className="mb-1 block text-sm font-medium text-[#4C1D95]">班级</label>
+                <label htmlFor="form-classname" className="mb-1 block text-sm font-medium text-main">{localize('班级')}</label>
                 <input
                   id="form-classname"
                   type="text"
                   value={formClassName}
                   onChange={(e) => setFormClassName(e.target.value)}
-                  className="input w-full bg-white"
+                  className="input w-full bg-surface"
                   maxLength={2}
                   pattern={CLASS_NAME_PATTERN.source}
-                  placeholder="例如：1"
+                  placeholder={localize('例如：1')}
                   disabled={formSaving}
                 />
               </div>
               <div>
-                <label htmlFor="form-email" className="mb-1 block text-sm font-medium text-[#4C1D95]">邮箱</label>
+                <label htmlFor="form-email" className="mb-1 block text-sm font-medium text-main">{localize('邮箱')}</label>
                 <input
                   id="form-email"
                   type="email"
                   value={formEmail}
                   onChange={(e) => setFormEmail(e.target.value)}
-                  className="input w-full bg-white"
-                  placeholder="用于区分同名同届校友"
+                  className="input w-full bg-surface"
+                  placeholder={localize('用于区分同名同届校友')}
                   disabled={formSaving}
                 />
               </div>
               <div>
-                <label htmlFor="form-contact" className="mb-1 block text-sm font-medium text-[#4C1D95]">联系方式</label>
+                <label htmlFor="form-contact" className="mb-1 block text-sm font-medium text-main">{localize('联系方式')}</label>
                 <input
                   id="form-contact"
                   type="text"
                   value={formContact}
                   onChange={(e) => setFormContact(e.target.value)}
-                  className="input w-full bg-white"
-                  placeholder="手机号或微信"
+                  className="input w-full bg-surface"
+                  placeholder={localize('手机号或微信')}
                   disabled={formSaving}
                 />
               </div>
               <div>
-                <label htmlFor="form-city" className="mb-1 block text-sm font-medium text-[#4C1D95]">城市</label>
+                <label htmlFor="form-city" className="mb-1 block text-sm font-medium text-main">{localize('城市')}</label>
                 <input
                   id="form-city"
                   type="text"
                   value={formCity}
                   onChange={(e) => setFormCity(e.target.value)}
-                  className="input w-full bg-white"
-                  placeholder="例如：深圳"
+                  className="input w-full bg-surface"
+                  placeholder={localize('例如：深圳')}
                   disabled={formSaving}
                 />
               </div>
               <div>
-                <label htmlFor="form-university" className="mb-1 block text-sm font-medium text-[#4C1D95]">院校</label>
+                <label htmlFor="form-university" className="mb-1 block text-sm font-medium text-main">{localize('院校')}</label>
                 <input
                   id="form-university"
                   type="text"
                   value={formUniversity}
                   onChange={(e) => setFormUniversity(e.target.value)}
-                  className="input w-full bg-white"
-                  placeholder="例如：北京大学"
+                  className="input w-full bg-surface"
+                  placeholder={localize('例如：北京大学')}
                   disabled={formSaving}
                 />
               </div>
               <div>
-                <label htmlFor="form-major" className="mb-1 block text-sm font-medium text-[#4C1D95]">专业</label>
+                <label htmlFor="form-major" className="mb-1 block text-sm font-medium text-main">{localize('专业')}</label>
                 <input
                   id="form-major"
                   type="text"
                   value={formMajor}
                   onChange={(e) => setFormMajor(e.target.value)}
-                  className="input w-full bg-white"
-                  placeholder="例如：计算机科学"
+                  className="input w-full bg-surface"
+                  placeholder={localize('例如：计算机科学')}
                   disabled={formSaving}
                 />
               </div>
               <div>
-                <label htmlFor="form-industry" className="mb-1 block text-sm font-medium text-[#4C1D95]">行业</label>
+                <label htmlFor="form-industry" className="mb-1 block text-sm font-medium text-main">{localize('行业')}</label>
                 <input
                   id="form-industry"
                   type="text"
                   value={formIndustry}
                   onChange={(e) => setFormIndustry(e.target.value)}
-                  className="input w-full bg-white"
-                  placeholder="例如：互联网"
+                  className="input w-full bg-surface"
+                  placeholder={localize('例如：互联网')}
                   disabled={formSaving}
                 />
               </div>
               <div>
-                <label htmlFor="form-certno" className="mb-1 block text-sm font-medium text-[#4C1D95]">证书编号</label>
+                <label htmlFor="form-certno" className="mb-1 block text-sm font-medium text-main">{localize('证书编号')}</label>
                 <input
                   id="form-certno"
                   type="text"
                   value={formCertNo}
                   onChange={(e) => setFormCertNo(e.target.value)}
-                  className="input w-full bg-white"
-                  placeholder="可选，如 YC-2022-001"
+                  className="input w-full bg-surface"
+                  placeholder={localize('可选，如 YC-2022-001')}
                   disabled={formSaving}
                 />
-                <p className="mt-1 text-xs text-[#4C1D95]/40">
-                  留空则自动使用系统 ID
+                <p className="mt-1 text-xs text-main/40">
+                  {localize('留空则自动使用系统 ID')}
                 </p>
               </div>
 
               {formError && (
-                <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                <div className="flex items-center gap-2 rounded-xl border border-danger/25 bg-danger/10 px-3 py-2 text-sm text-danger">
                   <AlertTriangle size={14} />
                   {formError}
                 </div>
@@ -714,17 +721,17 @@ export default function AdminAlumniPage() {
                 <button
                   onClick={() => setShowForm(false)}
                   disabled={formSaving}
-                  className="w-full sm:w-auto min-h-[44px] cursor-pointer rounded-xl border border-gray-200 px-4 py-2 text-sm text-[#4C1D95]/60 transition hover:bg-gray-50 disabled:opacity-50"
+                  className="w-full sm:w-auto min-h-[44px] cursor-pointer rounded-xl border border-line px-4 py-2 text-sm text-main/60 transition hover:bg-surface/60 disabled:opacity-50"
                 >
-                  取消
+                  {localize('取消')}
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={formSaving}
-                  className="inline-flex w-full sm:w-auto min-h-[44px] items-center justify-center gap-1.5 rounded-xl border border-[#7C3AED]/20 bg-[#7C3AED]/5 px-4 py-2 text-sm text-[#7C3AED] transition hover:bg-[#7C3AED]/10 disabled:opacity-50"
+                  className="inline-flex w-full sm:w-auto min-h-[44px] items-center justify-center gap-1.5 rounded-xl border border-brand/20 bg-brand/5 px-4 py-2 text-sm text-brand transition hover:bg-brand/10 disabled:opacity-50"
                 >
                   {formSaving && <Loader2 size={14} className="animate-spin" />}
-                  {editingId ? '保存' : '新增'}
+                  {localize(editingId ? '保存' : '新增')}
                 </button>
               </div>
             </div>
@@ -742,20 +749,21 @@ export default function AdminAlumniPage() {
           aria-labelledby="delete-modal-title"
         >
           <div
-            className="absolute inset-0 bg-[#4C1D95]/20 backdrop-blur-sm"
+            className="absolute inset-0 bg-main/20 backdrop-blur-sm"
             onClick={() => !deleting && setDeleteTarget(null)}
           />
-          <div className="relative w-full max-w-sm rounded-2xl border border-rose-100 bg-white p-6 shadow-xl z-10 animate-slide-in sm:animate-fade-in mb-4 sm:mb-0">
+          <div className="relative w-full max-w-sm rounded-2xl border border-danger bg-surface p-6 shadow-xl z-10 animate-slide-in sm:animate-fade-in mb-4 sm:mb-0">
             <div className="flex items-start gap-3">
-              <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-500">
+              <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-danger/10 text-danger">
                 <AlertTriangle size={20} />
               </div>
               <div>
-                <h2 id="delete-modal-title" className="font-heading text-lg font-bold text-[#4C1D95]">确认删除</h2>
-                <p className="mt-1 text-sm leading-6 text-[#4C1D95]/60">
-                  确定要删除 <strong>{deleteTarget.name}</strong>
-                  {deleteTarget.graduationClass ? `（${formatGraduationClass(deleteTarget.graduationClass)}）` : ''}
-                  的校友信息吗？此操作不可撤销。
+                <h2 id="delete-modal-title" className="font-heading text-lg font-bold text-main">{localize('确认删除')}</h2>
+                <p className="mt-1 text-sm leading-6 text-main/60">
+                  {locale === 'en' ? 'Delete the alumni record for ' : '确定要删除 '}
+                  <strong>{deleteTarget.name}</strong>
+                  {deleteTarget.graduationClass ? ` (${formatGraduationClass(deleteTarget.graduationClass)})` : ''}
+                  {locale === 'en' ? '? This action cannot be undone.' : ' 的校友信息吗？此操作不可撤销。'}
                 </p>
               </div>
             </div>
@@ -763,17 +771,17 @@ export default function AdminAlumniPage() {
               <button
                 onClick={() => setDeleteTarget(null)}
                 disabled={deleting}
-                className="w-full sm:w-auto min-h-[44px] cursor-pointer rounded-xl border border-gray-200 px-4 py-2 text-sm text-[#4C1D95]/60 transition hover:bg-gray-50 disabled:opacity-50"
+                className="w-full sm:w-auto min-h-[44px] cursor-pointer rounded-xl border border-line px-4 py-2 text-sm text-main/60 transition hover:bg-surface/60 disabled:opacity-50"
               >
-                取消
+                {localize('取消')}
               </button>
               <button
                 onClick={handleDelete}
                 disabled={deleting}
-                className="inline-flex w-full sm:w-auto min-h-[44px] items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm text-rose-600 transition hover:bg-rose-100 disabled:opacity-50"
+                className="inline-flex w-full sm:w-auto min-h-[44px] items-center justify-center gap-1.5 rounded-xl border border-danger/25 bg-danger/10 px-4 py-2 text-sm text-danger transition hover:bg-danger/20 disabled:opacity-50"
               >
                 {deleting && <Loader2 size={14} className="animate-spin" />}
-                确认删除
+                {localize('确认删除')}
               </button>
             </div>
           </div>

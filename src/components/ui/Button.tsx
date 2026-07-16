@@ -10,14 +10,14 @@ const FOCUS_RING =
 
 const VARIANTS: Record<Variant, string> = {
   // CTA 绿，用于主要动作
-  primary: "bg-accent text-white hover:opacity-90 shadow-sm hover:filter hover:drop-shadow-[0_0_8px_rgba(34,197,94,0.5)] hover:-translate-y-0.5",
+  primary: "bg-accent text-contrast shadow-sm hover:-translate-y-0.5 hover:opacity-90 hover:shadow-md",
   // 描边紫，用于次要动作
   secondary:
-    "border border-brand/40 bg-surface text-brand hover:bg-brand/5 hover:filter hover:drop-shadow-[0_0_8px_rgba(167,139,250,0.5)] hover:-translate-y-0.5",
+    "border border-brand/40 bg-surface text-brand hover:-translate-y-0.5 hover:bg-brand/5 hover:shadow-md",
   // 无边框，用于轻量操作
   ghost: "text-brand hover:bg-brand/10",
   // 危险操作（删除等）
-  danger: "text-rose-600 hover:bg-rose-50",
+  danger: "text-danger hover:bg-danger/10 dark:text-danger",
 };
 
 const SIZES: Record<Size, string> = {

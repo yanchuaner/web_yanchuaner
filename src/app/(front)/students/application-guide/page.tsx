@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ArrowLeft, BookOpen, Shield, AlertTriangle } from "lucide-react";
+import { ArrowLeft, BookOpen, AlertTriangle } from "lucide-react";
 import { PageShell, GlassCard, PageHeader, ButtonLink } from "@/components/ui";
 import { guideCards } from "@/data/studentResources";
 
@@ -20,14 +20,14 @@ export default function ApplicationGuidePage() {
         />
 
         {/* Risk Alert — 星空暗色 */}
-        <div className="mt-6 rounded-card border border-rose-500/20 bg-rose-500/5 p-5">
+        <div className="mt-6 rounded-card border border-danger/20 bg-danger/5 p-5">
           <div className="flex items-start gap-3">
-            <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-rose-500/10">
-              <AlertTriangle size={18} className="text-rose-400" />
+            <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-danger/10">
+              <AlertTriangle size={18} className="text-danger" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-rose-300">风险提示</h3>
-              <p className="mt-1 text-xs leading-6 text-rose-300/80">
+              <h3 className="text-sm font-semibold text-danger">风险提示</h3>
+              <p className="mt-1 text-xs leading-6 text-danger">
                 不存在「保证录取」的内部渠道，所有正规录取都通过考试院系统。不要轻信「低分上名校」等虚假宣传，谨防志愿填报诈骗。提交前反复核对院校代码和专业代码，保留所有填报截图和确认信息。
               </p>
             </div>
@@ -50,21 +50,6 @@ export default function ApplicationGuidePage() {
               </ul>
             </div>
           ))}
-        </div>
-
-        {/* Disclaimer — 暗色适配 */}
-        <div className="mt-8 rounded-card border border-amber-500/15 bg-amber-500/5 p-5">
-          <div className="flex items-start gap-3">
-            <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/10">
-              <Shield size={18} className="text-amber-400" />
-            </div>
-            <div>
-              <h3 className="font-heading text-sm font-semibold text-amber-300">免责声明</h3>
-              <p className="mt-1 text-xs leading-6 text-amber-300/80">
-                本页面内容仅供参考，不构成报考、录取或职业选择承诺。涉及招生政策、录取规则和专业设置时，请以教育考试院、招生院校官网和当年招生章程为准。燕川中学及校友会不对因使用本页面信息导致的任何后果承担责任。
-              </p>
-            </div>
-          </div>
         </div>
 
         <div className="mt-6 flex flex-wrap gap-3">

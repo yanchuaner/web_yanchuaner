@@ -18,10 +18,10 @@ export function PageHeader({
   className,
 }: {
   /** 胶囊里的英文小标签，如 "CONTACT" */
-  eyebrow?: string;
+  eyebrow?: React.ReactNode;
   eyebrowIcon?: LucideIcon;
-  title: string;
-  description?: string;
+  title: React.ReactNode;
+  description?: React.ReactNode;
   /** 右侧操作区（如「返回首页」按钮） */
   action?: React.ReactNode;
   className?: string;
@@ -42,7 +42,7 @@ export function PageHeader({
             {title}
           </h1>
           {description ? (
-            <p className="mt-2 max-w-3xl text-sm leading-7 text-gray-700 md:text-base">
+            <p className="mt-2 max-w-3xl text-sm leading-7 text-main/70 md:text-base">
               {description}
             </p>
           ) : null}

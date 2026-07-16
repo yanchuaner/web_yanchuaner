@@ -1,31 +1,56 @@
-
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+.lang-en {
+  display: none;
+}
+
+html[lang="en"] .lang-zh {
+  display: none;
+}
+
+html[lang="en"] .lang-en {
+  display: inline;
+}
+
 @layer base {
   :root {
-    /* ── 颜色令牌（升级为宇宙科幻深色模式）──────────────── */
-    --color-primary: #A78BFA;     /* 主色 - 柔和紫 */
-    --color-secondary: #C084FC;   /* 辅色 - 亮紫 */
-    --color-cta: #22C55E;         /* CTA - 绿 */
-    --color-background: #03010b;  /* 页面背景 - 宇宙深空黑 */
-    --color-surface: rgba(13, 9, 36, 0.65); /* 卡片表面 - 暗紫磨砂玻璃 */
-    --color-text: #F5F3FF;        /* 主文本 - 极淡紫白 */
-    --color-line: rgba(167, 139, 250, 0.15); /* 统一描边色 */
-    --color-bg-gradient-end: #0c0822; /* 渐变结束 - 深空暗蓝 */
-
+    /* ── 亮色模式语义令牌 ──────────────── */
     /* RGB 通道变量：供 Tailwind 语义令牌支持透明度修饰符 */
-    --brand-rgb: 167 139 250;       /* #A78BFA */
-    --brand-soft-rgb: 192 132 252; /* #C084FC */
-    --brand-fg-rgb: 245 243 255;   /* #F5F3FF */
-    --accent-rgb: 34 197 94;       /* #22C55E */
-    --space-cyan-rgb: 34 211 238;  /* 航天页导航与地平线 */
-    --space-amber-rgb: 251 191 36; /* 点火火星 */
-    --space-orange-rgb: 251 146 60;/* 尾焰外焰 */
-    --surface-rgb: 13 9 36;        /* #0D0924 */
-    --surface-muted-rgb: 3 1 11;   /* #03010B */
+    --brand-rgb: 124 58 237;
+    --brand-soft-rgb: 192 132 252;
+    --brand-fg-rgb: 30 27 75;
+    --accent-rgb: 16 185 129;
+    --space-cyan-rgb: 6 182 212;
+    --space-amber-rgb: 245 158 11;
+    --space-orange-rgb: 249 115 22;
+    --heritage-rgb: 146 45 52;
+    --surface-rgb: 255 255 255;
+    --surface-muted-rgb: 250 248 255;
+    --surface-strong-rgb: 245 243 255;
+    --on-brand-rgb: 255 255 255;
+    --success-rgb: 5 150 105;
+    --warning-rgb: 217 119 6;
+    --danger-rgb: 225 29 72;
+    --info-rgb: 8 145 178;
+    --overlay-rgb: 3 1 11;
+    --device-bg-rgb: 238 242 255;
+    --device-fg-rgb: 30 27 75;
+    --device-signal-rgb: 8 145 178;
+    --map-bg-rgb: 241 245 249;
+    --map-fill-rgb: 226 232 240;
+    --map-stroke-rgb: 8 145 178;
+    --map-fg-rgb: 30 41 59;
+
+    /* 兼容旧选择器的别名；实际色值仍只来自上面的语义通道 */
+    --color-primary: rgb(var(--brand-rgb));
+    --color-secondary: rgb(var(--brand-soft-rgb));
+    --color-cta: rgb(var(--accent-rgb));
+    --color-background: rgb(var(--surface-muted-rgb));
+    --color-surface: rgb(var(--surface-rgb) / 0.75);
+    --color-text: rgb(var(--brand-fg-rgb));
+    --color-line: rgb(var(--brand-rgb) / 0.1);
 
     /* Spacing Variables */
     --space-xs: 4px;
@@ -37,16 +62,57 @@
     --space-3xl: 64px;
 
     /* Shadow Depths */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 20px rgba(124, 58, 237, 0.05);
+    --shadow-lg: 0 12px 36px rgba(124, 58, 237, 0.1);
+    --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.1);
+
+    /* Legacy Variables Repurposed */
+    --cosmic-deep: rgb(var(--surface-muted-rgb));
+    --cosmic-mid: rgb(var(--surface-strong-rgb));
+    --glass-bg: rgb(var(--surface-rgb) / 0.75);
+    --glass-border: rgb(var(--brand-rgb) / 0.1);
+  }
+
+  .dark {
+    /* ── 宇宙科幻深色模式 ──────────────── */
+    /* RGB 通道变量：供 Tailwind 语义令牌支持透明度修饰符 */
+    --brand-rgb: 167 139 250;
+    --brand-soft-rgb: 192 132 252;
+    --brand-fg-rgb: 245 243 255;
+    --accent-rgb: 34 197 94;
+    --space-cyan-rgb: 34 211 238;  /* 航天页导航与地平线 */
+    --space-amber-rgb: 251 191 36; /* 点火火星 */
+    --space-orange-rgb: 251 146 60;/* 尾焰外焰 */
+    --heritage-rgb: 248 113 113;
+    --surface-rgb: 13 9 36;
+    --surface-muted-rgb: 3 1 11;
+    --surface-strong-rgb: 5 3 14;
+    --on-brand-rgb: 255 255 255;
+    --success-rgb: 52 211 153;
+    --warning-rgb: 251 191 36;
+    --danger-rgb: 251 113 133;
+    --info-rgb: 34 211 238;
+    --overlay-rgb: 0 0 0;
+    --device-bg-rgb: 11 7 26;
+    --device-fg-rgb: 245 243 255;
+    --device-signal-rgb: 34 211 238;
+    --map-bg-rgb: 11 17 32;
+    --map-fill-rgb: 30 41 59;
+    --map-stroke-rgb: 34 211 238;
+    --map-fg-rgb: 203 213 225;
+
+    --color-line: rgb(var(--brand-rgb) / 0.15);
+    --color-surface: rgb(var(--surface-rgb) / 0.65);
+    --cosmic-deep: rgb(var(--surface-muted-rgb));
+    --cosmic-mid: rgb(var(--surface-strong-rgb));
+    --glass-bg: rgb(var(--surface-rgb) / 0.65);
+    --glass-border: rgb(var(--brand-rgb) / 0.15);
+
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 4px 20px rgba(124, 58, 237, 0.15);
     --shadow-lg: 0 12px 36px rgba(124, 58, 237, 0.25);
     --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.5);
-
-    /* Legacy Variables Repurposed */
-    --cosmic-deep: #03010b;
-    --cosmic-mid: #0a0620;
-    --glass-bg: rgba(13, 9, 36, 0.65);
-    --glass-border: rgba(167, 139, 250, 0.15);
   }
 
   * {
@@ -69,7 +135,6 @@
 
   button,
   a,
-  input,
   textarea,
   select {
     -webkit-tap-highlight-color: transparent;
@@ -145,11 +210,11 @@
 
   .input {
     padding: 12px 16px;
-    border: 1px solid #E2E8F0;
+    border: 1px solid var(--color-line);
     border-radius: 8px;
     font-size: 16px;
     min-height: 44px;
-    background: white;
+    background: rgb(var(--surface-rgb) / 0.8);
     color: var(--color-text);
     transition: border-color 200ms ease, box-shadow 200ms ease;
   }
@@ -178,17 +243,17 @@
     position: relative;
     overflow: hidden;
     border-radius: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background-color: rgba(13, 9, 36, 0.65) !important;
+    border: 1px solid var(--color-line);
+    background-color: rgb(var(--surface-rgb) / 0.72);
     backdrop-filter: blur(16px);
     transition: all 400ms cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-md);
   }
 
   .glass-card-premium:hover {
     transform: translateY(-4px);
-    border-color: rgba(167, 139, 250, 0.25);
-    box-shadow: 0 12px 40px rgba(124, 58, 237, 0.15);
+    border-color: rgb(var(--brand-rgb) / 0.25);
+    box-shadow: var(--shadow-lg);
   }
 
   .glass-card-premium::before {
@@ -261,6 +326,11 @@ body::after {
   animation: nebula-drift-purple 52s ease-in-out infinite;
 }
 
+:root:not(.dark) body::before,
+:root:not(.dark) body::after {
+  display: none;
+}
+
 
 
 .meteor-layer {
@@ -268,6 +338,13 @@ body::after {
   inset: 0;
   overflow: hidden;
   pointer-events: none;
+  display: none;
+  opacity: 0;
+}
+
+.dark .meteor-layer {
+  display: block;
+  opacity: 0.15;
 }
 
 .noise-overlay {
@@ -288,10 +365,16 @@ body::after {
   min-width: 160px;
   height: 2px;
   border-radius: 999px;
-  background: linear-gradient(90deg, rgba(124, 58, 237, 0), rgba(124, 58, 237, 0.4) 42%, rgba(167, 139, 250, 0.8) 72%, rgba(124, 58, 237, 0));
+  background: linear-gradient(
+    90deg,
+    rgb(var(--space-cyan-rgb) / 0),
+    rgb(var(--space-cyan-rgb) / 0.45) 42%,
+    rgb(var(--on-brand-rgb) / 0.82) 72%,
+    rgb(var(--space-amber-rgb) / 0)
+  );
   opacity: 0;
   transform: translate3d(-120vw, -22vh, 0) rotate(-12deg);
-  filter: drop-shadow(0 0 6px rgba(124, 58, 237, 0.3));
+  filter: drop-shadow(0 0 6px rgb(var(--space-cyan-rgb) / 0.32));
   /* will-change removed for GPU memory optimization */
 }
 
@@ -433,12 +516,12 @@ body::after {
 
 .cosmic-card {
   position: relative;
-  border: 1px solid rgba(124, 58, 237, 0.1);
-  box-shadow: 0 4px 20px -2px rgba(124, 58, 237, 0.05);
+  border: 1px solid rgb(var(--brand-rgb) / 0.1);
+  box-shadow: var(--shadow-md);
   overflow: hidden;
   border-radius: 12px;
   padding: 1.5rem;
-  background-color: white;
+  background-color: rgb(var(--surface-rgb) / 0.72);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   color: var(--color-text);
@@ -496,6 +579,255 @@ body::after {
 @keyframes fade-in-up {
   0% { opacity: 0; transform: translateY(24px) scale(0.98); }
   100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.celestial-entrance {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--color-background);
+  user-select: none;
+  transition: background-color 900ms ease, backdrop-filter 900ms ease;
+}
+
+.celestial-entrance__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.celestial-entrance__sphere {
+  transition: transform 1000ms cubic-bezier(0.16, 1, 0.3, 1), opacity 700ms ease;
+}
+
+.celestial-entrance__copy {
+  transition: transform 500ms cubic-bezier(0.16, 1, 0.3, 1), opacity 350ms ease;
+}
+
+.celestial-entrance--leaving {
+  pointer-events: none;
+  background: transparent;
+  backdrop-filter: blur(0);
+}
+
+.celestial-entrance--leaving .celestial-entrance__sphere {
+  opacity: 0.25;
+  transform: translate3d(0, -20vh, 0) scale(0.78) rotate(12deg);
+}
+
+.celestial-entrance--leaving .celestial-entrance__copy {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.route-state-brand,
+.route-state-info {
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--surface-muted-rgb)),
+    rgb(var(--surface-strong-rgb))
+  );
+}
+
+.route-state-brand {
+  background-image:
+    radial-gradient(circle at top, rgb(var(--brand-rgb) / 0.16), transparent 42%),
+    linear-gradient(to bottom, rgb(var(--surface-muted-rgb)), rgb(var(--surface-strong-rgb)));
+}
+
+.route-state-info {
+  background-image:
+    radial-gradient(circle at top, rgb(var(--info-rgb) / 0.14), transparent 42%),
+    linear-gradient(to bottom, rgb(var(--surface-muted-rgb)), rgb(var(--surface-strong-rgb)));
+}
+
+.cosmic-theme-glow {
+  background: none;
+}
+
+.dark .cosmic-theme-glow {
+  background:
+    radial-gradient(ellipse at 72% 12%, rgb(var(--space-cyan-rgb) / 0.075), transparent 42%),
+    radial-gradient(ellipse at 18% 88%, rgb(var(--brand-rgb) / 0.055), transparent 46%);
+}
+
+.cosmic-night-chart {
+  display: none;
+}
+
+.dark .cosmic-night-chart {
+  display: block;
+  opacity: 0.42;
+  animation: cosmic-night-breathe 16s ease-in-out infinite;
+}
+
+.cosmic-night-route {
+  position: absolute;
+  display: block;
+  border-top: 1px solid rgb(var(--space-cyan-rgb) / 0.16);
+  transform-origin: left center;
+}
+
+.cosmic-night-route-a {
+  left: 9%;
+  top: 23%;
+  width: min(38vw, 520px);
+  transform: rotate(8deg);
+}
+
+.cosmic-night-route-b {
+  bottom: 19%;
+  right: 8%;
+  width: min(31vw, 430px);
+  transform: rotate(-13deg);
+}
+
+.cosmic-night-node {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgb(var(--on-brand-rgb) / 0.86);
+  box-shadow: 0 0 7px rgb(var(--space-cyan-rgb) / 0.5);
+}
+
+.cosmic-night-node-a { left: 9%; top: 22.7%; }
+.cosmic-night-node-b { left: 31%; top: 26%; }
+.cosmic-night-node-c { bottom: 18.7%; right: 8%; }
+.cosmic-night-node-d {
+  bottom: 25%;
+  right: 34%;
+  background: rgb(var(--space-amber-rgb) / 0.9);
+  box-shadow: 0 0 8px rgb(var(--space-amber-rgb) / 0.5);
+}
+
+@keyframes cosmic-night-breathe {
+  0%, 100% { opacity: 0.32; }
+  50% { opacity: 0.48; }
+}
+
+.cosmic-daylight-chart {
+  color: rgb(var(--brand-rgb) / 0.12);
+  opacity: 0.9;
+}
+
+.dark .cosmic-daylight-chart {
+  display: none;
+}
+
+.cosmic-daylight-orbit {
+  position: absolute;
+  display: block;
+  width: clamp(420px, 64vw, 900px);
+  height: clamp(150px, 24vw, 330px);
+  border: 1px solid currentColor;
+  border-radius: 50%;
+}
+
+.cosmic-daylight-orbit-a {
+  right: -14%;
+  top: 4%;
+  transform: rotate(-12deg);
+}
+
+.cosmic-daylight-orbit-b {
+  bottom: 10%;
+  left: -26%;
+  transform: rotate(9deg);
+}
+
+.cosmic-daylight-axis {
+  position: absolute;
+  left: 8%;
+  top: 34%;
+  width: min(54vw, 720px);
+  border-top: 1px solid rgb(var(--brand-rgb) / 0.08);
+  transform: rotate(-4deg);
+}
+
+.cosmic-daylight-axis::before,
+.cosmic-daylight-axis::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  height: 7px;
+  border-left: 1px solid rgb(var(--brand-rgb) / 0.13);
+}
+
+.cosmic-daylight-axis::before {
+  left: 28%;
+}
+
+.cosmic-daylight-axis::after {
+  right: 18%;
+}
+
+.cosmic-daylight-node {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border: 1px solid rgb(var(--brand-rgb) / 0.3);
+  background: rgb(var(--surface-muted-rgb));
+  box-shadow: 0 0 0 4px rgb(var(--brand-rgb) / 0.04);
+  transform: rotate(45deg);
+}
+
+.cosmic-daylight-node-a {
+  left: 18%;
+  top: 29%;
+}
+
+.cosmic-daylight-node-b {
+  right: 22%;
+  top: 18%;
+}
+
+.cosmic-daylight-node-c {
+  bottom: 21%;
+  left: 31%;
+}
+
+.terminal-scanlines {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    transparent 50%,
+    rgb(var(--overlay-rgb) / 0.06) 50%,
+    rgb(var(--overlay-rgb) / 0.06)
+  );
+  background-size: 100% 4px;
+}
+
+.crt-reflection {
+  background: radial-gradient(circle at 35% 25%, rgb(var(--device-fg-rgb) / 0.08) 0%, transparent 60%);
+}
+
+.crt-scanlines {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    transparent 50%,
+    rgb(var(--overlay-rgb) / 0.2) 50%,
+    rgb(var(--overlay-rgb) / 0.2)
+  );
+  background-size: 100% 4px;
+}
+
+.icon-glow {
+  filter: drop-shadow(0 0 12px color-mix(in srgb, currentColor 45%, transparent));
+}
+
+@media (min-width: 768px) {
+  .celestial-entrance--leaving .celestial-entrance__sphere {
+    transform: translate3d(clamp(150px, 24vw, 360px), -16vh, 0) scale(0.84) rotate(12deg);
+  }
 }
 
 @keyframes starfield-secret-pulse {
@@ -567,6 +899,13 @@ body::after {
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
+  display: none;
+  opacity: 0;
+}
+
+.dark .home-atmo-layer {
+  display: block;
+  opacity: 0.72;
 }
 
 .home-breath-stars {
@@ -577,49 +916,83 @@ body::after {
   /* will-change removed for GPU memory optimization */
 }
 
+:root:not(.dark) .home-breath-stars {
+  display: none;
+  animation: none;
+}
+
 .home-breath-stars-a {
   background-image:
-    radial-gradient(2px 2px at 8% 18%, rgba(124, 58, 237, 0.2), transparent 62%),
-    radial-gradient(2px 2px at 21% 42%, rgba(167, 139, 250, 0.15), transparent 62%),
-    radial-gradient(2px 2px at 33% 72%, rgba(124, 58, 237, 0.2), transparent 62%),
-    radial-gradient(2px 2px at 48% 26%, rgba(167, 139, 250, 0.1), transparent 62%);
-  animation: home-star-breathe-1 7s ease-in-out infinite;
+    radial-gradient(circle, rgb(var(--on-brand-rgb) / 0.72) 0 0.7px, transparent 1.35px),
+    radial-gradient(circle, rgb(var(--on-brand-rgb) / 0.52) 0 0.6px, transparent 1.25px);
+  background-position: 17px 31px, 73px 89px;
+  background-size: 113px 127px, 173px 191px;
+  animation: home-star-breathe-1 9s ease-in-out infinite;
 }
 
 .home-breath-stars-b {
   background-image:
-    radial-gradient(1.5px 1.5px at 12% 30%, rgba(167, 139, 250, 0.15), transparent 62%),
-    radial-gradient(1.5px 1.5px at 29% 18%, rgba(124, 58, 237, 0.2), transparent 62%),
-    radial-gradient(1.5px 1.5px at 41% 54%, rgba(167, 139, 250, 0.1), transparent 62%);
-  animation: home-star-breathe-2 9s ease-in-out infinite;
+    radial-gradient(circle, rgb(var(--space-cyan-rgb) / 0.68) 0 0.85px, transparent 1.55px),
+    radial-gradient(circle, rgb(var(--brand-soft-rgb) / 0.42) 0 0.7px, transparent 1.4px);
+  background-position: 41px 19px, 131px 67px;
+  background-size: 211px 239px, 283px 257px;
+  animation: home-star-breathe-2 13s ease-in-out infinite;
   animation-delay: -2.4s;
 }
 
 .home-breath-stars-c {
   background-image:
-    radial-gradient(1.2px 1.2px at 16% 62%, rgba(124, 58, 237, 0.15), transparent 62%),
-    radial-gradient(1.2px 1.2px at 37% 82%, rgba(167, 139, 250, 0.1), transparent 62%),
-    radial-gradient(1.2px 1.2px at 55% 14%, rgba(124, 58, 237, 0.2), transparent 62%);
-  animation: home-star-breathe-3 11s ease-in-out infinite;
+    radial-gradient(circle, rgb(var(--space-amber-rgb) / 0.58) 0 0.8px, transparent 1.5px),
+    radial-gradient(circle, rgb(var(--on-brand-rgb) / 0.4) 0 0.55px, transparent 1.2px);
+  background-position: 89px 143px, 211px 37px;
+  background-size: 337px 293px, 419px 367px;
+  animation: home-star-breathe-3 17s ease-in-out infinite;
   animation-delay: -4.2s;
 }
 
 @keyframes home-star-breathe-1 {
-  0% { opacity: 0.3; transform: translate3d(0, 0, 0); }
-  50% { opacity: 0.6; transform: translate3d(0, -5px, 0); }
-  100% { opacity: 0.3; transform: translate3d(0, 0, 0); }
+  0%, 100% { opacity: 0.42; transform: translate3d(0, 0, 0); }
+  50% { opacity: 0.72; transform: translate3d(0, -4px, 0); }
 }
 
 @keyframes home-star-breathe-2 {
-  0% { opacity: 0.2; transform: translate3d(0, 0, 0); }
-  50% { opacity: 0.5; transform: translate3d(0, 4px, 0); }
-  100% { opacity: 0.2; transform: translate3d(0, 0, 0); }
+  0%, 100% { opacity: 0.24; transform: translate3d(0, 0, 0); }
+  50% { opacity: 0.52; transform: translate3d(0, 3px, 0); }
 }
 
 @keyframes home-star-breathe-3 {
-  0% { opacity: 0.15; transform: translate3d(0, 0, 0); }
-  50% { opacity: 0.4; transform: translate3d(0, -3px, 0); }
-  100% { opacity: 0.15; transform: translate3d(0, 0, 0); }
+  0%, 100% { opacity: 0.16; transform: translate3d(0, 0, 0); }
+  50% { opacity: 0.36; transform: translate3d(0, -2px, 0); }
+}
+
+.home-memory-whispers {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.home-memory-whisper {
+  position: absolute;
+  font-family: 'STSong', 'Songti SC', 'SimSun', 'Noto Serif SC', serif;
+  font-size: 12px;
+  color: rgb(var(--heritage-rgb) / 0.16);
+  white-space: nowrap;
+}
+
+.dark .home-memory-whisper {
+  color: rgb(var(--on-brand-rgb) / 0.14);
+  animation: memory-whisper-drift 22s ease-in-out infinite;
+}
+
+.home-memory-whisper-a { left: 5%; top: 18%; }
+.home-memory-whisper-b { right: 7%; top: 44%; animation-delay: -7s; }
+.home-memory-whisper-c { bottom: 12%; left: 17%; animation-delay: -14s; }
+
+@keyframes memory-whisper-drift {
+  0%, 100% { opacity: 0.45; transform: translate3d(0, 0, 0); }
+  50% { opacity: 0.9; transform: translate3d(0, -8px, 0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -648,6 +1021,68 @@ body::after {
 .animate-float-star {
   animation: float-star linear infinite;
   animation-duration: 20s;
+}
+
+.message-orbit-node {
+  width: 7px;
+  height: 7px;
+  border: 1px solid rgb(var(--brand-rgb) / 0.35);
+  border-radius: 2px;
+  background: rgb(var(--surface-rgb));
+  box-shadow: 0 0 0 4px rgb(var(--brand-rgb) / 0.04);
+  transform: rotate(45deg);
+}
+
+:root:not(.dark) .message-orbit-star {
+  animation: none;
+}
+
+.dark .message-orbit-node {
+  width: 6px;
+  height: 6px;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(var(--on-brand-rgb) / 0.86);
+  box-shadow: 0 0 8px rgb(var(--space-cyan-rgb) / 0.42);
+  transform: none;
+}
+
+.dark .message-orbit-star:nth-child(5n + 2) .message-orbit-node {
+  background: rgb(var(--space-cyan-rgb) / 0.92);
+}
+
+.dark .message-orbit-star:nth-child(7n + 3) .message-orbit-node {
+  background: rgb(var(--space-amber-rgb) / 0.9);
+  box-shadow: 0 0 8px rgb(var(--space-amber-rgb) / 0.38);
+}
+
+@media (max-width: 767px) {
+  .cosmic-daylight-chart {
+    opacity: 0.65;
+  }
+
+  .cosmic-daylight-orbit {
+    width: 460px;
+    height: 170px;
+  }
+
+  .cosmic-daylight-orbit-a {
+    right: -70%;
+    top: 12%;
+  }
+
+  .cosmic-daylight-orbit-b {
+    bottom: 18%;
+    left: -76%;
+  }
+
+  .message-orbit-star {
+    animation: none !important;
+  }
+
+  .home-memory-whispers {
+    display: none;
+  }
 }
 
 @keyframes marquee {
@@ -766,286 +1201,54 @@ body::after {
   body::after,
   .meteor-layer,
   .meteor-layer::before,
-  .meteor-layer::after,
-  .home-atmo-layer,
+  .meteor-layer::after {
+    animation: none !important;
+    display: none !important;
+  }
+
+  .dark .home-atmo-layer {
+    display: block;
+    opacity: 0.42;
+  }
+
   .home-breath-stars {
     animation: none !important;
+  }
+
+  .home-breath-stars-b,
+  .home-breath-stars-c,
+  .cosmic-night-chart {
     display: none !important;
   }
 }
 
+
 /* ==========================================================================
-   宇宙科幻深色模式全局兼容性覆盖器 (Cosmic Dark Mode Utility Overrides)
-   通过劫持 Tailwind 浅色辅助类，将全站一键升级为深邃星云配色，无需修改数百处 HTML
+   主题感应的全局样式与动画 (Theme-aware Global Styles & Animations)
    ========================================================================== */
 
-/* 1. 文本颜色劫持 */
-.text-slate-800,
-.text-slate-700,
-.text-gray-800,
-.text-gray-700,
-.text-slate-900,
-.text-slate-950 {
-  color: var(--color-text) !important;
-}
-
-.text-slate-600,
-.text-slate-500,
-.text-gray-600,
-.text-gray-500 {
-  color: rgba(245, 243, 255, 0.65) !important;
-}
-
-.text-slate-400,
-.text-gray-400 {
-  color: rgba(245, 243, 255, 0.45) !important;
-}
-
-/* 2. 背景与磨砂玻璃劫持 */
-.bg-white {
-  background-color: var(--color-surface) !important;
-}
-
-.bg-white\/80 {
-  background-color: rgba(13, 9, 36, 0.8) !important;
-}
-
-.bg-white\/70 {
-  background-color: rgba(13, 9, 36, 0.7) !important;
-}
-
-.bg-white\/60,
-.bg-surface\/60 {
-  background-color: rgba(13, 9, 36, 0.6) !important;
-}
-
-.bg-white\/50,
-.bg-white\/30,
-.bg-white\/40 {
-  background-color: rgba(13, 9, 36, 0.45) !important;
-}
-
-.bg-gray-50 {
-  background-color: rgba(13, 9, 36, 0.3) !important;
-}
-
-/* 3. 劫持硬编码的浅色品牌十六进制 */
-.text-\[\#7C3AED\] {
-  color: var(--color-primary) !important;
-}
-
-.text-\[\#4C1D95\] {
-  color: var(--color-text) !important;
-}
-
-.bg-\[\#7C3AED\]\/10 {
-  background-color: rgba(167, 139, 250, 0.15) !important;
-}
-
-.border-\[\#A78BFA\]\/20,
-.border-\[\#7C3AED\]\/10,
-.border-\[\#7C3AED\]\/20,
-.border-\[\#7C3AED\]\/5,
-.border-line {
-  border-color: var(--color-line) !important;
-}
-
-.bg-\[\#FAF5FF\],
-.from-\[\#FAF5FF\] {
-  --tw-gradient-from: var(--color-background) !important;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, var(--color-bg-gradient-end)) !important;
-  background-color: var(--color-background) !important;
-}
-
-.to-\[\#F3E8FF\] {
-  --tw-gradient-to: var(--color-bg-gradient-end) !important;
-}
-
-/* 4. 输入框科幻适配 */
-.input {
-  border: 1px solid rgba(167, 139, 250, 0.2) !important;
-  background-color: rgba(4, 1, 13, 0.5) !important;
-  color: var(--color-text) !important;
-}
-
-.input:focus {
-  border-color: var(--color-primary) !important;
-  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.25) !important;
-}
-
-/* 5. 滚动条美化 */
+/* 1. 滚动条美化 */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(13, 9, 36, 0.3);
+  background: var(--color-background);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(167, 139, 250, 0.3);
+  background: var(--color-line);
   border-radius: 99px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(167, 139, 250, 0.5);
+  background: var(--color-primary);
 }
 
-/* ==========================================================================
-   6. 宇宙科幻暗色模式精细化覆盖器 (Cosmic Theme Fine-grained Overrides)
-   自动适配全站前后台硬编码的浅色背景、灰色边框、带有透明度的旧版文字，实现 100% 视觉统合
-   ========================================================================== */
-
-/* 6.1 劫持硬编码的浅色背景与半透明色块 */
-.bg-gray-50,
-.bg-gray-100,
-.bg-slate-50,
-.bg-slate-100,
-.bg-white\/50,
-.bg-white\/40,
-.bg-white\/30 {
-  background-color: rgba(13, 9, 36, 0.5) !important;
-}
-
-.bg-white,
-.bg-surface {
-  background-color: var(--color-surface) !important;
-}
-
-/* 6.2 劫持硬编码的浅灰色边框 */
-.border-gray-100,
-.border-gray-200,
-.border-gray-300,
-.border-slate-100,
-.border-slate-200,
-.border-slate-300 {
-  border-color: var(--color-line) !important;
-}
-
-/* 6.3 劫持旧版深色文本（包括带有 Tailwind 透明度修饰符的变体） */
-.text-\[\#4C1D95\],
-.text-\[\#4C1D95\]\/90,
-.text-\[\#4C1D95\]\/80,
-.text-\[\#4C1D95\]\/70,
-.text-\[\#4C1D95\]\/60,
-.text-\[\#4C1D95\]\/50,
-.text-\[\#4C1D95\]\/40,
-.text-\[\#4C1D95\]\/30 {
-  color: rgba(245, 243, 255, 0.95) !important;
-}
-
-/* 6.4 劫持品牌文本变体与背景变体 */
-.text-\[\#7C3AED\],
-.text-\[\#7C3AED\]\/70,
-.text-\[\#7C3AED\]\/60,
-.text-\[\#7C3AED\]\/50 {
-  color: var(--color-primary) !important;
-}
-
-.bg-\[\#7C3AED\]\/10 {
-  background-color: rgba(167, 139, 250, 0.15) !important;
-}
-.bg-\[\#7C3AED\]\/5 {
-  background-color: rgba(167, 139, 250, 0.08) !important;
-}
-.bg-\[\#4C1D95\]\/20 {
-  background-color: rgba(167, 139, 250, 0.18) !important;
-}
-
-
-/* 6.5 劫持硬编码的浅色状态标签 (PENDING / VERIFIED / REJECTED) */
-/* Amber / PENDING / 待审核 */
-.bg-amber-50,
-.bg-amber-100\/50,
-.bg-amber-100 {
-  background-color: rgba(245, 158, 11, 0.1) !important;
-}
-.border-amber-200,
-.border-amber-300 {
-  border-color: rgba(245, 158, 11, 0.25) !important;
-}
-.text-amber-700,
-.text-amber-800,
-.text-amber-600 {
-  color: #fbbf24 !important;
-}
-
-/* Emerald / VERIFIED / 已认证 */
-.bg-emerald-50,
-.bg-emerald-100\/50,
-.bg-emerald-100 {
-  background-color: rgba(16, 185, 129, 0.1) !important;
-}
-.border-emerald-200,
-.border-emerald-300 {
-  border-color: rgba(16, 185, 129, 0.25) !important;
-}
-.text-emerald-700,
-.text-emerald-800,
-.text-emerald-600 {
-  color: #34d399 !important;
-}
-
-/* Rose / REJECTED / 已驳回 */
-.bg-rose-50,
-.bg-rose-100\/50,
-.bg-rose-100 {
-  background-color: rgba(244, 63, 94, 0.1) !important;
-}
-.border-rose-200,
-.border-rose-300 {
-  border-color: rgba(244, 63, 94, 0.25) !important;
-}
-.text-rose-700,
-.text-rose-800,
-.text-rose-600 {
-  color: #fb7185 !important;
-}
-
-/* Violet / Brand / 提升角色 */
-.bg-violet-50,
-.bg-violet-100\/50,
-.bg-violet-100 {
-  background-color: rgba(139, 92, 246, 0.1) !important;
-}
-.border-violet-200,
-.border-violet-300 {
-  border-color: rgba(139, 92, 246, 0.25) !important;
-}
-.text-violet-700,
-.text-violet-800,
-.text-violet-600 {
-  color: #a78bfa !important;
-}
-
-/* 6.6 提高灰度级文字的可读性与对比度 */
-.text-gray-400,
-.text-slate-400 {
-  color: rgba(245, 243, 255, 0.45) !important;
-}
-.text-gray-500,
-.text-slate-500 {
-  color: rgba(245, 243, 255, 0.6) !important;
-}
-.text-gray-600,
-.text-slate-600 {
-  color: rgba(245, 243, 255, 0.75) !important;
-}
-.text-gray-700,
-.text-slate-700 {
-  color: rgba(245, 243, 255, 0.85) !important;
-}
-
-/* 6.7 解决硬编码的浅色 Hover 态 */
-.hover\:bg-\[\#FAF5FF\]:hover,
-.hover\:bg-white\/90:hover {
-  background-color: rgba(167, 139, 250, 0.15) !important;
-}
-
-/* 6.8 地图圆点霓虹发光 (Leaflet Neon Marker drop shadow) */
+/* 2. 地图发光样式 */
 .leaflet-neon-marker {
-  filter: drop-shadow(0 0 8px rgba(167, 139, 250, 0.8)) !important;
+  filter: drop-shadow(0 0 8px var(--color-primary)) !important;
 }
 
-/* 7. 移动端响应式与物理体验适配系统 */
+/* 3. 移动端安全区域适配 */
 .pb-safe {
   padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
 }
@@ -1053,6 +1256,7 @@ body::after {
   padding-top: calc(1.5rem + env(safe-area-inset-top));
 }
 
+/* 4. 辅助过渡动画 */
 @keyframes slideIn {
   from {
     transform: translateX(100%);

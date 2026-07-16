@@ -3,6 +3,7 @@ import prisma from "@/lib/db";
 import { hashToken, readJsonBody } from "@/lib/auth-utils";
 import { getClientIp, emailLimiter } from "@/lib/rate-limit";
 import { resolveWebAccountState } from "@/lib/web-account-state";
+import { upsertRosterEntry } from "@/lib/roster";
 
 export async function POST(req: NextRequest) {
   // 使用 Upstash Redis 对邀请验证接口限流（1次/分钟，单日10次），无 Redis 时自动降级为内存限流
@@ -28,13 +29,29 @@ export async function POST(req: NextRequest) {
     if (!user.emailVerifyExpiresAt || user.emailVerifyExpiresAt <= new Date()) {
       return NextResponse.json({ error: "验证链接已过期" }, { status: 400 });
     }
-    const updated = await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        emailVerified: new Date(),
-        emailVerifyTokenHash: null,
-        emailVerifyExpiresAt: null,
-      },
+    const updated = await prisma.$transaction(async (tx) => {
+      const verified = await tx.user.update({
+        where: { id: user.id },
+        data: {
+          emailVerified: new Date(),
+          emailVerifyTokenHash: null,
+          emailVerifyExpiresAt: null,
+        },
+      });
+      if (
+        verified.verificationMethod === "INTERNAL_CODE" &&
+        resolveWebAccountState(verified) === "ACTIVE" &&
+        verified.name
+      ) {
+        await upsertRosterEntry(tx, {
+          name: verified.name,
+          graduationClass: verified.graduationClass,
+          className: verified.className,
+          email: verified.email,
+          contact: verified.contact,
+        });
+      }
+      return verified;
     });
     return NextResponse.json({
       success: true,

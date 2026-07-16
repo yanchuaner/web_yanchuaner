@@ -18,6 +18,8 @@ import {
   GraduationCap,
   BookOpen,
   Mail,
+  Network,
+  ShieldCheck,
   IdCard,
   Award,
   type LucideIcon,
@@ -25,8 +27,10 @@ import {
 import { cn } from '@/components/ui/cn';
 import { useAuth } from '@/components/AuthProvider';
 
-type NavLeaf = { href: string; label: string; icon: LucideIcon; desc?: string };
-type NavGroup = { label: string; items: NavLeaf[] };
+import { useThemeAndLocale } from './ThemeAndLocaleProvider';
+
+type NavLeaf = { href: string; labelKey: string; icon: LucideIcon; descKey?: string };
+type NavGroup = { labelKey: string; items: NavLeaf[] };
 
 /**
  * 导航信息架构：12 个平铺入口按用户心智聚合为 4 组。
@@ -34,35 +38,37 @@ type NavGroup = { label: string; items: NavLeaf[] };
  */
 const NAV_GROUPS: NavGroup[] = [
   {
-    label: '校友空间',
+    labelKey: 'nav.alumniSpace',
     items: [
-      { href: '/alumni/radar', label: '星空通讯录', icon: Radar, desc: '校友大学城市分布地图' },
-      { href: '/alumni/certificate', label: '电子校友证', icon: IdCard, desc: '生成专属纪念卡' },
-      { href: '/alumni/correction', label: '信息修正', icon: FileEdit, desc: '姓名、届别、班级修正申请' },
-      { href: '/alumni/achievements', label: '校友成就墙', icon: Award, desc: '升学・科研・职业足迹' },
-      { href: '/alumni/stories', label: '燕中故事', icon: MessageSquareText, desc: '校友的奋斗与成长' },
-      { href: '/alumni/memories', label: '燕中记忆', icon: GalleryVerticalEnd, desc: '校园时光珍贵影像' },
+      { href: '/alumni/radar', labelKey: 'nav.directory', icon: Radar, descKey: 'nav.directoryDesc' },
+      { href: '/alumni/certificate', labelKey: 'nav.certificate', icon: IdCard, descKey: 'nav.certificateDesc' },
+      { href: '/alumni/correction', labelKey: 'nav.correction', icon: FileEdit, descKey: 'nav.correctionDesc' },
+      { href: '/alumni/achievements', labelKey: 'nav.achievements', icon: Award, descKey: 'nav.achievementsDesc' },
+      { href: '/alumni/stories', labelKey: 'nav.stories', icon: MessageSquareText, descKey: 'nav.storiesDesc' },
+      { href: '/alumni/memories', labelKey: 'nav.memories', icon: GalleryVerticalEnd, descKey: 'nav.memoriesDesc' },
     ],
   },
   {
-    label: '校园资讯',
+    labelKey: 'nav.campusNews',
     items: [
-      { href: '/news', label: '新闻公告', icon: Newspaper, desc: '母校与校友会动态' },
-      { href: '/events', label: '校友活动', icon: CalendarDays, desc: '线上线下交流聚会' },
+      { href: '/news', labelKey: 'nav.news', icon: Newspaper, descKey: 'nav.newsDesc' },
+      { href: '/events', labelKey: 'nav.events', icon: CalendarDays, descKey: 'nav.eventsDesc' },
     ],
   },
   {
-    label: '资源',
+    labelKey: 'nav.resources',
     items: [
-      { href: '/students', label: '在校生资源站', icon: BookOpen, desc: '升学参考与学长问答' },
-      { href: '/teachers', label: '教师频道', icon: GraduationCap, desc: '师者寄语与风采' },
+      { href: '/students', labelKey: 'nav.students', icon: BookOpen, descKey: 'nav.studentsDesc' },
+      { href: '/teachers', labelKey: 'nav.teachers', icon: GraduationCap, descKey: 'nav.teachersDesc' },
     ],
   },
   {
-    label: '关于',
+    labelKey: 'nav.aboutGroup',
     items: [
-      { href: '/about', label: '学校介绍', icon: School, desc: '航天特色与办学理念' },
-      { href: '/contact', label: '联系我们', icon: Mail, desc: '联系窗口与投稿' },
+      { href: '/ecosystem', labelKey: 'nav.ecosystem', icon: Network, descKey: 'nav.ecosystemDesc' },
+      { href: '/privacy', labelKey: 'nav.privacy', icon: ShieldCheck, descKey: 'nav.privacyDesc' },
+      { href: '/about', labelKey: 'nav.about', icon: School, descKey: 'nav.aboutDesc' },
+      { href: '/contact', labelKey: 'nav.contact', icon: Mail, descKey: 'nav.contactDesc' },
     ],
   },
 ];
@@ -77,10 +83,11 @@ function groupIsActive(pathname: string, group: NavGroup) {
 }
 
 const JOIN_CTA =
-  'inline-flex min-h-[44px] items-center justify-center rounded-full bg-accent px-5 py-2 text-[13px] font-semibold text-white shadow-sm transition-all touch-manipulation hover:-translate-y-0.5 hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface-muted';
+  'inline-flex min-h-[44px] items-center justify-center rounded-full bg-accent px-5 py-2 text-[13px] font-semibold text-contrast shadow-sm transition-all touch-manipulation hover:-translate-y-0.5 hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface-muted';
 
 export default function MobileNav() {
   const { user, isLoggedIn, logout } = useAuth();
+  const { t, locale } = useThemeAndLocale();
   const pathname = usePathname() || '/';
   const isAdminPath = pathname === '/admin' || pathname.startsWith('/admin/');
   const [open, setOpen] = useState(false);
@@ -169,31 +176,31 @@ export default function MobileNav() {
       {/* ── 桌面端：Mega Menu 下拉 + CTA ───────────────── */}
       <nav
         ref={navRef}
-        className="ml-8 hidden flex-1 items-center justify-end gap-1 lg:flex"
+        className="ml-6 hidden flex-1 items-center justify-end gap-1 xl:flex"
         role="navigation"
-        aria-label="主导航"
+        aria-label={locale === 'zh' ? '主导航' : 'Primary navigation'}
       >
         {NAV_GROUPS.map((group) => {
           const active = groupIsActive(pathname, group);
-          const expanded = openGroup === group.label;
+          const expanded = openGroup === group.labelKey;
           return (
             <div
-              key={group.label}
+              key={group.labelKey}
               className="relative"
-              onMouseEnter={() => setOpenGroup(group.label)}
+              onMouseEnter={() => setOpenGroup(group.labelKey)}
               onMouseLeave={() => setOpenGroup(null)}
             >
               <button
                 type="button"
                 aria-expanded={expanded}
                 aria-haspopup="true"
-                onClick={() => setOpenGroup(expanded ? null : group.label)}
+                onClick={() => setOpenGroup(expanded ? null : group.labelKey)}
                 className={cn(
                   'inline-flex min-h-[44px] items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface-muted',
                   active ? 'bg-brand/10 text-brand' : 'text-brand-fg/70 hover:text-brand',
                 )}
               >
-                {group.label}
+                {t(group.labelKey)}
                 <ChevronDown
                   size={14}
                   className={cn('transition-transform', expanded && 'rotate-180')}
@@ -207,7 +214,7 @@ export default function MobileNav() {
                   className="absolute right-0 top-full z-50 w-72 pt-2"
                 >
                   <div className="overflow-hidden rounded-modal border border-line bg-surface/95 p-2 shadow-lg backdrop-blur-xl">
-                    {group.items.map(({ href, label, icon: Icon, desc }) => {
+                    {group.items.map(({ href, labelKey, icon: Icon, descKey }) => {
                       const itemActive = isActive(pathname, href);
                       return (
                         <Link
@@ -227,10 +234,10 @@ export default function MobileNav() {
                           />
                           <span className="min-w-0">
                             <span className={cn('block text-sm font-medium', itemActive ? 'text-brand' : 'text-brand-fg')}>
-                              {label}
+                              {t(labelKey)}
                             </span>
-                            {desc ? (
-                              <span className="mt-0.5 block text-xs text-brand-fg/50">{desc}</span>
+                            {descKey ? (
+                              <span className="mt-0.5 block text-xs text-brand-fg/50">{t(descKey)}</span>
                             ) : null}
                           </span>
                         </Link>
@@ -247,22 +254,22 @@ export default function MobileNav() {
           <>
             {user?.role === "ADMIN" ? (
               <Link href="/admin" className="ml-2 text-sm font-medium text-brand">
-                管理后台
+                {t('nav.admin')}
               </Link>
             ) : null}
             <Link href="/me" className={cn(JOIN_CTA, 'ml-2')}>
-              {user?.username || user?.name || '个人中心'}
+              {user?.username || user?.name || t('nav.me')}
             </Link>
             {!isAdminPath ? (
               <button type="button" onClick={() => void logout()} className="ml-2 text-sm text-brand">
-                退出
+                {t('nav.logout')}
               </button>
             ) : null}
           </>
         ) : (
           <>
-            <Link href="/login" className="ml-2 text-sm text-brand">登录</Link>
-            <Link href="/register" className={cn(JOIN_CTA, 'ml-2')}>加入我们</Link>
+            <Link href="/login" className="ml-2 text-sm text-brand">{t('nav.login')}</Link>
+            <Link href="/register" className={cn(JOIN_CTA, 'ml-2')}>{t('nav.register')}</Link>
           </>
         )}
       </nav>
@@ -272,10 +279,14 @@ export default function MobileNav() {
         ref={toggleRef}
         type="button"
         onClick={() => setOpen(!open)}
-        aria-label={open ? '关闭导航菜单' : '打开导航菜单'}
+        aria-label={
+          open
+            ? locale === 'zh' ? '关闭导航菜单' : 'Close navigation menu'
+            : locale === 'zh' ? '打开导航菜单' : 'Open navigation menu'
+        }
         aria-expanded={open ? 'true' : 'false'}
         aria-controls="mobile-drawer"
-        className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-brand/30 bg-brand/10 text-brand lg:hidden cursor-pointer touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface-muted"
+        className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-brand/30 bg-brand/10 text-brand xl:hidden cursor-pointer touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface-muted"
       >
         {open ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
       </button>
@@ -284,7 +295,7 @@ export default function MobileNav() {
       {open && mounted && createPortal(
         <>
           <div
-            className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm lg:hidden animate-fade-in"
+            className="fixed inset-0 z-[60] bg-overlay/80 backdrop-blur-sm xl:hidden animate-fade-in"
             onClick={() => setOpen(false)}
             aria-hidden="true"
           />
@@ -293,18 +304,18 @@ export default function MobileNav() {
             ref={drawerRef}
             role="dialog"
             aria-modal="true"
-            aria-label="导航菜单"
-            className="fixed right-0 top-0 z-[60] flex h-[100dvh] w-80 max-w-[88vw] flex-col border-l border-brand/15 bg-surface/95 p-5 pb-safe pt-safe backdrop-blur-xl shadow-2xl lg:hidden animate-slide-in"
+            aria-label={t('nav.brand')}
+            className="fixed right-0 top-0 z-[60] flex h-[100dvh] w-80 max-w-[88vw] flex-col border-l border-brand/15 bg-surface/95 p-5 pb-safe pt-safe backdrop-blur-xl shadow-2xl xl:hidden animate-slide-in"
           >
             <div className="mb-4 flex items-center justify-between">
-              <p className="text-sm font-semibold text-brand font-heading">导航菜单</p>
+              <p className="text-sm font-semibold text-brand font-heading">{t('nav.brand')}</p>
               <button
                 type="button"
                 onClick={() => {
                   setOpen(false);
                   toggleRef.current?.focus();
                 }}
-                aria-label="关闭导航菜单"
+                aria-label={locale === 'zh' ? '关闭导航菜单' : 'Close menu'}
                 className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-brand-fg/60 hover:bg-brand/10 hover:text-brand-fg cursor-pointer touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
               >
                 <X size={18} aria-hidden="true" />
@@ -314,15 +325,15 @@ export default function MobileNav() {
             <nav
               className="flex-1 space-y-4 overflow-y-auto pr-1"
               role="navigation"
-              aria-label="移动端导航"
+              aria-label={locale === 'zh' ? '移动端导航' : 'Mobile navigation'}
             >
               {NAV_GROUPS.map((group) => (
-                <div key={group.label}>
+                <div key={group.labelKey}>
                   <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-brand-fg/40">
-                    {group.label}
+                    {t(group.labelKey)}
                   </p>
                   <div className="space-y-1">
-                    {group.items.map(({ href, label, icon: Icon }) => {
+                    {group.items.map(({ href, labelKey, icon: Icon }) => {
                       const itemActive = isActive(pathname, href);
                       return (
                         <Link
@@ -345,7 +356,7 @@ export default function MobileNav() {
                             className={itemActive ? 'text-brand' : 'text-brand/60'}
                             aria-hidden="true"
                           />
-                          {label}
+                          {t(labelKey)}
                         </Link>
                       );
                     })}
@@ -359,30 +370,30 @@ export default function MobileNav() {
                 <div className="space-y-2">
                   {user?.role === "ADMIN" ? (
                     <Link href="/admin" onClick={() => setOpen(false)} className="flex min-h-[44px] items-center justify-center text-sm font-medium text-brand touch-manipulation">
-                      管理后台
+                      {t('nav.admin')}
                     </Link>
                   ) : null}
                   <Link href="/me" onClick={() => setOpen(false)} className={cn(JOIN_CTA, 'w-full')}>
-                    个人中心
+                    {t('nav.me')}
                   </Link>
                   {!isAdminPath ? (
                     <button type="button" onClick={() => void logout()} className="flex min-h-[44px] w-full items-center justify-center text-sm text-brand touch-manipulation">
-                      退出登录
+                      {t('nav.logout')}
                     </button>
                   ) : null}
                 </div>
               ) : (
                 <div className="space-y-2">
                   <Link href="/login" onClick={() => setOpen(false)} className="flex min-h-[44px] items-center justify-center text-sm text-brand touch-manipulation">
-                    登录
+                    {t('nav.login')}
                   </Link>
                   <Link href="/register" onClick={() => setOpen(false)} className={cn(JOIN_CTA, 'w-full')}>
-                    加入我们
+                    {t('nav.register')}
                   </Link>
                 </div>
               )}
               <p className="mt-3 text-center text-xs text-brand-fg/40">
-                燕中校友数字母港 · 个人公益版
+                {t('nav.brand')} · {locale === 'zh' ? '个人公益版' : 'Non-Profit Edition'}
               </p>
             </div>
           </div>

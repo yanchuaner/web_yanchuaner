@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, BookOpen, HelpCircle, ChevronRight, Shield } from "lucide-react";
+import { ArrowLeft, BookOpen, HelpCircle, ChevronRight } from "lucide-react";
 import { PageShell, GlassCard, PageHeader, ButtonLink } from "@/components/ui";
 import { qaItems } from "@/data/studentResources";
 
@@ -62,21 +62,6 @@ export default function SeniorQAPage() {
             <Link href="/contact" className="text-brand underline hover:text-brand-soft transition-colors">联系我们</Link>{" "}
             提交你的问题，我们将邀请相关领域的校友回答。精选问答持续更新中。
           </p>
-        </div>
-
-        {/* Disclaimer — 暗色适配 */}
-        <div className="mt-6 rounded-card border border-amber-500/15 bg-amber-500/5 p-5">
-          <div className="flex items-start gap-3">
-            <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/10">
-              <Shield size={18} className="text-amber-400" />
-            </div>
-            <div>
-              <h3 className="font-heading text-sm font-semibold text-amber-300">免责声明</h3>
-              <p className="mt-1 text-xs leading-6 text-amber-300/80">
-                本页面问答内容为通用建议，非个性化报考或职业指导。每个人的情况不同，具体决策请结合自身实际和官方信息。问答不代表燕川中学或校友会官方意见。
-              </p>
-            </div>
-          </div>
         </div>
 
         <div className="mt-6 flex flex-wrap gap-3">

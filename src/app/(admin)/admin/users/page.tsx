@@ -7,6 +7,7 @@ import { AdminPageShell } from '@/components/admin/AdminPageShell';
 import { EmptyState, ResponsiveTabs } from '@/components/ui';
 import { toast } from 'sonner';
 import { formatClassName, formatGraduationClass } from '@/lib/identity-fields';
+import { useThemeAndLocale } from '@/components/ThemeAndLocaleProvider';
 
 type UserRecord = {
   id: string;
@@ -19,6 +20,8 @@ type UserRecord = {
   contact: string | null;
   role: string;
   status: string;
+  verificationStatus: string;
+  verificationMethod: string | null;
   accountStatus: string;
   claimedAt: string | null;
   createdAt: string;
@@ -26,6 +29,7 @@ type UserRecord = {
 
 export default function AdminUsersPage() {
   const { user: currentUser } = useAuth();
+  const { t } = useThemeAndLocale();
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +40,7 @@ export default function AdminUsersPage() {
     setError(null);
     try {
       const res = await fetch(`/api/admin/users?status=${statusFilter}&limit=100`);
-      if (!res.ok) throw new Error('Failed to fetch');
+      if (!res.ok) throw new Error(t('admin.users.fetchFailed'));
       const data = await res.json();
       setUsers(data.users || []);
     } catch (err: any) {
@@ -60,25 +64,25 @@ export default function AdminUsersPage() {
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || '操作失败');
+        throw new Error(data.error || t('admin.users.actionFailed'));
       }
-      toast.success('操作成功');
+      toast.success(t('admin.users.actionSuccess'));
       fetchUsers();
     } catch (err: any) {
-      toast.error('操作失败: ' + err.message);
+      toast.error(`${t('admin.users.actionFailed')}: ${err.message}`);
     }
   };
 
   const statusBadge = (s: string) => {
     const map: Record<string, string> = {
-      PENDING: 'border-amber-200 text-amber-700 bg-amber-50',
-      VERIFIED: 'border-emerald-200 text-emerald-700 bg-emerald-50',
-      REJECTED: 'border-rose-200 text-rose-700 bg-rose-50',
+      PENDING: 'border-warning/25 text-warning bg-warning/10',
+      VERIFIED: 'border-success/25 text-success bg-success/10',
+      REJECTED: 'border-danger/25 text-danger bg-danger/10',
     };
     const label: Record<string, string> = {
-      PENDING: '待审',
-      VERIFIED: '已认证',
-      REJECTED: '已驳回',
+      PENDING: t('admin.users.pending'),
+      VERIFIED: t('admin.users.verified'),
+      REJECTED: t('admin.users.rejected'),
     };
     return (
       <span className={`inline-block rounded-full border px-2.5 py-0.5 text-xs ${map[s] || ''}`}>
@@ -88,11 +92,15 @@ export default function AdminUsersPage() {
   };
 
   const filters = ['ALL', 'PENDING', 'VERIFIED', 'REJECTED'];
+  const verificationMethodLabel = (method: string | null) => {
+    const key = method || 'LEGACY';
+    return t(`admin.users.verificationMethods.${key}`);
+  };
 
   return (
     <AdminPageShell
-      title="用户审核"
-      description="审核注册用户的校友身份与账号状态"
+      title={t('admin.users.title')}
+      description={t('admin.users.description')}
     >
       <div className="space-y-4">
 
@@ -100,7 +108,7 @@ export default function AdminUsersPage() {
       <ResponsiveTabs
         tabs={filters.map((f) => ({
           id: f,
-          label: f === 'ALL' ? '全部' : f === 'PENDING' ? '待审核' : f === 'VERIFIED' ? '已认证' : '已驳回',
+          label: f === 'ALL' ? t('admin.users.all') : f === 'PENDING' ? t('admin.users.pending') : f === 'VERIFIED' ? t('admin.users.verified') : t('admin.users.rejected'),
         }))}
         activeTab={statusFilter}
         onChange={setStatusFilter}
@@ -108,7 +116,7 @@ export default function AdminUsersPage() {
       />
 
       {error && (
-        <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        <div className="mb-4 rounded-xl border border-danger/25 bg-danger/10 px-4 py-3 text-sm text-danger">
           {error}
         </div>
       )}
@@ -131,50 +139,53 @@ export default function AdminUsersPage() {
       ) : users.length === 0 ? (
         <EmptyState
           icon={Users}
-          title="暂无匹配的用户记录"
-          description="注册申请处理完毕后将在此归档显示"
+          title={t('admin.users.emptyTitle')}
+          description={t('admin.users.emptyDescription')}
         />
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-[#7C3AED]/10 bg-white/50 backdrop-blur-sm">
+        <div className="overflow-x-auto rounded-2xl border border-brand/10 bg-surface/50 backdrop-blur-sm">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-[#7C3AED]/10 text-[#4C1D95]/60">
+            <thead className="border-b border-brand/10 text-main/60">
               <tr>
-                <th className="px-4 py-3 font-medium">姓名</th>
-                <th className="px-4 py-3 font-medium hidden md:table-cell">账号</th>
-                <th className="px-4 py-3 font-medium">届别/班级</th>
-                <th className="px-4 py-3 font-medium hidden md:table-cell">邮箱状态</th>
-                <th className="px-4 py-3 font-medium hidden md:table-cell">角色</th>
-                <th className="px-4 py-3 font-medium">状态</th>
-                <th className="px-4 py-3 font-medium">操作</th>
+                <th className="px-4 py-3 font-medium">{t('admin.users.name')}</th>
+                <th className="px-4 py-3 font-medium hidden md:table-cell">{t('admin.users.account')}</th>
+                <th className="px-4 py-3 font-medium">{t('admin.users.cohortClass')}</th>
+                <th className="px-4 py-3 font-medium hidden md:table-cell">{t('admin.users.emailStatus')}</th>
+                <th className="px-4 py-3 font-medium hidden md:table-cell">{t('admin.users.role')}</th>
+                <th className="px-4 py-3 font-medium">{t('admin.users.status')}</th>
+                <th className="px-4 py-3 font-medium">{t('admin.users.actions')}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#7C3AED]/5">
+            <tbody className="divide-y divide-brand/5">
               {users.map((user) => (
-                <tr key={user.id} className="text-[#4C1D95]/70 transition hover:bg-[#7C3AED]/5">
+                <tr key={user.id} className="text-main/70 transition hover:bg-brand/5">
                   <td className="px-4 py-3">
-                    <p className="font-medium text-[#4C1D95]">{user.name || '-'}</p>
+                    <p className="font-medium text-main">{user.name || '-'}</p>
                     {/* On mobile, show account details as subtext in the name cell */}
-                    <p className="text-xxs text-[#4C1D95]/50 md:hidden mt-0.5">
-                      {user.username || '旧资料'} • {user.email || '-'}
+                    <p className="text-xxs text-main/50 md:hidden mt-0.5">
+                      {user.username || t('admin.users.legacyRecord')} • {user.email || '-'}
                     </p>
                   </td>
                   <td className="px-4 py-3 hidden md:table-cell">
-                    <p>{user.username || '旧资料'}</p>
+                    <p>{user.username || t('admin.users.legacyRecord')}</p>
                     <p className="text-xs">{user.email || '-'}</p>
                   </td>
                   <td className="px-4 py-3">{[formatGraduationClass(user.graduationClass), formatClassName(user.className)].filter(Boolean).join(' / ') || '-'}</td>
-                  <td className="px-4 py-3 hidden md:table-cell">{user.emailVerified ? '已验证' : '未验证'}</td>
+                  <td className="px-4 py-3 hidden md:table-cell">{user.emailVerified ? t('admin.users.emailVerified') : t('admin.users.emailUnverified')}</td>
                   <td className="px-4 py-3 hidden md:table-cell">{user.role}</td>
                   <td className="px-4 py-3">
                     {statusBadge(user.status)}
                     <p className="mt-1 text-xs">{user.accountStatus}</p>
+                    <p className="mt-1 text-xs text-main/50">
+                      {t('admin.users.verificationMethodLabel')} {verificationMethodLabel(user.verificationMethod)}
+                    </p>
                     {/* On mobile, show role as subtext */}
-                    <p className="mt-0.5 text-xxs text-[#4C1D95]/50 md:hidden font-semibold">角色: {user.role}</p>
+                    <p className="mt-0.5 text-xxs text-main/50 md:hidden font-semibold">{t('admin.users.roleLabel')} {user.role}</p>
                   </td>
                   <td className="px-4 py-3">
                     {user.id === currentUser?.id ? (
-                      <span className="inline-block text-xs font-semibold text-[#4C1D95]/60 bg-gray-100 border border-gray-200 rounded-full px-2.5 py-0.5">
-                        当前账号
+                      <span className="inline-block text-xs font-semibold text-main/60 bg-surface/60 border border-line rounded-full px-2.5 py-0.5">
+                        {t('admin.users.currentAccount')}
                       </span>
                     ) : (
                       <div className="flex gap-2 flex-wrap">
@@ -182,70 +193,70 @@ export default function AdminUsersPage() {
                           <>
                             <button
                               disabled={user.role === 'ADMIN' && !currentUser?.isRoot}
-                              title={user.role === 'ADMIN' && !currentUser?.isRoot ? "无权操作其他管理员" : undefined}
+                              title={user.role === 'ADMIN' && !currentUser?.isRoot ? t('admin.users.noAdminPermission') : undefined}
                               onClick={() => runAction(user.id, 'approve-alumni')}
-                              className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs text-emerald-700 transition hover:bg-emerald-100 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-emerald-50 min-h-[32px]"
+                              className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-success/25 bg-success/10 px-2.5 py-1 text-xs text-success transition hover:bg-success/20 disabled:cursor-not-allowed disabled:opacity-40"
                             >
                               <UserCheck size={14} />
-                              通过
+                              {t('admin.users.approve')}
                             </button>
                             <button
                               disabled={user.role === 'ADMIN' && !currentUser?.isRoot}
-                              title={user.role === 'ADMIN' && !currentUser?.isRoot ? "无权操作其他管理员" : undefined}
+                              title={user.role === 'ADMIN' && !currentUser?.isRoot ? t('admin.users.noAdminPermission') : undefined}
                               onClick={() => runAction(user.id, 'reject-alumni')}
-                              className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs text-rose-700 transition hover:bg-rose-100 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-rose-50 min-h-[32px]"
+                              className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-danger/25 bg-danger/10 px-2.5 py-1 text-xs text-danger transition hover:bg-danger/20 disabled:cursor-not-allowed disabled:opacity-40"
                             >
                               <UserX size={14} />
-                              驳回
+                              {t('admin.users.reject')}
                             </button>
                           </>
                         )}
                         {user.status === 'VERIFIED' && (
                           <button
                             disabled={user.role === 'ADMIN'}
-                            title={user.role === 'ADMIN' ? "请先撤销该用户的管理员权限" : undefined}
+                            title={user.role === 'ADMIN' ? t('admin.users.revokeAdminFirst') : undefined}
                             onClick={() => runAction(user.id, 'reject-alumni')}
-                            className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs text-rose-700 transition hover:bg-rose-100 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-rose-50 min-h-[32px]"
+                            className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-danger/25 bg-danger/10 px-2.5 py-1 text-xs text-danger transition hover:bg-danger/20 disabled:cursor-not-allowed disabled:opacity-40"
                           >
                             <UserX size={14} />
-                            撤销
+                            {t('admin.users.revoke')}
                           </button>
                         )}
                         {user.status === 'REJECTED' && (
                           <button
                             disabled={user.role === 'ADMIN' && !currentUser?.isRoot}
-                            title={user.role === 'ADMIN' && !currentUser?.isRoot ? "无权操作其他管理员" : undefined}
+                            title={user.role === 'ADMIN' && !currentUser?.isRoot ? t('admin.users.noAdminPermission') : undefined}
                             onClick={() => runAction(user.id, 'approve-alumni')}
-                            className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs text-emerald-700 transition hover:bg-emerald-100 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-emerald-50 min-h-[32px]"
+                            className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-success/25 bg-success/10 px-2.5 py-1 text-xs text-success transition hover:bg-success/20 disabled:cursor-not-allowed disabled:opacity-40"
                           >
                             <UserCheck size={14} />
-                            重新通过
+                            {t('admin.users.approveAgain')}
                           </button>
                         )}
                         <button
                           disabled={user.role === 'ADMIN' && !currentUser?.isRoot}
-                          title={user.role === 'ADMIN' && !currentUser?.isRoot ? "无权操作其他管理员" : undefined}
+                          title={user.role === 'ADMIN' && !currentUser?.isRoot ? t('admin.users.noAdminPermission') : undefined}
                           onClick={() => runAction(user.id, user.accountStatus === 'ACTIVE' ? 'disable-account' : 'enable-account')}
-                          className="rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs text-[#4C1D95]/70 transition hover:bg-gray-50 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white min-h-[32px]"
+                          className="rounded-lg border border-line bg-surface px-2.5 py-1 text-xs text-main/70 transition hover:bg-surface/60 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-surface min-h-[32px]"
                         >
-                          {user.accountStatus === 'ACTIVE' ? '停用' : '启用'}
+                          {user.accountStatus === 'ACTIVE' ? t('admin.users.disable') : t('admin.users.enable')}
                         </button>
                         {currentUser?.isRoot && (
                           user.role === 'ADMIN' ? (
                             <button
                               onClick={() => runAction(user.id, 'revoke-admin')}
-                              className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 cursor-pointer min-h-[32px]"
+                              className="inline-flex items-center gap-1 rounded-lg border border-line bg-surface/60 px-2.5 py-1 text-xs text-main/60 transition hover:bg-surface/60 hover:text-main/60 cursor-pointer min-h-[32px]"
                             >
-                              <ShieldCheck size={14} className="text-gray-400" />
-                              撤销管理员
+                              <ShieldCheck size={14} className="text-main/60" />
+                              {t('admin.users.revokeAdmin')}
                             </button>
                           ) : (
                             <button
                               onClick={() => runAction(user.id, 'grant-admin')}
-                              className="inline-flex items-center gap-1 rounded-lg border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs text-violet-700 transition hover:bg-violet-100 cursor-pointer min-h-[32px]"
+                              className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-brand/25 bg-brand/10 px-2.5 py-1 text-xs text-brand transition hover:bg-brand/20"
                             >
                               <ShieldCheck size={14} />
-                              提升为管理员
+                              {t('admin.users.grantAdmin')}
                             </button>
                           )
                         )}

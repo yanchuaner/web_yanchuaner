@@ -6,6 +6,8 @@ import Image from "next/image";
 import { Newspaper, Calendar, ArrowRight } from "lucide-react";
 import prisma from "@/lib/db";
 import { PageShell, GlassCard, PageHeader, ButtonLink, EmptyState } from "@/components/ui";
+import { LocalizedText } from "@/components/LocalizedText";
+import { LocalizedDate } from "@/components/LocalizedDate";
 
 export const metadata: Metadata = {
   title: "新闻公告",
@@ -31,14 +33,14 @@ export default async function NewsPage() {
         <PageHeader
           eyebrow="NEWS"
           eyebrowIcon={Newspaper}
-          title="新闻公告"
-          description="学校动态、校友会公告与平台资讯"
-          action={<ButtonLink href="/" variant="secondary">返回首页</ButtonLink>}
+          title={<LocalizedText translationKey="contentPages.news.title" />}
+          description={<LocalizedText translationKey="contentPages.news.description" />}
+          action={<ButtonLink href="/" variant="secondary"><LocalizedText translationKey="common.backHome" /></ButtonLink>}
         />
 
         <div className="mt-8">
           {news.length === 0 ? (
-            <EmptyState title="暂无公告" />
+            <EmptyState title={<LocalizedText translationKey="contentPages.news.empty" />} />
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
               {news.map((item) => (
@@ -56,14 +58,14 @@ export default async function NewsPage() {
                   ) : null}
                   <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-2.5 py-1 text-xs text-brand">
                     <Calendar size={12} />
-                    {item.publishedAt ? new Date(item.publishedAt).toLocaleDateString("zh-CN") : ""}
+                    {item.publishedAt ? <LocalizedDate value={item.publishedAt} /> : ""}
                   </div>
                   <h2 className="font-heading text-lg font-semibold text-brand-fg transition group-hover/card:text-brand">{item.title}</h2>
-                  {item.summary && <p className="mt-2 text-sm leading-6 text-gray-700 line-clamp-2">{item.summary}</p>}
+                  {item.summary && <p className="mt-2 text-sm leading-6 text-main/60 line-clamp-2">{item.summary}</p>}
                   <Link href={`/news/${item.id}`}
                     className="mt-4 inline-flex items-center gap-1 text-sm text-brand transition hover:text-brand-fg focus-visible:ring-2 focus-visible:ring-brand focus:outline-none rounded"
                   >
-                    阅读全文 <ArrowRight size={14} />
+                    <LocalizedText translationKey="contentPages.news.readAction" /> <ArrowRight size={14} />
                   </Link>
                 </GlassCard>
               ))}
