@@ -34,6 +34,11 @@ const PUBLIC_APIS = new Set([
   "/api/auth/forgot-password",
   "/api/auth/reset-password",
   "/api/auth/graduation-classes",
+  "/api/oauth/authorize",
+  "/api/oauth/token",
+  "/api/oauth/userinfo",
+  "/api/oauth/.well-known/openid-configuration",
+  "/api/oauth/jwks",
 ]);
 
 const PUBLIC_MP_APIS = new Set([

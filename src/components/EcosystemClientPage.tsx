@@ -27,6 +27,7 @@ import {
 import CelestialSphere from "@/components/CelestialSphere";
 import { useThemeAndLocale } from "@/components/ThemeAndLocaleProvider";
 import { ButtonLink, PageShell, RevealSection, SectionIntro } from "@/components/ui";
+import { ECOSYSTEM_PUBLIC_LINKS } from "@/lib/ecosystem-config";
 
 type ContentItem = {
   icon: LucideIcon;
@@ -37,6 +38,7 @@ type ContentItem = {
 type ExtensionNode = ContentItem & {
   domainKey: string;
   statusKey: string;
+  href?: string;
 };
 
 const NETWORK_NODES: ContentItem[] = [
@@ -62,10 +64,10 @@ const ACCESS_LEVELS: ContentItem[] = [
 ];
 
 const EXTENSION_NODES: ExtensionNode[] = [
-  { icon: Bot, titleKey: "ecosystem.extensions.aiTitle", domainKey: "ecosystem.extensions.aiDomain", descriptionKey: "ecosystem.extensions.aiDescription", statusKey: "ecosystem.extensions.planned" },
-  { icon: Cpu, titleKey: "ecosystem.extensions.techTitle", domainKey: "ecosystem.extensions.techDomain", descriptionKey: "ecosystem.extensions.techDescription", statusKey: "ecosystem.extensions.prefixPending" },
+  { icon: Bot, titleKey: "ecosystem.extensions.aiTitle", domainKey: "ecosystem.extensions.aiDomain", descriptionKey: "ecosystem.extensions.aiDescription", statusKey: "ecosystem.extensions.preview", href: ECOSYSTEM_PUBLIC_LINKS.ai },
+  { icon: Cpu, titleKey: "ecosystem.extensions.techTitle", domainKey: "ecosystem.extensions.techDomain", descriptionKey: "ecosystem.extensions.techDescription", statusKey: "ecosystem.extensions.preview", href: ECOSYSTEM_PUBLIC_LINKS.lab },
   { icon: MessagesSquare, titleKey: "ecosystem.extensions.forumTitle", domainKey: "ecosystem.extensions.forumDomain", descriptionKey: "ecosystem.extensions.forumDescription", statusKey: "ecosystem.extensions.prefixPending" },
-  { icon: Braces, titleKey: "ecosystem.extensions.apiTitle", domainKey: "ecosystem.extensions.apiDomain", descriptionKey: "ecosystem.extensions.apiDescription", statusKey: "ecosystem.extensions.planned" },
+  { icon: Braces, titleKey: "ecosystem.extensions.apiTitle", domainKey: "ecosystem.extensions.apiDomain", descriptionKey: "ecosystem.extensions.apiDescription", statusKey: "ecosystem.extensions.preview", href: ECOSYSTEM_PUBLIC_LINKS.api },
   { icon: CakeSlice, titleKey: "ecosystem.extensions.birthdayTitle", domainKey: "ecosystem.extensions.birthdayDomain", descriptionKey: "ecosystem.extensions.birthdayDescription", statusKey: "ecosystem.extensions.planned" },
 ];
 
@@ -192,7 +194,7 @@ export default function EcosystemClientPage() {
             description={t("ecosystem.extensionsDescription")}
           />
           <div className="grid border-y border-line md:grid-cols-2">
-            {EXTENSION_NODES.map(({ icon: Icon, titleKey, domainKey, descriptionKey, statusKey }) => (
+            {EXTENSION_NODES.map(({ icon: Icon, titleKey, domainKey, descriptionKey, statusKey, href }) => (
               <article key={titleKey} className="min-w-0 border-b border-line px-1 py-6 sm:px-5 md:[&:nth-child(odd)]:border-r md:[&:nth-last-child(-n+2)]:border-b-0 md:last:border-b-0">
                 <div className="flex items-start justify-between gap-4">
                   <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-btn bg-brand/10 text-brand">
@@ -205,6 +207,12 @@ export default function EcosystemClientPage() {
                 <h3 className="mt-4 font-heading text-base font-semibold text-main">{t(titleKey)}</h3>
                 <p className="mt-1 font-mono text-xs text-brand">{t(domainKey)}</p>
                 <p className="mt-3 text-sm leading-6 text-main/60">{t(descriptionKey)}</p>
+                {href ? (
+                  <a href={href} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex min-h-[44px] items-center gap-2 text-sm font-semibold text-brand hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">
+                    {t("ecosystem.extensions.openAction")}
+                    <ExternalLink size={15} aria-hidden="true" />
+                  </a>
+                ) : null}
               </article>
             ))}
           </div>

@@ -14,6 +14,8 @@
     "students": "Students Resources",
     "teachers": "Teachers Channel",
     "ecosystem": "Yanchuan Ecosystem",
+    "ai": "Yanchuan AI",
+    "developers": "Developer API",
     "privacy": "Privacy & Compliance",
     "about": "About School",
     "contact": "Contact Us",
@@ -36,6 +38,8 @@
     "eventsDesc": "Join online and offline gatherings",
     "studentsDesc": "Guides and Q&A from alumni",
     "teachersDesc": "Messages and profiles from teachers",
+    "aiDesc": "AI workspace for verified alumni",
+    "developersDesc": "Unified keys, quotas, and model APIs",
     "ecosystemDesc": "Platform, boundaries, and ways to contribute",
     "privacyDesc": "Data use, content boundaries, and user rights",
     "aboutDesc": "Space characteristics and philosophy",
@@ -882,16 +886,18 @@
     },
     "extensionsEyebrow": "Extension Nodes",
     "extensionsTitle": "Five focused directions for a broader ecosystem",
-    "extensionsDescription": "The main site remains responsible for alumni identity, public content, and community governance. Specialized services can live on separate subdomains and will advance in phases as needs, safety, and maintainability allow.",
+    "extensionsDescription": "The main site remains responsible for identity, public content, and governance. AI, API, and the co-building lab are now in preview; other services will follow real community needs.",
     "extensionsNote": "These nodes share the ecosystem's non-profit principles, but accounts and personal data will not be shared by default. Each service needs its own identity boundary, privacy notice, moderation model, and accountable maintainers before launch.",
     "extensions": {
       "planned": "Planned",
+      "preview": "Preview",
       "prefixPending": "Prefix TBD",
+      "openAction": "Open Service",
       "aiTitle": "AI Web Service",
       "aiDomain": "ai.yanchuaner.cn",
       "aiDescription": "A guided web entry point for useful AI capabilities, with clear onboarding, practical tools, and explicit usage boundaries for alumni and students.",
       "techTitle": "Technology Co-building Lab",
-      "techDomain": "Suggested: lab.yanchuaner.cn",
+      "techDomain": "lab.yanchuaner.cn",
       "techDescription": "Project profiles, repository links, and beginner guides for mini programs, apps, and agents. Web development material remains on the main site.",
       "forumTitle": "Humanities Forum",
       "forumDomain": "Suggested: forum.yanchuaner.cn",
@@ -908,5 +914,28 @@
     "nextDescription": "Verify your alumni identity, preserve a story, correct a record, or contribute through the open-source repository. Ideas for the extension nodes and their governance are equally welcome when grounded in real community needs.",
     "sourceAction": "View Source Repository",
     "contactAction": "Contact the Stewards"
+  },
+  "services": {
+    "preview": "Preview Ready",
+    "ai": {
+      "eyebrow": "YANZHONG AI",
+      "title": "Yanchuan AI Workspace",
+      "description": "Enter through the alumni identity layer while the API platform manages model access, quotas, and audit records.",
+      "panelTitle": "Verified Alumni Workspace",
+      "panelDescription": "Chat, image, and future tools use the API control plane. Provider credentials are never stored in the browser.",
+      "action": "Open AI Workspace",
+      "capability": "DeepSeek chat and GPT Image are available today, with additional tools added only when they serve a clear need.",
+      "boundary": "Verified members only. Usage, quotas, and model permissions are managed centrally by the API platform."
+    },
+    "api": {
+      "eyebrow": "DEVELOPER API",
+      "title": "Yanchuan Developer API",
+      "description": "One OpenAI-compatible interface for alumni projects, the AI workspace, and future agents.",
+      "panelTitle": "Keys and Quotas",
+      "panelDescription": "Create personal API keys and review models and usage after signing in. New accounts begin with zero quota until allocation.",
+      "action": "Open API Console",
+      "capability": "Use the same interface from scripts, mini programs, apps, and agents without switching provider-specific clients.",
+      "boundary": "Keys remain private to their owner and are constrained by model allowlists, quotas, RPM/TPM, and audit policy."
+    }
   }
 }

@@ -6,11 +6,11 @@ import { getServerEcosystemLinks } from "@/lib/ecosystem-config";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "燕中 AI | Yanchuan AI",
-  description: "面向认证校友的燕中 AI 工作台入口。",
+  title: "开发者 API | Yanchuan API",
+  description: "面向认证校友的统一模型 API、额度与用量入口。",
 };
 
-export default async function AiWorkspacePage() {
+export default async function DevelopersPage() {
   await requirePageAlumni();
-  return <EcosystemServicePage kind="ai" href={getServerEcosystemLinks().ai} />;
+  return <EcosystemServicePage kind="api" href={getServerEcosystemLinks().api} />;
 }

@@ -22,6 +22,8 @@ import {
   ShieldCheck,
   IdCard,
   Award,
+  Bot,
+  Braces,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/components/ui/cn';
@@ -60,6 +62,8 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: '/students', labelKey: 'nav.students', icon: BookOpen, descKey: 'nav.studentsDesc' },
       { href: '/teachers', labelKey: 'nav.teachers', icon: GraduationCap, descKey: 'nav.teachersDesc' },
+      { href: '/ai', labelKey: 'nav.ai', icon: Bot, descKey: 'nav.aiDesc' },
+      { href: '/developers', labelKey: 'nav.developers', icon: Braces, descKey: 'nav.developersDesc' },
     ],
   },
   {
