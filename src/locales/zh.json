@@ -14,6 +14,8 @@
     "students": "在校生资源站",
     "teachers": "教师频道",
     "ecosystem": "燕中生态",
+    "ai": "燕中 AI",
+    "developers": "开发者 API",
     "privacy": "隐私与合规",
     "about": "学校介绍",
     "contact": "联系我们",
@@ -36,6 +38,8 @@
     "eventsDesc": "线上线下交流聚会",
     "studentsDesc": "升学参考与学长问答",
     "teachersDesc": "师者寄语与风采",
+    "aiDesc": "面向认证校友的 AI 工作台",
+    "developersDesc": "统一密钥、额度与模型接口",
     "ecosystemDesc": "平台功能、边界与共建方式",
     "privacyDesc": "数据使用、内容边界与用户权利",
     "aboutDesc": "航天特色与办学理念",
@@ -882,16 +886,18 @@
     },
     "extensionsEyebrow": "扩展节点",
     "extensionsTitle": "五个方向，让生态各有专注",
-    "extensionsDescription": "主站负责校友身份、公共内容与社区治理；专业服务由独立二级域名承载。以下均为规划方向，将按需求、安全与维护能力分阶段推进。",
+    "extensionsDescription": "主站负责校友身份、公共内容与社区治理；专业服务由独立二级域名承载。AI、API 与科创共建空间已进入内测，其余方向按真实需求逐步推进。",
     "extensionsNote": "这些节点共享燕中生态的公益原则，但不会默认共享账号或个人数据。正式上线前需分别完成身份边界、隐私说明、内容治理与运维责任设计。",
     "extensions": {
       "planned": "规划中",
+      "preview": "内测中",
       "prefixPending": "前缀待定",
+      "openAction": "打开服务",
       "aiTitle": "AI 网页服务",
       "aiDomain": "ai.yanchuaner.cn",
       "aiDescription": "提供面向校友与同学的 AI 网页端入口，优先做好清晰引导、常用能力整合与使用边界说明。",
       "techTitle": "科创共建空间",
-      "techDomain": "建议：lab.yanchuaner.cn",
+      "techDomain": "lab.yanchuaner.cn",
       "techDescription": "展示校友共建项目、项目说明与仓库链接，并提供小程序、App、Agent 等方向的入门指南；网页开发内容继续留在主站。",
       "forumTitle": "人文交流社区",
       "forumDomain": "建议：forum.yanchuaner.cn",
@@ -908,5 +914,28 @@
     "nextDescription": "注册校友身份、补充一段故事、提交资料修正，或在开源仓库参与开发。也欢迎为扩展节点提出需求与治理建议，让每一次建设都来自真实需要。",
     "sourceAction": "查看开源仓库",
     "contactAction": "联系维护者"
+  },
+  "services": {
+    "preview": "内测可用",
+    "ai": {
+      "eyebrow": "YANZHONG AI",
+      "title": "燕中 AI 工作台",
+      "description": "从主站身份进入统一 AI 工作台，模型调用由燕中 API 平台管理额度与审计。",
+      "panelTitle": "认证校友工作台",
+      "panelDescription": "对话、图片与后续智能工具统一通过 API 控制面访问，不在浏览器保存厂商真实密钥。",
+      "action": "进入 AI 工作台",
+      "capability": "当前提供 DeepSeek 对话与 GPT Image 图片能力，后续工具按实际需求逐步加入。",
+      "boundary": "仅限认证成员；使用记录、额度和模型权限在 API 平台统一管理。"
+    },
+    "api": {
+      "eyebrow": "DEVELOPER API",
+      "title": "燕中开发者 API",
+      "description": "为校友项目、AI 工作台与未来 Agent 提供统一的 OpenAI 兼容接口。",
+      "panelTitle": "密钥与额度中心",
+      "panelDescription": "登录后可创建个人 API Key、查看可用模型和消费记录；新账号默认零额度，由管理员按规则发放。",
+      "action": "进入 API 控制台",
+      "capability": "同一接口可供脚本、小程序、App 和 Agent 使用，减少模型厂商切换成本。",
+      "boundary": "密钥只显示给本人；调用受模型白名单、额度、RPM/TPM 与审计策略约束。"
+    }
   }
 }
