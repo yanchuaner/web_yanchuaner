@@ -8,6 +8,23 @@
 
 仓库地址：[https://github.com/yanchuaner/web_yanchuaner](https://github.com/yanchuaner/web_yanchuaner)
 
+## 2026 燕中生态暑期预览
+
+本项目是“2026 燕中生态暑期预览（Yanchuan Ecosystem Summer Preview）”的主站与唯一身份源。这次更新不以 `v2`、`v3` 作为叙事重点，而是首次把一主站、五个子域方向、小程序与 Agent 产品组织成可理解、可登录、可逐步验证的完整生态。
+
+暑期结束时，主站承担统一入口、成员认证、内容与运营后台；`ai.*`、`api.*`、`lab.*` 提供可实际体验的预览能力；`forum.*` 与 `birthday.*` 至少完成公开产品说明和可演示流程；微信小程序与 YCZX Code 作为跨端服务与 Agent 产品同步发布预览。正式版计划在大二上学期持续一个学期，根据真实成员反馈、成本、安全与运维数据打磨后发布。
+
+| 入口 | 暑期预览职责 |
+| --- | --- |
+| `yanchuaner.cn` | 生态首页、统一身份、校友内容、活动与管理后台 |
+| `ai.yanchuaner.cn` | 面向认证成员的 AI 网页工作台 |
+| `api.yanchuaner.cn` | 统一模型 API、密钥、公益额度与用量账本 |
+| `lab.yanchuaner.cn` | 科创教程、项目展示与开源共建 |
+| `forum.yanchuaner.cn`（拟） | 文史政哲与校园议题的社区讨论预览，前缀在开发前确认 |
+| `birthday.yanchuaner.cn` | 生日祝福与校友关怀服务预览 |
+
+完整边界以 [燕中生态项目关系](docs/燕中生态项目关系.txt) 和本仓库 [OAuth 身份出口](docs/oauth-provider.md) 为准。工作区 `C:\Dev\yanchuaner\docs\燕中生态项目关系.txt` 保持同内容镜像。
+
 > 本仓库只包含网站代码、公开文档和示例配置，不包含真实数据库、上传文件、账号凭据或校友隐私数据。
 
 ## 项目预览
@@ -57,6 +74,7 @@
 | 校友功能 | 星空通讯录、大学城市地图、电子校友纪念卡、燕中故事、校友成就、燕中记忆、基础身份修正 |
 | 个人中心 | 查看认证状态，维护个人资料，提交/追踪故事，查看/取消活动报名，修改密码 |
 | 后台管理 | 新闻、活动与报名、校友名册、资料修正、故事审核、成就墙、记忆馆、教师频道、页面内容、注册策略与用户审核 |
+| 生态身份 | 主站作为唯一身份源，为燕中 API 与燕中 AI 签发短效 OAuth/OIDC 身份；已认证在校生、校友、教师及管理员可按角色进入 |
 | 安全边界 | httpOnly cookie、HMAC-SHA256 token、sessionVersion 会话失效、同源写入校验、接口限流、请求体大小限制 |
 | 数据库 | Prisma 7 + SQLite WAL，本地默认 `prisma/dev.db`，生产默认 `/var/www/alumni-site/data/prod.db` |
 | 上传文件 | 默认写入 `public/uploads/`，生产建议通过 `UPLOAD_DIR=/var/www/alumni-site/uploads` 独立持久化 |

@@ -6,6 +6,7 @@ const verifiedUser = {
   accountStatus: "ACTIVE",
   emailVerified: new Date(),
   role: "ALUMNI",
+  identityType: "ALUMNI",
   status: "VERIFIED",
   verificationStatus: "VERIFIED",
 };
@@ -52,10 +53,30 @@ test("pending and rejected alumni reviews remain distinct", () => {
   );
 });
 
-test("only fully verified alumni accounts become active", () => {
+test("fully verified alumni, student, and teacher accounts become active", () => {
   assert.equal(resolveWebAccountState(verifiedUser), "ACTIVE");
   assert.equal(
+    resolveWebAccountState({
+      ...verifiedUser,
+      role: "GUEST",
+      identityType: "STUDENT",
+    }),
+    "ACTIVE",
+  );
+  assert.equal(
+    resolveWebAccountState({
+      ...verifiedUser,
+      role: "GUEST",
+      identityType: "TEACHER",
+    }),
+    "ACTIVE",
+  );
+  assert.equal(
     resolveWebAccountState({ ...verifiedUser, verificationStatus: "PENDING" }),
+    "REVIEW_PENDING",
+  );
+  assert.equal(
+    resolveWebAccountState({ ...verifiedUser, identityType: null }),
     "REVIEW_PENDING",
   );
 });

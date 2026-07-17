@@ -25,7 +25,7 @@ export type OAuthIdentity = {
   name: string;
   email: string;
   email_verified: true;
-  role: "admin" | "alumni";
+  role: "admin" | "alumni" | "student" | "teacher";
 };
 
 type AuthorizationCodeRecord = {
@@ -212,10 +212,25 @@ export function validateAuthorizationRequest(
 }
 
 export function isOAuthEligibleUser(user: AuthenticatedUser): boolean {
+  const supportedIdentity =
+    user.identityType === "ALUMNI" ||
+    user.identityType === "STUDENT" ||
+    user.identityType === "TEACHER";
   return (
     user.role === "ADMIN" ||
-    (user.role === "ALUMNI" && user.status === "VERIFIED")
+    (supportedIdentity &&
+      user.accountStatus === "ACTIVE" &&
+      Boolean(user.emailVerified) &&
+      user.status === "VERIFIED" &&
+      user.verificationStatus === "VERIFIED")
   );
+}
+
+function oauthRoleForUser(user: AuthenticatedUser): OAuthIdentity["role"] {
+  if (user.role === "ADMIN") return "admin";
+  if (user.identityType === "STUDENT") return "student";
+  if (user.identityType === "TEACHER") return "teacher";
+  return "alumni";
 }
 
 function toOAuthIdentity(user: AuthenticatedUser): OAuthIdentity {
@@ -230,7 +245,7 @@ function toOAuthIdentity(user: AuthenticatedUser): OAuthIdentity {
     name: user.name || username,
     email: user.email,
     email_verified: true,
-    role: user.role === "ADMIN" ? "admin" : "alumni",
+    role: oauthRoleForUser(user),
   };
 }
 

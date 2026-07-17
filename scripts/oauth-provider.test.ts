@@ -29,7 +29,7 @@ const user: AuthenticatedUser = {
   name: "Alumni",
   graduationClass: null,
   className: null,
-  verificationStatus: "APPROVED",
+  verificationStatus: "VERIFIED",
   identityType: "ALUMNI",
   role: "ALUMNI",
   status: "VERIFIED",
@@ -96,11 +96,22 @@ test("OIDC ID token is audience-bound and carries the authorization nonce", () =
   assert.equal(payload.sub, identity.sub);
 });
 
-test("only verified alumni and administrators are OAuth eligible", () => {
+test("only verified school members and administrators are OAuth eligible", () => {
   assert.equal(isOAuthEligibleUser(user), true);
   assert.equal(isOAuthEligibleUser({ ...user, role: "ADMIN" }), true);
+  assert.equal(
+    isOAuthEligibleUser({ ...user, role: "GUEST", identityType: "STUDENT" }),
+    true,
+  );
+  assert.equal(
+    isOAuthEligibleUser({ ...user, role: "GUEST", identityType: "TEACHER" }),
+    true,
+  );
   assert.equal(isOAuthEligibleUser({ ...user, status: "PENDING" }), false);
-  assert.equal(isOAuthEligibleUser({ ...user, role: "GUEST" }), false);
+  assert.equal(
+    isOAuthEligibleUser({ ...user, role: "GUEST", identityType: null }),
+    false,
+  );
 });
 
 test("client secrets are compared by value without length-dependent branching", () => {
