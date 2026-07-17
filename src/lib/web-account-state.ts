@@ -8,10 +8,13 @@ export type WebAccountState =
 type AccountStateUser = {
   accountStatus: string;
   emailVerified: Date | string | null;
+  identityType?: string | null;
   role: string;
   status: string;
   verificationStatus: string;
 };
+
+const SUPPORTED_IDENTITY_TYPES = new Set(["ALUMNI", "STUDENT", "TEACHER"]);
 
 export function resolveWebAccountState(user: AccountStateUser): WebAccountState {
   if (user.accountStatus !== "ACTIVE") return "ACCOUNT_DISABLED";
@@ -23,9 +26,9 @@ export function resolveWebAccountState(user: AccountStateUser): WebAccountState 
   }
 
   if (
-    user.role !== "ALUMNI" ||
     user.status !== "VERIFIED" ||
-    user.verificationStatus !== "VERIFIED"
+    user.verificationStatus !== "VERIFIED" ||
+    !SUPPORTED_IDENTITY_TYPES.has(user.identityType ?? "")
   ) {
     return "REVIEW_PENDING";
   }

@@ -57,6 +57,7 @@
 | 校友功能 | 星空通讯录、大学城市地图、电子校友纪念卡、燕中故事、校友成就、燕中记忆、基础身份修正 |
 | 个人中心 | 查看认证状态，维护个人资料，提交/追踪故事，查看/取消活动报名，修改密码 |
 | 后台管理 | 新闻、活动与报名、校友名册、资料修正、故事审核、成就墙、记忆馆、教师频道、页面内容、注册策略与用户审核 |
+| 生态身份 | 主站作为唯一身份源，为燕中 API 与燕中 AI 签发短效 OAuth/OIDC 身份；已认证在校生、校友、教师及管理员可按角色进入 |
 | 安全边界 | httpOnly cookie、HMAC-SHA256 token、sessionVersion 会话失效、同源写入校验、接口限流、请求体大小限制 |
 | 数据库 | Prisma 7 + SQLite WAL，本地默认 `prisma/dev.db`，生产默认 `/var/www/alumni-site/data/prod.db` |
 | 上传文件 | 默认写入 `public/uploads/`，生产建议通过 `UPLOAD_DIR=/var/www/alumni-site/uploads` 独立持久化 |
