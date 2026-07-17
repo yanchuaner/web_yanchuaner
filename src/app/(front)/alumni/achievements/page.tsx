@@ -24,7 +24,6 @@ import {
   ButtonLink,
   Badge,
   EmptyState,
-  DisclaimerBanner,
 } from "@/components/ui";
 import { cn } from "@/components/ui/cn";
 
@@ -56,7 +55,7 @@ const CATEGORY_TONES = {
 export default async function AlumniAchievementsPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ category?: string; submit?: string }>;
+  searchParams?: Promise<{ category?: string }>;
 }) {
   const resolvedSearchParams = await searchParams;
   const requestedCategory = resolvedSearchParams?.category || "";
@@ -138,15 +137,15 @@ export default async function AlumniAchievementsPage({
                   <h2 className="font-heading mt-4 text-xl font-semibold leading-7 text-brand-fg">
                     {achievement.title}
                   </h2>
-                  <p className="mt-3 flex-1 whitespace-pre-wrap text-sm leading-7 text-gray-600">
+                  <p className="mt-3 flex-1 whitespace-pre-wrap text-sm leading-7 text-main/60">
                     {achievement.description}
                   </p>
 
-                  <div className="mt-5 border-t border-gray-100 pt-4">
+                  <div className="mt-5 border-t border-line pt-4">
                     <p className="font-medium text-brand-fg">
                       {achievement.alumniName}
                     </p>
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-1 text-xs text-main/60">
                       {[formatGraduationClass(achievement.graduationClass), achievement.organization]
                         .filter(Boolean)
                         .join(" · ") || "燕中校友"}
@@ -158,9 +157,6 @@ export default async function AlumniAchievementsPage({
           </div>
         )}
 
-        <DisclaimerBanner className="mt-8">
-          本页面内容由管理员整理发布，仅用于展示校友成长经历，不构成任何官方认证或商业背书。
-        </DisclaimerBanner>
       </GlassCard>
 
     </PageShell>
@@ -185,7 +181,7 @@ function CategoryChip({
         "rounded-full border px-3 py-1.5 text-sm transition",
         active
           ? "border-brand bg-brand/10 text-brand-fg"
-          : "border-gray-200 bg-surface text-gray-600 hover:border-brand/40",
+          : "border-line bg-surface text-main/60 hover:border-brand/40",
       )}
     >
       {children}

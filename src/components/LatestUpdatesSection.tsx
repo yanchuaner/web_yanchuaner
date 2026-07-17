@@ -47,13 +47,13 @@ async function getLatestUpdates(): Promise<UpdateItem[]> {
 }
 
 export const LatestUpdatesSkeleton = () => (
-  <div className="grid gap-4 sm:grid-cols-2">
+  <div className="divide-y divide-line border-y border-line">
     {Array.from({ length: 3 }).map((_, index) => (
       <div
         key={index}
-        className="flex min-h-[72px] items-center gap-4 rounded-xl border border-line bg-surface/40 px-5 py-4 shadow-sm"
+        className="flex min-h-[72px] items-center gap-4 px-1 py-4 sm:px-4"
       >
-        <Skeleton className="h-10 w-10 shrink-0 rounded-xl" />
+        <Skeleton className="h-9 w-9 shrink-0 rounded-btn" />
         <SkeletonText lines={2} className="min-w-0 flex-1" />
       </div>
     ))}
@@ -65,14 +65,15 @@ export default async function LatestUpdatesSection() {
 
   if (items.length === 0) {
     return (
-      <p className="text-sm text-slate-500 py-4">
-        暂无最新动态
+      <p className="py-4 text-sm text-main/55">
+        <span className="lang-zh">暂无最新动态</span>
+        <span className="lang-en">No recent updates</span>
       </p>
     );
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="divide-y divide-line border-y border-line">
       {items.map((item) => {
         const href =
           item.type === "news" ? `/news/${item.id}` : `/events/${item.id}`;
@@ -80,13 +81,13 @@ export default async function LatestUpdatesSection() {
           <Link
             key={item.id}
             href={href}
-            className="flex items-center gap-4 rounded-xl border border-[#A78BFA]/20 bg-white/70 px-5 py-4 transition hover:border-[#7C3AED]/40 hover:bg-white cursor-pointer transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF5FF] shadow-sm hover:shadow-md"
+            className="group flex min-h-[76px] items-center gap-4 px-1 py-4 transition-colors hover:bg-brand/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand sm:px-4"
           >
             <span
-              className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+              className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-btn ${
                 item.type === "news"
-                  ? "bg-[#7C3AED]/10 text-[#7C3AED]"
-                  : "bg-[#22C55E]/10 text-[#22C55E]"
+                  ? "bg-brand/10 text-brand"
+                  : "bg-accent/10 text-accent"
               }`}
             >
               {item.type === "news" ? (
@@ -96,12 +97,16 @@ export default async function LatestUpdatesSection() {
               )}
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-slate-800">
+              <p className="truncate text-sm font-semibold text-main transition-colors group-hover:text-brand">
                 {item.title}
               </p>
-              <p className="mt-1 text-xs text-slate-500">
-                {item.type === "news" ? "公告" : "活动"} ·{" "}
-                {new Date(item.date).toLocaleDateString("zh-CN")}
+              <p className="mt-1 text-xs text-main/55">
+                <span className="lang-zh">
+                  {item.type === "news" ? "公告" : "活动"} · {new Date(item.date).toLocaleDateString("zh-CN")}
+                </span>
+                <span className="lang-en">
+                  {item.type === "news" ? "News" : "Event"} · {new Date(item.date).toLocaleDateString("en-US")}
+                </span>
               </p>
             </div>
           </Link>

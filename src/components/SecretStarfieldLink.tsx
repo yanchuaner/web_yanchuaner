@@ -6,6 +6,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/components/ui/cn";
 
+import { useThemeAndLocale } from "./ThemeAndLocaleProvider";
+
 const CLICK_WINDOW_MS = 900;
 
 export function SecretStarfieldLink() {
@@ -14,6 +16,7 @@ export function SecretStarfieldLink() {
   const clickCountRef = useRef(0);
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [pulse, setPulse] = useState(0);
+  const { t } = useThemeAndLocale();
 
   useEffect(() => () => {
     if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
@@ -42,11 +45,12 @@ export function SecretStarfieldLink() {
     <Link
       href="/"
       onClick={handleClick}
-      aria-label="返回首页：燕中数字母港"
+      aria-label={t("nav.brand")}
       className="group relative inline-flex min-h-[44px] shrink-0 items-center rounded-sm font-heading text-lg font-bold tracking-wide text-brand transition-colors duration-300 hover:text-brand-soft focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface-muted"
     >
-      燕中数字母港
-      <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-brand shadow-[0_0_8px_rgb(var(--brand-rgb)/0.5)] transition-all duration-300 group-hover:w-full" />
+      <span className="xl:hidden">{t("nav.brandShort")}</span>
+      <span className="hidden xl:inline">{t("nav.brand")}</span>
+      <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-brand shadow-sm transition-all duration-300 group-hover:w-full" />
       <Sparkles
         key={pulse}
         size={15}

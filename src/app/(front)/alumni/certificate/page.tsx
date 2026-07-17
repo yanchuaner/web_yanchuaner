@@ -5,6 +5,8 @@ import NextImage from "next/image";
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { CheckCircle2, IdCard, ImagePlus, Rocket, X } from "lucide-react";
 import { PageShell } from "@/components/ui";
+import { useThemeAndLocale } from "@/components/ThemeAndLocaleProvider";
+import { themeRgb } from "@/lib/theme-color";
 import { toast } from "sonner";
 
 const CANVAS_WIDTH = 2752;
@@ -12,14 +14,8 @@ const CANVAS_HEIGHT = 1548;
 const PANEL_LEFT = 1740;
 const PANEL_RIGHT = 2427;
 const PANEL_CENTER_X = Math.round((PANEL_LEFT + PANEL_RIGHT) / 2);
-const FALLBACK_NAME = "燕川校友";
-const FALLBACK_CLASS = "2025届 | 创始校友";
 const FALLBACK_CERTIFICATE_NO = "YC-ALUM-PENDING";
-const EMOTIONAL_TEXT = "十年之约 · 2035 见";
-const YC_LOGO_TEXT = "燕川校友数字纪念卡";
 const YC_LOGO_SUBTEXT = "YANCHUAN ALUMNI MEMORIAL";
-const CARD_DISCLAIMER_TEXT =
-  "*** 本卡片仅为个人公益平台生成之纪念凭证，不具备任何官方效力。**";
 const AVATAR_CENTER_Y = 430;
 const AVATAR_RADIUS = 170;
 
@@ -41,14 +37,14 @@ function loadCanvasImage(src: string) {
 
 function drawDefaultAvatarPlaceholder(context: CanvasRenderingContext2D, centerX: number, centerY: number, radius: number) {
   const gradient = context.createRadialGradient(centerX - radius * 0.2, centerY - radius * 0.3, radius * 0.25, centerX, centerY, radius);
-  gradient.addColorStop(0, "rgba(196, 181, 253, 0.9)"); // purple-300
-  gradient.addColorStop(0.5, "rgba(124, 58, 237, 0.9)"); // purple-600
-  gradient.addColorStop(1, "rgba(76, 29, 149, 0.95)"); // purple-900
+  gradient.addColorStop(0, themeRgb("--brand-soft-rgb", 0.9));
+  gradient.addColorStop(0.5, themeRgb("--brand-rgb", 0.9));
+  gradient.addColorStop(1, themeRgb("--surface-strong-rgb", 0.95));
 
   context.fillStyle = gradient;
   context.fillRect(centerX - radius, centerY - radius, radius * 2, radius * 2);
 
-  context.strokeStyle = "rgba(250, 245, 255, 0.85)"; // purple-50
+  context.strokeStyle = themeRgb("--on-brand-rgb", 0.85);
   context.lineWidth = 10;
   context.beginPath();
   context.arc(centerX, centerY - radius * 0.18, radius * 0.28, 0, Math.PI * 2);
@@ -58,7 +54,7 @@ function drawDefaultAvatarPlaceholder(context: CanvasRenderingContext2D, centerX
   context.arc(centerX, centerY + radius * 0.42, radius * 0.5, Math.PI * 1.05, Math.PI * 1.95);
   context.stroke();
 
-  context.fillStyle = "rgba(255, 255, 255, 0.92)";
+  context.fillStyle = themeRgb("--on-brand-rgb", 0.92);
   context.font = "700 54px 'JetBrains Mono', 'Noto Sans Mono', monospace";
   context.textAlign = "center";
   context.fillText("YC", centerX, centerY + radius * 0.75);
@@ -67,16 +63,16 @@ function drawDefaultAvatarPlaceholder(context: CanvasRenderingContext2D, centerX
 function drawCyberAvatarRing(context: CanvasRenderingContext2D, centerX: number, centerY: number, radius: number) {
   context.save();
 
-  context.strokeStyle = "rgba(124, 58, 237, 0.95)"; // purple-600
+  context.strokeStyle = themeRgb("--brand-rgb", 0.95);
   context.lineWidth = 8;
-  context.shadowColor = "rgba(167, 139, 250, 0.8)"; // purple-400
+  context.shadowColor = themeRgb("--brand-soft-rgb", 0.8);
   context.shadowBlur = 26;
   context.beginPath();
   context.arc(centerX, centerY, radius + 10, 0, Math.PI * 2);
   context.stroke();
 
   context.shadowBlur = 0;
-  context.strokeStyle = "rgba(196, 181, 253, 0.85)"; // purple-300
+  context.strokeStyle = themeRgb("--brand-soft-rgb", 0.85);
   context.lineWidth = 3;
   context.beginPath();
   context.arc(centerX, centerY, radius + 24, 0, Math.PI * 2);
@@ -91,7 +87,7 @@ function drawCyberAvatarRing(context: CanvasRenderingContext2D, centerX: number,
     const x2 = centerX + Math.cos(angle) * (tickStart + tickLength);
     const y2 = centerY + Math.sin(angle) * (tickStart + tickLength);
 
-    context.strokeStyle = i % 3 === 0 ? "rgba(139, 92, 246, 0.95)" : "rgba(196, 181, 253, 0.7)"; // purple-500 : purple-300
+    context.strokeStyle = themeRgb(i % 3 === 0 ? "--brand-rgb" : "--brand-soft-rgb", i % 3 === 0 ? 0.95 : 0.7);
     context.lineWidth = i % 3 === 0 ? 3 : 2;
     context.beginPath();
     context.moveTo(x1, y1);
@@ -199,10 +195,6 @@ function isClassMatch(inputClass: string, standardClass: string) {
   return standard.compact.includes(input.compact) || input.compact.includes(standard.compact);
 }
 
-function randomCaptchaNumber() {
-  return Math.floor(Math.random() * 10) + 1;
-}
-
 const CORE_MEMBERS = ["黄湘林", "左佳维", "张正朋", "吴桐", "杨菁", "赖盈燕", "朱国震", "张一鸣"];
 
 function getHonorLevel(name: string): "core" | null {
@@ -212,7 +204,7 @@ function getHonorLevel(name: string): "core" | null {
   return null;
 }
 
-function drawHonorBadge(context: CanvasRenderingContext2D, type: "founder" | "core") {
+function drawHonorBadge(context: CanvasRenderingContext2D, type: "founder" | "core", label: string) {
   context.save();
   const badgeX = PANEL_RIGHT - 180;
   const badgeY = 180;
@@ -221,7 +213,7 @@ function drawHonorBadge(context: CanvasRenderingContext2D, type: "founder" | "co
   if (type === "founder") {
     context.beginPath();
     context.arc(badgeX, badgeY, size + 20, 0, Math.PI * 2);
-    context.strokeStyle = "rgba(253, 224, 71, 0.4)";
+    context.strokeStyle = themeRgb("--warning-rgb", 0.4);
     context.lineWidth = 4;
     context.stroke();
 
@@ -236,29 +228,29 @@ function drawHonorBadge(context: CanvasRenderingContext2D, type: "founder" | "co
     context.closePath();
 
     const grad = context.createLinearGradient(badgeX, badgeY - size, badgeX, badgeY + size);
-    grad.addColorStop(0, "#FDE047");
-    grad.addColorStop(1, "#EAB308");
+    grad.addColorStop(0, themeRgb("--warning-rgb", 0.7));
+    grad.addColorStop(1, themeRgb("--warning-rgb"));
 
     context.fillStyle = grad;
-    context.shadowColor = "rgba(234, 179, 8, 0.6)";
+    context.shadowColor = themeRgb("--warning-rgb", 0.6);
     context.shadowBlur = 20;
     context.fill();
 
-    context.strokeStyle = "#FEF08A";
+    context.strokeStyle = themeRgb("--on-brand-rgb", 0.75);
     context.lineWidth = 4;
     context.stroke();
 
     context.shadowBlur = 0;
-    context.fillStyle = "#422006";
+    context.fillStyle = themeRgb("--overlay-rgb", 0.9);
     context.font = "800 22px 'JetBrains Mono', 'Noto Sans Mono', monospace";
     context.textAlign = "center";
     context.textBaseline = "middle";
-    context.fillText("FOUNDER", badgeX, badgeY + 2);
+    context.fillText(label, badgeX, badgeY + 2);
 
   } else if (type === "core") {
     context.beginPath();
     context.arc(badgeX, badgeY, size + 15, 0, Math.PI * 2);
-    context.strokeStyle = "rgba(124, 58, 237, 0.4)"; // purple-600
+    context.strokeStyle = themeRgb("--brand-rgb", 0.4);
     context.lineWidth = 4;
     context.stroke();
 
@@ -266,15 +258,15 @@ function drawHonorBadge(context: CanvasRenderingContext2D, type: "founder" | "co
     context.arc(badgeX, badgeY, size, 0, Math.PI * 2);
 
     const grad = context.createLinearGradient(badgeX, badgeY - size, badgeX, badgeY + size);
-    grad.addColorStop(0, "#8B5CF6"); // purple-500
-    grad.addColorStop(1, "#6D28D9"); // purple-700
+    grad.addColorStop(0, themeRgb("--brand-soft-rgb"));
+    grad.addColorStop(1, themeRgb("--brand-rgb"));
 
     context.fillStyle = grad;
-    context.shadowColor = "rgba(124, 58, 237, 0.6)";
+    context.shadowColor = themeRgb("--brand-rgb", 0.6);
     context.shadowBlur = 20;
     context.fill();
 
-    context.strokeStyle = "#C4B5FD"; // purple-300
+    context.strokeStyle = themeRgb("--brand-soft-rgb");
     context.lineWidth = 4;
     context.stroke();
 
@@ -286,39 +278,37 @@ function drawHonorBadge(context: CanvasRenderingContext2D, type: "founder" | "co
        context.moveTo(badgeX - size, i);
        context.lineTo(badgeX + size, i);
     }
-    context.strokeStyle = "rgba(255, 255, 255, 0.15)";
+    context.strokeStyle = themeRgb("--on-brand-rgb", 0.15);
     context.lineWidth = 1;
     context.stroke();
     context.restore();
 
     context.beginPath();
     context.arc(badgeX, badgeY, size - 12, 0, Math.PI * 2);
-    context.strokeStyle = "rgba(196, 181, 253, 0.6)"; // purple-300
+    context.strokeStyle = themeRgb("--brand-soft-rgb", 0.6);
     context.setLineDash([5, 5]);
     context.lineWidth = 2;
     context.stroke();
     context.setLineDash([]);
 
-    context.fillStyle = "#FFFFFF"; // white
+    context.fillStyle = themeRgb("--on-brand-rgb");
     context.font = "800 20px 'JetBrains Mono', 'Noto Sans Mono', monospace";
     context.textAlign = "center";
     context.textBaseline = "middle";
-    context.fillText("EST. 2025", badgeX, badgeY + 2);
+    context.fillText(label, badgeX, badgeY + 2);
   }
 
   context.restore();
 }
 
 export default function AlumniCertificatePage() {
+  const { theme, t } = useThemeAndLocale();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
   const bgInputRef = useRef<HTMLInputElement | null>(null);
   const [name, setName] = useState("");
   const [className, setClassName] = useState("");
   const [certificateNo, setCertificateNo] = useState(FALLBACK_CERTIFICATE_NO);
-  const [numA, setNumA] = useState(1);
-  const [numB, setNumB] = useState(1);
-  const [captchaInput, setCaptchaInput] = useState("");
   const [avatarDataUrl, setAvatarDataUrl] = useState("");
   const [avatarFileName, setAvatarFileName] = useState("");
   const [bgUrl, setBgUrl] = useState("");
@@ -328,12 +318,6 @@ export default function AlumniCertificatePage() {
   const [isRendering, setIsRendering] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const regenerateCaptcha = useCallback(() => {
-    setNumA(randomCaptchaNumber());
-    setNumB(randomCaptchaNumber());
-    setCaptchaInput("");
-  }, []);
-
   const handleAvatarUpload = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (!selectedFile) {
@@ -341,7 +325,7 @@ export default function AlumniCertificatePage() {
     }
 
     if (!selectedFile.type.startsWith("image/")) {
-      toast.error("请上传图片格式文件");
+      toast.error(t("certificate.errors.imageType"));
       event.target.value = "";
       return;
     }
@@ -350,7 +334,7 @@ export default function AlumniCertificatePage() {
     reader.onload = () => {
       const nextDataUrl = typeof reader.result === "string" ? reader.result : "";
       if (!nextDataUrl) {
-        toast.error("影像读取失败，请重试");
+        toast.error(t("certificate.errors.avatarRead"));
         return;
       }
 
@@ -358,11 +342,11 @@ export default function AlumniCertificatePage() {
       setAvatarFileName(selectedFile.name);
     };
     reader.onerror = () => {
-      toast.error("影像读取失败，请重试");
+      toast.error(t("certificate.errors.avatarRead"));
     };
     reader.readAsDataURL(selectedFile);
     event.target.value = "";
-  }, []);
+  }, [t]);
 
   const clearAvatar = useCallback(() => {
     setAvatarDataUrl("");
@@ -378,12 +362,12 @@ export default function AlumniCertificatePage() {
       return;
     }
     if (!selectedFile.type.startsWith("image/")) {
-      toast.error("请上传图片格式文件");
+      toast.error(t("certificate.errors.imageType"));
       event.target.value = "";
       return;
     }
     if (selectedFile.size > 10 * 1024 * 1024) {
-      toast.error("背景图过大，请使用 10MB 以内的文件");
+      toast.error(t("certificate.errors.backgroundSize"));
       event.target.value = "";
       return;
     }
@@ -392,7 +376,7 @@ export default function AlumniCertificatePage() {
     reader.onload = () => {
       const nextDataUrl = typeof reader.result === "string" ? reader.result : "";
       if (!nextDataUrl) {
-        toast.error("背景读取失败，请重试");
+        toast.error(t("certificate.errors.backgroundRead"));
         return;
       }
 
@@ -400,12 +384,12 @@ export default function AlumniCertificatePage() {
       setBgFileName(selectedFile.name);
     };
     reader.onerror = () => {
-      toast.error("背景读取失败，请重试");
+      toast.error(t("certificate.errors.backgroundRead"));
       event.target.value = "";
     };
     reader.readAsDataURL(selectedFile);
     event.target.value = "";
-  }, []);
+  }, [t]);
 
   const clearBg = useCallback(() => {
     setBgUrl("");
@@ -436,63 +420,60 @@ export default function AlumniCertificatePage() {
       context.drawImage(bgImage, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     } catch {
       const fallbackBg = context.createLinearGradient(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-      fallbackBg.addColorStop(0, "#FAF5FF");
-      fallbackBg.addColorStop(1, "#F3E8FF");
+      fallbackBg.addColorStop(0, themeRgb("--surface-rgb"));
+      fallbackBg.addColorStop(1, themeRgb("--surface-muted-rgb"));
       context.fillStyle = fallbackBg;
       context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     }
 
     const overlay = context.createLinearGradient(0, 0, 0, CANVAS_HEIGHT);
-    overlay.addColorStop(0, "rgba(255, 255, 255, 0.4)");
-    overlay.addColorStop(0.6, "rgba(255, 255, 255, 0.7)");
-    overlay.addColorStop(1, "rgba(255, 255, 255, 0.95)");
+    const overlayAlpha = theme === "dark" ? [0.25, 0.5, 0.78] : [0.4, 0.7, 0.95];
+    overlay.addColorStop(0, themeRgb("--surface-rgb", overlayAlpha[0]));
+    overlay.addColorStop(0.6, themeRgb("--surface-rgb", overlayAlpha[1]));
+    overlay.addColorStop(1, themeRgb("--surface-rgb", overlayAlpha[2]));
     context.fillStyle = overlay;
     context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     context.textAlign = "center";
 
     context.shadowBlur = 0;
-    context.fillStyle = "#4C1D95";
+    context.fillStyle = themeRgb("--brand-fg-rgb");
     context.font = "700 52px 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif";
-    context.fillText(YC_LOGO_TEXT, PANEL_CENTER_X, 176);
+    context.fillText(t("certificate.canvasTitle"), PANEL_CENTER_X, 176);
 
-    context.fillStyle = "#6D28D9";
+    context.fillStyle = themeRgb("--brand-rgb");
     context.font = "500 30px 'JetBrains Mono', 'Noto Sans Mono', monospace";
     context.fillText(YC_LOGO_SUBTEXT, PANEL_CENTER_X, 236);
 
     await drawAvatarArea(context, PANEL_CENTER_X, AVATAR_CENTER_Y, AVATAR_RADIUS, avatarSource);
 
-    context.shadowColor = "rgba(124, 58, 237, 0.25)";
+    context.shadowColor = themeRgb("--brand-rgb", 0.25);
     context.shadowBlur = 15;
-    context.fillStyle = "#4C1D95";
+    context.fillStyle = themeRgb("--brand-fg-rgb");
     context.font = "700 108px 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif";
-    context.fillText(inputName || FALLBACK_NAME, PANEL_CENTER_X, 760);
+    context.fillText(inputName || t("certificate.fallbackName"), PANEL_CENTER_X, 760);
 
     context.shadowBlur = 4;
-    context.fillStyle = "#5B21B6";
+    context.fillStyle = themeRgb("--brand-rgb", 0.9);
     context.font = "600 66px 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif";
-    context.fillText(inputClassName || FALLBACK_CLASS, PANEL_CENTER_X, 874);
+    context.fillText(inputClassName || t("certificate.fallbackClass"), PANEL_CENTER_X, 874);
 
     context.shadowBlur = 0;
-    context.fillStyle = "#6D28D9";
+    context.fillStyle = themeRgb("--brand-rgb");
     context.font = "500 42px 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif";
-    context.fillText(EMOTIONAL_TEXT, PANEL_CENTER_X, 1012);
+    context.fillText(t("certificate.promise"), PANEL_CENTER_X, 1012);
 
-    context.fillStyle = "#7C3AED";
+    context.fillStyle = themeRgb("--brand-rgb");
     context.font = "500 50px 'JetBrains Mono', 'Noto Sans Mono', monospace";
     context.fillText(serialNo, PANEL_CENTER_X, 1158);
 
-    context.fillStyle = "rgba(76, 29, 149, 0.5)";
-    context.font = "500 14px 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif";
-    context.fillText(CARD_DISCLAIMER_TEXT, PANEL_CENTER_X, 1236);
-
     const honorLevel = getHonorLevel(inputName);
     if (honorLevel) {
-      drawHonorBadge(context, honorLevel);
+      drawHonorBadge(context, honorLevel, t("certificate.alumniBadge"));
     }
 
     setPreviewDataUrl(canvas.toDataURL("image/jpeg", 0.92));
-  }, []);
+  }, [theme, t]);
 
   const handleDownload = useCallback(() => {
     const canvas = canvasRef.current;
@@ -509,8 +490,8 @@ export default function AlumniCertificatePage() {
     let isMounted = true;
 
     const syncPreview = async () => {
-      const activeName = name.trim() || FALLBACK_NAME;
-      const activeClassName = className.trim() || FALLBACK_CLASS;
+      const activeName = name.trim() || t("certificate.fallbackName");
+      const activeClassName = className.trim() || t("certificate.fallbackClass");
       await drawCertificate(activeName, activeClassName, certificateNo, avatarDataUrl, bgUrl);
       if (isMounted) {
         setIsPreviewVisible(true);
@@ -522,25 +503,14 @@ export default function AlumniCertificatePage() {
     return () => {
       isMounted = false;
     };
-  }, [name, className, certificateNo, avatarDataUrl, bgUrl, drawCertificate]);
-
-  useEffect(() => {
-    regenerateCaptcha();
-  }, [regenerateCaptcha]);
+  }, [name, className, certificateNo, avatarDataUrl, bgUrl, drawCertificate, t]);
 
   const handleGenerate = async () => {
-    const userAnswer = Number(captchaInput.trim());
-    if (!Number.isInteger(userAnswer) || userAnswer !== numA + numB) {
-      toast.error("算术验证码错误，请重新计算");
-      regenerateCaptcha();
-      return;
-    }
-
     const trimmedName = name.trim();
     const trimmedClass = className.trim();
 
     if (!trimmedName || !trimmedClass) {
-      toast.error("请输入完整的校友信息");
+      toast.error(t("certificate.errors.incomplete"));
       return;
     }
 
@@ -549,13 +519,13 @@ export default function AlumniCertificatePage() {
       const data = await res.json();
 
       if (!data.found || !data.match) {
-        toast.error("抱歉，未在已登记名单中找到匹配信息。请核对姓名与班级（需与登记信息完全一致）。");
+        toast.error(t("certificate.errors.notFound"));
         return;
       }
 
       const match = data.match;
       if (!isClassMatch(trimmedClass, match.graduationClass)) {
-        toast.error("抱歉，班级不匹配。请核对班级信息（需与登记信息一致）。");
+        toast.error(t("certificate.errors.classMismatch"));
         return;
       }
 
@@ -576,19 +546,18 @@ export default function AlumniCertificatePage() {
       setIsPreviewVisible(true);
       setIsRendering(false);
       setIsSuccess(true);
-      regenerateCaptcha();
       window.setTimeout(() => {
         setIsSuccess(false);
       }, 1200);
     } catch {
-      toast.error("验证服务暂时不可用，请稍后重试。");
+      toast.error(t("certificate.errors.service"));
     }
   };
 
   return (
     <PageShell size="wide">
       {/* Hero — 仪式感顶部 */}
-      <header className="relative mb-6 overflow-hidden rounded-3xl border border-line bg-surface/50 backdrop-blur-xl p-4 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.3)] md:mb-8 md:p-6">
+      <header className="relative mb-6 overflow-hidden rounded-3xl border border-line bg-surface/50 p-4 shadow-lg backdrop-blur-xl md:mb-8 md:p-6">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -right-28 -top-28 h-52 w-52 rounded-full bg-brand/10 blur-3xl"
@@ -599,43 +568,43 @@ export default function AlumniCertificatePage() {
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-8 top-2 h-px bg-gradient-to-r from-transparent via-[#7C3AED]/20 to-transparent"
+          className="pointer-events-none absolute inset-x-8 top-2 h-px bg-gradient-to-r from-transparent via-brand/20 to-transparent"
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-8 bottom-2 h-px bg-gradient-to-r from-transparent via-[#7C3AED]/20 to-transparent"
+          className="pointer-events-none absolute inset-x-8 bottom-2 h-px bg-gradient-to-r from-transparent via-brand/20 to-transparent"
         />
 
         <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/50 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.22em] text-brand shadow-sm backdrop-blur">
               <IdCard size={12} aria-hidden="true" />
-              Yanchuan Alumni Memorial Card
+              {t("certificate.eyebrow")}
             </span>
-            <h1 className="font-heading mt-3 text-[2rem] font-bold leading-tight text-white md:text-[36px] md:leading-[1.12]">
-              {"燕川中学校友"}
-              <span className="bg-gradient-to-r from-[#A78BFA] via-[#C084FC] to-[#8B5CF6] bg-clip-text text-transparent">
-                {"电子纪念卡"}
+            <h1 className="font-heading mt-3 text-[2rem] font-bold leading-tight text-main md:text-[36px] md:leading-[1.12]">
+              {t("certificate.titlePrefix")}
+              <span className="text-brand">
+                {t("certificate.titleSuffix")}
               </span>
             </h1>
             <p className="mt-2 max-w-xl text-sm leading-6 text-brand-fg/70 md:text-[14px] md:leading-7">
-              {"输入姓名与班级，核验通过后即可生成属于你的专属电子纪念卡。"}
+              {t("certificate.descriptionLine1")}
               <br className="hidden md:inline" />
-              {"为这段共同的母港时光，留下一枚可以收藏与分享的印记。"}
+              {t("certificate.descriptionLine2")}
             </p>
-            <div className="mt-4 inline-flex items-center gap-3 rounded-full border border-[#7C3AED]/18 bg-surface/50 px-3.5 py-1.25 text-[11px] text-brand-fg/80 shadow-sm backdrop-blur md:text-sm">
-              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-[#7C3AED]" aria-hidden="true" />
-              {"十年之约 · 2035 见"}
+            <div className="mt-4 inline-flex items-center gap-3 rounded-full border border-brand/18 bg-surface/50 px-3.5 py-1.25 text-[11px] text-brand-fg/80 shadow-sm backdrop-blur md:text-sm">
+              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-brand" aria-hidden="true" />
+              {t("certificate.promise")}
             </div>
           </div>
 
           <div className="flex shrink-0 items-center gap-3 md:flex-col md:items-end md:gap-2">
-            <div className="rounded-2xl border border-[#7C3AED]/18 bg-surface/50 px-3.5 py-2.5 text-right shadow-sm backdrop-blur">
+            <div className="rounded-2xl border border-brand/18 bg-surface/50 px-3.5 py-2.5 text-right shadow-sm backdrop-blur">
               <p className="text-[9px] font-medium uppercase tracking-[0.22em] text-brand-fg/60">
-                Certificate
+                {t("certificate.badgeLabel")}
               </p>
               <p className="font-heading mt-0.5 text-sm font-semibold text-brand-fg md:text-base">
-                Est. 2025
+                {t("certificate.badgeValue")}
               </p>
             </div>
           </div>
@@ -647,13 +616,13 @@ export default function AlumniCertificatePage() {
         <div className="rounded-card border border-line bg-surface/50 backdrop-blur-xl p-5 md:p-6 shadow-2xl">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-[#7C3AED]/70">
-                Preview
+              <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-brand/70">
+                {t("certificate.previewLabel")}
               </p>
               <p className="mt-0.5 text-sm font-medium text-brand-fg/70 md:text-[15px]">
                 {isSuccess
-                  ? "纪念卡生成完毕，长按或右键即可保存。"
-                  : "实时预览 · 校验通过后将刷新最终编号"}
+                  ? t("certificate.previewSuccess")
+                  : t("certificate.previewIdle")}
               </p>
             </div>
             <span className="hidden rounded-full border border-line bg-surface/30 px-3 py-1 text-[11px] font-medium tracking-wide text-brand md:inline-flex">
@@ -670,7 +639,7 @@ export default function AlumniCertificatePage() {
               {previewDataUrl ? (
                 <NextImage
                   src={previewDataUrl}
-                  alt="电子纪念卡预览"
+                  alt={t("certificate.previewAlt")}
                   width={CANVAS_WIDTH}
                   height={CANVAS_HEIGHT}
                   unoptimized
@@ -683,9 +652,6 @@ export default function AlumniCertificatePage() {
             </div>
           </div>
 
-          <p className="mt-4 text-center text-[11px] leading-5 text-brand-fg/40 md:text-xs">
-            {"本卡片仅为个人公益平台生成之纪念凭证，不具备任何官方效力。"}
-          </p>
         </div>
 
         {/* 输入区 — 左侧信息 + 校验，右侧上传 */}
@@ -694,63 +660,43 @@ export default function AlumniCertificatePage() {
             <div className="space-y-6">
               <fieldset className="space-y-4 rounded-2xl border border-line bg-surface/20 p-5">
                 <legend className="mb-3 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-brand">
-                  基础信息
+                  {t("certificate.basicInfo")}
                 </legend>
                 <div>
                   <label htmlFor="alumni-name" className="block text-sm font-medium text-brand-fg">
-                    {"姓名"}
+                    {t("certificate.name")}
                   </label>
                   <input
                     id="alumni-name"
                     type="text"
                     tabIndex={0}
-                    aria-label="姓名"
+                    aria-label={t("certificate.name")}
                     value={name}
                     onChange={(event) => setName(event.target.value)}
-                    placeholder="请输入与登记一致的姓名"
+                    placeholder={t("certificate.namePlaceholder")}
                     className="input mt-2 w-full !rounded-2xl"
                   />
                 </div>
 
                 <div>
                   <label htmlFor="alumni-class" className="block text-sm font-medium text-brand-fg">
-                    {"班级"}
+                    {t("certificate.className")}
                   </label>
                   <input
                     id="alumni-class"
                     type="text"
                     tabIndex={0}
-                    aria-label="班级"
+                    aria-label={t("certificate.className")}
                     value={className}
                     onChange={(event) => setClassName(event.target.value)}
-                    placeholder="例如：2025届 1 班"
+                    placeholder={t("certificate.classPlaceholder")}
                     className="input mt-2 w-full !rounded-2xl"
                   />
                 </div>
-              </fieldset>
-
-              <fieldset className="space-y-4 rounded-2xl border border-line bg-surface/20 p-5">
-                <legend className="mb-3 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-brand">
-                  安全校验
-                </legend>
-                <label htmlFor="alumni-captcha" className="block text-sm font-medium text-brand-fg">
-                  {`请回答：${numA} + ${numB} = ?`}
-                </label>
-                <input
-                  id="alumni-captcha"
-                  type="text"
-                  tabIndex={0}
-                  aria-label="安全校验答案"
-                  inputMode="numeric"
-                  value={captchaInput}
-                  onChange={(event) => setCaptchaInput(event.target.value)}
-                  placeholder="请输入计算结果"
-                  className="input mt-2 w-full !rounded-2xl"
-                />
 
                 <div className="rounded-2xl border border-line bg-surface/30 px-4 py-3 text-sm">
                   <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-fg/50">
-                    Certificate No.
+                    {t("certificate.numberLabel")}
                   </p>
                   <p className="font-heading mt-1 truncate text-base font-semibold text-brand-fg">
                     {certificateNo}
@@ -762,7 +708,7 @@ export default function AlumniCertificatePage() {
             <div className="space-y-6">
               <fieldset className="space-y-4 rounded-2xl border border-line bg-surface/20 p-5">
                 <legend className="mb-3 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-brand">
-                  影像与背景（可选）
+                  {t("certificate.mediaTitle")}
                 </legend>
 
                 <input
@@ -770,7 +716,7 @@ export default function AlumniCertificatePage() {
                   id="alumni-avatar"
                   type="file"
                   accept="image/*"
-                  aria-label="上传头像影像"
+                  aria-label={t("certificate.uploadAvatar")}
                   className="hidden"
                   onChange={handleAvatarUpload}
                 />
@@ -780,7 +726,7 @@ export default function AlumniCertificatePage() {
                   className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-line bg-surface/30 px-4 py-3 text-sm font-medium text-brand shadow-sm transition hover:border-brand hover:bg-surface/50"
                 >
                   <ImagePlus size={16} aria-hidden="true" />
-                  <span>{"上传头像影像"}</span>
+                  <span>{t("certificate.uploadAvatar")}</span>
                 </button>
 
                 <div className="space-y-2">
@@ -788,28 +734,28 @@ export default function AlumniCertificatePage() {
                     <div className="flex items-center gap-3">
                       <NextImage
                         src={avatarDataUrl}
-                        alt={"头像预览"}
+                        alt={t("certificate.avatarPreview")}
                         width={44}
                         height={44}
                         unoptimized
                         className="h-11 w-11 rounded-full border border-line object-cover shadow-sm"
                       />
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-brand-fg">{avatarFileName || "已载入自定义影像"}</p>
-                        <p className="text-xs leading-5 text-brand-fg/50">上传后会优先应用到纪念卡头像位。</p>
+                        <p className="truncate text-sm font-medium text-brand-fg">{avatarFileName || t("certificate.avatarLoaded")}</p>
+                        <p className="text-xs leading-5 text-brand-fg/50">{t("certificate.avatarDescription")}</p>
                       </div>
                       <button type="button"
                         onClick={clearAvatar}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-rose-500/30 text-rose-500 transition hover:bg-rose-500/10 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2"
-                        aria-label={"移除影像"}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-danger/30 text-danger transition hover:bg-danger/10 focus:outline-none focus:ring-2 focus:ring-danger focus:ring-offset-2"
+                        aria-label={t("certificate.removeAvatar")}
                         tabIndex={0}
                       >
                         <X size={14} aria-hidden="true" />
-                        <span className="sr-only">移除影像</span>
+                        <span className="sr-only">{t("certificate.removeAvatar")}</span>
                       </button>
                     </div>
                   ) : (
-                    <p className="text-xs leading-6 text-brand-fg/40 md:text-[13px]">{"未上传时使用默认徽标头像。"}</p>
+                    <p className="text-xs leading-6 text-brand-fg/40 md:text-[13px]">{t("certificate.avatarDefault")}</p>
                   )}
                 </div>
 
@@ -818,7 +764,7 @@ export default function AlumniCertificatePage() {
                   id="alumni-bg"
                   type="file"
                   accept="image/*"
-                  aria-label="上传专属背景"
+                  aria-label={t("certificate.uploadBackground")}
                   className="hidden"
                   onChange={handleBgUpload}
                 />
@@ -828,65 +774,65 @@ export default function AlumniCertificatePage() {
                   className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-line bg-surface/30 px-4 py-3 text-sm font-medium text-brand shadow-sm transition hover:border-brand hover:bg-surface/50"
                 >
                   <ImagePlus size={16} aria-hidden="true" />
-                  <span>{"选择专属背景（16:9）"}</span>
+                  <span>{t("certificate.uploadBackground")}</span>
                 </button>
                 <div className="space-y-2">
                   {bgUrl ? (
                     <div className="flex items-center gap-3">
                       <NextImage
                         src={bgUrl}
-                        alt={"背景预览"}
+                        alt={t("certificate.backgroundPreview")}
                         width={56}
                         height={32}
                         unoptimized
                         className="h-8 w-14 rounded border border-line object-cover shadow-sm"
                       />
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-brand-fg">{bgFileName || "已载入个人背景"}</p>
-                        <p className="text-xs leading-5 text-brand-fg/50">会自动裁切为 16:9 并应用到卡片背景。</p>
+                        <p className="truncate text-sm font-medium text-brand-fg">{bgFileName || t("certificate.backgroundLoaded")}</p>
+                        <p className="text-xs leading-5 text-brand-fg/50">{t("certificate.backgroundDescription")}</p>
                       </div>
                       <button type="button"
                         onClick={clearBg}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-rose-500/30 text-rose-500 transition hover:bg-rose-500/10 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2"
-                        aria-label={"移除背景"}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-danger/30 text-danger transition hover:bg-danger/10 focus:outline-none focus:ring-2 focus:ring-danger focus:ring-offset-2"
+                        aria-label={t("certificate.removeBackground")}
                         tabIndex={0}
                       >
                         <X size={14} aria-hidden="true" />
-                        <span className="sr-only">移除背景</span>
+                        <span className="sr-only">{t("certificate.removeBackground")}</span>
                       </button>
                     </div>
                   ) : (
-                    <p className="text-xs leading-6 text-brand-fg/40 md:text-[13px]">{"未上传时使用站点默认 16:9 底图。"}</p>
+                    <p className="text-xs leading-6 text-brand-fg/40 md:text-[13px]">{t("certificate.backgroundDefault")}</p>
                   )}
                 </div>
               </fieldset>
             </div>
           </div>
 
-          <div className="mt-5 flex flex-col items-center justify-center gap-3 border-t border-[#7C3AED]/10 pt-4 pb-safe md:flex-row">
+          <div className="mt-5 flex flex-col items-center justify-center gap-3 border-t border-brand/10 pt-4 pb-safe md:flex-row">
             <button
               type="button"
               onClick={handleGenerate}
               disabled={isRendering}
-              className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#5B21B6] via-[#6D28D9] to-[#7C3AED] px-5 py-3.5 text-sm font-semibold text-white shadow-[0_14px_30px_-14px_rgba(124,58,237,0.65)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_36px_-16px_rgba(124,58,237,0.75)] disabled:cursor-not-allowed disabled:opacity-70 md:w-auto md:min-w-[240px] ${
-                isSuccess ? "scale-[1.02] ring-2 ring-[#C4B5FD]" : ""
+              className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-soft via-brand to-brand px-5 py-3.5 text-sm font-semibold text-contrast shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-70 md:w-auto md:min-w-[240px] ${
+                isSuccess ? "scale-[1.02] ring-2 ring-brand-soft" : ""
               } ${isRendering ? "animate-pulse" : ""}`}
             >
               {isSuccess ? <CheckCircle2 size={18} /> : <Rocket size={18} />}
               <span>
                 {isRendering
-                  ? "身份核验中…"
+                  ? t("certificate.verifying")
                   : isSuccess
-                    ? "生成成功"
-                    : "核验并生成纪念卡"}
+                    ? t("certificate.generated")
+                    : t("certificate.generate")}
               </span>
             </button>
 
             <Link
               href="/"
-              className="inline-flex w-full items-center justify-center rounded-2xl border border-line bg-surface/30 px-5 py-3.5 text-sm font-medium text-brand transition hover:border-[#7C3AED]/50 hover:bg-brand/5 md:w-auto md:min-w-[160px]"
+              className="inline-flex w-full items-center justify-center rounded-2xl border border-line bg-surface/30 px-5 py-3.5 text-sm font-medium text-brand transition hover:border-brand/50 hover:bg-brand/5 md:w-auto md:min-w-[160px]"
             >
-              {"返回首页"}
+              {t("common.backHome")}
             </Link>
           </div>
         </aside>

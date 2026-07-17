@@ -13,6 +13,8 @@ import {
 import { toast } from "sonner";
 import { AdminPageShell } from "@/components/admin/AdminPageShell";
 import { Badge, Button, EmptyState, ResponsiveTabs } from "@/components/ui";
+import { useAdminLocalize } from "@/components/admin/AdminLocalizedText";
+import { useThemeAndLocale } from "@/components/ThemeAndLocaleProvider";
 
 type VerificationRequest = {
   id: string;
@@ -70,26 +72,28 @@ const MATCH_BADGES = {
   NOT_APPLICABLE: { label: "无需名单匹配", tone: "neutral" },
 } as const;
 
-async function responseError(response: Response) {
+async function responseError(response: Response, fallback: string) {
   try {
     const body = (await response.json()) as { error?: string };
-    return body.error || "请求失败";
+    return body.error || fallback;
   } catch {
-    return "请求失败";
+    return fallback;
   }
 }
 
-function formatDate(value: string | null) {
+function formatDate(value: string | null, locale: "zh" | "en") {
   if (!value) return "-";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "-";
-  return new Intl.DateTimeFormat("zh-CN", {
+  return new Intl.DateTimeFormat(locale === "en" ? "en-US" : "zh-CN", {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(date);
 }
 
 export default function IdentityVerificationsPage() {
+  const localize = useAdminLocalize();
+  const { locale } = useThemeAndLocale();
   const [status, setStatus] = useState<Filter>("PENDING");
   const [page, setPage] = useState(1);
   const [requests, setRequests] = useState<VerificationRequest[]>([]);
@@ -117,7 +121,7 @@ export default function IdentityVerificationsPage() {
         `/api/admin/identity-verifications?${params.toString()}`,
         { cache: "no-store" },
       );
-      if (!response.ok) throw new Error(await responseError(response));
+      if (!response.ok) throw new Error(await responseError(response, localize("请求失败")));
       const body = (await response.json()) as {
         requests?: VerificationRequest[];
         pagination?: Pagination;
@@ -127,11 +131,11 @@ export default function IdentityVerificationsPage() {
         body.pagination || { page, pageSize: 20, total: 0, totalPages: 0 },
       );
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "加载失败");
+      setError(localize(loadError instanceof Error ? loadError.message : "加载失败"));
     } finally {
       setLoading(false);
     }
-  }, [page, status]);
+  }, [localize, page, status]);
 
   useEffect(() => {
     void load();
@@ -142,7 +146,10 @@ export default function IdentityVerificationsPage() {
     action: "approve" | "reject",
   ) => {
     const actionLabel = action === "approve" ? "通过" : "驳回";
-    if (!window.confirm(`确认${actionLabel}${request.name}的身份认证申请吗？`)) {
+    const confirmMessage = locale === "en"
+      ? `${action === "approve" ? "Approve" : "Reject"} the identity verification request from ${request.name}?`
+      : `确认${actionLabel}${request.name}的身份认证申请吗？`;
+    if (!window.confirm(confirmMessage)) {
       return;
     }
 
@@ -159,8 +166,8 @@ export default function IdentityVerificationsPage() {
           }),
         },
       );
-      if (!response.ok) throw new Error(await responseError(response));
-      toast.success(`已${actionLabel}身份认证申请`);
+      if (!response.ok) throw new Error(await responseError(response, localize("请求失败")));
+      toast.success(locale === "en" ? `Identity verification ${action === "approve" ? "approved" : "rejected"}.` : `已${actionLabel}身份认证申请`);
       setNotes((current) => {
         const next = { ...current };
         delete next[request.id];
@@ -173,7 +180,7 @@ export default function IdentityVerificationsPage() {
       }
     } catch (reviewError) {
       toast.error(
-        reviewError instanceof Error ? reviewError.message : "审核操作失败",
+        localize(reviewError instanceof Error ? reviewError.message : "审核操作失败"),
       );
       await load();
     } finally {
@@ -188,12 +195,12 @@ export default function IdentityVerificationsPage() {
           id: filter,
           label:
             filter === "PENDING"
-              ? "待审核"
+              ? localize("待审核")
               : filter === "VERIFIED"
-                ? "已通过"
+                ? localize("已通过")
                 : filter === "REJECTED"
-                  ? "已驳回"
-                  : "全部",
+                  ? localize("已驳回")
+                  : localize("全部"),
         }))}
         activeTab={status}
         onChange={(value) => {
@@ -206,7 +213,7 @@ export default function IdentityVerificationsPage() {
       {error ? (
         <div
           role="alert"
-          className="mb-4 rounded-btn border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-300"
+          className="mb-4 rounded-btn border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger"
         >
           {error}
         </div>
@@ -215,13 +222,13 @@ export default function IdentityVerificationsPage() {
       {loading ? (
         <div className="flex min-h-48 items-center justify-center gap-2 text-sm text-brand-fg/60">
           <Loader2 size={20} className="animate-spin text-brand" />
-          正在加载
+          {localize("正在加载")}
         </div>
       ) : requests.length === 0 ? (
         <EmptyState
           icon={UserRoundCheck}
-          title="暂无身份认证申请"
-          description="当前筛选条件下没有记录"
+          title={localize("暂无身份认证申请")}
+          description={localize("当前筛选条件下没有记录")}
         />
       ) : (
         <div className="space-y-3">
@@ -240,37 +247,37 @@ export default function IdentityVerificationsPage() {
                       <h2 className="font-heading text-base font-semibold text-brand-fg">
                         {request.name}
                       </h2>
-                      <Badge tone={statusBadge.tone}>{statusBadge.label}</Badge>
-                      <Badge tone={matchBadge.tone}>{matchBadge.label}</Badge>
+                      <Badge tone={statusBadge.tone}>{localize(statusBadge.label)}</Badge>
+                      <Badge tone={matchBadge.tone}>{localize(matchBadge.label)}</Badge>
                     </div>
                     <p className="mt-1 text-xs text-brand-fg/50">
-                      {request.user.username || "微信用户"} · 提交于 {formatDate(request.createdAt)}
+                      {request.user.username || localize("微信用户")} · {localize("提交于")} {formatDate(request.createdAt, locale)}
                     </p>
                   </div>
                   <Badge icon={BadgeCheck} tone="brand">
-                    {IDENTITY_LABELS[request.identityType]}
+                    {localize(IDENTITY_LABELS[request.identityType])}
                   </Badge>
                 </div>
 
                 <dl className="mt-4 grid gap-x-6 gap-y-3 border-t border-line pt-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
                   <div>
-                    <dt className="text-xs text-brand-fg/45">毕业或预计毕业年份</dt>
+                    <dt className="text-xs text-brand-fg/45">{localize("毕业或预计毕业年份")}</dt>
                     <dd className="mt-1 text-brand-fg">
                       {request.graduationClass || "-"}
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-brand-fg/45">班级</dt>
+                    <dt className="text-xs text-brand-fg/45">{localize("班级")}</dt>
                     <dd className="mt-1 text-brand-fg">{request.className || "-"}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-brand-fg/45">教师职位</dt>
+                    <dt className="text-xs text-brand-fg/45">{localize("教师职位")}</dt>
                     <dd className="mt-1 text-brand-fg">
                       {request.teacherPosition || "-"}
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-brand-fg/45">当前角色</dt>
+                    <dt className="text-xs text-brand-fg/45">{localize("当前角色")}</dt>
                     <dd className="mt-1 text-brand-fg">{request.user.role}</dd>
                   </div>
                 </dl>
@@ -281,7 +288,7 @@ export default function IdentityVerificationsPage() {
                       htmlFor={`review-note-${request.id}`}
                       className="mb-2 block text-xs font-medium text-brand-fg/60"
                     >
-                      审核备注（选填）
+                      {localize("审核备注（选填）")}
                     </label>
                     <textarea
                       id={`review-note-${request.id}`}
@@ -303,7 +310,7 @@ export default function IdentityVerificationsPage() {
                         disabled={Boolean(actingId)}
                         onClick={() => void review(request, "approve")}
                       >
-                        {isActing ? "处理中" : "通过"}
+                        {localize(isActing ? "处理中" : "通过")}
                       </Button>
                       <Button
                         type="button"
@@ -313,7 +320,7 @@ export default function IdentityVerificationsPage() {
                         disabled={Boolean(actingId)}
                         onClick={() => void review(request, "reject")}
                       >
-                        {isActing ? "处理中" : "驳回"}
+                        {localize(isActing ? "处理中" : "驳回")}
                       </Button>
                     </div>
                   </div>
@@ -321,9 +328,9 @@ export default function IdentityVerificationsPage() {
                   <p className="mt-4 border-t border-line pt-4 text-xs text-brand-fg/50">
                     {request.reviewedBy?.name ||
                       request.reviewedBy?.username ||
-                      "管理员"}
+                      localize("管理员")}
                     {" · "}
-                    {formatDate(request.reviewedAt)}
+                    {formatDate(request.reviewedAt, locale)}
                     {request.adminNote ? ` · ${request.adminNote}` : ""}
                   </p>
                 )}
@@ -335,7 +342,7 @@ export default function IdentityVerificationsPage() {
 
       {!loading && pagination.total > 0 ? (
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm text-brand-fg/55">
-          <span>共 {pagination.total} 条</span>
+          <span>{localize("共")} {pagination.total} {localize("条")}</span>
           <div className="flex items-center gap-2">
             <Button
               type="button"
@@ -345,7 +352,7 @@ export default function IdentityVerificationsPage() {
               disabled={page <= 1}
               onClick={() => setPage((current) => Math.max(1, current - 1))}
             >
-              上一页
+              {localize("上一页")}
             </Button>
             <span className="min-w-16 text-center">
               {page} / {Math.max(1, pagination.totalPages)}
@@ -358,7 +365,7 @@ export default function IdentityVerificationsPage() {
               disabled={page >= pagination.totalPages}
               onClick={() => setPage((current) => current + 1)}
             >
-              下一页
+              {localize("下一页")}
             </Button>
           </div>
         </div>

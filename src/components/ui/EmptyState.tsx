@@ -13,8 +13,8 @@ export function EmptyState({
   className,
 }: {
   icon?: LucideIcon;
-  title: string;
-  description?: string;
+  title: React.ReactNode;
+  description?: React.ReactNode;
   action?: React.ReactNode;
   className?: string;
 }) {
@@ -27,7 +27,7 @@ export function EmptyState({
     >
       {Icon ? <Icon size={48} className="mb-3 opacity-40" aria-hidden="true" /> : null}
       <p className="text-sm">{title}</p>
-      {description ? <p className="mt-1 text-xs text-gray-400">{description}</p> : null}
+      {description ? <p className="mt-1 text-xs text-main/50">{description}</p> : null}
       {action ? <div className="mt-4">{action}</div> : null}
     </div>
   );

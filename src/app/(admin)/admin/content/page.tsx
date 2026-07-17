@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Pencil, Trash2, BookOpen, Star, Heart, MessageSquare, GraduationCap, Mail, Shield, Users, School, Building2, Globe2, MapPin, Rocket, History, ArrowUp, ArrowDown } from 'lucide-react';
 import { useResource } from '@/hooks/useResource';
+import { useAdminLocalize } from '@/components/admin/AdminLocalizedText';
 
 const PAGES: { key: string; label: string }[] = [
   { key: 'about_features', label: '学校介绍 - 特色卡片' },
@@ -48,6 +49,7 @@ const emptyForm = {
 };
 
 export default function AdminContentPage() {
+  const localize = useAdminLocalize();
   const [activePage, setActivePage] = useState('about_features');
 
   // Tab 切换驱动数据层：listQuery 随 activePage 变化自动重载；
@@ -77,7 +79,7 @@ export default function AdminContentPage() {
   };
 
   const handleSave = async () => {
-    if (!form.title.trim()) { setError('标题不能为空'); return; }
+    if (!form.title.trim()) { setError(localize('标题不能为空')); return; }
     const ok = editingId
       ? await res.update(editingId, { ...form })
       : await res.create({ ...form });
@@ -85,7 +87,7 @@ export default function AdminContentPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('确定删除？')) return;
+    if (!confirm(localize('确定删除？'))) return;
     await res.remove(id);
   };
 
@@ -106,8 +108,8 @@ export default function AdminContentPage() {
 
   return (
     <div>
-      <h1 className="font-heading text-xl font-bold text-brand-fg">页面内容管理</h1>
-      <p className="mt-1 text-sm text-brand-fg/60">管理各页面的版块内容与排序</p>
+      <h1 className="font-heading text-xl font-bold text-brand-fg">{localize('页面内容管理')}</h1>
+      <p className="mt-1 text-sm text-brand-fg/60">{localize('管理各页面的版块内容与排序')}</p>
 
       {/* Page selector tabs */}
       <div className="mt-4 flex flex-wrap gap-2">
@@ -117,34 +119,34 @@ export default function AdminContentPage() {
             onClick={() => { setActivePage(p.key); resetForm(); }}
             className={`rounded-full px-3 py-1.5 text-xs transition cursor-pointer ${
               activePage === p.key
-                ? 'bg-brand text-white'
-                : 'border border-gray-200 text-gray-500 hover:border-brand/30'
+                ? 'bg-brand text-contrast'
+                : 'border border-line text-main/60 hover:border-brand/30'
             }`}
           >
-            {p.label}
+            {localize(p.label)}
           </button>
         ))}
       </div>
 
       {error && (
-        <div className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-          {error}
-          <button onClick={() => setError('')} className="ml-2 underline cursor-pointer">关闭</button>
+        <div className="mt-4 rounded-lg border border-danger/25 bg-danger/10 px-4 py-3 text-sm text-danger">
+          {localize(error)}
+          <button onClick={() => setError('')} className="ml-2 underline cursor-pointer">{localize('关闭')}</button>
         </div>
       )}
 
       {/* Form */}
       <div className="mt-4 rounded-card border border-brand/10 bg-surface p-5 shadow-sm">
         <h2 className="mb-4 font-heading text-base font-semibold text-brand-fg">
-          {editingId ? '编辑内容' : '新增内容'}
+          {localize(editingId ? '编辑内容' : '新增内容')}
         </h2>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label htmlFor="title" className="mb-1 block text-sm font-medium text-brand-fg">标题 *</label>
+            <label htmlFor="title" className="mb-1 block text-sm font-medium text-brand-fg">{localize('标题')} *</label>
             <input id="title" type="text" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="input w-full" disabled={saving} />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-brand-fg">图标</label>
+            <label className="mb-1 block text-sm font-medium text-brand-fg">{localize('图标')}</label>
             <div className="flex flex-wrap gap-1.5">
               {ICONS.slice(0, 8).map(ic => {
                 const Icon = ic.icon;
@@ -152,67 +154,67 @@ export default function AdminContentPage() {
                   <button key={ic.value} type="button"
                     onClick={() => setForm({ ...form, icon: ic.value })}
                     className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition cursor-pointer ${
-                      form.icon === ic.value ? 'border-brand bg-brand/10 text-brand' : 'border-gray-200 text-gray-500 hover:border-brand/30'
+                      form.icon === ic.value ? 'border-brand bg-brand/10 text-brand' : 'border-line text-main/60 hover:border-brand/30'
                     }`}
-                    title={ic.label} disabled={saving}
-                  ><Icon size={13} />{ic.label}</button>
+                    title={localize(ic.label)} disabled={saving}
+                  ><Icon size={13} />{localize(ic.label)}</button>
                 );
               })}
             </div>
           </div>
           {isTimeline && (
             <div>
-              <label htmlFor="yearLabel" className="mb-1 block text-sm font-medium text-brand-fg">年份</label>
-              <input id="yearLabel" type="text" value={form.yearLabel} onChange={e => setForm({ ...form, yearLabel: e.target.value })} className="input w-full" placeholder="如：2022" disabled={saving} />
+              <label htmlFor="yearLabel" className="mb-1 block text-sm font-medium text-brand-fg">{localize('年份')}</label>
+              <input id="yearLabel" type="text" value={form.yearLabel} onChange={e => setForm({ ...form, yearLabel: e.target.value })} className="input w-full" placeholder={localize('如：2022')} disabled={saving} />
             </div>
           )}
           <div className="md:col-span-2">
-            <label htmlFor="description" className="mb-1 block text-sm font-medium text-brand-fg">描述</label>
+            <label htmlFor="description" className="mb-1 block text-sm font-medium text-brand-fg">{localize('描述')}</label>
             <textarea id="description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="input w-full min-h-[60px]" disabled={saving} />
           </div>
           <div>
-            <label htmlFor="note" className="mb-1 block text-sm font-medium text-brand-fg">底部备注</label>
+            <label htmlFor="note" className="mb-1 block text-sm font-medium text-brand-fg">{localize('底部备注')}</label>
             <input id="note" type="text" value={form.note} onChange={e => setForm({ ...form, note: e.target.value })} className="input w-full" disabled={saving} />
           </div>
           <div>
-            <label htmlFor="href" className="mb-1 block text-sm font-medium text-brand-fg">跳转链接（可选）</label>
+            <label htmlFor="href" className="mb-1 block text-sm font-medium text-brand-fg">{localize('跳转链接（可选）')}</label>
             <input id="href" type="text" value={form.href} onChange={e => setForm({ ...form, href: e.target.value })} className="input w-full" placeholder="/alumni/stories" disabled={saving} />
           </div>
           {form.href && (
             <div>
-              <label htmlFor="actionLabel" className="mb-1 block text-sm font-medium text-brand-fg">按钮文字</label>
+              <label htmlFor="actionLabel" className="mb-1 block text-sm font-medium text-brand-fg">{localize('按钮文字')}</label>
               <input id="actionLabel" type="text" value={form.actionLabel} onChange={e => setForm({ ...form, actionLabel: e.target.value })} className="input w-full" disabled={saving} />
             </div>
           )}
         </div>
         <div className="mt-4 flex gap-3">
           <button onClick={handleSave} disabled={saving} className="btn-primary cursor-pointer">
-            {saving ? '保存中...' : editingId ? '更新' : '新增'}
+            {localize(saving ? '保存中...' : editingId ? '更新' : '新增')}
           </button>
-          {editingId && <button onClick={resetForm} className="btn-secondary cursor-pointer" disabled={saving}>取消编辑</button>}
+          {editingId && <button onClick={resetForm} className="btn-secondary cursor-pointer" disabled={saving}>{localize('取消编辑')}</button>}
         </div>
       </div>
 
       {/* List */}
       <div className="mt-4 space-y-2">
-        {loading ? <p className="text-sm text-gray-400">加载中...</p>
-        : sections.length === 0 ? <p className="text-sm text-gray-400">暂无内容，使用上方表单新增。</p>
+        {loading ? <p className="text-sm text-main/60">{localize('加载中...')}</p>
+        : sections.length === 0 ? <p className="text-sm text-main/60">{localize('暂无内容，使用上方表单新增。')}</p>
         : sections.map((s, idx) => (
-          <div key={s.id} className="flex flex-wrap items-center gap-3 rounded-card border border-gray-200 bg-surface p-3 shadow-sm transition hover:shadow-md">
+          <div key={s.id} className="flex flex-wrap items-center gap-3 rounded-card border border-line bg-surface p-3 shadow-sm transition hover:shadow-md">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <h3 className="font-heading font-semibold text-sm text-brand-fg">{s.title}</h3>
-                <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-500">{s.icon}</span>
+                <span className="rounded-full bg-surface/60 px-1.5 py-0.5 text-[10px] text-main/60">{s.icon}</span>
                 {s.yearLabel && <span className="rounded-full bg-brand/10 px-1.5 py-0.5 text-[10px] text-brand">{s.yearLabel}</span>}
-                {s.href && <span className="rounded-full bg-brand/10 px-1.5 py-0.5 text-[10px] text-brand">含链接</span>}
+                {s.href && <span className="rounded-full bg-brand/10 px-1.5 py-0.5 text-[10px] text-brand">{localize('含链接')}</span>}
               </div>
-              <p className="mt-0.5 text-xs text-gray-500 line-clamp-1">{s.description || '无描述'}</p>
+              <p className="mt-0.5 text-xs text-main/60 line-clamp-1">{s.description || localize('无描述')}</p>
             </div>
             <div className="flex items-center gap-1">
-              <button onClick={() => moveItem(s.id, 'up')} disabled={idx === 0} className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-brand disabled:opacity-30 cursor-pointer"><ArrowUp size={15} /></button>
-              <button onClick={() => moveItem(s.id, 'down')} disabled={idx === sections.length - 1} className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-brand disabled:opacity-30 cursor-pointer"><ArrowDown size={15} /></button>
-              <button onClick={() => openEdit(s)} className="rounded p-1 text-gray-400 hover:bg-brand/10 hover:text-brand cursor-pointer"><Pencil size={15} /></button>
-              <button onClick={() => handleDelete(s.id)} className="rounded p-1 text-gray-400 hover:bg-rose-50 hover:text-rose-600 cursor-pointer"><Trash2 size={15} /></button>
+              <button onClick={() => moveItem(s.id, 'up')} disabled={idx === 0} className="rounded p-1 text-main/60 hover:bg-surface/60 hover:text-brand disabled:opacity-30 cursor-pointer"><ArrowUp size={15} /></button>
+              <button onClick={() => moveItem(s.id, 'down')} disabled={idx === sections.length - 1} className="rounded p-1 text-main/60 hover:bg-surface/60 hover:text-brand disabled:opacity-30 cursor-pointer"><ArrowDown size={15} /></button>
+              <button onClick={() => openEdit(s)} className="rounded p-1 text-main/60 hover:bg-brand/10 hover:text-brand cursor-pointer"><Pencil size={15} /></button>
+              <button onClick={() => handleDelete(s.id)} className="rounded p-1 text-main/60 hover:bg-danger/10 hover:text-danger cursor-pointer"><Trash2 size={15} /></button>
             </div>
           </div>
         ))}

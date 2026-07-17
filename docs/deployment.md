@@ -39,7 +39,7 @@
 
 ```bash
 rm -rf ~/web_yanchuaner
-cp -r "/mnt/c/Users/<你的用户名>/Desktop/web_projects/yanchuaner" ~/web_yanchuaner
+cp -r "/mnt/c/Dev/yanchuaner/web_yanchuaner" ~/web_yanchuaner
 cd ~/web_yanchuaner
 ```
 

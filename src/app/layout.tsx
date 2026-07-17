@@ -53,8 +53,8 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
     googleBot: {
-          index: true,
-          follow: true,
+      index: true,
+      follow: true,
       "max-video-preview": -1,
       "max-image-preview": "large",
       "max-snippet": -1,
@@ -71,63 +71,89 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+import { ThemeAndLocaleProvider } from "@/components/ThemeAndLocaleProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN">
-      <body className="overflow-x-hidden font-sans antialiased text-[var(--color-text)] bg-[var(--color-background)]">
+    <html lang="zh-CN" className="dark" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('theme');
+                  theme = theme === 'light' || theme === 'dark' ? theme : 'dark';
+                  if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                  var locale = localStorage.getItem('locale');
+                  document.documentElement.lang = locale === 'en' ? 'en' : 'zh-CN';
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body className="overflow-x-hidden font-sans antialiased text-main bg-app">
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-brand focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 focus:ring-offset-surface-muted"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-brand focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-contrast focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 focus:ring-offset-surface-muted"
         >
-          跳到正文
+          <span className="lang-zh">跳到正文</span>
+          <span className="lang-en">Skip to content</span>
         </a>
-        <AuthProvider>
-          <UUIDCompat />
-          <div className="relative min-h-[100dvh] overflow-hidden bg-[var(--color-background)]">
-            {/* 全局宇宙氛围背景（使所有子页面的磨砂玻璃卡片背后折射出流星与星空） */}
-            <div
-              className="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-60"
-              aria-hidden="true"
-            >
+        <ThemeAndLocaleProvider>
+          <AuthProvider>
+            <UUIDCompat />
+            <div className="relative min-h-[100dvh] overflow-hidden bg-app">
+              {/* 全局宇宙氛围背景（使所有子页面的磨砂玻璃卡片背后折射出流星与星空） */}
               <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "radial-gradient(circle at 10% 15%, rgb(var(--brand-rgb) / 0.06), transparent 40%), radial-gradient(circle at 85% 80%, rgb(var(--brand-soft-rgb) / 0.08), transparent 40%)",
-                }}
-              />
-              <div className="meteor-layer absolute inset-0 opacity-[0.10]" />
-            </div>
+                className="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-60 dark:opacity-60 opacity-10"
+                aria-hidden="true"
+              >
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "radial-gradient(circle at 10% 15%, rgb(var(--brand-rgb) / 0.06), transparent 40%), radial-gradient(circle at 85% 80%, rgb(var(--brand-soft-rgb) / 0.08), transparent 40%)",
+                  }}
+                />
+                <div className="meteor-layer absolute inset-0 opacity-[0.15] dark:opacity-[0.15] opacity-[0.03]" />
+              </div>
 
-            {children}
-          </div>
-          {/* 星空紫主题 Toast 通知 */}
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              style: {
-                background: "rgb(var(--surface-rgb) / 0.92)",
-                backdropFilter: "blur(12px)",
-                WebkitBackdropFilter: "blur(12px)",
-                border: "1px solid rgb(var(--brand-rgb) / 0.30)",
-                color: "var(--color-text)",
-                borderRadius: "12px",
-                boxShadow: "0 8px 32px rgb(var(--brand-rgb) / 0.20)",
-                fontSize: "14px",
-              },
-              classNames: {
-                title: "text-brand-fg font-semibold",
-                description: "text-brand-fg/70 text-xs mt-0.5",
-                actionButton: "bg-brand text-surface-muted hover:bg-brand/85",
-                cancelButton: "bg-surface-muted/70 text-brand-fg",
-              },
-            }}
-          />
-        </AuthProvider>
+              {children}
+            </div>
+            {/* 星空紫主题 Toast 通知 */}
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                style: {
+                  background: "rgb(var(--surface-rgb) / 0.92)",
+                  backdropFilter: "blur(12px)",
+                  WebkitBackdropFilter: "blur(12px)",
+                  border: "1px solid rgb(var(--brand-rgb) / 0.30)",
+                  color: "var(--color-text)",
+                  borderRadius: "12px",
+                  boxShadow: "0 8px 32px rgb(var(--brand-rgb) / 0.20)",
+                  fontSize: "14px",
+                },
+                classNames: {
+                  title: "text-brand-fg font-semibold",
+                  description: "text-brand-fg/70 text-xs mt-0.5",
+                  actionButton: "bg-brand text-surface-muted hover:bg-brand/85",
+                  cancelButton: "bg-surface-muted/70 text-brand-fg",
+                },
+              }}
+            />
+          </AuthProvider>
+        </ThemeAndLocaleProvider>
       </body>
     </html>
   );

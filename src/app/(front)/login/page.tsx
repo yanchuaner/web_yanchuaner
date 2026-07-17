@@ -8,6 +8,7 @@ import { PageShell, GlassCard, Button } from "@/components/ui";
 import { AccountStatusPanel } from "@/components/auth/AccountStatusPanel";
 import { api } from "@/lib/apiClient";
 import type { WebAccountState } from "@/lib/web-account-state";
+import { useThemeAndLocale } from "@/components/ThemeAndLocaleProvider";
 
 type BlockedAccountState = Exclude<WebAccountState, "ACTIVE">;
 type LoginResult = {
@@ -40,6 +41,7 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { refresh } = useAuth();
+  const { t } = useThemeAndLocale();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -68,7 +70,7 @@ export default function LoginPage() {
           setAccount(blocked?.account);
           return;
         }
-        throw new Error(apiError || "登录失败");
+        throw new Error(apiError || t("auth.login.failed"));
       }
 
       const fallback = data.role === "admin" ? "/admin" : "/";
@@ -76,7 +78,7 @@ export default function LoginPage() {
       router.push(safeRedirect(searchParams.get("redirect"), fallback));
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "登录失败");
+      setError(err instanceof Error ? err.message : t("auth.login.failed"));
     } finally {
       setLoading(false);
     }
@@ -104,20 +106,20 @@ export default function LoginPage() {
   return (
     <PageShell size="narrow" className="flex min-h-[70vh] items-center">
       <GlassCard className="w-full p-7">
-        <h1 className="text-2xl font-bold text-brand-fg">登录</h1>
-        <p className="mt-2 text-sm text-brand-fg/60">使用个人账号进入燕中数字母港。</p>
+        <h1 className="text-2xl font-bold text-brand-fg">{t("auth.login.title")}</h1>
+        <p className="mt-2 text-sm text-brand-fg/60">{t("auth.login.description")}</p>
         <form onSubmit={submit} className="mt-6 space-y-4">
           <label className="block text-sm">
-            用户名
+            {t("auth.login.username")}
             <input className="input mt-1 w-full" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" required />
           </label>
           <label className="block text-sm">
-            密码
+            {t("auth.login.password")}
             <input className="input mt-1 w-full" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
           </label>
-          {error ? <p className="text-sm text-rose-600">{error}</p> : null}
+          {error ? <p className="text-sm text-danger">{error}</p> : null}
           <Button type="submit" variant="primary" className="w-full mt-2" disabled={loading}>
-            {loading ? "登录中…" : "登录"}
+            {loading ? t("auth.login.submitting") : t("auth.login.submit")}
           </Button>
         </form>
         <div className="mt-6 flex justify-between gap-3 text-sm">
@@ -125,13 +127,13 @@ export default function LoginPage() {
             href="/register"
             className="inline-flex min-h-[44px] items-center rounded-full px-3 text-brand transition-colors hover:bg-brand/5 hover:text-brand-fg"
           >
-            注册账号
+            {t("auth.login.register")}
           </Link>
           <Link
             href="/reset-password"
             className="inline-flex min-h-[44px] items-center rounded-full px-3 text-brand transition-colors hover:bg-brand/5 hover:text-brand-fg"
           >
-            忘记密码
+            {t("auth.login.forgotPassword")}
           </Link>
         </div>
       </GlassCard>

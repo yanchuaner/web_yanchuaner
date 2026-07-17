@@ -79,19 +79,11 @@ export async function POST(req: NextRequest) {
       });
       if (deletedUser.count !== 1) throw new Error("ACCOUNT_UNAVAILABLE");
 
-      const [wechatIdentities, verificationRequests, claimRequests, registrations] =
+      const [wechatIdentities, verificationRequests, registrations] =
         await Promise.all([
           tx.wechatIdentity.deleteMany({ where: { userId: current.id } }),
           tx.identityVerificationRequest.deleteMany({
             where: { userId: current.id },
-          }),
-          tx.userClaimRequest.deleteMany({
-            where: {
-              OR: [
-                { claimantUserId: current.id },
-                { oldUserId: current.id },
-              ],
-            },
           }),
           tx.eventRegistration.updateMany({
             where: { userId: current.id },
@@ -115,7 +107,6 @@ export async function POST(req: NextRequest) {
             anonymized: true,
             removedWechatIdentities: wechatIdentities.count,
             removedVerificationRequests: verificationRequests.count,
-            removedClaimRequests: claimRequests.count,
             anonymizedRegistrations: registrations.count,
             unlinkedMergedUsers: mergedUsers.count,
           }),

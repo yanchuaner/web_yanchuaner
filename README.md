@@ -2,6 +2,8 @@
 
 燕中校友数字母港是面向深圳市燕川中学校友、在校生与老师的个人公益数字平台。项目用于校友联络、信息发布、故事投稿、活动管理与校友资料维护，定位为非官方、无盈利的开源共建网站。
 
+当前前端提供亮色/暗色双主题与中英双语界面，首页以轻量 Canvas 星体、校友信号场和内容动效串联“重新连接、看见彼此、长期共建”的访问路径；移动端与减少动态效果偏好均有独立适配。
+
 线上站点：[https://yanchuaner.cn](https://yanchuaner.cn)
 
 仓库地址：[https://github.com/yanchuaner/web_yanchuaner](https://github.com/yanchuaner/web_yanchuaner)
@@ -12,10 +14,10 @@
 
 点击截图可查看大图。这里保留少量代表性页面，完整交互以本地运行或线上站点为准。
 
-| 校友空间 | 校友故事 | 管理后台 |
+| 星空通讯录 | 校友故事 | 管理后台 |
 | --- | --- | --- |
 | [![校友地图](docs/assets/screenshots/alumni-contact.webp)](docs/assets/screenshots/alumni-contact.webp) | [![燕中故事](docs/assets/screenshots/alumni-stories.webp)](docs/assets/screenshots/alumni-stories.webp) | [![后台控制台](docs/assets/screenshots/admin-dashboard.webp)](docs/assets/screenshots/admin-dashboard.webp) |
-| 校友地图与分布统计 | 站内故事展示与投稿 | 后台统计与运营入口 |
+| 校友搜索、城市分布与星空体验 | 故事展示与个人中心投稿 | 后台统计与运营入口 |
 
 <details>
 <summary>展开更多前台页面截图</summary>
@@ -51,10 +53,10 @@
 
 | 维度 | 状态 |
 | --- | --- |
-| 前台体验 | Next.js App Router，移动端优先，首页与学校介绍公开，其余校友内容需登录并通过校友认证 |
-| 校友功能 | 校友地图、电子校友纪念卡、校友故事、校友成就、燕中记忆、基础身份修正申请 |
-| 个人中心 | 查看认证状态，修改用户名和联系方式，提交/追踪故事投稿，修改密码 |
-| 后台管理 | 新闻、活动、校友名册、修改申请、故事审核、成就墙、记忆馆、教师频道、页面内容、用户与认领审核 |
+| 前台体验 | Next.js App Router、移动端优先、亮暗双主题、中英双语；首页、学校介绍、燕中生态、隐私说明与星空体验公开 |
+| 校友功能 | 星空通讯录、大学城市地图、电子校友纪念卡、燕中故事、校友成就、燕中记忆、基础身份修正 |
+| 个人中心 | 查看认证状态，维护个人资料，提交/追踪故事，查看/取消活动报名，修改密码 |
+| 后台管理 | 新闻、活动与报名、校友名册、资料修正、故事审核、成就墙、记忆馆、教师频道、页面内容、注册策略与用户审核 |
 | 安全边界 | httpOnly cookie、HMAC-SHA256 token、sessionVersion 会话失效、同源写入校验、接口限流、请求体大小限制 |
 | 数据库 | Prisma 7 + SQLite WAL，本地默认 `prisma/dev.db`，生产默认 `/var/www/alumni-site/data/prod.db` |
 | 上传文件 | 默认写入 `public/uploads/`，生产建议通过 `UPLOAD_DIR=/var/www/alumni-site/uploads` 独立持久化 |
@@ -68,6 +70,8 @@
 | ORM / 数据库 | Prisma 7.x + `@prisma/adapter-better-sqlite3` + SQLite |
 | 样式 | Tailwind CSS 3.4 + 语义设计令牌 |
 | 地图 | Leaflet + react-leaflet |
+| 主题 / 国际化 | CSS 语义变量 + Tailwind `darkMode: "class"` + React Context，中英双语 |
+| 视觉动效 | 原生 Canvas 2D，不依赖 Three.js；视口外、后台页和减少动态效果时自动停帧 |
 | 图片处理 | Sharp，上传后统一裁切/重编码 |
 | 图标 | lucide-react |
 | 邮件 | Resend，可选 |
@@ -132,11 +136,12 @@ npm run create-admin
 ```text
 src/
 ├── app/
-│   ├── layout.tsx                 # 根布局、metadata、AuthProvider、全局背景与 Toaster
+│   ├── layout.tsx                 # 根布局、metadata、主题/语言与登录态 Provider、全局背景
 │   ├── globals.css                # 设计令牌与 Tailwind 组件层
 │   ├── (front)/                   # 前台路由组，不出现在 URL 中
 │   │   ├── page.tsx               # 首页
-│   │   ├── about/                 # 学校介绍，公开访问
+│   │   ├── about/ ecosystem/      # 学校介绍与燕中生态，公开访问
+│   │   ├── privacy/               # 统一隐私与合规说明
 │   │   ├── news/ events/          # 校友认证后可访问的内容
 │   │   ├── students/ teachers/    # 校友认证后可访问的资源站与教师频道
 │   │   ├── alumni/                # 校友空间
@@ -146,6 +151,9 @@ src/
 ├── components/
 │   ├── ui/                        # PageShell、GlassCard、Button、Badge、EmptyState 等
 │   ├── admin/                     # AdminPageShell、CrudManager 等
+│   ├── ThemeAndLocaleProvider.tsx # 双主题、双语状态与翻译函数
+│   ├── CelestialSphere.tsx        # 首页/生态页轻量 Canvas 星体
+│   ├── AlumniSignalField.tsx      # 首页校友信号场
 │   ├── Header.tsx
 │   └── MobileNav.tsx              # 前台导航分组入口
 ├── hooks/
@@ -179,6 +187,11 @@ docs/
 | `npx tsc --noEmit` | TypeScript 类型检查 |
 | `npm run lint` | ESLint 检查 |
 | `npm run audit:prod` | 生产依赖高危审计 |
+| `npm run audit:ui-tokens` | UI 语义令牌与硬编码颜色审计 |
+| `npm run audit:i18n-shells` | 前后台固定界面中文硬编码审计 |
+| `npm run test:registration-policy` | 注册口令策略与公开响应契约测试 |
+| `npm run release:check` | 类型、lint、账户/注册/小程序测试、UI/i18n 与依赖审计 |
+| `npm run build:check:wsl` | 在 WSL 隔离目录执行迁移、种子、发布检查与生产构建 |
 | `npm run smoke` | 冒烟测试，需要本地服务；管理员登录部分需配置 `SMOKE_*` |
 | `npm run db:generate` | 生成 Prisma Client |
 | `npm run db:init` | 仅在非生产环境创建空 SQLite 文件并应用 migrations |
@@ -235,6 +248,8 @@ npm run build
 | [docs/ROUTES.md](./docs/ROUTES.md) | 页面与 API 路由清单 |
 | [docs/TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md) | 常见故障排查 |
 | [docs/ui-guide.md](./docs/ui-guide.md) | UI 组件、设计令牌、导航和后台 CRUD 约定 |
+| [docs/ui-system.md](./docs/ui-system.md) | 亮暗主题、双语、组件分层、Canvas 生命周期与 UI 审计规则 |
+| [docs/business-domain-redesign.md](./docs/business-domain-redesign.md) | 注册策略、旧认领退役、活动报名与管理员工作台的业务域重构 |
 | [docs/roadmap-decisions.md](./docs/roadmap-decisions.md) | TODO 收口、缓存、隐私、对象存储与依赖升级决策 |
 | [docs/starfield-contribution.md](./docs/starfield-contribution.md) | 星空彩蛋设计、点阵编队架构与专项共建指南 |
 

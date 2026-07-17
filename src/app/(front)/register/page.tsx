@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { PageShell, GlassCard, Button } from "@/components/ui";
+import { useThemeAndLocale } from "@/components/ThemeAndLocaleProvider";
 import {
   CLASS_NAME_PATTERN,
   GRADUATION_CLASS_PATTERN,
@@ -11,12 +12,31 @@ import {
 } from "@/lib/identity-fields";
 
 export default function RegisterPage() {
+  const { t } = useThemeAndLocale();
   const searchParams = useSearchParams();
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [emailSent, setEmailSent] = useState<boolean | null>(null);
   const [registeredEmail, setRegisteredEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [accessCodeEnabled, setAccessCodeEnabled] = useState(false);
+  const [accessCodeHint, setAccessCodeHint] = useState("");
+  const [fastTrack, setFastTrack] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/auth/registration-policy")
+      .then((response) => response.json())
+      .then((policy) => {
+        setAccessCodeEnabled(policy.accessCodeEnabled === true);
+        setAccessCodeHint(
+          typeof policy.accessCodeHint === "string" ? policy.accessCodeHint : "",
+        );
+      })
+      .catch(() => {
+        setAccessCodeEnabled(false);
+        setAccessCodeHint("");
+      });
+  }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -25,65 +45,84 @@ export default function RegisterPage() {
     setError("");
     setEmailSent(null);
     setRegisteredEmail("");
+    setFastTrack(false);
     const formEl = event.currentTarget;
     const form = new FormData(formEl);
     const payload = Object.fromEntries(form.entries());
     const email = typeof payload.email === "string" ? payload.email : "";
-    payload.claimOldProfile = form.get("claimOldProfile") === "on" ? "true" : "";
     try {
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...payload,
-          claimOldProfile: form.get("claimOldProfile") === "on",
-        }),
+        body: JSON.stringify(payload),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "注册失败");
+      if (!response.ok) throw new Error(data.error || t("auth.register.failed"));
       setEmailSent(data.emailSent === true);
       setRegisteredEmail(email);
+      setFastTrack(data.accessCodeAccepted === true);
       setMessage(
         data.emailSent
-          ? "账号已创建，验证邮件已发送，请查收。"
-          : "账号已创建，但验证邮件暂未发送成功，请前往验证页提交重发请求。",
+          ? t("auth.register.successEmail")
+          : t("auth.register.successNoEmail"),
       );
       formEl.reset();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "注册失败");
+      setError(err instanceof Error ? err.message : t("auth.register.failed"));
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <PageShell size="narrow">
-      <GlassCard className="p-7">
-        <h1 className="text-2xl font-bold text-brand-fg">注册校友账号</h1>
-        <p className="mt-2 text-sm text-brand-fg/60">创建账号后，请依次完成邮箱验证与校友身份审核。</p>
-        <form onSubmit={submit} className="mt-6 grid gap-4 md:grid-cols-2">
+    <PageShell size="narrow" className="flex min-h-[calc(100dvh-181px)] items-center py-6 md:py-8">
+      <GlassCard className="w-full p-5 sm:p-7">
+        <h1 className="text-2xl font-bold text-brand-fg">{t("auth.register.title")}</h1>
+        <p className="mt-2 text-sm leading-6 text-brand-fg/60">{t("auth.register.description")}</p>
+        <form onSubmit={submit} className="mt-5 grid gap-x-4 gap-y-3.5 md:grid-cols-2">
           <label className="text-sm">
-            用户名 <span className="text-xs text-brand-fg/50">仅用于登录账号</span>
+            {t("auth.register.username")} <span className="text-xs text-brand-fg/50">{t("auth.register.usernameHint")}</span>
             <input name="username" className="input mt-1 w-full" minLength={1} maxLength={32} pattern={USERNAME_INPUT_PATTERN} required />
           </label>
-          <label className="text-sm">邮箱<input name="email" type="email" className="input mt-1 w-full" required /></label>
-          <label className="text-sm">密码<input name="password" type="password" className="input mt-1 w-full" minLength={8} maxLength={64} required /></label>
-          <label className="text-sm">确认密码<input name="confirmPassword" type="password" className="input mt-1 w-full" minLength={8} maxLength={64} required /></label>
-          <label className="text-sm">真实姓名<input name="name" defaultValue={searchParams.get("name") || ""} className="input mt-1 w-full" maxLength={64} required /></label>
+          <label className="text-sm">{t("auth.register.email")}<input name="email" type="email" className="input mt-1 w-full" required /></label>
+          <label className="text-sm">{t("auth.register.password")}<input name="password" type="password" className="input mt-1 w-full" minLength={8} maxLength={64} required /></label>
+          <label className="text-sm">{t("auth.register.confirmPassword")}<input name="confirmPassword" type="password" className="input mt-1 w-full" minLength={8} maxLength={64} required /></label>
+          <label className="text-sm">{t("auth.register.realName")}<input name="name" defaultValue={searchParams.get("name") || ""} className="input mt-1 w-full" maxLength={64} required /></label>
           <label className="text-sm">
-            届别 <span className="text-xs text-brand-fg/50">首届为2025届</span>
-            <input name="graduationClass" defaultValue={searchParams.get("graduationClass") || ""} className="input mt-1 w-full" maxLength={4} pattern={GRADUATION_CLASS_PATTERN.source} placeholder="例如：2025" required />
+            {t("auth.register.cohort")} <span className="text-xs text-brand-fg/50">{t("auth.register.cohortHint")}</span>
+            <input name="graduationClass" defaultValue={searchParams.get("graduationClass") || ""} className="input mt-1 w-full" maxLength={4} pattern={GRADUATION_CLASS_PATTERN.source} placeholder={t("auth.register.cohortPlaceholder")} required />
           </label>
-          <label className="text-sm">班级<input name="className" className="input mt-1 w-full" maxLength={2} pattern={CLASS_NAME_PATTERN.source} placeholder="例如：2" required /></label>
-          <label className="text-sm">联系方式（可选）<input name="contact" defaultValue={searchParams.get("contact") || ""} className="input mt-1 w-full" maxLength={128} /></label>
-          <label className="flex min-h-[44px] items-center gap-3 rounded-xl px-1 text-sm md:col-span-2">
-            <input name="claimOldProfile" type="checkbox" className="h-5 w-5 shrink-0" />
-            我曾通过入轨联络舱提交过申请，需要人工认领旧资料
-          </label>
+          <label className="text-sm">{t("auth.register.className")}<input name="className" className="input mt-1 w-full" maxLength={2} pattern={CLASS_NAME_PATTERN.source} placeholder={t("auth.register.classPlaceholder")} required /></label>
+          <label className="text-sm">{t("auth.register.contact")}<input name="contact" defaultValue={searchParams.get("contact") || ""} className="input mt-1 w-full" maxLength={128} /></label>
+          {accessCodeEnabled ? (
+            <label className="text-sm md:col-span-2">
+              {t("auth.register.internalCode")} {" "}
+              <span className="text-xs text-brand-fg/50">
+                {t("auth.register.internalCodeOptional")}
+              </span>
+              <input
+                name="internalCode"
+                type="password"
+                className="input mt-1 w-full"
+                minLength={8}
+                maxLength={64}
+                autoComplete="off"
+              />
+              <span className="mt-1 block text-xs leading-5 text-brand-fg/50">
+                {accessCodeHint || t("auth.register.internalCodeHint")}
+              </span>
+            </label>
+          ) : null}
           {message ? (
-            <div className="space-y-1 text-sm text-emerald-700 md:col-span-2">
+            <div className="space-y-1 text-sm text-success md:col-span-2">
               <p>{message}</p>
-              <p className="text-brand-fg/60">邮箱验证完成后，申请将进入管理员审核。</p>
+              <p className="text-brand-fg/60">
+                {t(
+                  fastTrack
+                    ? "auth.register.accessAfterEmail"
+                    : "auth.register.reviewAfterEmail",
+                )}
+              </p>
             </div>
           ) : null}
           {emailSent === false ? (
@@ -91,21 +130,21 @@ export default function RegisterPage() {
               href={`/verify-email?email=${encodeURIComponent(registeredEmail)}`}
               className="text-sm text-brand underline md:col-span-2"
             >
-              未收到验证邮件？重新发送
+              {t("auth.register.resendVerification")}
             </Link>
           ) : null}
-          {error ? <p className="text-sm text-rose-600 md:col-span-2">{error}</p> : null}
+          {error ? <p className="text-sm text-danger md:col-span-2">{error}</p> : null}
           <Button type="submit" variant="primary" className="md:col-span-2 mt-2" disabled={loading}>
-            {loading ? "创建中…" : "创建账号"}
+            {loading ? t("auth.register.submitting") : t("auth.register.submit")}
           </Button>
         </form>
-        <p className="mt-6 flex flex-wrap items-center gap-1 text-sm text-brand-fg/60">
-          已有账号？
+        <p className="mt-4 flex flex-wrap items-center gap-1 text-sm text-brand-fg/60">
+          {t("auth.register.haveAccount")}
           <Link
             href="/login"
             className="inline-flex min-h-[44px] items-center rounded-full px-3 text-brand transition-colors hover:bg-brand/5 hover:text-brand-fg"
           >
-            去登录
+            {t("auth.register.signIn")}
           </Link>
         </p>
       </GlassCard>

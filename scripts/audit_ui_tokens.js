@@ -3,7 +3,7 @@ const path = require("node:path");
 
 const root = path.join(process.cwd(), "src");
 const extensions = new Set([".ts", ".tsx", ".css"]);
-const legacyBudget = 787;
+const tokenSource = path.normalize(path.join(root, "app", "globals.css"));
 
 function filesIn(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -13,18 +13,37 @@ function filesIn(directory) {
   });
 }
 
-let hexCount = 0;
-let legacyLightCount = 0;
+const rules = [
+  { name: "hex", pattern: /#[0-9a-f]{3,8}\b/gi },
+  { name: "numericColor", pattern: /\b(?:rgb|rgba|hsl|hsla)\(\s*[\d.]/gi },
+  {
+    name: "concreteTailwindPalette",
+    pattern:
+      /\b(?:bg|text|border|from|via|to|ring|shadow)-(?:white|black|gray|slate|zinc|neutral|stone|red|rose|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink)(?:-\d{2,3}|\/\d{1,3})?\b/g,
+  },
+];
+
+const violations = [];
+let scannedFiles = 0;
 for (const file of filesIn(root)) {
+  if (path.normalize(file) === tokenSource) continue;
+  scannedFiles += 1;
   const source = fs.readFileSync(file, "utf8");
-  hexCount += source.match(/#[0-9a-f]{6,8}/gi)?.length || 0;
-  legacyLightCount +=
-    source.match(/\b(?:bg-white|text-gray-\d+|border-gray-\d+)\b/g)?.length || 0;
+  for (const rule of rules) {
+    const count = source.match(rule.pattern)?.length || 0;
+    if (count > 0) {
+      violations.push({
+        file: path.relative(process.cwd(), file).replaceAll(path.sep, "/"),
+        rule: rule.name,
+        count,
+      });
+    }
+  }
 }
 
-const total = hexCount + legacyLightCount;
-console.log(JSON.stringify({ hexCount, legacyLightCount, total, legacyBudget }));
-if (total > legacyBudget) {
-  console.error("UI token debt increased. Use semantic design tokens for new code.");
+const total = violations.reduce((sum, violation) => sum + violation.count, 0);
+console.log(JSON.stringify({ scannedFiles, total, violations }, null, 2));
+if (total > 0) {
+  console.error("Hardcoded UI colors found. Use semantic design tokens from globals.css.");
   process.exitCode = 1;
 }

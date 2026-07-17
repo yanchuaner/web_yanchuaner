@@ -15,6 +15,8 @@ type TokenPayload = {
 const PUBLIC_PAGES = new Set([
   "/",
   "/about",
+  "/ecosystem",
+  "/privacy",
   "/login",
   "/register",
   "/verify-email",
@@ -26,6 +28,7 @@ const PUBLIC_APIS = new Set([
   "/api/health",
   "/api/auth/login",
   "/api/auth/register",
+  "/api/auth/registration-policy",
   "/api/auth/verify-email",
   "/api/auth/resend-verification",
   "/api/auth/forgot-password",

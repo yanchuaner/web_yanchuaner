@@ -78,8 +78,8 @@ npm run build
 | `UPLOAD_DIR` | 文件上传目录；为空时默认 `public/uploads/`，生产推荐 `/var/www/alumni-site/uploads` | 否 |
 | `BACKUP_DIR` | 备份目录 | 否 |
 
-**V2.0 新增变量说明**：
-- **`UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`**：为 V2.0 三级限流系统的最顶层。配置后在认证接口（登录/注册/邮箱）上启用滑动窗口限流。前往 [Upstash Console](https://console.upstash.com) 免费创建实例后获取。不配置则自动降级到 ioredis → 内存限流。
+**限流变量说明**：
+- **`UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`**：三级限流系统的首选层。配置后在认证接口（登录/注册/邮箱）上启用滑动窗口限流。前往 [Upstash Console](https://console.upstash.com) 创建实例后获取。不配置则自动降级到 ioredis → 内存限流。
 - **`REDIS_URL`**（legacy）：原有的 Redis 连接，在 Upstash 不可用时作为中间层回退。如果两者都不配置，系统使用内存 Map 限流（单进程有效，重启清零）。
 
 **.env 文件管理原则**：
@@ -103,11 +103,11 @@ npm run create-admin
 
 ### 用户注册
 
-普通用户通过 `/register` 注册，需要填写用户名、密码、邮箱、姓名、届别、班级。注册后依次完成邮箱验证和管理员身份审核，两个步骤都完成后才能登录校友空间。
+普通用户通过 `/register` 注册，需要填写用户名、密码、邮箱、姓名、届别、班级。所有账号必须完成邮箱验证；身份确认可通过有效内部口令自动完成，或进入管理员人工审核。
 
-### 校友自动匹配
+### 网页注册分流
 
-网页注册账号默认进入 `PENDING`，由管理员在 `/admin/users` 审核。登录接口在密码正确后区分邮箱未验证、身份审核中、审核未通过和账号停用；这些状态不会签发访问 Cookie。管理员账号及审核通过的校友账号可正常登录。
+所有网页注册账号都必须先验证邮箱。管理员可在 `/admin/registration-policy` 启用并轮换内部口令：口令有效的申请在邮箱验证后直接获得校友权限；未填写或口令无效的申请进入 `/admin/users` 人工审核。登录接口在密码正确后区分邮箱未验证、身份审核中、审核未通过和账号停用；这些状态不会签发访问 Cookie。
 
 ### 管理员后台管理
 
@@ -126,7 +126,7 @@ npm run create-admin
 
 ### 5.2 SQLite WAL 优化
 
-V2.0 在数据库连接初始化时自动启用以下 PRAGMA 优化，有效防止并发场景下的 `SQLITE_BUSY` 错误：
+数据库连接初始化时自动启用以下 PRAGMA 优化，降低并发场景下的 `SQLITE_BUSY` 风险：
 
 ```ts
 // src/lib/db.ts — 每次 PrismaClient 初始化时自动执行
@@ -226,11 +226,11 @@ cp /var/www/alumni-site/data/prod.db "/var/www/alumni-site/backups/prod.db.$(dat
 
 ---
 
-## 6. V2.0 关键功能
+## 6. 关键运行机制
 
 ### 6.1 三级限流系统
 
-V2.0 的限流采用三级链式降级架构，从高到低依次尝试：
+限流采用三级链式降级架构，从高到低依次尝试：
 
 ```
 请求 → Upstash Redis（生产推荐）
@@ -255,7 +255,7 @@ V2.0 的限流采用三级链式降级架构，从高到低依次尝试：
 
 ### 6.2 Redis 缓存层
 
-V2.0 引入 `getCachedOrFetch()` 通用缓存模式（`src/lib/cache.ts`）：
+项目使用 `getCachedOrFetch()` 通用缓存模式（`src/lib/cache.ts`）：
 
 ```ts
 // 先查 Redis 缓存，缺失时执行 fetchFn 并写入缓存
@@ -306,7 +306,7 @@ sudo journalctl -u alumni-site --since "1 hour ago" --no-pager \
 
 ### 6.5 事务批处理
 
-V2.0 在两个关键写入路径上使用 `prisma.$transaction()` 确保原子性和性能：
+关键写入路径使用 `prisma.$transaction()` 确保原子性：
 
 **CSV 导入**（`/api/admin/alumni/import`）：
 ```ts
@@ -366,7 +366,7 @@ const updated = await prisma.$transaction(async (tx) => {
 
 ### 7.1 幂等种子（`npm run seed`）
 
-V2.0 的 `prisma/seed.ts` 使用 `findFirst + createOrUpdate` 模式：
+`prisma/seed.ts` 使用 `findFirst + createOrUpdate` 模式：
 
 - **白名单**：按 `姓名 + 届别 + 班级 + 邮箱` 查重，存在则更新字段，不存在则创建
 - **故事**：按 `标题 + 作者` 查重，存在则更新内容

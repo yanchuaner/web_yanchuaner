@@ -9,6 +9,7 @@ import {
   type AchievementCategory,
 } from "@/lib/achievements";
 import { formatGraduationClass } from "@/lib/identity-fields";
+import { useAdminLocalize } from "@/components/admin/AdminLocalizedText";
 
 type Achievement = {
   id: string;
@@ -52,6 +53,7 @@ const FIELDS: FieldConfig[] = [
 ];
 
 export default function AdminAchievementsPage() {
+  const localize = useAdminLocalize();
   const res = useResource<Achievement>({
     endpoint: "/api/admin/achievements",
     listKey: "achievements",
@@ -59,8 +61,8 @@ export default function AdminAchievementsPage() {
 
   return (
     <CrudManager<Achievement>
-      title="校友成就墙管理"
-      subtitle="新增、编辑并发布校友成就记录"
+      title={localize("校友成就墙管理")}
+      subtitle={localize("新增、编辑并发布校友成就记录")}
       fields={FIELDS}
       items={res.items}
       loading={res.loading}
@@ -70,10 +72,10 @@ export default function AdminAchievementsPage() {
       onCreate={res.create}
       onUpdate={res.update}
       onDelete={res.remove}
-      deleteConfirm="确定删除这条成就记录？"
+      deleteConfirm={localize("确定删除这条成就记录？")}
       validate={(form) =>
         !form.alumniName.trim() || !form.title.trim()
-          ? "校友姓名和成就标题不能为空"
+          ? localize("校友姓名和成就标题不能为空")
           : null
       }
       toForm={(a) => ({
@@ -96,17 +98,17 @@ export default function AdminAchievementsPage() {
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="font-heading font-semibold text-brand-fg">{a.title}</h3>
             <Badge tone={a.status === "PUBLISHED" ? "success" : "neutral"}>
-              {a.status === "PUBLISHED" ? "已发布" : "草稿"}
+              {localize(a.status === "PUBLISHED" ? "已发布" : "草稿")}
             </Badge>
           </div>
-          <p className="mt-1 text-sm text-gray-600">
+          <p className="mt-1 text-sm text-main/60">
             {a.alumniName}
             {a.graduationClass ? ` · ${formatGraduationClass(a.graduationClass)}` : ""}
             {" · "}
-            {ACHIEVEMENT_CATEGORY_LABELS[a.category]}
+            {localize(ACHIEVEMENT_CATEGORY_LABELS[a.category])}
           </p>
-          <p className="mt-2 line-clamp-2 text-sm leading-6 text-gray-500">
-            {a.description || "暂无简介"}
+          <p className="mt-2 line-clamp-2 text-sm leading-6 text-main/60">
+            {a.description || localize("暂无简介")}
           </p>
         </>
       )}

@@ -1,6 +1,6 @@
 # 故障排除
 
-本文档记录项目开发与运维中实际遇到的问题及修复方案。按分类编排，方便快速定位。已针对 V2.0 全面升级。
+本文档记录项目开发与运维中实际遇到的问题及修复方案，按分类编排，方便快速定位。
 
 ---
 
@@ -138,11 +138,11 @@ const Component = dynamic(() => import('./Component'), { ssr: false });
 3. 重新启动开发服务器
 4. 浏览器强制刷新（Ctrl+Shift+R）
 
-### 10. SQLITE_BUSY 错误（V2.0）
+### 10. SQLITE_BUSY 错误
 
 **现象**：写入操作报错 `SQLITE_BUSY: database is locked`
 
-**V2.0 已有的防护**：
+**当前防护**：
 项目在 `src/lib/db.ts` 中已配置三重 PRAGMA 防护：
 - `journal_mode = WAL`：读写互不阻塞，写入在 WAL 文件中进行不阻塞并发读取
 - `synchronous = NORMAL`：在关键时刻 fsync，而非每次写入都同步
@@ -159,11 +159,11 @@ const Component = dynamic(() => import('./Component'), { ssr: false });
 - 大数据量导入建议分批执行，每批不超过 500 行
 - 不要手动在 `sqlite3` CLI 中开启长事务
 
-### 11. Payload Too Large（413 错误）（V2.0 新增）
+### 11. Payload Too Large（413 错误）
 
 **现象**：API 调用返回 `413 Payload Too Large` 或 `请求体过大`
 
-**原因**：V2.0 所有 API 端点通过 `readJsonBody<T>(req, maxBytes)` 精确限制请求体大小，防止内存耗尽攻击。超过上限时立即抛出 `PAYLOAD_TOO_LARGE` 错误。
+**原因**：API 端点通过 `readJsonBody<T>(req, maxBytes)` 限制请求体大小，防止内存耗尽攻击。超过上限时立即抛出 `PAYLOAD_TOO_LARGE` 错误。
 
 **各端点限制**：
 
@@ -178,11 +178,11 @@ const Component = dynamic(() => import('./Component'), { ssr: false });
 - 如果是管理端点超限，检查上传内容是否包含不必要的 base64 数据（如图片内联在 JSON 中），改用文件上传接口
 - 如果需要调整限制，修改对应 API 路由中 `readJsonBody` 的 `maxBytes` 参数
 
-### 12. Rate Limit 限流（429 错误）（V2.0 新增）
+### 12. Rate Limit 限流（429 错误）
 
 **现象**：API 返回 `429 Too Many Requests`，响应头包含 `Retry-After`
 
-**原因**：触发了 V2.0 三级限流系统的任一层的拒绝。
+**原因**：触发了三级限流系统任一层的拒绝。
 
 **三级限流架构**：
 ```
@@ -256,7 +256,7 @@ const Component = dynamic(() => import('./Component'), { ssr: false });
 
 ## 数据问题
 
-### 16. CSV 导入失败（V2.0 新增）
+### 16. CSV 导入失败
 
 **现象**：后台导入 CSV 时报错或无任何数据导入
 
@@ -276,7 +276,7 @@ const Component = dynamic(() => import('./Component'), { ssr: false });
 - 错误行上限 20 行（超过后跳过剩余行，防止长时间阻塞）
 - 行级校验：姓名字段必填、邮箱格式校验、字段长度限制
 
-### 17. 故事审核不生效（V2.0 新增）
+### 17. 故事审核不生效
 
 **现象**：后台审核故事后状态未更新或前端看不到变化
 
@@ -287,7 +287,7 @@ const Component = dynamic(() => import('./Component'), { ssr: false });
 4. **查看服务端日志**：搜索 `Admin story review PATCH error`
 5. **检查请求体大小**：审核接口限制 16KB（`readJsonBody(req, 16384)`），过大的请求体会被拦截
 
-### 18. 校友地图不显示信息（V2.0 新增）
+### 18. 校友地图不显示信息
 
 **现象**：地图组件加载正常，但看不到校友分布标记
 
@@ -330,7 +330,7 @@ const Component = dynamic(() => import('./Component'), { ssr: false });
 
 **原因**：旧版 API 要求 PUT 请求必须包含 `title`，排序请求仅传 `sortOrder` 被拒绝
 
-**修复**：升级到最新 V2.0 代码，PUT `/api/admin/memories/[id]` 已支持部分更新。
+**修复**：当前 `PUT /api/admin/memories/[id]` 已支持部分更新，请确认部署代码与数据库迁移均为最新。
 
 ### 21. 数据表不存在 / Prisma migration 失败
 
@@ -507,7 +507,7 @@ ls public/leaflet/
 
 ---
 
-## V2.0 新增问题速查表
+## 问题速查表
 
 | 问题 | 症状 | 快速定位 | 详细条目 |
 |------|------|---------|---------|

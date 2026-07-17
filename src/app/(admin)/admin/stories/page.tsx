@@ -2,6 +2,7 @@
 
 import { useResource } from '@/hooks/useResource';
 import { CrudManager, type FieldConfig } from '@/components/admin/CrudManager';
+import { useAdminLocalize } from '@/components/admin/AdminLocalizedText';
 
 type Story = {
   id: string; title: string; author: string; tags: string[]; body: string; date: string;
@@ -20,12 +21,13 @@ function parseTags(raw: string): string[] {
 }
 
 export default function AdminStoriesPage() {
+  const localize = useAdminLocalize();
   const res = useResource<Story>({ endpoint: '/api/admin/stories', listKey: 'stories' });
 
   return (
     <CrudManager<Story>
-      title="燕中故事管理"
-      subtitle="管理校友故事投稿——增删改查"
+      title={localize("燕中故事管理")}
+      subtitle={localize("管理校友故事投稿——增删改查")}
       fields={FIELDS}
       items={res.items}
       loading={res.loading}
@@ -35,9 +37,9 @@ export default function AdminStoriesPage() {
       onCreate={res.create}
       onUpdate={res.update}
       onDelete={res.remove}
-      deleteConfirm="确定删除这个故事？"
+      deleteConfirm={localize("确定删除这个故事？")}
       validate={(form) =>
-        !form.title.trim() || !form.body.trim() ? '标题和正文不能为空' : null
+        !form.title.trim() || !form.body.trim() ? localize('标题和正文不能为空') : null
       }
       toForm={(s) => ({
         title: s.title,
@@ -56,15 +58,15 @@ export default function AdminStoriesPage() {
       renderItem={(s) => (
         <>
           <h3 className="font-heading text-sm font-semibold text-brand-fg">{s.title}</h3>
-          <p className="mt-1 text-xs text-gray-500">{s.author} · {s.date}</p>
+          <p className="mt-1 text-xs text-main/60">{s.author} · {s.date}</p>
           <div className="mt-1 flex flex-wrap gap-1">
             {s.tags.map((t) => (
-              <span key={t} className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] text-emerald-700">
+              <span key={t} className="rounded-full bg-success/10 px-2 py-0.5 text-[10px] text-success">
                 #{t}
               </span>
             ))}
           </div>
-          <p className="mt-1 line-clamp-1 text-xs text-gray-400">{s.body}</p>
+          <p className="mt-1 line-clamp-1 text-xs text-main/60">{s.body}</p>
         </>
       )}
     />

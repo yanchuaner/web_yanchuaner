@@ -4,22 +4,21 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { CalendarDays, Clock, MapPin, Users } from "lucide-react";
 import { PageShell, GlassCard, PageHeader, ButtonLink, EmptyState } from "@/components/ui";
+import { LocalizedText } from "@/components/LocalizedText";
+import { LocalizedDate } from "@/components/LocalizedDate";
+import { requirePageAlumni } from "@/lib/admin-auth";
+import { listPublishedEvents } from "@/lib/published-content";
 
 export const metadata: Metadata = {
   title: "校友活动",
   description: "燕川中学校友活动 — 返校聚会、线上讲座、校友交流活动的信息发布与在线报名",
 };
-import prisma from "@/lib/db";
-
 export default async function EventsPage() {
-  const events = await prisma.event.findMany({
-    where: { status: "PUBLISHED" },
-    orderBy: { eventDate: "asc" },
-    include: {
-      _count: {
-        select: { registrations: true },
-      },
-    },
+  const user = await requirePageAlumni();
+  const { items: events } = await listPublishedEvents({
+    page: 1,
+    pageSize: 100,
+    userId: user.id,
   });
 
   return (
@@ -28,19 +27,19 @@ export default async function EventsPage() {
         <PageHeader
           eyebrow="EVENTS"
           eyebrowIcon={CalendarDays}
-          title="校友活动"
-          description="返校聚会、线上讲座、校友交流活动的信息与报名"
-          action={<ButtonLink href="/" variant="secondary">返回首页</ButtonLink>}
+          title={<LocalizedText translationKey="contentPages.events.title" />}
+          description={<LocalizedText translationKey="contentPages.events.description" />}
+          action={<ButtonLink href="/" variant="secondary"><LocalizedText translationKey="common.backHome" /></ButtonLink>}
         />
 
         <div className="mt-8">
           {events.length === 0 ? (
-            <EmptyState title="暂无活动" />
+            <EmptyState title={<LocalizedText translationKey="contentPages.events.empty" />} />
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
               {events.map((event) => {
                 const isPast = new Date(event.eventDate) < new Date();
-                const registrationCount = event._count.registrations;
+                const registrationCount = event.registrationCount;
 
                 return (
                   <GlassCard
@@ -48,7 +47,7 @@ export default async function EventsPage() {
                     as="article"
                     className={`flex flex-col overflow-hidden p-5 ${
                       isPast
-                        ? "opacity-60 bg-gray-50/50"
+                        ? "opacity-60 bg-surface/60"
                         : ""
                     }`}
                   >
@@ -65,36 +64,41 @@ export default async function EventsPage() {
                     )}
                     <div className="mb-3 flex items-center justify-between gap-2">
                       <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs border ${
-                        isPast ? "border-gray-300 text-gray-500 bg-white/40" : "border-brand/20 bg-brand/10 text-brand"
+                        isPast ? "border-line text-main/60 bg-surface/40" : "border-brand/20 bg-brand/10 text-brand"
                       }`}>
-                        {isPast ? "已结束" : "报名中"}
+                        <LocalizedText translationKey={isPast ? "contentPages.events.ended" : "contentPages.events.open"} />
                       </span>
+                      {event.registrationStatus === "APPROVED" || event.registrationStatus === "PENDING" ? (
+                        <span className="inline-flex items-center rounded-full border border-success/20 bg-success/10 px-2.5 py-1 text-xs text-success">
+                          <LocalizedText translationKey="contentPages.events.myRegistered" />
+                        </span>
+                      ) : null}
                     </div>
                     <h2 className="font-heading text-lg font-semibold text-brand-fg">{event.title}</h2>
-                    {event.summary && <p className="mt-2 text-sm leading-6 text-gray-700 line-clamp-2">{event.summary}</p>}
+                    {event.summary && <p className="mt-2 text-sm leading-6 text-main/60 line-clamp-2">{event.summary}</p>}
                     <div className="mt-4 flex-1 space-y-2 text-sm">
-                      <div className="flex items-center gap-2 text-gray-600">
+                      <div className="flex items-center gap-2 text-main/60">
                         <Clock size={14} className="text-brand" />
-                        {new Date(event.eventDate).toLocaleString("zh-CN", { month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-                        {event.endDate && ` — ${new Date(event.endDate).toLocaleString("zh-CN", { hour: "2-digit", minute: "2-digit" })}`}
+                        <LocalizedDate value={event.eventDate} style="event" />
+                        {event.endDate && <><span aria-hidden="true"> – </span><LocalizedDate value={event.endDate} style="time" /></>}
                       </div>
                       {event.location && (
-                        <div className="flex items-center gap-2 text-gray-600">
+                        <div className="flex items-center gap-2 text-main/60">
                           <MapPin size={14} className="text-brand" />
                           {event.location}
                         </div>
                       )}
                       {!isPast && event.maxAttendees && (
-                        <div className="flex items-center gap-2 text-gray-600">
+                        <div className="flex items-center gap-2 text-main/60">
                           <Users size={14} className="text-brand" />
-                          已报名 {registrationCount}{event.maxAttendees ? `/${event.maxAttendees}人` : ""}
+                          <LocalizedText translationKey="contentPages.events.registered" /> {registrationCount}{event.maxAttendees ? `/${event.maxAttendees}` : ""} <LocalizedText translationKey="contentPages.events.people" />
                         </div>
                       )}
                     </div>
                     {!isPast && (
                       <div className="mt-5 flex justify-end">
                         <ButtonLink href={`/events/${event.id}`} variant="primary">
-                          查看详情 & 报名
+                          <LocalizedText translationKey="contentPages.events.detailAction" />
                         </ButtonLink>
                       </div>
                     )}

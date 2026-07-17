@@ -35,6 +35,8 @@ export async function GET(req: NextRequest) {
           className: true,
           role: true,
           status: true,
+          verificationStatus: true,
+          verificationMethod: true,
           accountStatus: true,
           claimedAt: true,
           createdAt: true,

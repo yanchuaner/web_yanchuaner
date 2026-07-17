@@ -64,8 +64,8 @@ export function ResponsiveTabs({
         </div>
       </div>
       {/* Edge shadow indications */}
-      <div className="pointer-events-none absolute bottom-0 left-0 top-0 w-6 bg-gradient-to-r from-[#03010b] to-transparent opacity-50" />
-      <div className="pointer-events-none absolute bottom-0 right-0 top-0 w-6 bg-gradient-to-l from-[#03010b] to-transparent opacity-50" />
+      <div className="pointer-events-none absolute bottom-0 left-0 top-0 w-6 bg-gradient-to-r from-surface-muted to-transparent opacity-50" />
+      <div className="pointer-events-none absolute bottom-0 right-0 top-0 w-6 bg-gradient-to-l from-surface-muted to-transparent opacity-50" />
     </div>
   );
 }

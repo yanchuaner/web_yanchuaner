@@ -6,9 +6,9 @@ type Tone = "info" | "success" | "warning" | "danger";
 
 const TONE_CLASS: Record<Tone, string> = {
   info: "border-brand/20 bg-brand/10 text-brand-fg",
-  success: "border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
-  warning: "border-amber-500/25 bg-amber-500/10 text-amber-300",
-  danger: "border-rose-500/25 bg-rose-500/10 text-rose-300",
+  success: "border-success/20 bg-success/10 text-success",
+  warning: "border-warning/25 bg-warning/10 text-warning",
+  danger: "border-danger/25 bg-danger/10 text-danger",
 };
 
 const ICONS: Record<Tone, LucideIcon> = {

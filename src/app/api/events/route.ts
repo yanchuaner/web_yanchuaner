@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireVerifiedAlumni } from "@/lib/admin-auth";
+import { getAuthenticatedUser } from "@/lib/admin-auth";
 import { listPublishedEvents } from "@/lib/published-content";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  const auth = await requireVerifiedAlumni(req);
-  if (auth) return auth;
+  const user = await getAuthenticatedUser(req);
+  if (!user || (user.role !== "ALUMNI" && user.role !== "ADMIN")) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const { searchParams } = new URL(req.url);
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
@@ -14,8 +16,9 @@ export async function GET(req: NextRequest) {
     const { items, total } = await listPublishedEvents({
       page,
       pageSize: limit,
+      userId: user.id,
     });
-    const enriched = items.map(({ registrationStatus, remainingSlots, ...event }) => ({
+    const enriched = items.map((event) => ({
       ...event,
       isPast: event.eventDate < new Date(),
     }));

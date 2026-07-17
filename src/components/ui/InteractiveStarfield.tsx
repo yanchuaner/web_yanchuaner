@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import { useThemeAndLocale } from "../ThemeAndLocaleProvider";
+import { themeRgb } from "@/lib/theme-color";
 
 interface Particle {
   x: number;
@@ -15,6 +17,7 @@ interface Particle {
 
 export function InteractiveStarfield() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const { theme } = useThemeAndLocale();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -76,8 +79,8 @@ export function InteractiveStarfield() {
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // 暗色模式粒子颜色设定
-      const colorPrefix = "245, 243, 255"; // 对应 --color-text 淡淡的紫白
+      // 主题自适应粒子颜色设定
+      const colorVariable = theme === "dark" ? "--brand-fg-rgb" : "--brand-rgb";
 
       particles.forEach((p) => {
         // 1. 基础物理漂移
@@ -104,7 +107,7 @@ export function InteractiveStarfield() {
         // 4. 绘制星点
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${colorPrefix}, ${p.opacity})`;
+        ctx.fillStyle = themeRgb(colorVariable, p.opacity);
         ctx.fill();
       });
 
@@ -120,7 +123,7 @@ export function InteractiveStarfield() {
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(${colorPrefix}, ${alpha})`;
+            ctx.strokeStyle = themeRgb(colorVariable, alpha);
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
@@ -162,14 +165,14 @@ export function InteractiveStarfield() {
       document.removeEventListener("mouseleave", handleMouseLeave);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, []);
+  }, [theme]);
 
   return (
     <canvas
       ref={canvasRef}
       aria-hidden="true"
       className="fixed inset-0 pointer-events-none z-0 block"
-      style={{ mixBlendMode: "screen" }}
+      style={{ mixBlendMode: theme === "dark" ? "screen" : "multiply" }}
     />
   );
 }

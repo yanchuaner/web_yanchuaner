@@ -7,6 +7,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { api } from "@/lib/apiClient";
 import { PageShell, GlassCard, PageHeader, Button, ButtonLink, FormStatus } from "@/components/ui";
 import { formatClassName, formatGraduationClass, USERNAME_INPUT_PATTERN } from "@/lib/identity-fields";
+import { useThemeAndLocale } from "@/components/ThemeAndLocaleProvider";
 
 const MAJOR_CITIES = [
   "北京", "上海", "广州", "深圳", "天津", "重庆", "杭州", "南京", "武汉", "成都", 
@@ -23,6 +24,7 @@ const MAJOR_CITIES = [
 ];
 
 function CityCombobox({ defaultValue, name }: { defaultValue: string; name: string }) {
+  const { t } = useThemeAndLocale();
   const [query, setQuery] = useState(defaultValue);
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -66,7 +68,7 @@ function CityCombobox({ defaultValue, name }: { defaultValue: string; name: stri
             setIsOpen(true);
           }}
           onFocus={() => setIsOpen(true)}
-          placeholder="搜索或输入城市，例如：北京"
+          placeholder={t("me.edit.cityPlaceholder")}
         />
         <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-brand-fg/50">
           <Search size={14} />
@@ -74,10 +76,10 @@ function CityCombobox({ defaultValue, name }: { defaultValue: string; name: stri
       </div>
 
       {isOpen && (
-        <ul className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-card border border-line bg-surface py-1 text-xs shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none select-none scrollbar-thin scrollbar-thumb-brand/20">
+        <ul className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-card border border-line bg-surface py-1 text-xs shadow-lg ring-1 ring-line ring-opacity-5 focus:outline-none select-none scrollbar-thin scrollbar-thumb-brand/20">
           {filteredCities.length === 0 ? (
             <li className="relative cursor-default select-none px-3 py-3 text-brand-fg/40">
-              未找到匹配的城市，可直接保存输入的值
+              {t("me.edit.cityEmpty")}
             </li>
           ) : (
             filteredCities.map((city) => (
@@ -101,6 +103,7 @@ function CityCombobox({ defaultValue, name }: { defaultValue: string; name: stri
 
 export default function EditProfilePage() {
   const { refresh } = useAuth();
+  const { locale, t } = useThemeAndLocale();
   const [profile, setProfile] = useState<any>(null);
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
@@ -127,58 +130,68 @@ export default function EditProfilePage() {
     if (data?.user) {
       setProfile(data.user);
       setMessage("");
-      toast.success("资料已更新", { description: "您的个人资料已成功保存。" });
+      toast.success(t("me.edit.success"), { description: t("me.edit.successDescription") });
       await refresh();
     } else {
-      setMessage(apiError || "更新失败");
-      toast.error(apiError || "更新资料失败，请重试");
+      setMessage(apiError || t("me.edit.failed"));
+      toast.error(apiError || t("me.edit.failed"));
     }
   }
 
   if (!profile) {
     return (
       <PageShell size="narrow">
-        <div className="flex items-center justify-center py-20 text-brand-fg/60">加载中…</div>
+        <div className="flex items-center justify-center py-20 text-brand-fg/60">{t("common.loading")}</div>
       </PageShell>
     );
   }
 
   const identityItems = [
-    { label: "姓名", value: profile.name || "未填写" },
-    { label: "邮箱", value: profile.email || "未填写" },
-    { label: "届别", value: formatGraduationClass(profile.graduationClass) || "未填写" },
-    { label: "班级", value: formatClassName(profile.className) || "未填写" },
+    { label: t("me.edit.name"), value: profile.name || t("me.edit.empty") },
+    { label: t("me.edit.email"), value: profile.email || t("me.edit.empty") },
+    {
+      label: t("me.edit.cohort"),
+      value: profile.graduationClass
+        ? locale === "en" ? `Class of ${profile.graduationClass}` : formatGraduationClass(profile.graduationClass)
+        : t("me.edit.empty"),
+    },
+    {
+      label: t("me.edit.className"),
+      value: profile.className
+        ? locale === "en" ? `Class ${profile.className}` : formatClassName(profile.className)
+        : t("me.edit.empty"),
+    },
   ];
 
   return (
     <PageShell size="narrow" className="pb-28 md:pb-32">
       <ButtonLink href="/me" variant="secondary" size="sm" className="mb-6">
         <ArrowLeft size={14} />
-        返回个人中心
+        {t("me.edit.back")}
       </ButtonLink>
 
       <PageHeader
-        eyebrow="EDIT PROFILE"
+        eyebrow={t("me.edit.eyebrow")}
         eyebrowIcon={User}
-        title="编辑资料"
-        description="完善联系方式、教育和职业信息；姓名、届别、班级请走修正申请。"
+        title={t("me.edit.title")}
+        description={t("me.edit.description")}
       />
 
       <GlassCard className="p-7 mt-6 space-y-6">
         <div className="space-y-4 rounded-card border border-line bg-brand/5 p-4">
           <FormStatus
             tone="info"
-            title="基础身份信息已分流处理"
-            description="姓名、届别、班级请前往修正申请页；邮箱属于账号安全字段，如需变更请联系管理员。"
+            title={t("me.edit.identityTitle")}
+            description={t("me.edit.identityDescription")}
           />
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-medium text-brand-fg">当前身份信息</p>
-              <p className="mt-1 text-xs leading-6 text-brand-fg/60">这里只展示，不直接编辑。</p>
+              <p className="text-sm font-medium text-brand-fg">{t("me.edit.currentIdentity")}</p>
+              <p className="mt-1 text-xs leading-6 text-brand-fg/60">{t("me.edit.readOnly")}</p>
             </div>
             <ButtonLink href="/alumni/correction" variant="secondary" size="sm" className="w-full sm:w-auto">
               <FileEdit size={14} />
-              去申请修正
+              {t("me.edit.correctionAction")}
             </ButtonLink>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -190,64 +203,64 @@ export default function EditProfilePage() {
             ))}
           </div>
           <p className="text-xs leading-6 text-brand-fg/55">
-            邮箱属于账号安全字段，如需变更请联系管理员；姓名、届别、班级请前往修正申请页。
+            {t("me.edit.identityNote")}
           </p>
         </div>
 
         <form onSubmit={submit} className="space-y-5">
           {/* 账号设置 */}
           <div className="space-y-3 rounded-card bg-brand/5 border border-line p-4">
-            <h3 className="text-xs font-semibold text-brand border-b border-line pb-1.5 mb-2">账号设置</h3>
+            <h3 className="text-xs font-semibold text-brand border-b border-line pb-1.5 mb-2">{t("me.edit.accountSection")}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <label className="block text-xs font-medium text-brand-fg">
-                用户名
-                <input name="username" className="input mt-1.5 w-full text-xs" defaultValue={profile.username || ""} placeholder="用户名" minLength={1} maxLength={32} pattern={USERNAME_INPUT_PATTERN} required disabled={saving} />
+                {t("me.edit.username")}
+                <input name="username" className="input mt-1.5 w-full text-xs" defaultValue={profile.username || ""} placeholder={t("me.edit.usernamePlaceholder")} minLength={1} maxLength={32} pattern={USERNAME_INPUT_PATTERN} required disabled={saving} />
               </label>
               <label className="block text-xs font-medium text-brand-fg">
-                联系方式
-                <input name="contact" className="input mt-1.5 w-full text-xs" defaultValue={profile.contact || ""} placeholder="手机号/微信号" disabled={saving} />
+                {t("me.edit.contact")}
+                <input name="contact" className="input mt-1.5 w-full text-xs" defaultValue={profile.contact || ""} placeholder={t("me.edit.contactPlaceholder")} disabled={saving} />
               </label>
             </div>
           </div>
 
           {/* 教育轨迹 */}
           <div className="space-y-3 rounded-card bg-brand/5 border border-line p-4">
-            <h3 className="text-xs font-semibold text-brand border-b border-line pb-1.5 mb-2">教育轨迹</h3>
+            <h3 className="text-xs font-semibold text-brand border-b border-line pb-1.5 mb-2">{t("me.edit.educationSection")}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <label className="block text-xs font-medium text-brand-fg">
-                毕业院校
-                <input name="university" className="input mt-1.5 w-full text-xs" defaultValue={profile.university || ""} placeholder="例如：清华大学" maxLength={150} disabled={saving} />
+                {t("me.edit.university")}
+                <input name="university" className="input mt-1.5 w-full text-xs" defaultValue={profile.university || ""} placeholder={t("me.edit.universityPlaceholder")} maxLength={150} disabled={saving} />
               </label>
               <label className="block text-xs font-medium text-brand-fg">
-                所学专业
-                <input name="major" className="input mt-1.5 w-full text-xs" defaultValue={profile.major || ""} placeholder="例如：计算机科学" maxLength={100} disabled={saving} />
+                {t("me.edit.major")}
+                <input name="major" className="input mt-1.5 w-full text-xs" defaultValue={profile.major || ""} placeholder={t("me.edit.majorPlaceholder")} maxLength={100} disabled={saving} />
               </label>
             </div>
           </div>
 
           {/* 职业发展 */}
           <div className="space-y-3 rounded-card bg-brand/5 border border-line p-4">
-            <h3 className="text-xs font-semibold text-brand border-b border-line pb-1.5 mb-2">职业发展</h3>
+            <h3 className="text-xs font-semibold text-brand border-b border-line pb-1.5 mb-2">{t("me.edit.careerSection")}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="block text-xs font-medium text-brand-fg">
-                所在城市
+                {t("me.edit.city")}
                 <CityCombobox defaultValue={profile.city || ""} name="city" />
               </div>
               <label className="block text-xs font-medium text-brand-fg">
-                从事行业
-                <input name="industry" className="input mt-1.5 w-full text-xs" defaultValue={profile.industry || ""} placeholder="例如：互联网/金融" maxLength={100} disabled={saving} />
+                {t("me.edit.industry")}
+                <input name="industry" className="input mt-1.5 w-full text-xs" defaultValue={profile.industry || ""} placeholder={t("me.edit.industryPlaceholder")} maxLength={100} disabled={saving} />
               </label>
             </div>
           </div>
 
           {message && (
-            <div className="rounded-card border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
+            <div className="rounded-card border border-danger/20 bg-danger/10 px-4 py-3 text-sm text-danger">
               {message}
             </div>
           )}
 
           <Button type="submit" disabled={saving} className="w-full touch-manipulation">
-            {saving ? "保存中..." : "保存资料"}
+            {saving ? t("me.edit.saving") : t("me.edit.save")}
           </Button>
         </form>
       </GlassCard>

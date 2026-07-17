@@ -1,5 +1,7 @@
 'use client';
 
+import { useThemeAndLocale } from '@/components/ThemeAndLocaleProvider';
+
 export function AdminPagination({
   page,
   total,
@@ -13,6 +15,7 @@ export function AdminPagination({
   disabled?: boolean;
   onPageChange: (page: number) => void;
 }) {
+  const { t } = useThemeAndLocale();
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   if (totalPages <= 1) return null;
 
@@ -24,16 +27,19 @@ export function AdminPagination({
         onClick={() => onPageChange(page - 1)}
         className="min-h-11 rounded-btn border border-line bg-surface/50 px-4 text-brand disabled:cursor-not-allowed disabled:opacity-40"
       >
-        上一页
+        {t('admin.pagination.previous')}
       </button>
-      <span>第 {page} / {totalPages} 页 · 共 {total} 条</span>
+      <span>
+        {t('admin.pagination.page')} {page} {t('admin.pagination.of')} {totalPages}{t('admin.pagination.pageSuffix')}
+        {' · '}{t('admin.pagination.total')} {total} {t('admin.pagination.items')}
+      </span>
       <button
         type="button"
         disabled={disabled || page >= totalPages}
         onClick={() => onPageChange(page + 1)}
         className="min-h-11 rounded-btn border border-line bg-surface/50 px-4 text-brand disabled:cursor-not-allowed disabled:opacity-40"
       >
-        下一页
+        {t('admin.pagination.next')}
       </button>
     </div>
   );

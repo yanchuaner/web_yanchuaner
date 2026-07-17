@@ -110,6 +110,7 @@ export async function POST(
                 role: nextRole,
                 status: "VERIFIED",
                 verificationStatus: "VERIFIED",
+                verificationMethod: "IDENTITY_REVIEW",
                 sessionVersion: { increment: 1 },
               }
             : {

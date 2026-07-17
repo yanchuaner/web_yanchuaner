@@ -21,6 +21,10 @@ import {
   validClassName,
   validGraduationClass,
 } from "@/lib/identity-fields";
+import {
+  REGISTRATION_POLICY_ID,
+  verifyRegistrationAccessCode,
+} from "@/lib/registration-policy";
 
 type RegisterBody = {
   username?: unknown;
@@ -31,7 +35,7 @@ type RegisterBody = {
   graduationClass?: unknown;
   className?: unknown;
   contact?: unknown;
-  claimOldProfile?: unknown;
+  internalCode?: unknown;
 };
 
 export async function POST(req: NextRequest) {
@@ -84,7 +88,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const passwordHash = await hash(password, BCRYPT_COST);
+    const policy = await prisma.registrationPolicy.findUnique({
+      where: { id: REGISTRATION_POLICY_ID },
+      select: {
+        accessCodeEnabled: true,
+        accessCodeHash: true,
+        accessCodeHint: true,
+      },
+    });
+    const [passwordHash, accessCodeAccepted] = await Promise.all([
+      hash(password, BCRYPT_COST),
+      verifyRegistrationAccessCode(body.internalCode, policy),
+    ]);
     const verification = createOneTimeToken();
     const user = await prisma.$transaction(async (tx) => {
       const created = await tx.user.create({
@@ -96,29 +111,30 @@ export async function POST(req: NextRequest) {
           graduationClass: graduationClass || null,
           className: className || null,
           contact: contact || null,
-          role: "GUEST",
-          status: "PENDING",
-          verificationStatus: "PENDING",
+          role: accessCodeAccepted ? "ALUMNI" : "GUEST",
+          status: accessCodeAccepted ? "VERIFIED" : "PENDING",
+          verificationStatus: accessCodeAccepted ? "VERIFIED" : "PENDING",
+          verificationMethod: accessCodeAccepted
+            ? "INTERNAL_CODE"
+            : "ADMIN_REVIEW",
           identityType: "ALUMNI",
           accountStatus: "ACTIVE",
           emailVerifyTokenHash: verification.hash,
           emailVerifyExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
         },
       });
-      if (body.claimOldProfile === true) {
-        await tx.userClaimRequest.create({
-          data: {
-            claimantUserId: created.id,
-            description: "用户注册时申请认领旧资料",
-          },
-        });
-      }
       return created;
     });
 
     const emailSent = await sendVerificationEmail(email, verification.token);
     return NextResponse.json(
-      { success: true, userId: user.id, emailSent },
+      {
+        success: true,
+        userId: user.id,
+        emailSent,
+        accessCodeAccepted,
+        reviewRequired: !accessCodeAccepted,
+      },
       { status: 201 },
     );
   } catch (error) {

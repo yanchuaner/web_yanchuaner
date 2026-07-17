@@ -7,8 +7,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { AdminPageShell } from '@/components/admin/AdminPageShell';
 import { toast } from 'sonner';
+import { useAdminLocalize } from '@/components/admin/AdminLocalizedText';
 
 export default function AdminNewsNewPage() {
+  const localize = useAdminLocalize();
   const router = useRouter();
   const [form, setForm] = useState({
     title: '',
@@ -34,7 +36,7 @@ export default function AdminNewsNewPage() {
       const data = await res.json();
       setForm((prev) => ({ ...prev, imageUrl: data.url }));
     } catch (err: any) {
-      toast.error('上传失败: ' + err.message);
+      toast.error(`${localize('上传失败')}: ${err.message}`);
     } finally {
       setUploading(false);
     }
@@ -43,7 +45,7 @@ export default function AdminNewsNewPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim() || !form.content.trim()) {
-      setError('标题和正文不能为空');
+      setError(localize('标题和正文不能为空'));
       return;
     }
     setSubmitting(true);
@@ -56,13 +58,13 @@ export default function AdminNewsNewPage() {
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || '创建失败');
+        throw new Error(data.error || localize('创建失败'));
       }
-      toast.success('新闻发布成功');
+      toast.success(localize('新闻发布成功'));
       router.push('/admin/news');
     } catch (err: any) {
       setError(err.message);
-      toast.error(err.message || '发布失败');
+      toast.error(err.message || localize('发布失败'));
       setSubmitting(false);
     }
   };
@@ -77,60 +79,60 @@ export default function AdminNewsNewPage() {
           className="inline-flex items-center gap-2 rounded-btn border border-line bg-surface/50 px-4 py-2.5 text-sm text-brand transition hover:bg-brand/5 cursor-pointer"
         >
           <ArrowLeft size={16} />
-          返回列表
+          {localize('返回列表')}
         </Link>
       }
     >
       <div className="space-y-4">
         {error && (
-          <div className="mb-4 rounded-card border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
+          <div className="mb-4 rounded-card border border-danger/20 bg-danger/10 px-4 py-3 text-sm text-danger">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6 rounded-card border border-line bg-surface/50 p-6 backdrop-blur-md">
           <div>
-            <label htmlFor="title" className="mb-1.5 block text-sm font-medium text-brand-fg">标题 *</label>
+            <label htmlFor="title" className="mb-1.5 block text-sm font-medium text-brand-fg">{localize('标题')} *</label>
             <input
               id="title"
               type="text"
               value={form.title}
               onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
               className="input w-full"
-              placeholder="新闻标题"
+              placeholder={localize('新闻标题')}
             />
           </div>
 
           <div>
-            <label htmlFor="summary" className="mb-1.5 block text-sm font-medium text-brand-fg">摘要</label>
+            <label htmlFor="summary" className="mb-1.5 block text-sm font-medium text-brand-fg">{localize('摘要')}</label>
             <textarea
               id="summary"
               value={form.summary}
               onChange={(e) => setForm((prev) => ({ ...prev, summary: e.target.value }))}
               className="input w-full"
               rows={3}
-              placeholder="新闻摘要（可选）"
+              placeholder={localize('新闻摘要（可选）')}
             />
           </div>
 
           <div>
-            <label htmlFor="content" className="mb-1.5 block text-sm font-medium text-brand-fg">正文 *</label>
+            <label htmlFor="content" className="mb-1.5 block text-sm font-medium text-brand-fg">{localize('正文')} *</label>
             <textarea
               id="content"
               value={form.content}
               onChange={(e) => setForm((prev) => ({ ...prev, content: e.target.value }))}
               className="input w-full"
               rows={12}
-              placeholder="新闻正文（支持换行）"
+              placeholder={localize('新闻正文（支持换行）')}
             />
           </div>
 
           <div>
-            <label htmlFor="imageUrl" className="mb-1.5 block text-sm font-medium text-brand-fg">封面图片</label>
+            <label htmlFor="imageUrl" className="mb-1.5 block text-sm font-medium text-brand-fg">{localize('封面图片')}</label>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <label className="inline-flex cursor-pointer items-center gap-2 rounded-btn border border-brand/20 bg-brand/5 px-4 py-2.5 text-sm text-brand transition hover:bg-brand/10">
                 <Upload size={16} />
-                {uploading ? '上传中...' : '选择图片'}
+                {localize(uploading ? '上传中...' : '选择图片')}
                 <input
                   id="imageUrl"
                   type="file"
@@ -148,7 +150,7 @@ export default function AdminNewsNewPage() {
               <div className="relative mt-2 aspect-video w-full max-w-48 overflow-hidden rounded-card border border-line">
                 <Image
                   src={form.imageUrl}
-                  alt="封面预览"
+                  alt={localize('封面预览')}
                   fill
                   sizes="192px"
                   className="object-cover"
@@ -158,15 +160,15 @@ export default function AdminNewsNewPage() {
           </div>
 
           <div>
-            <label htmlFor="status" className="mb-1.5 block text-sm font-medium text-brand-fg">状态</label>
+            <label htmlFor="status" className="mb-1.5 block text-sm font-medium text-brand-fg">{localize('状态')}</label>
             <select
               id="status"
               value={form.status}
               onChange={(e) => setForm((prev) => ({ ...prev, status: e.target.value }))}
               className="input w-full"
             >
-              <option value="DRAFT">草稿</option>
-              <option value="PUBLISHED">已发布</option>
+              <option value="DRAFT">{localize('草稿')}</option>
+              <option value="PUBLISHED">{localize('已发布')}</option>
             </select>
           </div>
 
@@ -174,15 +176,15 @@ export default function AdminNewsNewPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="inline-flex items-center gap-2 rounded-btn bg-brand px-6 py-2.5 text-sm text-white transition hover:bg-brand/90 disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-2 rounded-btn bg-brand px-6 py-2.5 text-sm text-contrast transition hover:bg-brand/90 disabled:opacity-50 cursor-pointer"
             >
-              {submitting ? '提交中...' : '发布新闻'}
+              {localize(submitting ? '提交中...' : '发布新闻')}
             </button>
             <Link
               href="/admin/news"
               className="inline-flex items-center gap-2 rounded-btn border border-line bg-surface/50 px-4 py-2.5 text-sm text-brand-fg/60 transition hover:border-brand/30 hover:text-brand cursor-pointer"
             >
-              取消
+              {localize('取消')}
             </Link>
           </div>
         </form>

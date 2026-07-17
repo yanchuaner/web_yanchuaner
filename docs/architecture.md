@@ -1,6 +1,6 @@
 # 🏗️ 架构设计 · Architecture
 
-> **燕中校友数字母港 V2.0** 系统架构深度文档  
+> **燕中校友数字母港** 系统架构深度文档
 > 涵盖前后端交互、数据库解耦策略、地图聚合算法、CMS 状态机与缓存策略
 
 ---
@@ -10,7 +10,7 @@
 - [1. 总体架构](#1-总体架构)
 - [2. 请求生命周期](#2-请求生命周期)
 - [3. 数据库设计](#3-数据库设计)
-- [4. V2.0 数据解耦策略](#4-v20-数据解耦策略)
+- [4. 名册数据解耦策略](#4-名册数据解耦策略)
 - [5. 地图城市聚合算法](#5-地图城市聚合算法)
 - [6. CMS 审核状态机](#6-cms-审核状态机)
 - [7. 缓存与限流架构](#7-缓存与限流架构)
@@ -155,14 +155,16 @@
 User ─────────────< AuditLog          (admin 操作记录)
 User ─────────────< Post              (用户发帖)
 User ─────────────< Story             (校友故事·CMS)
-User ──┬──────────< UserClaimRequest   (校友认领·申请人)
-       └──────────< UserClaimRequest   (校友认领·审核人)
+User ─────────────< EventRegistration (活动报名)
+User ─────────────< IdentityVerificationRequest (身份认证申请)
 
 User (合并) ───────< User (被合并)     (自引用: 账号去重合并)
 
 WhitelistRoster ───< AlumniCorrection  (名册修正申请)
 
 Event ────────────< EventRegistration  (活动报名)
+
+RegistrationPolicy                    (独立: 注册口令策略单例)
 
 ContentSection                        (独立: 各页面内容块)
 MemoryItem                            (独立: 记忆馆条目)
@@ -188,7 +190,7 @@ model Story {
 }
 ```
 
-> **演进背景**：V1.0 依赖 Resend 邮件 + 手动操作，投稿流程割裂。V2.0 从 `todo.md` 的「模块二」演进而来，实现了站内闭环。
+> **演进背景**：早期实现依赖邮件和人工转录，投稿流程割裂；当前版本已形成个人中心投稿、状态追踪与后台审核的站内闭环。
 
 ### 关键索引策略
 
@@ -202,23 +204,23 @@ model Story {
 
 ---
 
-## 4. V2.0 数据解耦策略
+## 4. 名册数据解耦策略
 
 ### 背景问题
 
-V1.0 的 `tags` 字段是一个多用途字符串：`"清华大学 | 计算机科学 | 深圳"`。这导致：
+早期名册的 `tags` 字段是一个多用途字符串：`"清华大学 | 计算机科学 | 深圳"`。这导致：
 
 - 地图解析需要对 `tags` 进行字符串分割，城市名不一致（"深圳市" vs "深圳"）
 - 无法独立搜索「所有在清华大学的校友」
 - CSV 导入时字段映射混乱
 
-### V2.0 解耦方案
+### 当前解耦方案
 
 ```sql
--- Before (V1.0)
+-- Before
 WhitelistRoster.tags = "清华大学 | 计算机科学 | 深圳"
 
--- After (V2.0)
+-- After
 WhitelistRoster.city       = "深圳"
 WhitelistRoster.university = "清华大学"
 WhitelistRoster.major      = "计算机科学"
@@ -451,5 +453,5 @@ export async function processToCard16x9(buffer: Buffer, destPath: string) {
 ---
 
 <p align="center">
-  <sub>Architecture Document · V2.0 · Last updated: June 2026</sub>
+  <sub>Architecture Document · Last updated: July 2026</sub>
 </p>

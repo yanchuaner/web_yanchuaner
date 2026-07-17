@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { CheckCircle2, XCircle, Loader2, Mail } from "lucide-react";
 import { PageShell, GlassCard, Button, ButtonLink } from "@/components/ui";
 import { AccountStatusPanel } from "@/components/auth/AccountStatusPanel";
+import { useThemeAndLocale } from "@/components/ThemeAndLocaleProvider";
 import type { WebAccountState } from "@/lib/web-account-state";
 
 type VerificationResult = {
@@ -19,6 +20,7 @@ type VerificationResult = {
 };
 
 export default function VerifyEmailPage() {
+  const { t } = useThemeAndLocale();
   const params = useSearchParams();
   const token = params.get("token");
   const initialEmail = params.get("email") || "";
@@ -27,7 +29,7 @@ export default function VerifyEmailPage() {
   const [status, setStatus] = useState<"idle" | "verifying" | "success" | "sent" | "error">(
     token ? "verifying" : "idle"
   );
-  const [message, setMessage] = useState(token ? "正在验证您的邮箱凭证，请稍候…" : "");
+  const [messageKey, setMessageKey] = useState(token ? "auth.verify.verifyingMessage" : "");
   const [accountState, setAccountState] = useState<WebAccountState | null>(null);
   const [account, setAccount] = useState<VerificationResult["account"]>();
 
@@ -45,26 +47,26 @@ export default function VerifyEmailPage() {
           setAccountState(data.accountState || "ACTIVE");
           setAccount(data.account);
           setStatus("success");
-          setMessage(
+          setMessageKey(
             data.accountState === "REVIEW_PENDING"
-              ? "邮箱验证已经完成，身份资料已进入管理员审核。"
-              : "邮箱验证已经完成。",
+              ? "auth.verify.reviewPendingMessage"
+              : "auth.verify.successMessage",
           );
         } else {
           setStatus("error");
-          setMessage(data.error || "验证链接已失效或无效。");
+          setMessageKey("auth.verify.invalidMessage");
         }
       })
       .catch(() => {
         setStatus("error");
-        setMessage("网络异常，无法连接到验证服务器，请稍后重试。");
+        setMessageKey("auth.verify.networkMessage");
       });
   }, [token]);
 
   async function resend(event: FormEvent) {
     event.preventDefault();
     setStatus("verifying");
-    setMessage("正在发送验证邮件，请稍候…");
+    setMessageKey("auth.verify.sendingMessage");
     
     try {
       const response = await fetch("/api/auth/resend-verification", {
@@ -75,14 +77,14 @@ export default function VerifyEmailPage() {
       const data = await response.json();
       if (response.ok) {
         setStatus("sent");
-        setMessage(data.message || "重发请求已提交，请检查您的邮箱。");
+        setMessageKey("auth.verify.sentMessage");
       } else {
         setStatus("error");
-        setMessage(data.error || "发送验证邮件失败，请检查邮箱地址或稍后重试。");
+        setMessageKey("auth.verify.sendFailedMessage");
       }
     } catch {
       setStatus("error");
-      setMessage("网络连接失败，请检查网络设置。");
+      setMessageKey("auth.verify.networkMessage");
     }
   }
 
@@ -111,35 +113,31 @@ export default function VerifyEmailPage() {
         {/* 状态图标 */}
         <div className="flex justify-center mb-6">
           {status === "verifying" && (
-            <Loader2 className="w-16 h-16 animate-spin text-brand drop-shadow-[0_0_15px_rgba(167,139,250,0.5)]" />
+            <Loader2 className="icon-glow h-16 w-16 animate-spin text-brand" />
           )}
           {status === "success" && (
-            <CheckCircle2 className="w-16 h-16 text-accent drop-shadow-[0_0_15px_rgba(34,197,94,0.5)]" />
+            <CheckCircle2 className="icon-glow h-16 w-16 text-accent" />
           )}
           {status === "sent" && (
-            <Mail className="w-16 h-16 text-brand drop-shadow-[0_0_15px_rgba(167,139,250,0.5)]" />
+            <Mail className="icon-glow h-16 w-16 text-brand" />
           )}
           {status === "error" && (
-            <XCircle className="w-16 h-16 text-rose-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]" />
+            <XCircle className="icon-glow h-16 w-16 text-danger" />
           )}
           {status === "idle" && (
-            <Mail className="w-16 h-16 text-brand drop-shadow-[0_0_15px_rgba(167,139,250,0.5)]" />
+            <Mail className="icon-glow h-16 w-16 text-brand" />
           )}
         </div>
 
         {/* 渐变标题 */}
         <h1 className="text-3xl font-bold text-brand-fg font-heading bg-gradient-to-r from-brand-soft via-brand-fg to-brand bg-clip-text text-transparent">
-          {status === "idle" && "发送验证邮件"}
-          {status === "verifying" && "正在验证邮箱"}
-          {status === "success" && "邮箱已验证"}
-          {status === "sent" && "重发请求已提交"}
-          {status === "error" && "验证失败"}
+          {t(`auth.verify.title.${status}`)}
         </h1>
 
         {/* 柔和说明文字 */}
-        {message && (
+        {messageKey && (
           <p className="text-brand-fg/70 mt-4 max-w-sm leading-relaxed text-sm">
-            {message}
+            {t(messageKey)}
           </p>
         )}
 
@@ -149,20 +147,20 @@ export default function VerifyEmailPage() {
             <input
               type="email"
               className="input w-full text-center"
-              placeholder="请输入注册邮箱"
+              placeholder={t("auth.verify.emailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
             <Button type="submit" className="w-full">
-              重新发送验证邮件
+              {t("auth.verify.resend")}
             </Button>
             <ButtonLink
               href="/login"
               variant="secondary"
               className="w-full"
             >
-              返回登录
+              {t("auth.verify.backToLogin")}
             </ButtonLink>
           </form>
         )}
@@ -175,18 +173,18 @@ export default function VerifyEmailPage() {
               variant="primary"
               className="w-full"
             >
-              前往登录
+              {t("auth.verify.goToLogin")}
             </ButtonLink>
             {status === "error" && (
               <Button
                 onClick={() => {
                   setStatus("idle");
-                  setMessage("");
+                  setMessageKey("");
                 }}
                 variant="secondary"
                 className="w-full"
               >
-                重新发送验证邮件
+                {t("auth.verify.resend")}
               </Button>
             )}
           </div>

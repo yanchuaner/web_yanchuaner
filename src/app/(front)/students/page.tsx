@@ -5,7 +5,7 @@ import {
   ChevronRight, Mail, Star, Heart, MessageSquare, Users, Globe2, MapPin, Rocket
 } from "lucide-react";
 import prisma from "@/lib/db";
-import { PageShell, GlassCard, PageHeader, ButtonLink, EmptyState, DisclaimerBanner } from "@/components/ui";
+import { PageShell, GlassCard, PageHeader, ButtonLink, EmptyState } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -84,10 +84,6 @@ export default async function StudentsPage() {
             </div>
           </div>
         </div>
-
-        <DisclaimerBanner title="免责声明" className="mt-4">
-          本页面内容来自公开信息整理与校友经验沉淀，仅供在校生和家长参考，不代表燕川中学或校友会官方意见，不构成报考、录取或职业选择承诺。
-        </DisclaimerBanner>
 
         <div className="mt-6 flex flex-wrap gap-3">
           <ButtonLink href="/" variant="secondary">返回首页</ButtonLink>

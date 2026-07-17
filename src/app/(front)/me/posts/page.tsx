@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Trash2, Clock, ArrowLeft, FileText } from "lucide-react";
 import { PageShell, GlassCard, PageHeader, Button, ButtonLink, EmptyState, ErrorState, Badge, Skeleton, SkeletonText } from "@/components/ui";
 import { useDialogA11y } from "@/hooks/useDialogA11y";
+import { useThemeAndLocale } from "@/components/ThemeAndLocaleProvider";
 
 type UserPost = {
   id: string;
@@ -16,6 +17,7 @@ type UserPost = {
 };
 
 export default function MyPostsPage() {
+  const { locale, t } = useThemeAndLocale();
   const [posts, setPosts] = useState<UserPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -25,12 +27,12 @@ export default function MyPostsPage() {
     if (!deletingId) setConfirmDelete(null);
   });
 
-  const fetchPosts = () => {
+  const fetchPosts = useCallback(() => {
     setLoading(true);
     setLoadError(null);
     fetch("/api/me/posts")
       .then((res) => {
-        if (!res.ok) throw new Error("投稿列表加载失败，请稍后重试");
+        if (!res.ok) throw new Error(t("me.posts.loadError"));
         return res.json();
       })
       .then((data) => {
@@ -38,16 +40,16 @@ export default function MyPostsPage() {
       })
       .catch((err) => {
         console.error("Failed to load posts", err);
-        const message = err instanceof Error ? err.message : "投稿列表加载失败，请稍后重试";
+        const message = err instanceof Error ? err.message : t("me.posts.loadError");
         setLoadError(message);
         toast.error(message);
       })
       .finally(() => setLoading(false));
-  };
+  }, [t]);
 
   useEffect(() => {
     fetchPosts();
-  }, []);
+  }, [fetchPosts]);
 
   const handleDelete = async () => {
     if (!confirmDelete) return;
@@ -60,15 +62,15 @@ export default function MyPostsPage() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        toast.success(`成功撤销投稿《${title}》`);
+        toast.success(`${t("me.posts.withdrawSuccessPrefix")} ${title}`);
         setPosts((prev) => prev.filter((post) => post.id !== id));
         setConfirmDelete(null);
       } else {
-        toast.error(data.error || "撤销失败，请稍后重试");
+        toast.error(data.error || t("me.posts.deleteFailed"));
       }
     } catch (err) {
       console.error("Delete story error:", err);
-      toast.error("网络请求失败，请稍后重试");
+      toast.error(t("me.posts.network"));
     } finally {
       setDeletingId(null);
     }
@@ -83,14 +85,14 @@ export default function MyPostsPage() {
         className="mb-6 w-full sm:w-auto"
       >
         <ArrowLeft size={14} />
-        返回个人中心
+        {t("me.posts.back")}
       </ButtonLink>
       
       <PageHeader
-        eyebrow="CONTRIBUTIONS"
+        eyebrow={t("me.posts.eyebrow")}
         eyebrowIcon={FileText}
-        title="我的投稿"
-        description={loading ? "正在加载已提交的稿件" : `管理已提交的稿件，共 ${posts.length} 篇`}
+        title={t("me.posts.title")}
+        description={loading ? t("me.posts.loadingDescription") : `${t("me.posts.countPrefix")} ${posts.length} ${t("me.posts.countSuffix")}`}
       />
 
       <div className="mt-6">
@@ -120,20 +122,20 @@ export default function MyPostsPage() {
           </div>
         ) : loadError ? (
           <ErrorState
-            title="投稿列表暂时无法加载"
+            title={t("me.posts.loadError")}
             description={loadError}
             onRetry={fetchPosts}
             homeHref="/me"
-            homeLabel="返回个人中心"
+            homeLabel={t("me.posts.back")}
           />
         ) : posts.length === 0 ? (
           <EmptyState
             icon={FileText}
-            title="暂无投稿"
-            description="您还没有发布任何文章，快去写下第一篇吧！"
+            title={t("me.posts.emptyTitle")}
+            description={t("me.posts.emptyDescription")}
             action={
               <ButtonLink href="/me/submit" variant="primary">
-                立即去投稿
+                {t("me.posts.submitAction")}
               </ButtonLink>
             }
           />
@@ -145,7 +147,7 @@ export default function MyPostsPage() {
               return (
                 <article
                   key={post.id}
-                  className="rounded-card border border-line bg-surface/40 backdrop-blur-md p-6 shadow-[0_8px_32px_rgba(124,58,237,0.08)] transition duration-300 hover:border-brand/50 hover:shadow-[0_8px_32px_rgba(124,58,237,0.18)]"
+                  className="rounded-card border border-line bg-surface/40 p-6 shadow-md backdrop-blur-md transition duration-300 hover:border-brand/50 hover:shadow-lg"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="space-y-1.5 flex-1 min-w-[240px]">
@@ -155,16 +157,16 @@ export default function MyPostsPage() {
                         </h2>
                         
                         {/* 状态标签 */}
-                        {post.status === "PENDING" && <Badge tone="warning">审核中</Badge>}
-                        {post.status === "PUBLISHED" && <Badge tone="success">已发布</Badge>}
-                        {post.status === "REJECTED" && <Badge tone="danger">已驳回</Badge>}
-                        {post.status === "DRAFT" && <Badge tone="neutral">草稿</Badge>}
+                        {post.status === "PENDING" && <Badge tone="warning">{t("me.posts.status.pending")}</Badge>}
+                        {post.status === "PUBLISHED" && <Badge tone="success">{t("me.posts.status.published")}</Badge>}
+                        {post.status === "REJECTED" && <Badge tone="danger">{t("me.posts.status.rejected")}</Badge>}
+                        {post.status === "DRAFT" && <Badge tone="neutral">{t("me.posts.status.draft")}</Badge>}
                       </div>
                       
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-brand-fg/50">
                         <span className="flex items-center gap-1">
                           <Clock size={12} />
-                          提交时间: {new Date(post.createdAt).toLocaleString("zh-CN")}
+                          {t("me.posts.submittedAt")}: {new Date(post.createdAt).toLocaleString(locale === "en" ? "en-US" : "zh-CN")}
                         </span>
                       </div>
                     </div>
@@ -179,7 +181,7 @@ export default function MyPostsPage() {
                         className="w-full shrink-0 sm:w-auto"
                       >
                         <Trash2 size={13} />
-                        {post.status === "PENDING" ? "撤销投稿" : "删除草稿"}
+                        {post.status === "PENDING" ? t("me.posts.withdraw") : t("me.posts.deleteDraft")}
                       </Button>
                     )}
                   </div>
@@ -215,15 +217,15 @@ export default function MyPostsPage() {
       {confirmDelete && (
         <div 
           ref={deleteDialogRef}
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm px-4 pb-safe sm:pb-4 animate-fade-in"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-overlay/60 backdrop-blur-sm px-4 pb-safe sm:pb-4 animate-fade-in"
           role="dialog"
           aria-modal="true"
           aria-labelledby="delete-confirm-title"
         >
           <div className="w-full max-w-md rounded-modal border border-line bg-surface p-6 shadow-lg backdrop-blur-md mb-4 sm:mb-0 animate-slide-in sm:animate-fade-in">
-            <h3 id="delete-confirm-title" className="text-lg font-semibold text-brand font-heading">确认删除</h3>
+            <h3 id="delete-confirm-title" className="text-lg font-semibold text-brand font-heading">{t("me.posts.confirmTitle")}</h3>
             <p className="mt-3 text-sm leading-6 text-brand-fg/70">
-              确定要撤销并删除投稿《{confirmDelete.title}》吗？此操作不可撤销。
+              {t("me.posts.confirmPrefix")}{confirmDelete.title}{t("me.posts.confirmSuffix")}
             </p>
             <div className="mt-5 flex flex-col-reverse sm:flex-row justify-end gap-3">
               <Button
@@ -232,7 +234,7 @@ export default function MyPostsPage() {
                 variant="secondary"
                 className="w-full sm:w-auto min-h-[44px] cursor-pointer"
               >
-                取消
+                {t("me.posts.cancel")}
               </Button>
               <Button
                 onClick={handleDelete}
@@ -240,7 +242,7 @@ export default function MyPostsPage() {
                 variant="danger"
                 className="w-full sm:w-auto min-h-[44px] cursor-pointer"
               >
-                {deletingId === confirmDelete.id ? '处理中...' : '确认删除'}
+                {deletingId === confirmDelete.id ? t("me.posts.processing") : t("me.posts.confirm")}
               </Button>
             </div>
           </div>

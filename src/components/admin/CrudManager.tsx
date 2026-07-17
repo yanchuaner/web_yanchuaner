@@ -1,9 +1,13 @@
+"use client";
+
 import { useState, useEffect } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import { cn } from '@/components/ui/cn';
 import { Skeleton, SkeletonText } from '@/components/ui';
 import { AdminPageShell } from './AdminPageShell';
 import { toast } from 'sonner';
+import { useThemeAndLocale } from '@/components/ThemeAndLocaleProvider';
+import { useAdminLocalize } from './AdminLocalizedText';
 
 /**
  * 字段配置：声明式描述一个表单字段，CrudManager 据此渲染输入控件。
@@ -45,8 +49,8 @@ export function CrudManager<T extends { id: string }>({
   toPayload,
   validate,
   renderItem,
-  emptyHint = '暂无数据，使用上方表单新增。',
-  deleteConfirm = '确定删除这条记录？',
+  emptyHint,
+  deleteConfirm,
 }: {
   title: string;
   subtitle?: string;
@@ -71,6 +75,10 @@ export function CrudManager<T extends { id: string }>({
   emptyHint?: string;
   deleteConfirm?: string;
 }) {
+  const { t } = useThemeAndLocale();
+  const localize = useAdminLocalize();
+  const resolvedEmptyHint = emptyHint ? localize(emptyHint) : t('admin.crud.empty');
+  const resolvedDeleteConfirm = deleteConfirm ? localize(deleteConfirm) : t('admin.crud.deleteConfirm');
   const emptyForm: FormValues = Object.fromEntries(fields.map((f) => [f.name, '']));
   const [form, setForm] = useState<FormValues>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -96,7 +104,7 @@ export function CrudManager<T extends { id: string }>({
     if (validate) {
       const msg = validate(form);
       if (msg) {
-        toast.error(msg);
+        toast.error(localize(msg));
         return;
       }
     }
@@ -104,16 +112,16 @@ export function CrudManager<T extends { id: string }>({
     const isEdit = !!editingId;
     const ok = isEdit ? await onUpdate(editingId, payload) : await onCreate(payload);
     if (ok) {
-      toast.success(isEdit ? '更新成功' : '新增成功');
+      toast.success(isEdit ? t('admin.crud.updateSuccess') : t('admin.crud.createSuccess'));
       resetForm();
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm(deleteConfirm)) {
+    if (confirm(resolvedDeleteConfirm)) {
       const ok = await onDelete(id);
       if (ok) {
-        toast.success('删除成功');
+        toast.success(t('admin.crud.deleteSuccess'));
       }
     }
   };
@@ -123,7 +131,7 @@ export function CrudManager<T extends { id: string }>({
       {/* 表单卡片 */}
       <div className="rounded-card border border-line bg-surface/60 backdrop-blur-xl p-5 shadow-sm">
         <h2 className="mb-4 font-heading text-base font-semibold text-brand-fg">
-          {editingId ? '编辑记录' : '新增记录'}
+          {editingId ? t('admin.crud.editRecord') : t('admin.crud.createRecord')}
         </h2>
         <div className="grid gap-4 md:grid-cols-2">
           {fields.map((field) => (
@@ -138,11 +146,11 @@ export function CrudManager<T extends { id: string }>({
         </div>
         <div className="mt-5 flex flex-col gap-3 sm:flex-row">
           <button onClick={handleSubmit} disabled={saving} className="btn-primary min-h-[44px] w-full cursor-pointer rounded-btn sm:w-auto">
-            {saving ? '保存中...' : editingId ? '更新' : '新增'}
+            {saving ? t('admin.crud.saving') : editingId ? t('admin.crud.update') : t('admin.crud.create')}
           </button>
           {editingId ? (
             <button onClick={resetForm} className="btn-secondary min-h-[44px] w-full cursor-pointer rounded-btn sm:w-auto" disabled={saving}>
-              取消编辑
+              {t('admin.crud.cancelEdit')}
             </button>
           ) : null}
         </div>
@@ -168,7 +176,7 @@ export function CrudManager<T extends { id: string }>({
           ))
         ) : items.length === 0 ? (
           <div className="rounded-card border border-dashed border-line bg-surface/20 py-8 text-center text-sm text-brand-fg/40">
-            {emptyHint}
+            {resolvedEmptyHint}
           </div>
         ) : (
           items.map((item) => (
@@ -180,15 +188,15 @@ export function CrudManager<T extends { id: string }>({
               <div className="flex shrink-0 items-center gap-1.5">
                 <button
                   onClick={() => openEdit(item)}
-                  aria-label="编辑"
+                  aria-label={t('admin.crud.edit')}
                   className="flex h-11 w-11 items-center justify-center rounded-btn text-brand-fg/50 hover:bg-brand/15 hover:text-brand transition cursor-pointer"
                 >
                   <Pencil size={15} />
                 </button>
                 <button
                   onClick={() => handleDelete(item.id)}
-                  aria-label="删除"
-                  className="flex h-11 w-11 items-center justify-center rounded-btn text-brand-fg/50 hover:bg-rose-500/10 hover:text-rose-400 transition cursor-pointer"
+                  aria-label={t('admin.crud.delete')}
+                  className="flex h-11 w-11 items-center justify-center rounded-btn text-brand-fg/50 hover:bg-danger/10 hover:text-danger transition cursor-pointer"
                 >
                   <Trash2 size={15} />
                 </button>
@@ -212,9 +220,10 @@ function FormField({
   disabled: boolean;
   onChange: (v: string) => void;
 }) {
+  const localize = useAdminLocalize();
   const labelEl = (
     <label className="mb-1 block text-sm font-medium text-brand-fg">
-      {field.label}
+      {localize(field.label)}
       {field.required ? ' *' : ''}
     </label>
   );
@@ -229,7 +238,7 @@ function FormField({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className="input w-full min-h-[120px] rounded-btn bg-surface-muted/50 border-line"
-          placeholder={field.placeholder}
+          placeholder={localize(field.placeholder)}
           disabled={disabled}
         />
       ) : field.type === 'select' ? (
@@ -241,7 +250,7 @@ function FormField({
         >
           {(field.options || []).map((opt) => (
             <option key={opt.value} value={opt.value} className="bg-surface-muted">
-              {opt.label}
+              {localize(opt.label)}
             </option>
           ))}
         </select>
@@ -251,7 +260,7 @@ function FormField({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className={cn('input w-full rounded-btn bg-surface-muted/50 border-line')}
-          placeholder={field.placeholder}
+          placeholder={localize(field.placeholder)}
           disabled={disabled}
         />
       )}

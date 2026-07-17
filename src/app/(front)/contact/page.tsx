@@ -3,12 +3,13 @@ import Link from "next/link";
 import { Mail, MessageSquare, CalendarDays, Shield, ArrowLeft, BookOpen, Star, Heart, Users, School, GraduationCap } from "lucide-react";
 import prisma from "@/lib/db";
 import { PageShell, GlassCard, PageHeader, ButtonLink, EmptyState } from "@/components/ui";
+import { LocalizedText } from "@/components/LocalizedText";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "联系我们",
-  description: "燕中校友数字母港 — 联系方式、投稿说明、合作邀请与免责声明",
+  description: "燕中校友数字母港 — 联系方式、投稿说明与合作邀请",
 };
 
 const ICON_MAP: Record<string, any> = {
@@ -27,8 +28,8 @@ export default async function ContactPage() {
         <PageHeader
           eyebrow="CONTACT"
           eyebrowIcon={Mail}
-          title="联系我们"
-          description="这里是燕中校友数字母港的联系窗口。我们欢迎每一位校友的参与与支持。"
+          title={<LocalizedText translationKey="contentPages.contact.title" />}
+          description={<LocalizedText translationKey="contentPages.contact.description" />}
         />
 
         <div className="mt-8 space-y-6">
@@ -42,25 +43,25 @@ export default async function ContactPage() {
                   </div>
                   <div>
                     <h2 className="font-heading text-base font-semibold text-brand-fg">{s.title}</h2>
-                    <p className="mt-1 text-sm leading-6 text-gray-600">{s.description}</p>
-                    {s.note && <p className="mt-1 text-sm leading-6 text-gray-600">{s.note}</p>}
+                    <p className="mt-1 text-sm leading-6 text-main/60">{s.description}</p>
+                    {s.note && <p className="mt-1 text-sm leading-6 text-main/60">{s.note}</p>}
                     {s.href === '/alumni/stories' ? (
                       <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
                         <Link href={s.href} className="text-sm text-brand underline hover:text-brand-fg transition-colors">
-                          {s.actionLabel || '查看详情'}
+                          {s.actionLabel || <LocalizedText translationKey="contentPages.contact.detailAction" />}
                         </Link>
-                        <Link href="/alumni/achievements?submit=1" className="text-sm text-brand underline hover:text-brand-fg transition-colors">
-                          前往校友成就投稿
+                        <Link href="/alumni/achievements" className="text-sm text-brand underline hover:text-brand-fg transition-colors">
+                          <LocalizedText translationKey="contentPages.contact.achievementAction" />
                         </Link>
                       </div>
                     ) : s.href ? (
                       s.href.startsWith('mailto:') ? (
                         <a href={s.href} className="mt-1 inline-block text-sm text-brand underline hover:text-brand-fg transition-colors">
-                          {s.actionLabel || '查看详情'}
+                          {s.actionLabel || <LocalizedText translationKey="contentPages.contact.detailAction" />}
                         </a>
                       ) : (
                         <Link href={s.href} className="mt-1 inline-block text-sm text-brand underline hover:text-brand-fg transition-colors">
-                          {s.actionLabel || '查看详情'}
+                          {s.actionLabel || <LocalizedText translationKey="contentPages.contact.detailAction" />}
                         </Link>
                       )
                     ) : null}
@@ -74,14 +75,14 @@ export default async function ContactPage() {
         {sections.length === 0 && (
           <EmptyState
             icon={Mail}
-            title="联系信息正在整理中，敬请期待。"
+            title={<LocalizedText translationKey="contentPages.contact.empty" />}
             className="mt-8"
           />
         )}
 
         <div className="mt-8 flex flex-wrap gap-3">
           <ButtonLink href="/" variant="secondary" icon={ArrowLeft}>
-            返回首页
+            <LocalizedText translationKey="common.backHome" />
           </ButtonLink>
         </div>
       </GlassCard>

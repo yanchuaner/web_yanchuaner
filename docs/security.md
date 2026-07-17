@@ -1,6 +1,6 @@
 # 🛡️ 安全防御指南 · Security
 
-> **燕中校友数字母港 V2.0** 系统级安全架构文档  
+> **燕中校友数字母港** 系统级安全架构文档
 > 记录 Payload 拦截、IDOR 防御、SQLite 锁竞争优化、Token 安全设计等实战经验
 
 ---
@@ -51,7 +51,7 @@
 const body = await req.json();  // 攻击者发送 500MB JSON → OOM
 ```
 
-### V2.0 解决方案
+### 当前解决方案
 
 ```typescript
 // src/lib/auth-utils.ts
@@ -278,7 +278,7 @@ function sweepLocalMemory(now: number) {
 
 SQLite 是单写者模型——同一时刻只有一个连接可以执行写操作。V1.0 的 CSV 导入在循环内逐行 `prisma.whitelistRoster.upsert()`，导致频繁的锁获取/释放，在高频写入场景下触发 `SQLITE_BUSY` 错误。
 
-### V2.0 解决方案
+### 当前解决方案
 
 **1. PRAGMA 优化（连接初始化时）**
 
@@ -528,5 +528,5 @@ export function safeRedirect(value: unknown, fallback = "/") {
 ---
 
 <p align="center">
-  <sub>Security Document · V2.0 · Last updated: June 2026</sub>
+  <sub>Security Document · Last updated: July 2026</sub>
 </p>

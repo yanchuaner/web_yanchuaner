@@ -11,13 +11,13 @@ import {
   GlassCard,
   PageHeader,
   ButtonLink,
-  DisclaimerBanner,
   EmptyState,
   ErrorState,
   Skeleton,
   SkeletonText,
 } from '@/components/ui';
 import { formatGraduationClass } from '@/lib/identity-fields';
+import { useThemeAndLocale } from '@/components/ThemeAndLocaleProvider';
 
 function StatGridSkeleton() {
   return (
@@ -65,9 +65,9 @@ function CityRankingSkeleton() {
   );
 }
 
-function UniversityMapSkeleton() {
+function UniversityMapSkeleton({ label }: { label: string }) {
   return (
-    <div className="space-y-6" role="status" aria-label="正在加载大学城市分布">
+    <div className="space-y-6" role="status" aria-label={label}>
       <StatGridSkeleton />
       <MapPanelSkeleton />
       <CityRankingSkeleton />
@@ -106,6 +106,7 @@ type StatsData = {
 };
 
 export default function UniversityMapPage() {
+  const { t, locale } = useThemeAndLocale();
   const [data, setData] = useState<StatsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -117,8 +118,8 @@ export default function UniversityMapPage() {
     setData(null);
     fetch('/api/alumni/city-stats')
       .then((res) => {
-        if (res.status === 401) throw new Error('请先验证访问口令后查看');
-        if (!res.ok) throw new Error('数据加载失败，请稍后重试');
+        if (res.status === 401) throw new Error('auth');
+        if (!res.ok) throw new Error('load');
         return res.json();
       })
       .then((d) => {
@@ -139,10 +140,10 @@ export default function UniversityMapPage() {
 
   const statCards = data
     ? [
-        { icon: MapPin, label: '覆盖城市', value: data.totalCities, color: 'text-brand', border: 'border-line', bg: 'bg-surface/30 backdrop-blur-md' },
-        { icon: UsersRound, label: '校友人数', value: data.totalAlumni, color: 'text-brand', border: 'border-line', bg: 'bg-surface/30 backdrop-blur-md' },
-        { icon: Building2, label: '大学数量', value: data.totalUniversities, color: 'text-brand', border: 'border-line', bg: 'bg-surface/30 backdrop-blur-md' },
-        { icon: GraduationCap, label: '专业数量', value: data.totalMajors, color: 'text-brand', border: 'border-line', bg: 'bg-surface/30 backdrop-blur-md' },
+        { icon: MapPin, label: t('map.stats.cities'), value: data.totalCities },
+        { icon: UsersRound, label: t('map.stats.alumni'), value: data.totalAlumni },
+        { icon: Building2, label: t('map.stats.universities'), value: data.totalUniversities },
+        { icon: GraduationCap, label: t('map.stats.majors'), value: data.totalMajors },
       ]
     : [];
 
@@ -152,27 +153,27 @@ export default function UniversityMapPage() {
         <PageHeader
           eyebrow="UNIVERSITY MAP"
           eyebrowIcon={MapPin}
-          title="大学城市分布"
-          description="看看燕中校友的大学足迹点亮了哪些城市"
+          title={t('map.title')}
+          description={t('map.description')}
           action={
             <ButtonLink href="/" variant="secondary" icon={ArrowLeft} size="sm">
-              返回指挥中心
+              {t('common.backHome')}
             </ButtonLink>
           }
         />
 
         <div className="mt-8">
           {/* Loading state */}
-          {loading && <UniversityMapSkeleton />}
+          {loading && <UniversityMapSkeleton label={t('map.loading')} />}
 
           {/* Error state */}
           {error && !loading && (
             <ErrorState
-              title="城市分布暂时无法加载"
-              description={error}
-              onRetry={error.includes('访问口令') ? undefined : fetchStats}
+              title={t('map.errorTitle')}
+              description={t(error === 'auth' ? 'map.authRequired' : 'map.loadFailed')}
+              onRetry={error === 'auth' ? undefined : fetchStats}
               homeHref="/"
-              homeLabel={error.includes('访问口令') ? '返回首页验证' : '返回指挥中心'}
+              homeLabel={t(error === 'auth' ? 'map.verifyAction' : 'common.backHome')}
             />
           )}
 
@@ -180,8 +181,8 @@ export default function UniversityMapPage() {
           {data && data.cities.length === 0 && !loading && (
             <EmptyState
               icon={MapPin}
-              title="暂无城市分布数据"
-              description="校友数据收集中，敬请期待"
+              title={t('map.emptyTitle')}
+              description={t('map.emptyDescription')}
             />
           )}
 
@@ -190,13 +191,13 @@ export default function UniversityMapPage() {
             <>
               {/* Stats grid */}
               <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-                {statCards.map(({ icon: Icon, label, value, color, border, bg }) => (
-                  <div key={label} className={`rounded-2xl border ${border} ${bg} p-5 shadow-sm`}>
+                {statCards.map(({ icon: Icon, label, value }) => (
+                  <div key={label} className="rounded-card border border-line bg-surface/30 p-5 shadow-sm backdrop-blur-md">
                     <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10 shadow-sm border border-brand/20">
-                      <Icon size={20} className={color} />
+                      <Icon size={20} className="text-brand" />
                     </div>
                     <p className="mt-3 text-xs uppercase tracking-wide text-brand-fg/50">{label}</p>
-                    <p className={`font-heading mt-1 text-2xl font-bold text-white`}>{value}</p>
+                    <p className="font-heading mt-1 text-2xl font-bold text-main">{value}</p>
                   </div>
                 ))}
               </div>
@@ -207,15 +208,15 @@ export default function UniversityMapPage() {
                 <div className="flex min-h-[44px] items-center gap-2 border-t border-line bg-surface/40 px-4 py-3">
                   <MapPin size={14} className="shrink-0 text-brand" />
                   <p className="min-w-0 text-xs leading-5 text-brand-fg/50">
-                    共 {data.cities.length} 个城市 · 圆圈越大代表该城市校友人数越多
+                    {t('map.cityCount').replace('{count}', String(data.cities.length))}
                   </p>
                 </div>
               </div>
 
               {/* City ranking */}
               <div className="mt-8">
-                <h2 className="font-heading text-lg font-semibold text-[#4C1D95]">城市排行</h2>
-                <p className="mt-1 text-sm text-gray-500">按校友人数排序，点击展开详情</p>
+                <h2 className="font-heading text-lg font-semibold text-main">{t('map.rankingTitle')}</h2>
+                <p className="mt-1 text-sm text-main/60">{t('map.rankingDescription')}</p>
 
                 <div className="mt-4 max-h-[600px] overflow-y-auto space-y-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                   {data.cities.map((city, index) => (
@@ -223,27 +224,27 @@ export default function UniversityMapPage() {
                       <button
                         type="button"
                         onClick={() => toggleCity(city.city)}
-                        className="flex min-h-[44px] w-full items-center gap-3 bg-white/50 px-4 py-3.5 text-left transition hover:bg-surface-muted md:gap-4 md:px-5"
+                        className="flex min-h-[44px] w-full items-center gap-3 bg-surface/50 px-4 py-3.5 text-left transition hover:bg-surface-muted md:gap-4 md:px-5"
                       >
-                        <span className="w-5 shrink-0 text-center text-sm font-bold text-[#7C3AED]/60">
+                        <span className="w-5 shrink-0 text-center text-sm font-bold text-brand/60">
                           {index + 1}
                         </span>
-                        <span className="font-heading min-w-0 flex-1 truncate text-sm font-semibold text-[#4C1D95] md:text-base">
+                        <span className="font-heading min-w-0 flex-1 truncate text-sm font-semibold text-main md:text-base">
                           {city.city}
                         </span>
-                        <span className="inline-flex items-center gap-1 rounded-full border border-brand/20 bg-brand/5 px-2.5 py-0.5 text-xs font-medium text-[#7C3AED] shrink-0">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-brand/20 bg-brand/5 px-2.5 py-0.5 text-xs font-medium text-brand shrink-0">
                           <UsersRound size={12} />
                           {city.count}
                         </span>
                         {expandedCity === city.city ? (
-                          <ChevronUp size={16} className="shrink-0 text-gray-400" />
+                          <ChevronUp size={16} className="shrink-0 text-main/60" />
                         ) : (
-                          <ChevronDown size={16} className="shrink-0 text-gray-400" />
+                          <ChevronDown size={16} className="shrink-0 text-main/60" />
                         )}
                       </button>
 
                       {expandedCity === city.city && (
-                        <div className="border-t border-brand/5 bg-white/30 px-3 py-3 md:px-5 md:py-4">
+                        <div className="border-t border-brand/5 bg-surface/30 px-3 py-3 md:px-5 md:py-4">
                           {city.members.length > 0 ? (
                             <>
                               {/* 移动端卡片布局 */}
@@ -251,46 +252,46 @@ export default function UniversityMapPage() {
                                 {city.members.map((member) => (
                                   <div
                                     key={`${member.name}-${member.graduationClass}-${member.university}-${member.major}`}
-                                    className="rounded-xl border border-brand/10 bg-white/60 p-3 text-xs space-y-1.5"
+                                    className="rounded-xl border border-brand/10 bg-surface/60 p-3 text-xs space-y-1.5"
                                   >
                                     <div className="flex justify-between items-center">
-                                      <span className="font-semibold text-sm text-[#4C1D95]">{member.name}</span>
-                                      <span className="text-[#4C1D95]/60 font-semibold">{formatGraduationClass(member.graduationClass) || '暂无届别'}</span>
+                                      <span className="font-semibold text-sm text-main">{member.name}</span>
+                                      <span className="text-main/60 font-semibold">{member.graduationClass ? (locale === 'zh' ? formatGraduationClass(member.graduationClass) : `${member.graduationClass.replace(/\D/g, '')} Cohort`) : t('common.notAvailable')}</span>
                                     </div>
-                                    <div className="text-gray-500 flex justify-between gap-2 flex-wrap">
-                                      <span>大学: {member.university || '暂无'}</span>
-                                      <span>专业: {member.major || '暂无'}</span>
+                                    <div className="text-main/60 flex justify-between gap-2 flex-wrap">
+                                      <span>{t('map.university')}: {member.university || t('common.notAvailable')}</span>
+                                      <span>{t('map.major')}: {member.major || t('common.notAvailable')}</span>
                                     </div>
                                   </div>
                                 ))}
                               </div>
 
                               {/* 桌面端表格布局 */}
-                              <div className="hidden md:block overflow-hidden rounded-xl border border-brand/10 bg-white/70">
-                                <div className="grid grid-cols-[1.05fr_1.25fr_1fr_0.9fr] gap-3 border-b border-brand/10 bg-brand/5 px-4 py-3 text-xs font-medium text-gray-500">
-                                  <span>姓名</span>
-                                  <span>大学</span>
-                                  <span>专业</span>
-                                  <span>班级</span>
+                              <div className="hidden md:block overflow-hidden rounded-xl border border-brand/10 bg-surface/70">
+                                <div className="grid grid-cols-[1.05fr_1.25fr_1fr_0.9fr] gap-3 border-b border-brand/10 bg-brand/5 px-4 py-3 text-xs font-medium text-main/60">
+                                  <span>{t('map.name')}</span>
+                                  <span>{t('map.university')}</span>
+                                  <span>{t('map.major')}</span>
+                                  <span>{t('map.cohort')}</span>
                                 </div>
                                 <div className="divide-y divide-brand/5">
                                   {city.members.map((member) => (
                                     <div
                                       key={`${member.name}-${member.graduationClass}-${member.university}-${member.major}`}
-                                      className="grid grid-cols-[1.05fr_1.25fr_1fr_0.9fr] gap-3 px-4 py-3 text-sm text-gray-700"
+                                      className="grid grid-cols-[1.05fr_1.25fr_1fr_0.9fr] gap-3 px-4 py-3 text-sm text-main/60"
                                     >
-                                      <span className="font-medium text-[#4C1D95]">{member.name}</span>
-                                      <span>{member.university || '暂无'}</span>
-                                      <span>{member.major || '暂无'}</span>
-                                      <span>{formatGraduationClass(member.graduationClass) || '暂无'}</span>
+                                      <span className="font-medium text-main">{member.name}</span>
+                                      <span>{member.university || t('common.notAvailable')}</span>
+                                      <span>{member.major || t('common.notAvailable')}</span>
+                                      <span>{member.graduationClass ? (locale === 'zh' ? formatGraduationClass(member.graduationClass) : `${member.graduationClass.replace(/\D/g, '')} Cohort`) : t('common.notAvailable')}</span>
                                     </div>
                                   ))}
                                 </div>
                               </div>
                             </>
                           ) : (
-                            <div className="rounded-xl border border-dashed border-brand/10 bg-white/70 px-4 py-4 text-sm text-gray-400">
-                              暂无明细数据
+                            <div className="rounded-xl border border-dashed border-brand/10 bg-surface/70 px-4 py-4 text-sm text-main/60">
+                              {t('map.noDetails')}
                             </div>
                           )}
                         </div>
@@ -300,8 +301,8 @@ export default function UniversityMapPage() {
                 </div>
 
                 {data.uncounted > 0 && (
-                  <p className="mt-3 text-xs text-gray-400">
-                    * 另有 {data.uncounted} 位校友的城市信息暂未收录在地图中
+                  <p className="mt-3 text-xs text-main/60">
+                    {t('map.uncounted').replace('{count}', String(data.uncounted))}
                   </p>
                 )}
               </div>
@@ -309,12 +310,6 @@ export default function UniversityMapPage() {
           )}
         </div>
 
-        {/* Privacy notice */}
-        <DisclaimerBanner title="隐私与合规说明" className="mt-8">
-          本页面仅展示城市级别的校友大学分布统计，不显示任何个人联系方式、具体地址或位置信息。
-          所有数据来源于校友自愿登记的开源通讯录，仅供校友间联系与参考。
-          如需更正或删除您的信息，请联系管理员。
-        </DisclaimerBanner>
       </GlassCard>
     </PageShell>
   );

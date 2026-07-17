@@ -6,6 +6,7 @@ import { ArrowLeft, Feather } from "lucide-react";
 import { PageShell, GlassCard, ButtonLink } from "@/components/ui";
 import prisma from "@/lib/db";
 import { getRouteId, type IdRouteParams } from "@/lib/route-params";
+import { LocalizedText } from "@/components/LocalizedText";
 
 const SITE_URL = process.env.SITE_URL || "https://yanchuaner.cn";
 
@@ -75,18 +76,18 @@ export default async function StoryDetailPage({ params }: { params: IdRouteParam
       <GlassCard className="p-6 md:p-8">
         <ButtonLink href="/alumni/stories" variant="secondary" size="sm" className="mb-6">
           <ArrowLeft size={16} />
-          返回故事列表
+          <LocalizedText translationKey="contentPages.storyDetail.back" />
         </ButtonLink>
 
         <div className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-3 py-1 text-xs text-brand mb-4">
           <Feather size={14} />
-          STORY COLUMN
+          <LocalizedText translationKey="contentPages.storyDetail.eyebrow" />
         </div>
 
         <h1 className="font-heading text-2xl font-bold text-brand-fg md:text-3xl">{story.title}</h1>
 
         <div className="mt-3 flex items-center gap-3 text-sm text-brand-fg/50">
-          <span>{story.author || '匿名校友'}</span>
+          <span>{story.author || <LocalizedText translationKey="contentPages.storyDetail.anonymous" />}</span>
           <span>·</span>
           <span>{formatDate(story.date)}</span>
         </div>
