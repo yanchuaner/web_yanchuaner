@@ -5,6 +5,8 @@
 
 阶段 1 状态：`IMPLEMENTED_AWAITING_E2E`。YanCore Subject Grant、主站 S256 PKCE、受控主体交换、15 分钟逐用户应用 Key 和自主 AI Web SSE 对话链路已经实现；下一阻断项是用真实 OpenAI/DeepSeek 完成额度、退款、request ID 与审计查询验收。Open WebUI 与 New API 只保留为可替换的过渡客户端/兼容网关。
 
+阶段 0 决策真值分别维护在 `api_yanchuaner/docs/yanchuaner/phase-0-decision-record.md` 与 `ai_yanchuaner/docs/phase-0-gate.md`。`DEVELOPMENT_READY` 只表示自主研发可以继续，不代表外部授权、隐私、生产权限或公开稳定发布已经放行；门禁不能由单个仓库自行解除。
+
 一、发布定位
 
 这次更新不命名为简单的 v2 或 v3，而是燕中生态第一次完整的联合预览。
