@@ -32,7 +32,14 @@ type AuthorizationCodeRecord = {
   clientId: string;
   redirectUri: string;
   nonce?: string;
+  codeChallenge?: string;
   identity: OAuthIdentity;
+};
+
+type OAuthAuthorizationRequest = {
+  state: string;
+  nonce?: string;
+  codeChallenge?: string;
 };
 
 export type OAuthProviderMetadata = {
@@ -189,9 +196,11 @@ export function constantTimeSecretEqual(actual: string, expected: string): boole
 export function validateAuthorizationRequest(
   params: URLSearchParams,
   config: OAuthProviderConfig,
-): { state: string; nonce?: string } | null {
+): OAuthAuthorizationRequest | null {
   const state = params.get("state") ?? "";
   const nonce = params.get("nonce") ?? "";
+  const codeChallenge = params.get("code_challenge") ?? "";
+  const codeChallengeMethod = params.get("code_challenge_method") ?? "";
   const requestedScopes = (params.get("scope") ?? "")
     .split(/\s+/)
     .filter(Boolean);
@@ -202,13 +211,33 @@ export function validateAuthorizationRequest(
     !state ||
     state.length > 512 ||
     nonce.length > 512 ||
+    (codeChallenge !== "" &&
+      (codeChallengeMethod !== "S256" ||
+        !/^[A-Za-z0-9_-]{43}$/.test(codeChallenge))) ||
+    (codeChallenge === "" && codeChallengeMethod !== "") ||
     requestedScopes.some(
       (scope) => !["openid", "profile", "email"].includes(scope),
     )
   ) {
     return null;
   }
-  return nonce ? { state, nonce } : { state };
+  return {
+    state,
+    ...(nonce ? { nonce } : {}),
+    ...(codeChallenge ? { codeChallenge } : {}),
+  };
+}
+
+export function validatePkceCodeVerifier(
+  codeChallenge: string | undefined,
+  codeVerifier: string,
+): boolean {
+  if (!codeChallenge) return true;
+  if (!/^[A-Za-z0-9._~-]{43,128}$/.test(codeVerifier)) return false;
+  const actualChallenge = createHash("sha256")
+    .update(codeVerifier, "ascii")
+    .digest("base64url");
+  return constantTimeSecretEqual(actualChallenge, codeChallenge);
 }
 
 export function isOAuthEligibleUser(user: AuthenticatedUser): boolean {
@@ -263,12 +292,14 @@ export async function issueAuthorizationCode(
   user: AuthenticatedUser,
   config: OAuthProviderConfig,
   nonce?: string,
+  codeChallenge?: string,
 ): Promise<string> {
   const code = randomBytes(32).toString("base64url");
   const record: AuthorizationCodeRecord = {
     clientId: config.clientId,
     redirectUri: config.redirectUri,
     nonce,
+    codeChallenge,
     identity: toOAuthIdentity(user),
   };
   const stored = await redisOrThrow().set(

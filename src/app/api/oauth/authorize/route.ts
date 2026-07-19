@@ -50,7 +50,12 @@ export async function GET(req: NextRequest) {
       return noStore(NextResponse.redirect(callback));
     }
 
-    const code = await issueAuthorizationCode(user, config, request.nonce);
+    const code = await issueAuthorizationCode(
+      user,
+      config,
+      request.nonce,
+      request.codeChallenge,
+    );
     callback.searchParams.set("code", code);
     return noStore(NextResponse.redirect(callback));
   } catch {
