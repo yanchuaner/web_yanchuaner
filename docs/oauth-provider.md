@@ -14,6 +14,8 @@
 
 New API 和 Open WebUI 使用不同客户端密钥。Open WebUI 通过标准 OIDC 发现文档接入，ID Token 使用主站持久化 RSA 私钥进行 RS256 签名，JWKS 仅发布公钥，并绑定 `aud` 与请求 `nonce`；API 平台继续使用 Token + UserInfo 的通用 OAuth 流程。
 
+主站支持授权码流程的 S256 PKCE。发送 `code_challenge` 的客户端必须同时发送 `code_challenge_method=S256`，Token 请求必须提供匹配的 `code_verifier`；错误 verifier 会消费并作废一次性授权码。未发送 challenge 的既有机密客户端暂时保持兼容，新的燕中 AI Web 必须使用 PKCE、state 与 nonce。
+
 燕中 API 关闭本地密码登录与密码注册，只保留主站 SSO。New API 仅信任 slug 为 `yanchuaner` 的提供方同步角色：主站 `admin` 对应 New API root，三类普通认证成员对应普通用户；其他通用 OAuth 提供方不能借同名字段提权。
 
 ## New API 自定义 OAuth 配置
