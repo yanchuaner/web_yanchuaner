@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { generateKeyPairSync } from "node:crypto";
+import { createHash, generateKeyPairSync } from "node:crypto";
 import test from "node:test";
 import type { AuthenticatedUser } from "../src/lib/admin-auth";
 import {
@@ -7,6 +7,7 @@ import {
   issueOAuthIdToken,
   isOAuthEligibleUser,
   validateAuthorizationRequest,
+  validatePkceCodeVerifier,
   type OAuthProviderConfig,
 } from "../src/lib/oauth-provider";
 
@@ -56,6 +57,21 @@ test("authorization request requires exact client, redirect, response type and s
     nonce: "nonce-1",
   });
 
+  const verifier = "0123456789012345678901234567890123456789012";
+  const challenge = createHash("sha256").update(verifier).digest("base64url");
+  const withPkce = new URLSearchParams(withNonce);
+  withPkce.set("code_challenge", challenge);
+  withPkce.set("code_challenge_method", "S256");
+  assert.deepEqual(validateAuthorizationRequest(withPkce, config), {
+    state: "state-1",
+    nonce: "nonce-1",
+    codeChallenge: challenge,
+  });
+
+  const plainPkce = new URLSearchParams(withPkce);
+  plainPkce.set("code_challenge_method", "plain");
+  assert.equal(validateAuthorizationRequest(plainPkce, config), null);
+
   for (const field of ["response_type", "client_id", "redirect_uri"]) {
     const invalid = new URLSearchParams(valid);
     invalid.set(field, "wrong");
@@ -69,6 +85,15 @@ test("authorization request requires exact client, redirect, response type and s
   const oversizedState = new URLSearchParams(valid);
   oversizedState.set("state", "x".repeat(513));
   assert.equal(validateAuthorizationRequest(oversizedState, config), null);
+});
+
+test("PKCE only accepts a matching S256 verifier when challenge is present", () => {
+  const verifier = "0123456789012345678901234567890123456789012";
+  const challenge = createHash("sha256").update(verifier).digest("base64url");
+  assert.equal(validatePkceCodeVerifier(challenge, verifier), true);
+  assert.equal(validatePkceCodeVerifier(challenge, `${verifier.slice(0, -1)}x`), false);
+  assert.equal(validatePkceCodeVerifier(challenge, "short"), false);
+  assert.equal(validatePkceCodeVerifier(undefined, ""), true);
 });
 
 test("OIDC ID token is audience-bound and carries the authorization nonce", () => {
