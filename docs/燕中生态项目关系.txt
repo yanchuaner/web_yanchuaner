@@ -29,7 +29,7 @@
    边界：不维护第二套公开注册，不作为用户余额真值，不公开 LiteLLM 管理端；Open WebUI 共享 Key 只记独立服务账户，自主 AI Web 短期 Key 才允许进入个人公益额度链路，两者不得混账。
 
 3. api.yanchuaner.cn / api_yanchuaner
-   状态：主站 OIDC 与过渡控制面链路已完成；B2 的哈希虚拟 Key、不可变额度流水和钱包预扣/结算/退款已完成验证；阶段 1 已实现 YanCore 主体凭证、固定 UserInfo 复验、并发会话指针与逐用户短期应用 Key。隔离 Docker 已通过 LiteLLM 路由、API Key、额度 settlement、audit/log request ID 闭环；真实 OpenAI/DeepSeek、主站 OIDC 和 staging 回环网络仍待验收。
+   状态：主站 OIDC 与过渡控制面链路已完成；B2 的哈希虚拟 Key、不可变额度流水和钱包预扣/结算/退款已完成验证；阶段 1 已实现 YanCore 主体凭证、固定 UserInfo 复验、并发会话指针与逐用户短期应用 Key；阶段 2 已实现独立活动、哈希兑换码、用户权益、领取幂等和 `campaign` 来源流水。隔离 Docker 已通过 LiteLLM 路由、API Key、额度 settlement、audit/log request ID 闭环；真实 OpenAI/DeepSeek、主站 OIDC 和 staging 回环网络仍待验收。
    职责：模型 API 控制面，管理用户密钥、模型权限、公益额度、限流、用量和审计。
    规则：关闭本地密码登录；首期新成员公益额度为 1 USD / 7 CNY；新虚拟 Key 只显示一次且仅保存哈希；管理员调额必须填写原因并追加不可变流水。
 
@@ -83,7 +83,7 @@ AI 工作台链路：
 
 Open WebUI 过渡链路继续使用燕中 API 受限服务 Key 并暂记独立服务账户，不继承自主 AI Web 的个人主体，也不得静默扣减个人公益额度。
 
-主站是身份真值；燕中 API 的不可变流水是权益与消费账本真值，users.quota 仅作兼容投影；LiteLLM 费用只用于上游成本核对。各项目不共享登录 Cookie，不复制主站用户表，不把真实密钥提交到 Git。
+主站是身份真值；燕中 API 的不可变流水是权益与消费账本真值，users.quota 仅作兼容投影；公益、活动权益和未来 BYOK 使用不同 funding source，不能静默互相扣费；LiteLLM 费用只用于上游成本核对。各项目不共享登录 Cookie，不复制主站用户表，不把真实密钥提交到 Git。
 
 五、暑期预览统一完成标准
 
