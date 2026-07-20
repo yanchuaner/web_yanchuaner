@@ -6,6 +6,7 @@
 阶段 1 状态：`IMPLEMENTED_PARTIAL_E2E`。YanCore Subject Grant、主站 S256 PKCE、受控主体交换、15 分钟逐用户应用 Key 和自主 AI Web SSE 对话链路已经实现；隔离 Docker 环境已验证 LiteLLM 三模型路由、API 受限 Key、真实额度结算、不可变流水、用量日志与 request ID。下一阻断项是 Linux/HTTPS staging 中的主站 OIDC 端到端、真实 OpenAI/DeepSeek、失败退款和跨渠道验收。Open WebUI 与 New API 只保留为可替换的过渡客户端/兼容网关。
 
 本轮隔离验收使用全新 PostgreSQL 卷和本机 OpenAI 兼容测试上游，不包含真实供应商密钥或生产数据；Windows Docker Desktop 的宿主回环代理和 Docker Hub Node 镜像拉取仍阻断自主 AI Web 容器级验收，不能将测试上游结果宣称为真实供应商验收。
+本轮隔离验收使用全新 PostgreSQL 卷和本机 OpenAI 兼容测试上游，不包含真实供应商密钥或生产数据；Windows Docker Desktop 的宿主回环代理和 Docker Hub Node 镜像拉取仍阻断自主 AI Web 容器级验收，不能将测试上游结果宣称为真实供应商验收。
 
 阶段 0 决策真值分别维护在 `api_yanchuaner/docs/yanchuaner/phase-0-decision-record.md` 与 `ai_yanchuaner/docs/phase-0-gate.md`。`DEVELOPMENT_READY` 只表示自主研发可以继续，不代表外部授权、隐私、生产权限或公开稳定发布已经放行；门禁不能由单个仓库自行解除。
 
