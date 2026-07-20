@@ -1,9 +1,13 @@
 2026 燕中生态暑期预览 / Yanchuan Ecosystem Summer Preview
-更新日期：2026-07-19
+更新日期：2026-07-20
 
 阶段 0 状态：`DEVELOPMENT_READY`。燕中校友汇具备公益运营资格，工程、版权和发布边界已经登记；Open WebUI 无品牌授权不阻止自主研发，但在自主入口完成前不得把 Open WebUI 包装成燕中原创产品或据此扩大公开稳定服务。
 
-阶段 1 状态：`IMPLEMENTED_AWAITING_E2E`。YanCore Subject Grant、主站 S256 PKCE、受控主体交换、15 分钟逐用户应用 Key 和自主 AI Web SSE 对话链路已经实现；下一阻断项是用真实 OpenAI/DeepSeek 完成额度、退款、request ID 与审计查询验收。Open WebUI 与 New API 只保留为可替换的过渡客户端/兼容网关。
+阶段 1 状态：`IMPLEMENTED_PARTIAL_E2E`。YanCore Subject Grant、主站 S256 PKCE、受控主体交换、15 分钟逐用户应用 Key 和自主 AI Web SSE 对话链路已经实现；隔离 Docker 环境已验证 LiteLLM 三模型路由、API 受限 Key、真实额度结算、不可变流水、用量日志与 request ID。下一阻断项是 Linux/HTTPS staging 中的主站 OIDC 端到端、真实 OpenAI/DeepSeek、失败退款和跨渠道验收。Open WebUI 与 New API 只保留为可替换的过渡客户端/兼容网关。
+
+本轮隔离验收使用全新 PostgreSQL 卷和本机 OpenAI 兼容测试上游，不包含真实供应商密钥或生产数据；Windows Docker Desktop 的宿主回环代理和 Docker Hub Node 镜像拉取仍阻断自主 AI Web 容器级验收，不能将测试上游结果宣称为真实供应商验收。
+
+阶段 0 决策真值分别维护在 `api_yanchuaner/docs/yanchuaner/phase-0-decision-record.md` 与 `ai_yanchuaner/docs/phase-0-gate.md`。`DEVELOPMENT_READY` 只表示自主研发可以继续，不代表外部授权、隐私、生产权限或公开稳定发布已经放行；门禁不能由单个仓库自行解除。
 
 一、发布定位
 
@@ -20,12 +24,12 @@
    边界：不保存模型厂商密钥，不承担模型计费，不复制子站业务数据库。
 
 2. ai.yanchuaner.cn / ai_yanchuaner
-   状态：Open WebUI/LiteLLM PoC 保留；自主 `apps/ai-web` 已完成主站 OIDC、加密 HttpOnly 会话、YanCore 用户主体、模型白名单、会话预算、SSE BFF 和最小对话界面。代码路径已使用逐用户短期 Key，真实渠道与资金安全仍待集成验收。
+   状态：Open WebUI/LiteLLM PoC 保留；自主 `apps/ai-web` 已完成主站 OIDC、加密 HttpOnly 会话、YanCore 用户主体、模型白名单、会话预算、SSE BFF 和最小对话界面。隔离环境已验证 API 逐用户计费下游，真实主站 OIDC、真实供应商、退款和容器级运行仍待 staging 验收。
    职责：为认证成员提供网页 AI 工作台，承载对话、内容辅助和后续轻量工具。
    边界：不维护第二套公开注册，不作为用户余额真值，不公开 LiteLLM 管理端；Open WebUI 共享 Key 只记独立服务账户，自主 AI Web 短期 Key 才允许进入个人公益额度链路，两者不得混账。
 
 3. api.yanchuaner.cn / api_yanchuaner
-   状态：主站 OIDC 与过渡控制面链路已完成；B2 的哈希虚拟 Key、不可变额度流水和钱包预扣/结算/退款已完成验证；阶段 1 已实现 YanCore 主体凭证、固定 UserInfo 复验、并发会话指针与逐用户短期应用 Key，仍待真实 OpenAI/DeepSeek 集成验收。
+   状态：主站 OIDC 与过渡控制面链路已完成；B2 的哈希虚拟 Key、不可变额度流水和钱包预扣/结算/退款已完成验证；阶段 1 已实现 YanCore 主体凭证、固定 UserInfo 复验、并发会话指针与逐用户短期应用 Key。隔离 Docker 已通过 LiteLLM 路由、API Key、额度 settlement、audit/log request ID 闭环；真实 OpenAI/DeepSeek、主站 OIDC 和 staging 回环网络仍待验收。
    职责：模型 API 控制面，管理用户密钥、模型权限、公益额度、限流、用量和审计。
    规则：关闭本地密码登录；首期新成员公益额度为 1 USD / 7 CNY；新虚拟 Key 只显示一次且仅保存哈希；管理员调额必须填写原因并追加不可变流水。
 
