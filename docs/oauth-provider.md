@@ -55,4 +55,38 @@ npx tsc --noEmit
 npm run lint
 ```
 
-部署前还需在真实 Redis 上验证三类认证成员登录、管理员角色同步、未登录跳转、未认证拒绝、本地密码拒绝、错误回调地址、授权码重放和账号停用后的重新授权。
+本地隔离环境还必须执行真实 HTTP 合同验收。它会使用 `scripts/seed_acceptance.ts` 提供的假账号，向 Redis 写入短期测试授权码与访问令牌；默认拒绝生产环境和非本机地址。
+
+```powershell
+docker run --rm --name yanchuaner-oauth-contract-redis -p 127.0.0.1:6390:6379 redis:7.4-alpine@sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99
+```
+
+在另一个 PowerShell 窗口中：
+
+```powershell
+$env:DATABASE_URL="file:./.tmp/oauth-contract.db"
+$env:NODE_ENV="development"
+$env:SESSION_SECRET="oauth-contract-local-session-secret-at-least-32-chars"
+$env:REDIS_URL="redis://127.0.0.1:6390/0"
+$env:YANCHUANER_OAUTH_CLIENT_ID="api-yanchuaner"
+$env:YANCHUANER_OAUTH_CLIENT_SECRET="oauth-contract-client-secret"
+$env:YANCHUANER_OAUTH_REDIRECT_URI="http://127.0.0.1:3191/oauth/yanchuaner"
+$env:YANCHUANER_OAUTH_ISSUER="http://127.0.0.1:3191"
+$env:YANCHUANER_OAUTH_INTERNAL_URL="http://127.0.0.1:3191"
+$env:YANCHUANER_OAUTH_SIGNING_KEY=(node -e "const { generateKeyPairSync } = require('crypto'); process.stdout.write(generateKeyPairSync('rsa',{modulusLength:2048}).privateKey.export({format:'der',type:'pkcs8'}).toString('base64'))")
+$env:ACCEPTANCE_ALLOW_MUTATION="true"
+$env:YANCHUANER_OAUTH_CONTRACT_ALLOW_TEST="true"
+
+npm run db:init
+npm run seed:acceptance
+npx next dev -H 127.0.0.1 -p 3191
+```
+
+服务就绪后，在同一环境变量下执行：
+
+```powershell
+$env:YANCHUANER_OAUTH_CONTRACT_BASE_URL="http://127.0.0.1:3191"
+npm run test:oauth-provider:contract
+```
+
+该合同覆盖发现文档、未登录跳转、精确回调地址、认证成员授权、非认证成员拒绝、S256 PKCE、一次性授权码、UserInfo、RS256/JWKS 与 `iss`、`aud`、`nonce` 绑定。通过合同后仍需在 Linux/HTTPS staging 验证 New API 的真实回调、管理员角色同步、Open WebUI 登录和账号停用后的重新授权。

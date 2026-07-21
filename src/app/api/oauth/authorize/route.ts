@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthenticatedUser } from "@/lib/admin-auth";
+import {
+  AUTH_COOKIE,
+  resolveAuthenticatedUser,
+} from "@/lib/admin-auth";
+import { verifyToken } from "@/lib/verify-token";
 import {
   findOAuthProviderConfig,
   isOAuthEligibleUser,
@@ -32,7 +36,12 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const user = await getAuthenticatedUser(req);
+    const sessionToken = req.cookies.get(AUTH_COOKIE)?.value;
+    // A valid but ineligible primary-site session must receive the OAuth
+    // denial callback, rather than being mistaken for an anonymous visitor.
+    const user = await resolveAuthenticatedUser(
+      sessionToken ? verifyToken(sessionToken) : null,
+    );
     if (!user) {
       const returnPath = `${req.nextUrl.pathname}${req.nextUrl.search}`;
       const loginUrl = new URL(
