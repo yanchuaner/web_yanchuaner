@@ -83,25 +83,42 @@ export function getOAuthProviderConfigs(): OAuthProviderConfig[] {
     clientSecret: requiredEnv("YANCHUANER_OAUTH_CLIENT_SECRET"),
     redirectUri: requiredEnv("YANCHUANER_OAUTH_REDIRECT_URI"),
   })];
-  const aiValues = [
-    process.env.YANCHUANER_AI_OAUTH_CLIENT_ID?.trim(),
-    process.env.YANCHUANER_AI_OAUTH_CLIENT_SECRET?.trim(),
-    process.env.YANCHUANER_AI_OAUTH_REDIRECT_URI?.trim(),
+  const optionalClients = [
+    {
+      name: "YANCHUANER_AI_OAUTH",
+      values: [
+        process.env.YANCHUANER_AI_OAUTH_CLIENT_ID?.trim(),
+        process.env.YANCHUANER_AI_OAUTH_CLIENT_SECRET?.trim(),
+        process.env.YANCHUANER_AI_OAUTH_REDIRECT_URI?.trim(),
+      ],
+    },
+    {
+      name: "YANCHUANER_AI_WEB_OAUTH",
+      values: [
+        process.env.YANCHUANER_AI_WEB_OAUTH_CLIENT_ID?.trim(),
+        process.env.YANCHUANER_AI_WEB_OAUTH_CLIENT_SECRET?.trim(),
+        process.env.YANCHUANER_AI_WEB_OAUTH_REDIRECT_URI?.trim(),
+      ],
+    },
   ];
-  if (aiValues.some(Boolean)) {
-    if (!aiValues.every(Boolean)) {
+  for (const client of optionalClients) {
+    if (!client.values.some(Boolean)) continue;
+    if (!client.values.every(Boolean)) {
       throw new OAuthProviderUnavailableError(
-        "YANCHUANER_AI_OAUTH client configuration is incomplete",
+        `${client.name} client configuration is incomplete`,
       );
     }
     configs.push(validateProviderConfig({
-      clientId: aiValues[0]!,
-      clientSecret: aiValues[1]!,
-      redirectUri: aiValues[2]!,
+      clientId: client.values[0]!,
+      clientSecret: client.values[1]!,
+      redirectUri: client.values[2]!,
     }));
   }
   if (new Set(configs.map((config) => config.clientId)).size !== configs.length) {
     throw new OAuthProviderUnavailableError("OAuth client IDs must be unique");
+  }
+  if (new Set(configs.map((config) => config.clientSecret)).size !== configs.length) {
+    throw new OAuthProviderUnavailableError("OAuth client secrets must be unique");
   }
   return configs;
 }

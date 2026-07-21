@@ -4,6 +4,7 @@ import test from "node:test";
 import type { AuthenticatedUser } from "../src/lib/admin-auth";
 import {
   constantTimeSecretEqual,
+  getOAuthProviderConfigs,
   issueOAuthIdToken,
   isOAuthEligibleUser,
   validateAuthorizationRequest,
@@ -142,4 +143,69 @@ test("only verified school members and administrators are OAuth eligible", () =>
 test("client secrets are compared by value without length-dependent branching", () => {
   assert.equal(constantTimeSecretEqual("same", "same"), true);
   assert.equal(constantTimeSecretEqual("short", "a-different-value"), false);
+});
+
+test("API, Open WebUI and autonomous AI Web use isolated OAuth clients", () => {
+  const names = [
+    "YANCHUANER_OAUTH_CLIENT_ID",
+    "YANCHUANER_OAUTH_CLIENT_SECRET",
+    "YANCHUANER_OAUTH_REDIRECT_URI",
+    "YANCHUANER_AI_OAUTH_CLIENT_ID",
+    "YANCHUANER_AI_OAUTH_CLIENT_SECRET",
+    "YANCHUANER_AI_OAUTH_REDIRECT_URI",
+    "YANCHUANER_AI_WEB_OAUTH_CLIENT_ID",
+    "YANCHUANER_AI_WEB_OAUTH_CLIENT_SECRET",
+    "YANCHUANER_AI_WEB_OAUTH_REDIRECT_URI",
+  ] as const;
+  const previous = new Map(names.map((name) => [name, process.env[name]]));
+  try {
+    Object.assign(process.env, {
+      YANCHUANER_OAUTH_CLIENT_ID: "api-yanchuaner",
+      YANCHUANER_OAUTH_CLIENT_SECRET: "api-secret",
+      YANCHUANER_OAUTH_REDIRECT_URI: "https://api.yanchuaner.cn/oauth/yanchuaner",
+      YANCHUANER_AI_OAUTH_CLIENT_ID: "openwebui-yanchuaner",
+      YANCHUANER_AI_OAUTH_CLIENT_SECRET: "openwebui-secret",
+      YANCHUANER_AI_OAUTH_REDIRECT_URI: "https://ai.yanchuaner.cn/oauth/oidc/callback",
+      YANCHUANER_AI_WEB_OAUTH_CLIENT_ID: "ai-web-yanchuaner",
+      YANCHUANER_AI_WEB_OAUTH_CLIENT_SECRET: "ai-web-secret",
+      YANCHUANER_AI_WEB_OAUTH_REDIRECT_URI: "https://ai.yanchuaner.cn/api/auth/callback",
+    });
+    assert.deepEqual(getOAuthProviderConfigs(), [
+      {
+        clientId: "api-yanchuaner",
+        clientSecret: "api-secret",
+        redirectUri: "https://api.yanchuaner.cn/oauth/yanchuaner",
+      },
+      {
+        clientId: "openwebui-yanchuaner",
+        clientSecret: "openwebui-secret",
+        redirectUri: "https://ai.yanchuaner.cn/oauth/oidc/callback",
+      },
+      {
+        clientId: "ai-web-yanchuaner",
+        clientSecret: "ai-web-secret",
+        redirectUri: "https://ai.yanchuaner.cn/api/auth/callback",
+      },
+    ]);
+
+    delete process.env.YANCHUANER_AI_WEB_OAUTH_CLIENT_SECRET;
+    assert.throws(
+      () => getOAuthProviderConfigs(),
+      /YANCHUANER_AI_WEB_OAUTH client configuration is incomplete/,
+    );
+
+    process.env.YANCHUANER_AI_WEB_OAUTH_CLIENT_SECRET = "ai-web-secret";
+    process.env.YANCHUANER_AI_WEB_OAUTH_CLIENT_ID = "openwebui-yanchuaner";
+    assert.throws(() => getOAuthProviderConfigs(), /OAuth client IDs must be unique/);
+
+    process.env.YANCHUANER_AI_WEB_OAUTH_CLIENT_ID = "ai-web-yanchuaner";
+    process.env.YANCHUANER_AI_WEB_OAUTH_CLIENT_SECRET = "openwebui-secret";
+    assert.throws(() => getOAuthProviderConfigs(), /OAuth client secrets must be unique/);
+  } finally {
+    for (const name of names) {
+      const value = previous.get(name);
+      if (value === undefined) delete process.env[name];
+      else process.env[name] = value;
+    }
+  }
 });

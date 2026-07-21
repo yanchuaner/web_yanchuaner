@@ -12,7 +12,7 @@
 
 只允许邮箱已验证、账号有效、审核状态为 `VERIFIED`，且身份为 `ALUMNI`、`STUDENT` 或 `TEACHER` 的用户；管理员用于统一运维。主站签发的粗粒度角色为 `alumni`、`student`、`teacher` 或 `admin`。授权码在 Redis 中保存 60 秒且只能消费一次，访问令牌保存 5 分钟。生产环境未配置 Redis 或 OAuth 环境变量时端点返回 `temporarily_unavailable`，不会降级为可重放的无状态授权码。
 
-New API 和 Open WebUI 使用不同客户端密钥。Open WebUI 通过标准 OIDC 发现文档接入，ID Token 使用主站持久化 RSA 私钥进行 RS256 签名，JWKS 仅发布公钥，并绑定 `aud` 与请求 `nonce`；API 平台继续使用 Token + UserInfo 的通用 OAuth 流程。
+New API、Open WebUI 和自主燕中 AI Web 使用三个不同的机密客户端，分别限制精确回调并独立轮换密钥。Open WebUI 与自主 AI Web 通过标准 OIDC 发现文档接入，ID Token 使用主站持久化 RSA 私钥进行 RS256 签名，JWKS 仅发布公钥，并绑定 `aud` 与请求 `nonce`；API 平台继续使用 Token + UserInfo 的通用 OAuth 流程。
 
 主站支持授权码流程的 S256 PKCE。发送 `code_challenge` 的客户端必须同时发送 `code_challenge_method=S256`，Token 请求必须提供匹配的 `code_verifier`；错误 verifier 会消费并作废一次性授权码。未发送 challenge 的既有机密客户端暂时保持兼容，新的燕中 AI Web 必须使用 PKCE、state 与 nonce。
 
@@ -44,6 +44,18 @@ New API 和 Open WebUI 使用不同客户端密钥。Open WebUI 通过标准 OID
 | Discovery URL | `https://yanchuaner.cn/api/oauth/.well-known/openid-configuration` |
 | Redirect URI | `https://ai.yanchuaner.cn/oauth/oidc/callback` |
 | Scope | `openid profile email` |
+
+## 自主燕中 AI Web OIDC 配置
+
+| 配置 | 值 |
+| --- | --- |
+| Client ID | `YANCHUANER_AI_WEB_OAUTH_CLIENT_ID` |
+| Client Secret | `YANCHUANER_AI_WEB_OAUTH_CLIENT_SECRET` |
+| Discovery URL | `https://yanchuaner.cn/api/oauth/.well-known/openid-configuration` |
+| Redirect URI | `https://ai.yanchuaner.cn/api/auth/callback` |
+| Scope | `openid profile email` |
+
+Open WebUI 与自主 AI Web 即使部署在同一域名，也不得复用 client ID 或 Secret。两个回调路径、会话实现和下游凭证归因不同，复用会破坏精确 `redirect_uri` 和独立撤销边界。
 
 开发环境的发现文档为容器返回可达的 `host.docker.internal` Token/UserInfo 地址，但授权端点和回调保持浏览器可访问的 `localhost` 地址。生产环境两者均应使用正式 HTTPS 域名。
 
