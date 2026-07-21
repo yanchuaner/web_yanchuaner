@@ -11,6 +11,7 @@
     "test:mp-contract": "tsx --test scripts/mp-contract.test.ts",
     "test:web-auth": "tsx --test scripts/web-account-state.test.ts",
     "test:oauth-provider": "tsx --test scripts/oauth-provider.test.ts",
+    "test:oauth-provider:contract": "node scripts/oauth-provider-contract.js",
     "test:registration-policy": "tsx --test scripts/registration-policy.test.ts",
     "test:acceptance": "node scripts/acceptance-smoke.js",
     "seed:acceptance": "tsx scripts/seed_acceptance.ts",
