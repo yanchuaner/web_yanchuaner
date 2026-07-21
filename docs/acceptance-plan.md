@@ -28,6 +28,8 @@ npm run test:acceptance
 
 脚本覆盖网站管理员登录、受保护页面、管理员 API、小程序模拟登录、个人资料、新闻、活动、报名、取消报名、认证申请和账号注销。seed 和 smoke 都有保护条件，默认拒绝生产环境和远程地址。
 
+主站作为 API 与 AI 的身份中心时，还要按 [`oauth-provider.md`](./oauth-provider.md) 启动独立 Redis 并运行 `npm run test:oauth-provider:contract`。该测试只针对隔离数据库、测试账号和本机 Redis；它不能替代 Linux/HTTPS staging 的 New API 与 Open WebUI 回调验收。
+
 ## 人工验收矩阵
 
 | 角色 | 必测流程 | 成功标准 |
