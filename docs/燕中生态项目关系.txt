@@ -3,9 +3,11 @@
 
 阶段 0 状态：`DEVELOPMENT_READY`。燕中校友汇具备公益运营资格，工程、版权和发布边界已经登记；Open WebUI 无品牌授权不阻止自主研发，但在自主入口完成前不得把 Open WebUI 包装成燕中原创产品或据此扩大公开稳定服务。
 
-阶段 1 状态：`IMPLEMENTED_PARTIAL_E2E`。YanCore Subject Grant、主站 S256 PKCE、受控主体交换、15 分钟逐用户应用 Key 和自主 AI Web SSE 对话链路已经实现；隔离 Docker 环境已验证 LiteLLM 三模型路由、API 受限 Key、真实额度结算、不可变流水、用量日志与 request ID。下一阻断项是 Linux/HTTPS staging 中的主站 OIDC 端到端、真实 OpenAI/DeepSeek、失败退款和跨渠道验收。Open WebUI 与 New API 只保留为可替换的过渡客户端/兼容网关。
+阶段 1 状态：`IMPLEMENTED_PARTIAL_E2E`。YanCore Subject Grant、主站 S256 PKCE、受控主体交换、15 分钟逐用户应用 Key 和自主 AI Web SSE 对话链路已经实现；隔离 Docker 环境已验证 LiteLLM 三模型路由、API 受限 Key、真实额度结算、不可变流水、用量日志与 request ID。下一阻断项是 New API/Open WebUI 消费者真实回调、Linux/HTTPS staging、真实 OpenAI/DeepSeek、失败退款和跨渠道验收。Open WebUI 与 New API 只保留为可替换的过渡客户端/兼容网关。
 
 阶段 2 状态：`IMPLEMENTED_LOCAL_ACCEPTANCE_PENDING`。活动/兑换码/权益来源分账和同步结算已经实现；阶段 2E 已提供自主虚拟 Key 策略控制台与管理员安全回填：策略与 Token 投影保持原子更新和不可变修订，历史哈希 Key 必须先经不含 Key 材料的预检，再以明确 Token ID、小批量和原因执行回填；无法安全分类的项保持禁用，仍启用的风险 Key 同时冻结。旧 Token 写入口对策略 Key 返回 409，异步、媒体与任务协议在具备持久化预扣/结算前 fail-closed。SQLite、PostgreSQL 16.14、MySQL 8.0、Redis 7、前端构建和生产依赖审计已通过本地验证；下一步是真实 OpenAI/DeepSeek/OIDC 验收。
+
+阶段 3 状态：`PROVIDER_CONTRACT_PASSED_CONSUMERS_PENDING`。主站 OAuth/OIDC 提供方已在 WSL、隔离 SQLite 和独立 Redis 中通过 45 项真实 HTTP 合同，覆盖主站登录、未登录跳转、非认证成员 `access_denied`、精确回调、错误客户端、S256 PKCE、一次性授权码、UserInfo、RS256/JWKS 以及 `iss` / `aud` / `nonce` 绑定；API 集成脚本已停止把 discovery/JWKS/provider 预检误报为完整身份链路。下一步仍是 New API 与 Open WebUI 消费者真实回调、重复登录、角色同步、账号停用和 HTTPS staging 验收。
 
 本轮隔离验收使用全新 PostgreSQL 卷和本机 OpenAI 兼容测试上游，不包含真实供应商密钥或生产数据；Windows Docker Desktop 的宿主回环代理和 Docker Hub Node 镜像拉取仍阻断自主 AI Web 容器级验收，不能将测试上游结果宣称为真实供应商验收。
 
@@ -21,7 +23,7 @@
 二、一主站与五子域
 
 1. yanchuaner.cn / web_yanchuaner
-   状态：生态核心已进入联合预览准备；OIDC 已支持 S256 PKCE、state、nonce、RS256 ID Token 与一次性授权码。
+   状态：生态核心已进入联合预览准备；OIDC 已支持 S256 PKCE、state、nonce、RS256 ID Token 与一次性授权码，并在 WSL 隔离环境通过 45 项提供方 HTTP 合同。
    职责：唯一身份源、生态首页、成员认证、校友内容、活动、个人中心与运营后台。
    边界：不保存模型厂商密钥，不承担模型计费，不复制子站业务数据库。
 
@@ -31,7 +33,7 @@
    边界：不维护第二套公开注册，不作为用户余额真值，不公开 LiteLLM 管理端；Open WebUI 共享 Key 只记独立服务账户，自主 AI Web 短期 Key 才允许进入个人公益额度链路，两者不得混账。
 
 3. api.yanchuaner.cn / api_yanchuaner
-   状态：主站 OIDC 与过渡控制面链路已完成；B2 的哈希虚拟 Key、不可变额度流水和钱包预扣/结算/退款已完成验证；阶段 1 已实现 YanCore 主体凭证、固定 UserInfo 复验、并发会话指针与逐用户短期应用 Key；阶段 2 已实现独立活动、哈希兑换码、用户权益、领取幂等和 `campaign` 来源流水；阶段 2B 已接入可开关的同步活动权益预扣、结算与退款；阶段 2E 已实现自主虚拟 Key 策略控制台、策略与兼容 Token 投影的原子更新、不可变修订快照、旧写入口防绕过及管理员显式安全回填，并在 PostgreSQL 16.14、MySQL 8.0、Redis 7 与本地容器验证。功能默认关闭，仍待异步持久化结算、真实 OpenAI/DeepSeek、主站 OIDC 和 staging 验收。
+   状态：主站 OIDC 提供方合同与过渡控制面接入代码已完成，消费者真实回调仍待验收；B2 的哈希虚拟 Key、不可变额度流水和钱包预扣/结算/退款已完成验证；阶段 1 已实现 YanCore 主体凭证、固定 UserInfo 复验、并发会话指针与逐用户短期应用 Key；阶段 2 已实现独立活动、哈希兑换码、用户权益、领取幂等和 `campaign` 来源流水；阶段 2B 已接入可开关的同步活动权益预扣、结算与退款；阶段 2E 已实现自主虚拟 Key 策略控制台、策略与兼容 Token 投影的原子更新、不可变修订快照、旧写入口防绕过及管理员显式安全回填，并在 PostgreSQL 16.14、MySQL 8.0、Redis 7 与本地容器验证。功能默认关闭，仍待异步持久化结算、真实 OpenAI/DeepSeek、New API/Open WebUI 回调和 staging 验收。
    职责：模型 API 控制面，管理用户密钥、模型权限、公益额度、限流、用量和审计。
    规则：关闭本地密码登录；首期新成员公益额度为 1 USD / 7 CNY；新虚拟 Key 只显示一次且仅保存哈希；管理员调额必须填写原因并追加不可变流水。
 
