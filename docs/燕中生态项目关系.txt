@@ -5,7 +5,7 @@
 
 阶段 1 状态：`IMPLEMENTED_PARTIAL_E2E`。YanCore Subject Grant、主站 S256 PKCE、受控主体交换、15 分钟逐用户应用 Key 和自主 AI Web SSE 对话链路已经实现；隔离 Docker 环境已验证 LiteLLM 三模型路由、API 受限 Key、真实额度结算、不可变流水、用量日志与 request ID。下一阻断项是 Linux/HTTPS staging 中的主站 OIDC 端到端、真实 OpenAI/DeepSeek、失败退款和跨渠道验收。Open WebUI 与 New API 只保留为可替换的过渡客户端/兼容网关。
 
-阶段 2 状态：`BACKEND_POLICY_IMPLEMENTED_FLAG_OFF`。活动/兑换码/权益来源分账和同步结算已经实现；阶段 2C 新增每个哈希虚拟 Key 的 OpenAI/DeepSeek 供应商策略、RPM、TPM、并发、状态和不可变修订，预算、有效期、模型与来源 IP 继续由兼容 Token 强制执行。SQLite、PostgreSQL 16.14、MySQL 8.0 和 Redis 7 已通过事务与故障语义测试；功能默认关闭，下一步是本地集成栈回填审查、策略 UI 和异步任务限流。
+阶段 2 状态：`IMPLEMENTED_LOCAL_ACCEPTANCE_PENDING`。活动/兑换码/权益来源分账和同步结算已经实现；阶段 2D 已提供自主虚拟 Key 策略控制台，并在同一事务中维护预算、有效期、模型、来源 IP、OpenAI/DeepSeek 供应商、RPM、TPM、并发、状态和不可变修订。旧 Token 写入口对策略 Key 返回 409，避免绕过策略审计；异步、媒体与任务协议在具备持久化预扣/结算前 fail-closed。SQLite、PostgreSQL 16.14、MySQL 8.0、Redis 7、前端构建和生产依赖审计已通过本地验证；下一步是历史 Key 回填审查和真实 OpenAI/DeepSeek/OIDC 验收。
 
 本轮隔离验收使用全新 PostgreSQL 卷和本机 OpenAI 兼容测试上游，不包含真实供应商密钥或生产数据；Windows Docker Desktop 的宿主回环代理和 Docker Hub Node 镜像拉取仍阻断自主 AI Web 容器级验收，不能将测试上游结果宣称为真实供应商验收。
 
@@ -31,7 +31,7 @@
    边界：不维护第二套公开注册，不作为用户余额真值，不公开 LiteLLM 管理端；Open WebUI 共享 Key 只记独立服务账户，自主 AI Web 短期 Key 才允许进入个人公益额度链路，两者不得混账。
 
 3. api.yanchuaner.cn / api_yanchuaner
-   状态：主站 OIDC 与过渡控制面链路已完成；B2 的哈希虚拟 Key、不可变额度流水和钱包预扣/结算/退款已完成验证；阶段 1 已实现 YanCore 主体凭证、固定 UserInfo 复验、并发会话指针与逐用户短期应用 Key；阶段 2 已实现独立活动、哈希兑换码、用户权益、领取幂等和 `campaign` 来源流水；阶段 2B 已接入可开关的同步活动权益预扣、结算与退款；阶段 2C 已实现每 Key 供应商、RPM、TPM、并发、策略状态与修订审计，并在 PostgreSQL 16.14/Redis 7 验证。功能默认关闭，仍待本地集成回填审查、策略 UI、异步限流、真实 OpenAI/DeepSeek、主站 OIDC 和 staging 验收。
+   状态：主站 OIDC 与过渡控制面链路已完成；B2 的哈希虚拟 Key、不可变额度流水和钱包预扣/结算/退款已完成验证；阶段 1 已实现 YanCore 主体凭证、固定 UserInfo 复验、并发会话指针与逐用户短期应用 Key；阶段 2 已实现独立活动、哈希兑换码、用户权益、领取幂等和 `campaign` 来源流水；阶段 2B 已接入可开关的同步活动权益预扣、结算与退款；阶段 2D 已实现自主虚拟 Key 策略控制台、策略与兼容 Token 投影的原子更新、不可变修订快照和旧写入口防绕过，并在 PostgreSQL 16.14、MySQL 8.0、Redis 7 与本地容器验证。功能默认关闭，仍待历史 Key 回填审查、异步持久化结算、真实 OpenAI/DeepSeek、主站 OIDC 和 staging 验收。
    职责：模型 API 控制面，管理用户密钥、模型权限、公益额度、限流、用量和审计。
    规则：关闭本地密码登录；首期新成员公益额度为 1 USD / 7 CNY；新虚拟 Key 只显示一次且仅保存哈希；管理员调额必须填写原因并追加不可变流水。
 
@@ -85,7 +85,7 @@ AI 工作台链路：
 
 Open WebUI 过渡链路继续使用燕中 API 受限服务 Key 并暂记独立服务账户，不继承自主 AI Web 的个人主体，也不得静默扣减个人公益额度。
 
-主站是身份真值；燕中 API 的不可变流水是权益与消费账本真值，users.quota 仅作兼容投影；公益、活动权益和未来 BYOK 使用不同 funding source，不能静默互相扣费；活动权益消费和每 Key 策略开关默认关闭，回填无法识别供应商的历史 Key 必须保持禁用，Redis 已配置但故障时限流必须 fail-closed；匹配活动额度不足时请求拒绝，范围不匹配时钱包只可扣公益/兼容旧余额，异步活动请求在持久化来源标识前不得降级；LiteLLM 费用只用于上游成本核对。各项目不共享登录 Cookie，不复制主站用户表，不把真实密钥提交到 Git。
+主站是身份真值；燕中 API 的不可变流水是权益与消费账本真值，users.quota 仅作兼容投影；公益、活动权益和未来 BYOK 使用不同 funding source，不能静默互相扣费；活动权益消费和每 Key 策略开关默认关闭，回填无法识别供应商的历史 Key 必须保持禁用，Redis 已配置但故障时限流必须 fail-closed；匹配活动额度不足时请求拒绝，范围不匹配时钱包只可扣公益/兼容旧余额；策略 Key 当前仅允许已接入同步预扣/结算的 OpenAI Chat/Responses 协议，异步、媒体和任务请求在持久化来源标识与结算完成前直接拒绝；LiteLLM 费用只用于上游成本核对。各项目不共享登录 Cookie，不复制主站用户表，不把真实密钥提交到 Git。
 
 五、暑期预览统一完成标准
 
