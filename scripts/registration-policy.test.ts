@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   hashAccessCode,
   publicRegistrationPolicy,
+  registrationIdentityState,
   verifyRegistrationAccessCode,
 } from "../src/lib/registration-policy";
 
@@ -50,4 +51,21 @@ test("the public policy never exposes the code hash", async () => {
     accessCodeHint: "Provided by an organizer",
   });
   assert.equal("accessCodeHash" in result, false);
+});
+
+test("accepted codes bypass identity review while invalid codes remain pending", () => {
+  assert.deepEqual(registrationIdentityState(true), {
+    role: "ALUMNI",
+    status: "VERIFIED",
+    verificationStatus: "VERIFIED",
+    verificationMethod: "INTERNAL_CODE",
+    identityType: "ALUMNI",
+  });
+  assert.deepEqual(registrationIdentityState(false), {
+    role: "GUEST",
+    status: "PENDING",
+    verificationStatus: "PENDING",
+    verificationMethod: "ADMIN_REVIEW",
+    identityType: "ALUMNI",
+  });
 });

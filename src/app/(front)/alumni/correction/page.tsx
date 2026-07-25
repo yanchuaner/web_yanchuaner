@@ -192,7 +192,7 @@ export default function AlumniCorrectionPage() {
       <GlassCard className="p-5 md:p-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <p className="inline-flex items-center gap-2 rounded-full border border-line bg-brand/10 px-3 py-1 text-xs tracking-[0.18em] text-brand">
+            <p className="inline-flex items-center gap-2 rounded-full border border-line bg-brand/10 px-3 py-1 text-xs text-brand">
               <FileEdit size={14} /> CORRECTION
             </p>
             <h1 className="font-heading mt-3 text-2xl font-bold text-brand-fg sm:text-3xl md:text-4xl">{t('correction.title')}</h1>

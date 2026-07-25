@@ -43,7 +43,9 @@
     "ecosystemDesc": "Platform, boundaries, and ways to contribute",
     "privacyDesc": "Data use, content boundaries, and user rights",
     "aboutDesc": "Space characteristics and philosophy",
-    "contactDesc": "Get in touch or submit stories"
+    "contactDesc": "Get in touch or submit stories",
+    "replayIntro": "Replay Homecoming",
+    "replayIntroDesc": "Watch the shared seal form again"
   },
   "footer": {
     "copyright": "© 2025-2026 Yan-Zhong Alumni Port",
@@ -576,6 +578,19 @@
   "home": {
     "heroTitle": "From Yan-Zhong,\nwe find one another again",
     "heroTagline": "We remember our classmates and the paths we have taken. Here, Yan-Zhong stories endure, alumni reconnect, and new journeys begin.",
+    "heroOrbitLabel": "SHARED ORBIT · YAN-ZHONG",
+    "heroCoordinate": "SHARED ORIGIN · YANCHUAN, SHENZHEN",
+    "introEyebrow": "RETURN TO THE SHARED MARK",
+    "introDescription": "Across every distance, we remain connected.",
+    "introEnter": "Mark the Return",
+    "introSkip": "Enter directly",
+    "introOrbitReturn": "Homeward",
+    "introOrbitReturnDescription": "Even after leaving, a path home remains.",
+    "introOrbitYears": "Years",
+    "introOrbitYearsDescription": "Time moves forward; shared memories keep meeting here.",
+    "introOrbitLight": "Lantern",
+    "introOrbitLightDescription": "Every contribution lights another point in the Yanzhong system.",
+    "introOrbitControlsLabel": "Yanzhong system star notes",
     "ctaJoin": "Join the Alumni Network",
     "ctaDirectory": "Find Classmates",
     "whisperClassmates": "Classmates · Never out of reach",

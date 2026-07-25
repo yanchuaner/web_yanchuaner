@@ -148,10 +148,7 @@ export default function AdminPostsPage() {
         {loading ? (
           <div className="flex items-center justify-center py-20 text-brand-fg/60">
             <div className="flex flex-col items-center gap-3">
-              <span className="relative flex h-8 w-8">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-8 w-8 bg-brand/50"></span>
-              </span>
+              <span className="inline-flex h-8 w-8 rounded-full border border-brand/30 bg-brand/15" />
               <span className="text-xs font-semibold font-heading animate-pulse">{localize('加载中...')}</span>
             </div>
           </div>

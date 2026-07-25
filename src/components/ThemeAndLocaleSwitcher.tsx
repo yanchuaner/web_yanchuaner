@@ -18,7 +18,7 @@ export default function ThemeAndLocaleSwitcher() {
         onClick={() => setLocale(locale === "zh" ? "en" : "zh")}
         aria-label={languageLabel}
         title={languageLabel}
-        className="inline-flex h-9 min-w-11 items-center justify-center rounded-full border border-line bg-surface/40 px-2 text-main transition-colors hover:bg-brand/10 focus:outline-none focus:ring-2 focus:ring-brand"
+        className="inline-flex h-11 min-w-12 items-center justify-center rounded-full border border-line bg-surface/40 px-2 text-main transition-colors hover:bg-brand/10 focus:outline-none focus:ring-2 focus:ring-brand"
       >
         <Globe size={16} />
         <span className="ml-1 text-xs font-mono font-medium select-none uppercase">
@@ -32,7 +32,7 @@ export default function ThemeAndLocaleSwitcher() {
         onClick={toggleTheme}
         aria-label={themeLabel}
         title={themeLabel}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-line bg-surface/40 text-main transition-colors hover:bg-brand/10 focus:outline-none focus:ring-2 focus:ring-brand"
+        className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-line bg-surface/40 text-main transition-colors hover:bg-brand/10 focus:outline-none focus:ring-2 focus:ring-brand"
       >
         {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
       </button>

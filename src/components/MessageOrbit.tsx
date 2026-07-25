@@ -1,85 +1,86 @@
 "use client";
 
-import { useState, memo } from "react";
+import { memo, useEffect, useState } from "react";
 import { starMessages } from "@/data/starMessages";
 import { useThemeAndLocale } from "./ThemeAndLocaleProvider";
 
-const ORBIT_COUNT = 15;
-
-function createOrbitStars() {
-  let seed = 0x4f524249;
-  const random = () => {
-    seed = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    seed ^= seed + Math.imul(seed ^ (seed >>> 7), 61 | seed);
-    return ((seed ^ (seed >>> 14)) >>> 0) / 4294967296;
-  };
-  const messages = [...starMessages];
-  for (let index = messages.length - 1; index > 0; index--) {
-    const target = Math.floor(random() * (index + 1));
-    [messages[index], messages[target]] = [messages[target], messages[index]];
-  }
-  return messages.slice(0, ORBIT_COUNT).map((message, index) => ({
-    ...message,
-    id: index,
-    top: random() * 80 + 10,
-    left: random() * 80 + 10,
-    duration: random() * 15 + 20,
-    delay: random() * -30,
-  }));
-}
-
-const ORBIT_STARS = createOrbitStars();
+const ORBIT_STARS = [
+  { id: "north-star", zh: "北辰", en: "North Star", meaningZh: "燕中 · 共同起点", meaningEn: "Yanzhong · shared origin", duration: 68, offset: 6 },
+  { id: "return-star", zh: "归舟", en: "Homeward", meaningZh: "归途 · 再次相逢", meaningEn: "Return · meeting again", duration: 52, offset: -18 },
+  { id: "rings-star", zh: "年轮", en: "Rings", meaningZh: "年轮 · 时间与成长", meaningEn: "Years · time and growth", duration: 78, offset: 28 },
+  { id: "mountain-star", zh: "远行", en: "Wayfarer", meaningZh: "山海 · 去往远方", meaningEn: "Distance · toward far places", duration: 61, offset: -42 },
+  { id: "lantern-star", zh: "灯火", en: "Lantern", meaningZh: "灯火 · 仍在参与", meaningEn: "Light · still contributing", duration: 46, offset: 14 },
+  { id: "sprout-star", zh: "新芽", en: "New Sprout", meaningZh: "新芽 · 尚未写完的未来", meaningEn: "Future · still being written", duration: 88, offset: -31 },
+].map((meaning, index) => ({
+  ...meaning,
+  ...starMessages[index % starMessages.length],
+}));
 
 const MessageOrbit = memo(function MessageOrbit() {
   const { locale } = useThemeAndLocale();
-  const [activeStar, setActiveStar] = useState<number | null>(null);
+  const [activeStar, setActiveStar] = useState<string | null>(null);
+  const [revealedChars, setRevealedChars] = useState(0);
+  const active = ORBIT_STARS.find((star) => star.id === activeStar) ?? null;
+
+  useEffect(() => {
+    if (!active) {
+      setRevealedChars(0);
+      return;
+    }
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) {
+      setRevealedChars(active.message.length);
+      return;
+    }
+
+    setRevealedChars(0);
+    let count = 0;
+    const timer = window.setInterval(() => {
+      count += 1;
+      setRevealedChars(count);
+      if (count >= active.message.length) window.clearInterval(timer);
+    }, 58);
+    return () => window.clearInterval(timer);
+  }, [active]);
+
+  const selectStar = (id: string) => setActiveStar((current) => (current === id ? null : id));
 
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden z-[1]">
-      {ORBIT_STARS.map((star) => (
-        <div
-          key={star.id}
-          className="message-orbit-star pointer-events-auto absolute flex items-center justify-center cursor-pointer animate-float-star group focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 rounded-full"
-          style={{
-            top: `${star.top}%`,
-            left: `${star.left}%`,
-            animationDuration: `${star.duration}s`,
-            animationDelay: `${star.delay}s`,
-          }}
-          onClick={() => setActiveStar(activeStar === star.id ? null : star.id)}
-          onMouseLeave={() => setActiveStar(null)}
-          tabIndex={0}
-          role="button"
-          aria-label={
-            locale === "zh"
-              ? `查看校友寄语: ${star.name}`
-              : `Read alumni message from ${star.name}`
-          }
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              setActiveStar(activeStar === star.id ? null : star.id);
-            }
-          }}
-        >
-          <div className="message-orbit-node transition-transform duration-300 group-hover:scale-150" />
+    <div className="message-orbit pointer-events-none absolute inset-0 z-[1] overflow-hidden" aria-label={locale === "zh" ? "燕中星图" : "Yanzhong star map"}>
+      {ORBIT_STARS.map((star, index) => {
+        const title = locale === "zh" ? star.zh : star.en;
+        const meaning = locale === "zh" ? star.meaningZh : star.meaningEn;
+        const isActive = activeStar === star.id;
+        const message = locale === "zh" ? star.message : "Wherever we go, Yanzhong remains a shared light.";
 
-          {/* Context Bubble (Toast) — 科幻全息深紫玻璃气泡 */}
+        return (
           <div
-            className={`absolute top-4 left-1/2 -translate-x-1/2 w-48 p-3 rounded-lg bg-device-bg/90 border border-brand/40 backdrop-blur-md shadow-lg transition-all duration-300 origin-top ${
-              activeStar === star.id ? "opacity-100 scale-100 z-50 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none"
-            }`}
-            onClick={(e) => e.stopPropagation()}
+            key={star.id}
+            className={`message-orbit__track message-orbit__track--${index + 1}`}
+            style={{ animationDuration: `${star.duration}s`, animationDelay: `${star.offset}s` }}
           >
-            <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-device-bg/90 border-l border-t border-brand/40 rotate-45" />
-            <div className="relative z-10 text-center">
-              <p className="text-xs font-bold tracking-wider text-brand font-mono">{star.name}</p>
-              <div className="mt-1.5 h-px w-full bg-gradient-to-r from-transparent via-brand/40 to-transparent" />
-              <p className="mt-2 text-xs text-brand leading-relaxed font-sans">{star.message}</p>
-            </div>
+            <button
+              type="button"
+              className={`message-orbit-star pointer-events-auto group ${isActive ? "message-orbit-star--active" : ""}`}
+              onClick={() => selectStar(star.id)}
+              aria-expanded={isActive}
+              aria-label={locale === "zh" ? `查看${title}星：${meaning}` : `View ${title} star: ${meaning}`}
+            >
+              <span className="message-orbit-node" />
+              <span className="message-orbit__card" aria-hidden={!isActive}>
+                <span className="message-orbit__card-title">{title}</span>
+                <span className="message-orbit__card-meaning">{meaning}</span>
+                <span className="message-orbit__card-rule" />
+                <span className="message-orbit__card-message">
+                  {isActive ? message.slice(0, revealedChars) : ""}
+                  {isActive && revealedChars < message.length ? <i aria-hidden="true" /> : null}
+                </span>
+              </span>
+            </button>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 });

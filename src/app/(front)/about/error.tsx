@@ -17,7 +17,7 @@ export default function ErrorPage({
   return (
     <div className="flex min-h-[50vh] items-center justify-center px-4">
       <div className="max-w-md rounded-card border border-danger/25 bg-danger/10 p-8 text-center backdrop-blur-sm">
-        <p className="text-sm font-semibold uppercase tracking-widest text-danger">
+        <p className="text-sm font-semibold uppercase text-danger">
           加载异常
         </p>
         <p className="mt-3 text-sm leading-6 text-main/70">

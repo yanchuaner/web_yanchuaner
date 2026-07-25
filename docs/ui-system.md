@@ -1,6 +1,6 @@
 # 燕中校友数字母港 UI System
 
-最后更新：2026-07-17
+最后更新：2026-07-26
 
 本文是当前前端 UI 的规范入口。目标是让亮暗主题、中英双语、移动端和动效遵循同一套组件契约，而不是由页面各自维护。
 
@@ -19,7 +19,7 @@
 | 范围 | 单一来源 | 使用方式 |
 | --- | --- | --- |
 | 颜色、阴影、表面 | `src/app/globals.css` | CSS 变量 |
-| Tailwind 语义类 | `tailwind.config.ts` | `bg-app`、`text-main`、`bg-surface`、`text-brand` |
+| Tailwind 语义类 | `tailwind.config.ts` | `bg-app`、`text-main`、`bg-surface`、`text-brand`、`bg-narrative` |
 | UI 组件出口 | `src/components/ui/index.ts` | 统一从 `@/components/ui` 导入 |
 | 组件机器可读目录 | `src/components/ui/catalog.ts` | `UI_COMPONENT_CATALOG` |
 | 中英文案 | `src/locales/zh.json`、`src/locales/en.json` | `t("path.to.key")` |
@@ -66,7 +66,7 @@
 | `RevealSection` | entry | 进入视口一次 |
 | `InteractiveStarfield` | ambient | 页面隐藏和离屏时停止 |
 | `CelestialSphere` | ambient | 页面隐藏和离屏时停止 |
-| `CelestialEntrance` | transition | 每个浏览器会话最多一次 |
+| `CelestialEntrance` | transition | 每个浏览器会话最多一次；桌面悬停、手机点按可暂停单条轨道 |
 | `BashTerminal` | state | 进入视口后播放，定时器必须清理 |
 | `ChannelTV` | state | 雪花限帧，关机只绘制一帧 |
 
@@ -89,7 +89,7 @@
 ## 5. 动效预算
 
 - 同一视口最多保留一个主要持续动画，首页为 `CelestialSphere`。
-- 入场动画建议 180-700ms；场景转场最多 1100ms。
+- 普通入场动画建议 180-700ms；开屏到首页是共享主视觉转场，完整序列最多 2100ms，移动阶段必须测量首页实际目标位置。
 - 打字和频道雪花属于短时状态反馈，不得在不可见时运行。
 - `requestAnimationFrame` 必须同时受 `document.hidden` 与 `IntersectionObserver` 控制。
 - 所有 `setTimeout`、`setInterval`、observer 和事件监听器必须在卸载时释放。
@@ -97,7 +97,7 @@
 
 ## 6. 主题契约
 
-亮暗模式只允许改变语义变量，不允许组件读取主题后维护两套散落颜色。
+亮暗模式共享 DOM、业务状态和语义令牌，不允许组件用 JavaScript 维护两套散落颜色。两种主题必须有独立且克制的空间语言：暗色使用星空、航迹和发光节点；亮色使用日间天图、坐标线与纸面层次，而不是把暗色场景简单反相。主题专属图案集中维护在 `globals.css`，不得复制页面结构。
 
 ```tsx
 <section className="border border-line bg-surface/70 text-main shadow-sm" />
@@ -109,6 +109,8 @@
 <span className="bg-success/10 text-success" />
 <section className="bg-device-bg text-device-fg" />
 ```
+
+首页和复用其文化叙事语言的子站使用 `narrative-*` 令牌。`SectionIntro tone="narrative"` 统一宋体标题与航迹眉题，`Button` / `ButtonLink` 使用 `narrative` 或 `narrative-outline` 变体；页面不得自行复制对应颜色和焦点样式。
 
 Canvas 或 Leaflet 无法使用 Tailwind 类时，通过 `themeRgb("--brand-rgb", alpha)` 读取同一变量。不得在绘制代码中保存十六进制或数值 `rgb/rgba`。
 
@@ -131,6 +133,7 @@ Canvas 或 Leaflet 无法使用 Tailwind 类时，通过 `themeRgb("--brand-rgb"
 
 - 无水平溢出，长英文不遮挡相邻内容。
 - 交互目标最小高度 44px。
+- 没有稳定 hover 的设备通过三枚固定星体按钮选择轨道；选中后暂停该星体，并在中心区域逐字显示含义。
 - 抽屉和弹窗使用 `100dvh` 与 safe-area。
 - Canvas 使用固定内部尺寸与响应式 CSS 尺寸，不因 hydration 改变布局。
 - 页面首屏仍露出下一段内容或明确的向下入口。

@@ -113,24 +113,9 @@ export default function RootLayout({
           <AuthProvider>
             <UUIDCompat />
             <div className="relative min-h-[100dvh] overflow-hidden bg-app">
-              {/* 全局宇宙氛围背景（使所有子页面的磨砂玻璃卡片背后折射出流星与星空） */}
-              <div
-                className="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-60 dark:opacity-60 opacity-10"
-                aria-hidden="true"
-              >
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    background:
-                      "radial-gradient(circle at 10% 15%, rgb(var(--brand-rgb) / 0.06), transparent 40%), radial-gradient(circle at 85% 80%, rgb(var(--brand-soft-rgb) / 0.08), transparent 40%)",
-                  }}
-                />
-                <div className="meteor-layer absolute inset-0 opacity-[0.15] dark:opacity-[0.15] opacity-[0.03]" />
-              </div>
-
               {children}
             </div>
-            {/* 星空紫主题 Toast 通知 */}
+            {/* Theme-aware system notification surface. */}
             <Toaster
               position="top-right"
               toastOptions={{

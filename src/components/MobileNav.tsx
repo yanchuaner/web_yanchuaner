@@ -24,10 +24,12 @@ import {
   Award,
   Bot,
   Braces,
+  RotateCcw,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/components/ui/cn';
 import { useAuth } from '@/components/AuthProvider';
+import { HOME_INTRO_REPLAY_EVENT } from '@/lib/home-intro';
 
 import { useThemeAndLocale } from './ThemeAndLocaleProvider';
 
@@ -100,6 +102,12 @@ export default function MobileNav() {
   const drawerRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const navRef = useRef<HTMLElement>(null);
+
+  const replayHomeIntro = () => {
+    setOpen(false);
+    setOpenGroup(null);
+    window.dispatchEvent(new Event(HOME_INTRO_REPLAY_EVENT));
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -247,6 +255,20 @@ export default function MobileNav() {
                         </Link>
                       );
                     })}
+                    {group.labelKey === 'nav.aboutGroup' && pathname === '/' ? (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={replayHomeIntro}
+                        className="flex min-h-[44px] w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left text-brand-fg transition-colors hover:bg-brand/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                      >
+                        <RotateCcw size={18} className="mt-0.5 shrink-0 text-brand/70" aria-hidden="true" />
+                        <span className="min-w-0">
+                          <span className="block text-sm font-medium">{t('nav.replayIntro')}</span>
+                          <span className="mt-0.5 block text-xs text-brand-fg/50">{t('nav.replayIntroDesc')}</span>
+                        </span>
+                      </button>
+                    ) : null}
                   </div>
                 </div>
               ) : null}
@@ -309,7 +331,10 @@ export default function MobileNav() {
             role="dialog"
             aria-modal="true"
             aria-label={t('nav.brand')}
-            className="fixed right-0 top-0 z-[60] flex h-[100dvh] w-80 max-w-[88vw] flex-col border-l border-brand/15 bg-surface/95 p-5 pb-safe pt-safe backdrop-blur-xl shadow-2xl xl:hidden animate-slide-in"
+            className={cn(
+              "fixed right-0 top-0 z-[60] flex h-[100dvh] w-80 max-w-[88vw] flex-col border-l border-brand/15 bg-surface/95 p-5 pb-safe pt-safe backdrop-blur-xl shadow-2xl xl:hidden animate-slide-in",
+              pathname === '/' && "site-header--narrative",
+            )}
           >
             <div className="mb-4 flex items-center justify-between">
               <p className="text-sm font-semibold text-brand font-heading">{t('nav.brand')}</p>
@@ -333,7 +358,7 @@ export default function MobileNav() {
             >
               {NAV_GROUPS.map((group) => (
                 <div key={group.labelKey}>
-                  <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-brand-fg/40">
+                  <p className="px-3 pb-1 text-xs font-semibold uppercase text-brand-fg/40">
                     {t(group.labelKey)}
                   </p>
                   <div className="space-y-1">
@@ -364,6 +389,16 @@ export default function MobileNav() {
                         </Link>
                       );
                     })}
+                    {group.labelKey === 'nav.aboutGroup' && pathname === '/' ? (
+                      <button
+                        type="button"
+                        onClick={replayHomeIntro}
+                        className="flex min-h-[44px] w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-brand-fg/80 transition hover:bg-brand/5 hover:text-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                      >
+                        <RotateCcw size={18} className="text-brand/60" aria-hidden="true" />
+                        {t('nav.replayIntro')}
+                      </button>
+                    ) : null}
                   </div>
                 </div>
               ))}

@@ -560,14 +560,6 @@ export default function AlumniCertificatePage() {
       <header className="relative mb-6 overflow-hidden rounded-3xl border border-line bg-surface/50 p-4 shadow-lg backdrop-blur-xl md:mb-8 md:p-6">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -right-28 -top-28 h-52 w-52 rounded-full bg-brand/10 blur-3xl"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -bottom-36 -left-20 h-56 w-56 rounded-full bg-brand/10 blur-3xl"
-        />
-        <div
-          aria-hidden="true"
           className="pointer-events-none absolute inset-x-8 top-2 h-px bg-gradient-to-r from-transparent via-brand/20 to-transparent"
         />
         <div
@@ -577,7 +569,7 @@ export default function AlumniCertificatePage() {
 
         <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/50 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.22em] text-brand shadow-sm backdrop-blur">
+            <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/50 px-2.5 py-1 text-[10px] font-medium uppercase text-brand shadow-sm backdrop-blur">
               <IdCard size={12} aria-hidden="true" />
               {t("certificate.eyebrow")}
             </span>
@@ -600,7 +592,7 @@ export default function AlumniCertificatePage() {
 
           <div className="flex shrink-0 items-center gap-3 md:flex-col md:items-end md:gap-2">
             <div className="rounded-2xl border border-brand/18 bg-surface/50 px-3.5 py-2.5 text-right shadow-sm backdrop-blur">
-              <p className="text-[9px] font-medium uppercase tracking-[0.22em] text-brand-fg/60">
+              <p className="text-[9px] font-medium uppercase text-brand-fg/60">
                 {t("certificate.badgeLabel")}
               </p>
               <p className="font-heading mt-0.5 text-sm font-semibold text-brand-fg md:text-base">
@@ -616,7 +608,7 @@ export default function AlumniCertificatePage() {
         <div className="rounded-card border border-line bg-surface/50 backdrop-blur-xl p-5 md:p-6 shadow-2xl">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-brand/70">
+              <p className="text-[10px] font-medium uppercase text-brand/70">
                 {t("certificate.previewLabel")}
               </p>
               <p className="mt-0.5 text-sm font-medium text-brand-fg/70 md:text-[15px]">
@@ -625,7 +617,7 @@ export default function AlumniCertificatePage() {
                   : t("certificate.previewIdle")}
               </p>
             </div>
-            <span className="hidden rounded-full border border-line bg-surface/30 px-3 py-1 text-[11px] font-medium tracking-wide text-brand md:inline-flex">
+            <span className="hidden rounded-full border border-line bg-surface/30 px-3 py-1 text-[11px] font-medium text-brand md:inline-flex">
               16 : 9 · 2752 × 1548
             </span>
           </div>
@@ -659,7 +651,7 @@ export default function AlumniCertificatePage() {
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] lg:items-start">
             <div className="space-y-6">
               <fieldset className="space-y-4 rounded-2xl border border-line bg-surface/20 p-5">
-                <legend className="mb-3 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-brand">
+                <legend className="mb-3 inline-flex items-center gap-2 text-[10px] font-semibold uppercase text-brand">
                   {t("certificate.basicInfo")}
                 </legend>
                 <div>
@@ -695,7 +687,7 @@ export default function AlumniCertificatePage() {
                 </div>
 
                 <div className="rounded-2xl border border-line bg-surface/30 px-4 py-3 text-sm">
-                  <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-fg/50">
+                  <p className="text-[10px] font-medium uppercase text-brand-fg/50">
                     {t("certificate.numberLabel")}
                   </p>
                   <p className="font-heading mt-1 truncate text-base font-semibold text-brand-fg">
@@ -707,7 +699,7 @@ export default function AlumniCertificatePage() {
 
             <div className="space-y-6">
               <fieldset className="space-y-4 rounded-2xl border border-line bg-surface/20 p-5">
-                <legend className="mb-3 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-brand">
+                <legend className="mb-3 inline-flex items-center gap-2 text-[10px] font-semibold uppercase text-brand">
                   {t("certificate.mediaTitle")}
                 </legend>
 

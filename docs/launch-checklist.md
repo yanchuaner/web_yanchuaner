@@ -6,12 +6,9 @@
 
 - [ ] 确认当前分支正确，`git status --short` 中没有意外文件。
 - [ ] 不提交 `.env`、数据库、上传文件、备份包、日志、`AGENTS.md`、`.agents/`、`.claude/`。
-- [ ] 如改动较大，先停止本地开发服务，清理 `.next` 后重新启动：
+- [ ] 如改动较大，先在原终端用 `Ctrl+C` 停止本项目开发服务，再清理 `.next` 并重新启动；不要批量结束系统中的所有 Node 进程。
 
 ```bash
-# Windows PowerShell 示例：先确认没有重要 Node 进程，再结束本项目开发服务
-Get-Process node -ErrorAction SilentlyContinue
-Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
 npm run dev
 ```
 
@@ -52,13 +49,13 @@ npm run smoke
 
 ## 4. WSL/Linux 构建
 
-- [ ] 从 Windows 项目复制到 WSL 原生文件系统，例如 `~/web_yanchuaner`。
-- [ ] 删除 Windows 的 `node_modules`，用 Linux 重新安装依赖。
+- [ ] 仓库、`node_modules` 与构建输出均位于 WSL/Linux 原生文件系统，不位于 `/mnt/c` 或 `/mnt/d`。
+- [ ] `node`、`npm`、`npx` 均解析为 WSL 版本，不来自 Windows PATH。
 - [ ] 确认 `.env` 指向一次性构建数据库（推荐 `file:./.tmp/build.db`），不指向生产数据库。
 - [ ] 执行：
 
 ```bash
-npm ci
+npm ci --no-audit --no-fund
 npx tsc --noEmit
 npm run lint
 npm run audit:prod

@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { Award, BadgeCheck, BarChart3, Users, Newspaper, CalendarDays, BookUser, FileEdit, Images, Home, KeyRound, Menu, X, LogOut, Feather, User } from 'lucide-react';
 import { cn } from '@/components/ui/cn';
 import { AdminBreadcrumb } from '@/components/admin/AdminBreadcrumb';
+import { resolveActiveAdminHref } from '@/lib/admin-nav';
 import { useAuth } from '@/components/AuthProvider';
 import { useThemeAndLocale } from '@/components/ThemeAndLocaleProvider';
 import ThemeAndLocaleSwitcher from '@/components/ThemeAndLocaleSwitcher';
@@ -70,10 +71,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     menuButtonRef.current?.focus();
   }, []);
 
-  const isActive = (href: string, exact?: boolean) => {
-    if (exact) return pathname === href;
-    return pathname === href || pathname.startsWith(`${href}/`);
-  };
+  const activeHref = resolveActiveAdminHref(
+    pathname,
+    NAV_SECTIONS.flatMap((section) => section.items),
+  );
+
+  const isActive = (href: string) => activeHref === href;
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 768px)');
@@ -131,7 +134,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       >
         <div className="flex items-center justify-between border-b border-line px-5 py-4 md:px-6 md:py-5">
           <div>
-            <h1 className="text-lg font-bold tracking-wide text-brand-fg font-heading">
+            <h1 className="text-lg font-bold text-brand-fg font-heading">
               {t('admin.shell.title')}
             </h1>
             <p className="mt-1 text-xs text-brand-fg/60">{t('admin.shell.controlCenter')}</p>
@@ -149,12 +152,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <nav className="flex-1 space-y-6 overflow-y-auto px-4 py-5">
           {NAV_SECTIONS.map((section, idx) => (
             <div key={section.headingKey} className={cn(idx > 0 && 'mt-5')}>
-              <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-brand/60">
+              <p className="px-3 pb-2 text-[11px] font-semibold uppercase text-brand/60">
                 {t(section.headingKey)}
               </p>
               <div className="space-y-2">
                 {section.items.map((item) => {
-                  const active = isActive(item.href, item.exact);
+                  const active = isActive(item.href);
                   return (
                     <Link
                       key={item.href}
@@ -225,10 +228,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </div>
               <div className="flex items-center gap-1.5 font-medium text-brand-fg">
                 <span>{currentUser?.name || currentUser?.username || t('admin.shell.administrator')}</span>
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
-                </span>
+                <span className="inline-flex h-2 w-2 rounded-full bg-success" aria-hidden="true" />
               </div>
             </div>
 

@@ -46,7 +46,7 @@ export function SecretStarfieldLink() {
       href="/"
       onClick={handleClick}
       aria-label={t("nav.brand")}
-      className="group relative inline-flex min-h-[44px] shrink-0 items-center rounded-sm font-heading text-lg font-bold tracking-wide text-brand transition-colors duration-300 hover:text-brand-soft focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface-muted"
+      className="group relative inline-flex min-h-[44px] shrink-0 items-center rounded-sm font-heading text-lg font-bold text-brand transition-colors duration-300 hover:text-brand-soft focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface-muted"
     >
       <span className="xl:hidden">{t("nav.brandShort")}</span>
       <span className="hidden xl:inline">{t("nav.brand")}</span>

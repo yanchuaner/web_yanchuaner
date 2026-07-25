@@ -47,7 +47,7 @@ async function getLatestUpdates(): Promise<UpdateItem[]> {
 }
 
 export const LatestUpdatesSkeleton = () => (
-  <div className="divide-y divide-line border-y border-line">
+  <div className="divide-y divide-narrative-route/15 border-y border-narrative-route/20">
     {Array.from({ length: 3 }).map((_, index) => (
       <div
         key={index}
@@ -65,7 +65,7 @@ export default async function LatestUpdatesSection() {
 
   if (items.length === 0) {
     return (
-      <p className="py-4 text-sm text-main/55">
+      <p className="py-4 text-sm text-narrative-muted">
         <span className="lang-zh">暂无最新动态</span>
         <span className="lang-en">No recent updates</span>
       </p>
@@ -73,7 +73,7 @@ export default async function LatestUpdatesSection() {
   }
 
   return (
-    <div className="divide-y divide-line border-y border-line">
+    <div className="divide-y divide-narrative-route/15 border-y border-narrative-route/20">
       {items.map((item) => {
         const href =
           item.type === "news" ? `/news/${item.id}` : `/events/${item.id}`;
@@ -81,13 +81,13 @@ export default async function LatestUpdatesSection() {
           <Link
             key={item.id}
             href={href}
-            className="group flex min-h-[76px] items-center gap-4 px-1 py-4 transition-colors hover:bg-brand/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand sm:px-4"
+            className="group flex min-h-[76px] items-center gap-4 px-1 py-4 transition-colors hover:bg-narrative-route/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-narrative-route sm:px-4"
           >
             <span
               className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-btn ${
                 item.type === "news"
-                  ? "bg-brand/10 text-brand"
-                  : "bg-accent/10 text-accent"
+                  ? "bg-narrative-route/10 text-narrative-route"
+                  : "bg-narrative-mark/10 text-narrative-mark"
               }`}
             >
               {item.type === "news" ? (
@@ -97,10 +97,10 @@ export default async function LatestUpdatesSection() {
               )}
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-main transition-colors group-hover:text-brand">
+              <p className="truncate text-sm font-semibold text-narrative-fg transition-colors group-hover:text-narrative-route">
                 {item.title}
               </p>
-              <p className="mt-1 text-xs text-main/55">
+              <p className="mt-1 text-xs text-narrative-muted">
                 <span className="lang-zh">
                   {item.type === "news" ? "公告" : "活动"} · {new Date(item.date).toLocaleDateString("zh-CN")}
                 </span>

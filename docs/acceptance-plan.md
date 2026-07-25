@@ -4,29 +4,30 @@
 
 ## 自动化闭环
 
-```powershell
-$env:DATABASE_URL="file:./.tmp/acceptance.db"
-$env:NODE_ENV="development"
-$env:SESSION_SECRET="acceptance-local-session-secret-at-least-32-chars"
-$env:APP_URL="http://127.0.0.1:3101"
-$env:SITE_URL="http://127.0.0.1:3101"
-$env:ACCEPTANCE_ALLOW_MUTATION="true"
-$env:MP_DEV_MOCK_LOGIN_ENABLED="true"
-$env:MP_DEV_MOCK_USER_IDS="acceptance-verified,acceptance-candidate,acceptance-deletion"
+```bash
+export DATABASE_URL="file:./.tmp/acceptance.db"
+export NODE_ENV="development"
+export SESSION_SECRET="acceptance-local-session-secret-at-least-32-chars"
+export APP_URL="http://127.0.0.1:3101"
+export SITE_URL="http://127.0.0.1:3101"
+export ACCEPTANCE_ALLOW_MUTATION="true"
+export MP_DEV_MOCK_LOGIN_ENABLED="true"
+export MP_DEV_MOCK_USER_IDS="acceptance-verified,acceptance-candidate,acceptance-deletion"
 
 npm run db:init
 npm run seed:acceptance
-npx next dev -H 127.0.0.1 -p 3101
+npm run dev -- -p 3101
 ```
 
 服务启动后，在另一个终端执行：
 
-```powershell
-$env:ACCEPTANCE_BASE_URL="http://127.0.0.1:3101"
-npm run test:acceptance
+```bash
+ACCEPTANCE_BASE_URL="http://127.0.0.1:3101" npm run test:acceptance
 ```
 
-脚本覆盖网站管理员登录、受保护页面、管理员 API、小程序模拟登录、个人资料、新闻、活动、报名、取消报名、认证申请和账号注销。seed 和 smoke 都有保护条件，默认拒绝生产环境和远程地址。
+脚本当前覆盖 31 项检查：网站管理员/校友登录、待审核账户、受保护页面、故事投稿进入审核队列及管理员发布、小程序模拟登录、个人资料、新闻、活动、报名、取消报名、认证申请和账号注销。seed 和 smoke 都有保护条件，默认拒绝生产环境和远程地址。
+
+Compose staging 的生产构建会正确关闭模拟登录。需要在容器内完成同一闭环时，先按 [staging-deployment.md](staging-deployment.md) 播种虚拟账号，再用 builder 镜像临时启动 `next dev`；不得为了验收修改 `3100` 上的 production 配置。
 
 ## 人工验收矩阵
 

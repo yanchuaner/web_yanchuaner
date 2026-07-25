@@ -12,7 +12,7 @@ import {
 } from "@/lib/identity-fields";
 
 export default function RegisterPage() {
-  const { t } = useThemeAndLocale();
+  const { t, locale } = useThemeAndLocale();
   const searchParams = useSearchParams();
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -109,7 +109,9 @@ export default function RegisterPage() {
                 autoComplete="off"
               />
               <span className="mt-1 block text-xs leading-5 text-brand-fg/50">
-                {accessCodeHint || t("auth.register.internalCodeHint")}
+                {locale === "zh" && accessCodeHint
+                  ? accessCodeHint
+                  : t("auth.register.internalCodeHint")}
               </span>
             </label>
           ) : null}

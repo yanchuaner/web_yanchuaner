@@ -10,7 +10,7 @@ jobs:
   validate:
     name: Typecheck, lint, and build
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       DATABASE_URL: file:./prisma/ci.db
       SESSION_SECRET: ci-temp-session-secret-for-build-only
@@ -26,11 +26,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --no-audit --no-fund
 
       - name: Generate Prisma client
         run: npm run db:generate
@@ -41,23 +41,45 @@ jobs:
       - name: Seed isolated CI database
         run: npm run seed
 
-      - name: Audit production dependencies
-        run: npm run audit:prod
+      - name: Seed isolated acceptance fixtures
+        env:
+          NODE_ENV: development
+          ACCEPTANCE_ALLOW_MUTATION: "true"
+        run: npm run seed:acceptance
 
-      - name: Typecheck
-        run: npx tsc --noEmit
+      - name: Run release checks
+        run: npm run release:check
 
-      - name: Test mini program auth contract
-        run: npm run test:mp-auth
+      - name: Start isolated acceptance service
+        env:
+          NODE_ENV: development
+          APP_URL: http://127.0.0.1:3101
+          SITE_URL: http://127.0.0.1:3101
+          MP_DEV_MOCK_LOGIN_ENABLED: "true"
+          MP_DEV_MOCK_USER_IDS: acceptance-verified,acceptance-candidate,acceptance-deletion
+        run: |
+          npm run dev -- -p 3101 > /tmp/yanchuaner-acceptance.log 2>&1 &
+          echo $! > /tmp/yanchuaner-acceptance.pid
+          for attempt in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:3101/api/health > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/yanchuaner-acceptance.log
+          exit 1
 
-      - name: Test mini program API contract
-        run: npm run test:mp-contract
+      - name: Run isolated business acceptance
+        env:
+          ACCEPTANCE_BASE_URL: http://127.0.0.1:3101
+        run: npm run test:acceptance
 
-      - name: Lint
-        run: npm run lint
-
-      - name: Enforce UI token debt budget
-        run: npm run audit:ui-tokens
+      - name: Stop isolated acceptance service
+        if: always()
+        run: |
+          if test -f /tmp/yanchuaner-acceptance.pid; then
+            kill "$(cat /tmp/yanchuaner-acceptance.pid)" 2>/dev/null || true
+          fi
 
       - name: Build
         run: npm run build
@@ -79,3 +101,11 @@ jobs:
         env:
           SMOKE_BASE_URL: http://127.0.0.1:3000
         run: npm run smoke
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run desktop and mobile UI acceptance
+        env:
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:3000
+        run: npm run test:e2e -- --workers=1

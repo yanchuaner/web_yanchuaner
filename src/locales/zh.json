@@ -43,7 +43,9 @@
     "ecosystemDesc": "平台功能、边界与共建方式",
     "privacyDesc": "数据使用、内容边界与用户权利",
     "aboutDesc": "航天特色与办学理念",
-    "contactDesc": "联系窗口与投稿"
+    "contactDesc": "联系窗口与投稿",
+    "replayIntro": "重播归印入场",
+    "replayIntroDesc": "再次观看山海归印仪式"
   },
   "footer": {
     "copyright": "© 2025-2026 燕中校友数字母港",
@@ -576,6 +578,19 @@
   "home": {
     "heroTitle": "从燕中出发，\n在山海之间重逢",
     "heroTagline": "记得同窗，也看见彼此走过的路。这里收藏燕中的故事，连接身在各地的校友，也为下一次并肩同行留一盏灯。",
+    "heroOrbitLabel": "共同星体 · 燕中",
+    "heroCoordinate": "共同坐标 · 深圳燕川",
+    "introEyebrow": "山海归印",
+    "introDescription": "山海虽远，同窗仍在。",
+    "introEnter": "落印归航",
+    "introSkip": "直接进入",
+    "introOrbitReturn": "归途",
+    "introOrbitReturnDescription": "离开燕中，也始终有一条回家的轨道。",
+    "introOrbitYears": "年轮",
+    "introOrbitYearsDescription": "时间向前，记忆仍在同一颗星上相遇。",
+    "introOrbitLight": "灯火",
+    "introOrbitLightDescription": "每一次参与，都会为燕中系点亮一颗星。",
+    "introOrbitControlsLabel": "燕中系星体说明",
     "ctaJoin": "加入燕中校友网络",
     "ctaDirectory": "寻找同窗与校友",
     "whisperClassmates": "同窗 · 山海有信",

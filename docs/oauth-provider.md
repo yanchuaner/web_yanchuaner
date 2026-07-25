@@ -47,7 +47,7 @@ New API 和 Open WebUI 使用不同客户端密钥。Open WebUI 通过标准 OID
 
 ## 验证
 
-```powershell
+```bash
 npm run test:oauth-provider
 npx tsc --noEmit
 npm run lint

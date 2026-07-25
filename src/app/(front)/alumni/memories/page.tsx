@@ -62,7 +62,7 @@ export default async function AlumniMemoriesPage() {
       <GlassCard className="p-5 md:p-8">
         <header className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="inline-flex items-center gap-2 rounded-full border border-line bg-brand/10 px-3 py-1 text-xs tracking-[0.18em] text-brand">
+            <p className="inline-flex items-center gap-2 rounded-full border border-line bg-brand/10 px-3 py-1 text-xs text-brand">
               <Camera size={14} />
               MEMORY GALLERY
             </p>
@@ -107,7 +107,7 @@ export default async function AlumniMemoriesPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-overlay/60 via-transparent to-transparent opacity-80" />
 
                     {!item.hasImage ? (
-                      <div className="absolute inset-0 flex items-center justify-center px-3 text-center text-xs font-semibold tracking-[0.16em] text-brand/70">
+                      <div className="absolute inset-0 flex items-center justify-center px-3 text-center text-xs font-semibold text-brand/70">
                         IMAGE PENDING
                       </div>
                     ) : null}

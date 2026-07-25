@@ -23,48 +23,23 @@
 | `forum.yanchuaner.cn`（拟） | 文史政哲与校园议题的社区讨论预览，前缀在开发前确认 |
 | `birthday.yanchuaner.cn` | 生日祝福与校友关怀服务预览 |
 
-完整边界以 [燕中生态项目关系](docs/燕中生态项目关系.txt) 和本仓库 [OAuth 身份出口](docs/oauth-provider.md) 为准。工作区 `C:\Dev\yanchuaner\docs\燕中生态项目关系.txt` 保持同内容镜像。
+完整边界以 [燕中生态项目关系](docs/燕中生态项目关系.txt) 和本仓库 [OAuth 身份出口](docs/oauth-provider.md) 为准。当前开发工作区位于 WSL Ubuntu 原生文件系统，生态总览的上游副本位于同级 `meta/docs/`。
 
 > 本仓库只包含网站代码、公开文档和示例配置，不包含真实数据库、上传文件、账号凭据或校友隐私数据。
 
 ## 项目预览
 
-点击截图可查看大图。这里保留少量代表性页面，完整交互以本地运行或线上站点为准。
+截图由 1440×900 桌面端和 iPhone 13 等效视口的 Playwright 验收生成，点击可查看原图。完整转场、悬停暂停和逐字信息效果请以本地 staging 为准。
 
-| 星空通讯录 | 校友故事 | 管理后台 |
+| 暗色开屏 | 进入后的暗色首页 |
+| --- | --- |
+| [![燕中系暗色开屏](docs/assets/screenshots/home-entrance-dark.webp)](docs/assets/screenshots/home-entrance-dark.webp) | [![燕中系暗色首页](docs/assets/screenshots/home-dark.webp)](docs/assets/screenshots/home-dark.webp) |
+| 三条同向轨道、语义星体与中心燕星 | 同一星体连续归位，文案在转场后浮现 |
+
+| 手机星体信息 | 亮色英文注册 | 亮色英文故事审核 |
 | --- | --- | --- |
-| [![校友地图](docs/assets/screenshots/alumni-contact.webp)](docs/assets/screenshots/alumni-contact.webp) | [![燕中故事](docs/assets/screenshots/alumni-stories.webp)](docs/assets/screenshots/alumni-stories.webp) | [![后台控制台](docs/assets/screenshots/admin-dashboard.webp)](docs/assets/screenshots/admin-dashboard.webp) |
-| 校友搜索、城市分布与星空体验 | 故事展示与个人中心投稿 | 后台统计与运营入口 |
-
-<details>
-<summary>展开更多前台页面截图</summary>
-
-| 学校介绍 | 新闻公告 | 校友活动 |
-| --- | --- | --- |
-| [![学校介绍](docs/assets/screenshots/about.webp)](docs/assets/screenshots/about.webp) | [![新闻公告](docs/assets/screenshots/news.webp)](docs/assets/screenshots/news.webp) | [![校友活动](docs/assets/screenshots/events.webp)](docs/assets/screenshots/events.webp) |
-
-| 在校生资源站 | 教师频道 | 联系我们 |
-| --- | --- | --- |
-| [![在校生资源站](docs/assets/screenshots/students.webp)](docs/assets/screenshots/students.webp) | [![教师频道](docs/assets/screenshots/teachers.webp)](docs/assets/screenshots/teachers.webp) | [![联系我们](docs/assets/screenshots/contact.webp)](docs/assets/screenshots/contact.webp) |
-
-| 电子校友证 | 校友成就墙 | 燕中记忆 |
-| --- | --- | --- |
-| [![电子校友证](docs/assets/screenshots/alumni-certificate.webp)](docs/assets/screenshots/alumni-certificate.webp) | [![校友成就墙](docs/assets/screenshots/alumni-achievements.webp)](docs/assets/screenshots/alumni-achievements.webp) | [![燕中记忆](docs/assets/screenshots/alumni-memories.webp)](docs/assets/screenshots/alumni-memories.webp) |
-
-</details>
-
-<details>
-<summary>展开后台管理截图</summary>
-
-| 新闻管理 | 活动管理 | 校友名单 |
-| --- | --- | --- |
-| [![新闻管理](docs/assets/screenshots/admin-news.webp)](docs/assets/screenshots/admin-news.webp) | [![活动管理](docs/assets/screenshots/admin-events.webp)](docs/assets/screenshots/admin-events.webp) | [![校友名单](docs/assets/screenshots/admin-alumni.webp)](docs/assets/screenshots/admin-alumni.webp) |
-
-| 修改申请 | 故事审核 | 页面内容 |
-| --- | --- | --- |
-| [![修改申请](docs/assets/screenshots/admin-corrections.webp)](docs/assets/screenshots/admin-corrections.webp) | [![故事审核](docs/assets/screenshots/admin-stories-pending.webp)](docs/assets/screenshots/admin-stories-pending.webp) | [![页面内容](docs/assets/screenshots/admin-content.webp)](docs/assets/screenshots/admin-content.webp) |
-
-</details>
+| [![手机端星体信息](docs/assets/screenshots/home-entrance-mobile.webp)](docs/assets/screenshots/home-entrance-mobile.webp) | [![亮色英文注册](docs/assets/screenshots/register-light-en.webp)](docs/assets/screenshots/register-light-en.webp) | [![亮色英文故事审核](docs/assets/screenshots/admin-stories-light-en.webp)](docs/assets/screenshots/admin-stories-light-en.webp) |
+| 44px 触控目标，点按暂停并逐字显示含义 | 独立日间纹理，长英文无横向溢出 | 故事审核与燕中故事保持唯一选中状态 |
 
 ## 当前状态
 
@@ -102,7 +77,7 @@
 
 - Node.js 22.x LTS
 - npm 10.x
-- 本地开发可在 Windows 运行；生产构建必须在 WSL 或 Linux 原生文件系统中执行
+- 当前开发基线为 WSL Ubuntu 原生文件系统；不要从 `/mnt/c`、`/mnt/d` 或 Windows npm 全局目录运行构建
 
 ### 本地开发
 
@@ -138,6 +113,7 @@ npm run create-admin
 | `NODE_ENV` / `PORT` | 运行环境与端口，本地默认 `3000` |
 | `SITE_URL` | 站点根地址，用于 metadata、分享和 sitemap |
 | `APP_URL` | 应用外部访问地址，用于邮件验证、密码重置等链接 |
+| `AUTH_COOKIE_SECURE` | 认证 Cookie 的 Secure 开关；本地 HTTP 为 `false`，生产 HTTPS 为 `true` |
 | `SITE_NAME` | 站点名称 |
 | `DATABASE_URL` | SQLite 连接字符串，如 `file:./prisma/dev.db` |
 | `SESSION_SECRET` | token 签名密钥，部署前必须替换为足够长的随机串 |
@@ -207,9 +183,13 @@ docs/
 | `npm run audit:prod` | 生产依赖高危审计 |
 | `npm run audit:ui-tokens` | UI 语义令牌与硬编码颜色审计 |
 | `npm run audit:i18n-shells` | 前后台固定界面中文硬编码审计 |
+| `npm run audit:docs` | 检查 README/docs 断链、过时路径和不存在的 npm 命令 |
 | `npm run test:registration-policy` | 注册口令策略与公开响应契约测试 |
+| `npm run test:content-operations` | 图片路径、尺寸校验和 16:9 标准化测试 |
+| `npm run test:e2e` | 使用 Playwright Chromium 验收桌面与手机首页；需先启动本地/staging 服务 |
+| `npm run test:acceptance` | 在已播种的隔离 3101 服务执行网站与小程序 31 项业务闭环 |
 | `npm run release:check` | 类型、lint、账户/注册/小程序测试、UI/i18n 与依赖审计 |
-| `npm run build:check:wsl` | 在 WSL 隔离目录执行迁移、种子、发布检查与生产构建 |
+| `npm run build:check:wsl` | 从当前 WSL 仓库复制到 `/tmp` 隔离目录，执行迁移、种子、发布检查与生产构建 |
 | `npm run smoke` | 冒烟测试，需要本地服务；管理员登录部分需配置 `SMOKE_*` |
 | `npm run db:generate` | 生成 Prisma Client |
 | `npm run db:init` | 仅在非生产环境创建空 SQLite 文件并应用 migrations |
@@ -217,11 +197,13 @@ docs/
 | `npm run db:migrate:status` | 查看 migration 应用状态 |
 | `npm run db:push` | 直接同步 schema，仅限一次性本地实验库，生产禁用 |
 | `npm run seed` | 执行 Prisma 幂等种子 |
-| `npm run seed-all` | 执行 Prisma seed，再补齐页面内容与记忆馆种子 |
+| `npm run seed-all` | 执行 Prisma seed，再以稳定 ID 补齐缺失的页面内容；不覆盖后台编辑，不写入虚构记忆展品 |
 | `npm run create-admin` | 创建管理员账号 |
 | `npm run normalize-identity-fields` | 清洗届别/班级历史后缀，支持 `-- --dry-run` |
 
 `npm run build` 不再隐式执行 schema 迁移或 seed。首次本地初始化应显式运行 `npm run db:init` 和 `npm run seed`；`db:init` 在生产环境会直接拒绝执行。生产发布只允许在备份和迁移演练通过后执行 `prisma migrate deploy`，禁止使用 `db push`。部分 ISR 页面会在构建时读取数据库，因此构建环境仍应使用隔离的临时数据库，不能指向生产库。已有生产库首次纳入 Prisma Migrate 时必须先按 [部署指南](./docs/deployment.md) 完成一次性基线采用流程。
+
+Playwright E2E 默认访问 `http://127.0.0.1:3100`，适配当前 staging Compose；本地开发服务可通过 `PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 npm run test:e2e` 指定。浏览器只安装 Chromium，缓存放在 WSL 用户目录，不写入仓库。
 
 ## 数据与隐私
 
@@ -256,7 +238,7 @@ npm run build
 | --- | --- |
 | [docs/architecture.md](./docs/architecture.md) | 架构、请求生命周期、数据库解耦、缓存与地图聚合 |
 | [docs/security.md](./docs/security.md) | Payload 限制、IDOR、防 CSRF 同源校验、Token、限流、上传安全 |
-| [docs/deployment.md](./docs/deployment.md) | Windows 开发、WSL/Linux 构建、服务器部署、systemd、Nginx、备份 |
+| [docs/deployment.md](./docs/deployment.md) | WSL/Linux 构建、服务器部署、systemd、Nginx、备份 |
 | [docs/staging-deployment.md](./docs/staging-deployment.md) | 隔离测试环境、Docker Compose 与候选版本门槛 |
 | [docs/acceptance-plan.md](./docs/acceptance-plan.md) | 自动化全流程验收与 5-50 人试运营矩阵 |
 | [docs/mp-api-contract.md](./docs/mp-api-contract.md) | 网站、小程序与后续 App 的 API v1 契约 |
@@ -267,6 +249,7 @@ npm run build
 | [docs/TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md) | 常见故障排查 |
 | [docs/ui-guide.md](./docs/ui-guide.md) | UI 组件、设计令牌、导航和后台 CRUD 约定 |
 | [docs/ui-system.md](./docs/ui-system.md) | 亮暗主题、双语、组件分层、Canvas 生命周期与 UI 审计规则 |
+| [docs/pr-guidelines.md](./docs/pr-guidelines.md) | PR 标题、描述层次、验证证据、风险与合并门槛 |
 | [docs/business-domain-redesign.md](./docs/business-domain-redesign.md) | 注册策略、旧认领退役、活动报名与管理员工作台的业务域重构 |
 | [docs/roadmap-decisions.md](./docs/roadmap-decisions.md) | TODO 收口、缓存、隐私、对象存储与依赖升级决策 |
 | [docs/starfield-contribution.md](./docs/starfield-contribution.md) | 星空彩蛋设计、点阵编队架构与专项共建指南 |

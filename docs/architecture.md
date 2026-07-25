@@ -412,6 +412,7 @@ await tx.auditLog.create({
 
 - `authLimiter`：滑动窗口，每 IP 5 次/分钟。
 - `emailLimiter`：双窗口组合，1 次/分钟 + 10 次/天。
+- Upstash 未配置时，ioredis 使用有序集合与 Lua 原子执行相同滑动窗口；通用 `rateLimit()` 写接口使用带 TTL 的固定窗口。
 
 ### 缓存策略
 
