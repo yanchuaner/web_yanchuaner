@@ -8,6 +8,7 @@ import {
   issueOAuthIdToken,
   readOAuthClientCredentials,
   readOAuthForm,
+  validatePkceCodeVerifier,
 } from "@/lib/oauth-provider";
 
 function oauthJson(body: object, status = 200) {
@@ -52,7 +53,11 @@ export async function POST(req: NextRequest) {
     if (
       !record ||
       record.clientId !== config.clientId ||
-      record.redirectUri !== form.get("redirect_uri")
+      record.redirectUri !== form.get("redirect_uri") ||
+      !validatePkceCodeVerifier(
+        record.codeChallenge,
+        form.get("code_verifier") ?? "",
+      )
     ) {
       return oauthJson({ error: "invalid_grant" }, 400);
     }

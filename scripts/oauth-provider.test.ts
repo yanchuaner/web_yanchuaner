@@ -1,12 +1,14 @@
 import assert from "node:assert/strict";
-import { generateKeyPairSync } from "node:crypto";
+import { createHash, generateKeyPairSync } from "node:crypto";
 import test from "node:test";
 import type { AuthenticatedUser } from "../src/lib/admin-auth";
 import {
   constantTimeSecretEqual,
+  getOAuthProviderConfigs,
   issueOAuthIdToken,
   isOAuthEligibleUser,
   validateAuthorizationRequest,
+  validatePkceCodeVerifier,
   type OAuthProviderConfig,
 } from "../src/lib/oauth-provider";
 
@@ -56,6 +58,21 @@ test("authorization request requires exact client, redirect, response type and s
     nonce: "nonce-1",
   });
 
+  const verifier = "0123456789012345678901234567890123456789012";
+  const challenge = createHash("sha256").update(verifier).digest("base64url");
+  const withPkce = new URLSearchParams(withNonce);
+  withPkce.set("code_challenge", challenge);
+  withPkce.set("code_challenge_method", "S256");
+  assert.deepEqual(validateAuthorizationRequest(withPkce, config), {
+    state: "state-1",
+    nonce: "nonce-1",
+    codeChallenge: challenge,
+  });
+
+  const plainPkce = new URLSearchParams(withPkce);
+  plainPkce.set("code_challenge_method", "plain");
+  assert.equal(validateAuthorizationRequest(plainPkce, config), null);
+
   for (const field of ["response_type", "client_id", "redirect_uri"]) {
     const invalid = new URLSearchParams(valid);
     invalid.set(field, "wrong");
@@ -69,6 +86,15 @@ test("authorization request requires exact client, redirect, response type and s
   const oversizedState = new URLSearchParams(valid);
   oversizedState.set("state", "x".repeat(513));
   assert.equal(validateAuthorizationRequest(oversizedState, config), null);
+});
+
+test("PKCE only accepts a matching S256 verifier when challenge is present", () => {
+  const verifier = "0123456789012345678901234567890123456789012";
+  const challenge = createHash("sha256").update(verifier).digest("base64url");
+  assert.equal(validatePkceCodeVerifier(challenge, verifier), true);
+  assert.equal(validatePkceCodeVerifier(challenge, `${verifier.slice(0, -1)}x`), false);
+  assert.equal(validatePkceCodeVerifier(challenge, "short"), false);
+  assert.equal(validatePkceCodeVerifier(undefined, ""), true);
 });
 
 test("OIDC ID token is audience-bound and carries the authorization nonce", () => {
@@ -117,4 +143,69 @@ test("only verified school members and administrators are OAuth eligible", () =>
 test("client secrets are compared by value without length-dependent branching", () => {
   assert.equal(constantTimeSecretEqual("same", "same"), true);
   assert.equal(constantTimeSecretEqual("short", "a-different-value"), false);
+});
+
+test("API, Open WebUI and autonomous AI Web use isolated OAuth clients", () => {
+  const names = [
+    "YANCHUANER_OAUTH_CLIENT_ID",
+    "YANCHUANER_OAUTH_CLIENT_SECRET",
+    "YANCHUANER_OAUTH_REDIRECT_URI",
+    "YANCHUANER_AI_OAUTH_CLIENT_ID",
+    "YANCHUANER_AI_OAUTH_CLIENT_SECRET",
+    "YANCHUANER_AI_OAUTH_REDIRECT_URI",
+    "YANCHUANER_AI_WEB_OAUTH_CLIENT_ID",
+    "YANCHUANER_AI_WEB_OAUTH_CLIENT_SECRET",
+    "YANCHUANER_AI_WEB_OAUTH_REDIRECT_URI",
+  ] as const;
+  const previous = new Map(names.map((name) => [name, process.env[name]]));
+  try {
+    Object.assign(process.env, {
+      YANCHUANER_OAUTH_CLIENT_ID: "api-yanchuaner",
+      YANCHUANER_OAUTH_CLIENT_SECRET: "api-secret",
+      YANCHUANER_OAUTH_REDIRECT_URI: "https://api.yanchuaner.cn/oauth/yanchuaner",
+      YANCHUANER_AI_OAUTH_CLIENT_ID: "openwebui-yanchuaner",
+      YANCHUANER_AI_OAUTH_CLIENT_SECRET: "openwebui-secret",
+      YANCHUANER_AI_OAUTH_REDIRECT_URI: "https://ai.yanchuaner.cn/oauth/oidc/callback",
+      YANCHUANER_AI_WEB_OAUTH_CLIENT_ID: "ai-web-yanchuaner",
+      YANCHUANER_AI_WEB_OAUTH_CLIENT_SECRET: "ai-web-secret",
+      YANCHUANER_AI_WEB_OAUTH_REDIRECT_URI: "https://ai.yanchuaner.cn/api/auth/callback",
+    });
+    assert.deepEqual(getOAuthProviderConfigs(), [
+      {
+        clientId: "api-yanchuaner",
+        clientSecret: "api-secret",
+        redirectUri: "https://api.yanchuaner.cn/oauth/yanchuaner",
+      },
+      {
+        clientId: "openwebui-yanchuaner",
+        clientSecret: "openwebui-secret",
+        redirectUri: "https://ai.yanchuaner.cn/oauth/oidc/callback",
+      },
+      {
+        clientId: "ai-web-yanchuaner",
+        clientSecret: "ai-web-secret",
+        redirectUri: "https://ai.yanchuaner.cn/api/auth/callback",
+      },
+    ]);
+
+    delete process.env.YANCHUANER_AI_WEB_OAUTH_CLIENT_SECRET;
+    assert.throws(
+      () => getOAuthProviderConfigs(),
+      /YANCHUANER_AI_WEB_OAUTH client configuration is incomplete/,
+    );
+
+    process.env.YANCHUANER_AI_WEB_OAUTH_CLIENT_SECRET = "ai-web-secret";
+    process.env.YANCHUANER_AI_WEB_OAUTH_CLIENT_ID = "openwebui-yanchuaner";
+    assert.throws(() => getOAuthProviderConfigs(), /OAuth client IDs must be unique/);
+
+    process.env.YANCHUANER_AI_WEB_OAUTH_CLIENT_ID = "ai-web-yanchuaner";
+    process.env.YANCHUANER_AI_WEB_OAUTH_CLIENT_SECRET = "openwebui-secret";
+    assert.throws(() => getOAuthProviderConfigs(), /OAuth client secrets must be unique/);
+  } finally {
+    for (const name of names) {
+      const value = previous.get(name);
+      if (value === undefined) delete process.env[name];
+      else process.env[name] = value;
+    }
+  }
 });

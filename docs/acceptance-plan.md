@@ -29,6 +29,8 @@ ACCEPTANCE_BASE_URL="http://127.0.0.1:3101" npm run test:acceptance
 
 Compose staging 的生产构建会正确关闭模拟登录。需要在容器内完成同一闭环时，先按 [staging-deployment.md](staging-deployment.md) 播种虚拟账号，再用 builder 镜像临时启动 `next dev`；不得为了验收修改 `3100` 上的 production 配置。
 
+主站作为 API 与 AI 的身份中心时，还要按 [`oauth-provider.md`](./oauth-provider.md) 启动独立 Redis 并运行 `npm run test:oauth-provider:contract`。该测试只针对隔离数据库、测试账号和本机 Redis；它不能替代 Linux/HTTPS staging 的 New API 与 Open WebUI 回调验收。
+
 ## 人工验收矩阵
 
 | 角色 | 必测流程 | 成功标准 |
