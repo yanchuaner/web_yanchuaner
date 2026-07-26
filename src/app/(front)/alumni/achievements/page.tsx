@@ -12,7 +12,6 @@ import {
 import prisma from "@/lib/db";
 import {
   ACHIEVEMENT_CATEGORIES,
-  ACHIEVEMENT_CATEGORY_LABELS,
   type AchievementCategory,
 } from "@/lib/achievements";
 import { formatGraduationClass } from "@/lib/identity-fields";
@@ -25,12 +24,13 @@ import {
   Badge,
   EmptyState,
 } from "@/components/ui";
+import { LocalizedText } from "@/components/LocalizedText";
 import { cn } from "@/components/ui/cn";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "校友成就墙",
+  title: "校友成就墙 | Alumni Achievements",
   description: "记录燕川中学校友在升学、科研、职业、创业与公益领域的成长足迹",
 };
 
@@ -79,18 +79,18 @@ export default async function AlumniAchievementsPage({
         <PageHeader
           eyebrow="ALUMNI ACHIEVEMENTS"
           eyebrowIcon={Sparkles}
-          title="校友成就墙"
-          description="记录燕中人在升学、科研、职业、创业与公益道路上的成长足迹，分享每一份值得被看见的努力。"
+          title={<LocalizedText translationKey="contentPages.achievements.title" />}
+          description={<LocalizedText translationKey="contentPages.achievements.description" />}
           action={
             <ButtonLink href="/" variant="secondary">
-              返回指挥中心
+              <LocalizedText translationKey="contentPages.achievements.back" />
             </ButtonLink>
           }
         />
 
-        <nav className="mt-6 flex flex-wrap gap-2" aria-label="按成就类别筛选">
+        <nav className="mt-6 flex flex-wrap gap-2" aria-label="Achievement category filters">
           <CategoryChip href="/alumni/achievements" active={!activeCategory}>
-            全部
+            <LocalizedText translationKey="contentPages.achievements.all" />
           </CategoryChip>
           {ACHIEVEMENT_CATEGORIES.map((category) => (
             <CategoryChip
@@ -98,7 +98,7 @@ export default async function AlumniAchievementsPage({
               href={`/alumni/achievements?category=${category}`}
               active={activeCategory === category}
             >
-              {ACHIEVEMENT_CATEGORY_LABELS[category]}
+              <LocalizedText translationKey={`contentPages.achievements.categories.${category}`} />
             </CategoryChip>
           ))}
         </nav>
@@ -106,7 +106,7 @@ export default async function AlumniAchievementsPage({
         {achievements.length === 0 ? (
           <EmptyState
             icon={BookOpenCheck}
-            title="暂无已发布的校友成就记录。"
+            title={<LocalizedText translationKey="contentPages.achievements.empty" />}
             className="mt-8"
           />
         ) : (
@@ -114,8 +114,6 @@ export default async function AlumniAchievementsPage({
             {achievements.map((achievement) => {
               const category = achievement.category as AchievementCategory;
               const Icon = CATEGORY_ICONS[category] || Award;
-              const categoryLabel =
-                ACHIEVEMENT_CATEGORY_LABELS[category] || "其他成就";
               const tone = CATEGORY_TONES[category] || "neutral";
 
               return (
@@ -125,7 +123,7 @@ export default async function AlumniAchievementsPage({
                 >
                   <div className="flex items-start justify-between gap-3">
                     <Badge tone={tone} icon={Icon}>
-                      {categoryLabel}
+                      <LocalizedText translationKey={`contentPages.achievements.categories.${category}`} />
                     </Badge>
                     {achievement.yearLabel ? (
                       <span className="text-xs font-medium text-brand/60">
@@ -148,7 +146,7 @@ export default async function AlumniAchievementsPage({
                     <p className="mt-1 text-xs text-main/60">
                       {[formatGraduationClass(achievement.graduationClass), achievement.organization]
                         .filter(Boolean)
-                        .join(" · ") || "燕中校友"}
+                        .join(" · ") || <LocalizedText translationKey="contentPages.achievements.alumniFallback" />}
                     </p>
                   </div>
                 </article>

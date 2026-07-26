@@ -20,6 +20,18 @@ npm run check:staging
 检查器不会打印密钥。缺少真实邮件或 OAuth 凭据时会明确列为外部待办；配置了半套
 OAuth 或不安全的非本机 HTTP 地址时则直接失败。
 
+真实外部环境必须额外执行严格门禁：
+
+```bash
+npm run check:staging:external
+npm run test:staging:https
+STAGING_EMAIL_TEST_RECIPIENT="your-address@example.com" npm run test:staging:email
+```
+
+`check:staging:external` 会拒绝 localhost、非 HTTPS 回调、空或复用的 OAuth client/secret、临时 RSA 签名密钥和空 Resend 配置。
+`test:staging:https` 会核验 DNS、证书剩余有效期、应用/数据库/Redis 健康状态，以及 HSTS、CSP、X-Frame-Options、nosniff 等响应头。
+`test:staging:email` 只发送一封不含用户数据的测试邮件；必须确认收件箱实际收到，不能只以 Resend 返回 message ID 作为最终证据。
+
 ```bash
 docker compose build
 docker compose up -d
@@ -77,3 +89,5 @@ npm run build:check:wsl
 OAuth/OIDC 联合验收必须在 HTTPS staging 上进行，并配置独立客户端密钥和持久化
 RSA 签名密钥。本机 HTTP staging 已覆盖数据库、Redis、主站功能和 OAuth 提供方合约，
 但不作为真实跨域 SSO 已完成的结论。真实邮件闭环同样需要 Resend 凭据和已验证发件域名。
+
+截至当前工作区，`staging.yanchuaner.cn` 与 `api.yanchuaner.cn` 尚未完成 DNS 解析，真实邮件和三套下游 OAuth 凭据也未注入；因此严格门禁与跨域联合验收必须保持未通过，不能把本地合同结果升级为生产结论。
