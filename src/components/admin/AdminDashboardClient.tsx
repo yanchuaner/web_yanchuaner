@@ -76,7 +76,7 @@ export function AdminDashboardClient({ stats }: { stats: AdminDashboardStats }) 
               <p className="text-sm text-brand-fg/60">{card.label}</p>
               <card.icon size={22} className={card.iconClass} />
             </div>
-            <p className="mt-3 font-heading text-4xl font-bold tracking-tight text-brand-fg">
+            <p className="mt-3 font-heading text-4xl font-bold text-brand-fg">
               {card.value}
             </p>
           </div>

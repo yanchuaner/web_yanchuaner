@@ -61,7 +61,7 @@ Open WebUI 与自主 AI Web 即使部署在同一域名，也不得复用 client
 
 ## 验证
 
-```powershell
+```bash
 npm run test:oauth-provider
 npx tsc --noEmit
 npm run lint

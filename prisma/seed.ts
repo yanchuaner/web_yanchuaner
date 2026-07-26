@@ -166,7 +166,7 @@ async function main() {
     console.log(`💬 共读取到 ${items.length} 个故事记录`);
 
     let createdCount = 0;
-    let updatedCount = 0;
+    let preservedCount = 0;
 
     for (const item of items) {
       const title = (item.title || "").trim();
@@ -185,15 +185,9 @@ async function main() {
       });
 
       if (existing) {
-        await prisma.story.update({
-          where: { id: existing.id },
-          data: {
-            tags,
-            body,
-            date,
-          },
-        });
-        updatedCount++;
+        // Published or reviewed stories may have been edited in the admin UI.
+        // Seed data only fills missing records and never overwrites operations data.
+        preservedCount++;
       } else {
         await prisma.story.create({
           data: {
@@ -207,7 +201,7 @@ async function main() {
         createdCount++;
       }
     }
-    console.log(`  ✓ 燕中故事播种完毕：新增 ${createdCount} 条，更新 ${updatedCount} 条`);
+    console.log(`  ✓ 燕中故事播种完毕：新增 ${createdCount} 条，保留 ${preservedCount} 条`);
   } else {
     console.log("⚠️ 未找到 stories.json，已跳过故事播种");
   }

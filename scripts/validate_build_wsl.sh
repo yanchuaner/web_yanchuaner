@@ -1,8 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SOURCE_DIR="${1:-/mnt/c/Dev/yanchuaner/web_yanchuaner}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SOURCE_DIR="${1:-$(cd "$SCRIPT_DIR/.." && pwd)}"
 BUILD_DIR="$(mktemp -d /tmp/yanchuaner-build-XXXXXX)"
+
+cleanup() {
+  if [[ "${KEEP_BUILD_DIR:-false}" == "true" ]]; then
+    printf 'Kept isolated build directory: %s\n' "$BUILD_DIR"
+  else
+    rm -rf -- "$BUILD_DIR"
+  fi
+}
+trap cleanup EXIT
 
 tar -C "$SOURCE_DIR" \
   --exclude=.git \
@@ -17,7 +27,7 @@ tar -C "$SOURCE_DIR" \
   -cf - . | tar -C "$BUILD_DIR" -xf -
 
 cd "$BUILD_DIR"
-npm ci
+npm ci --no-audit --no-fund
 export DATABASE_URL="file:./.tmp/build.db"
 export SESSION_SECRET="isolated-build-session-secret-20260711"
 export APP_URL="http://localhost:3000"
@@ -31,4 +41,4 @@ npm run seed
 npm run release:check
 npm run build
 
-printf 'Isolated build passed: %s\n' "$BUILD_DIR"
+printf 'Isolated WSL build passed.\n'

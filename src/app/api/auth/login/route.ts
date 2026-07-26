@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { normalizeUsername, readJsonBody } from "@/lib/auth-utils";
 import { AUTH_COOKIE } from "@/lib/admin-auth";
+import { authCookieSecure } from "@/lib/auth-cookie";
 import { getClientIp, authLimiter } from "@/lib/rate-limit";
 import { signToken, TOKEN_TTL_SECONDS } from "@/lib/verify-token";
 import { resolveWebAccountState } from "@/lib/web-account-state";
@@ -68,7 +69,7 @@ export async function POST(req: NextRequest) {
     const response = NextResponse.json({ success: true, role });
     response.cookies.set(AUTH_COOKIE, token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: authCookieSecure(),
       sameSite: "lax",
       path: "/",
       maxAge: TOKEN_TTL_SECONDS,

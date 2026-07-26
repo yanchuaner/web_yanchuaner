@@ -197,7 +197,7 @@ export default function EditProfilePage() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {identityItems.map((item) => (
               <div key={item.label} className="rounded-xl border border-line bg-surface px-3 py-2">
-                <p className="text-[11px] uppercase tracking-wide text-brand-fg/45">{item.label}</p>
+                <p className="text-[11px] uppercase text-brand-fg/45">{item.label}</p>
                 <p className="mt-1 text-sm font-medium text-brand-fg">{item.value}</p>
               </div>
             ))}

@@ -188,7 +188,7 @@ const Component = dynamic(() => import('./Component'), { ssr: false });
 ```
 请求 → Upstash Redis（生产推荐，滑动窗口）
         ↓ 不可用/异常
-      ioredis（legacy Redis，固定窗口）
+      ioredis（自建 Redis；认证/邮件为滑动窗口，通用写接口为固定窗口）
         ↓ 不可用/异常
       内存 Map（单进程，重启清零）
 ```
@@ -207,7 +207,7 @@ const Component = dynamic(() => import('./Component'), { ssr: false });
    # 测试 Upstash Redis 连通性
    curl -s "$UPSTASH_REDIS_REST_URL/ping" -H "Authorization: Bearer $UPSTASH_REDIS_REST_TOKEN"
    ```
-2. **确认环境变量**：检查 `.env` 中 `UPSTASH_REDIS_REST_URL` 和 `UPSTASH_REDIS_REST_TOKEN` 是否正确设置
+2. **确认环境变量**：检查 `.env` 中成套的 Upstash 变量，或 `REDIS_URL` 是否正确；本地 Compose 通过 `/api/health` 的 `redis: connected` 验证
 3. **查看服务端日志**：Redis 连接失败会记录 `console.error`，但不影响限流功能（自动降级）
 4. **确认降级行为**：如果 Redis 完全不可用，限流降级到内存 Map，此时限流数据在进程重启后清零，多进程间不共享
 5. **等待恢复**：限流窗口到期后自动恢复（认证 1 分钟，邮件 1 分钟 / 24 小时）

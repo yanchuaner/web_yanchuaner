@@ -59,6 +59,11 @@ logs/
 coverage/
 .tmp/
 
+# Playwright output
+test-results/
+playwright-report/
+blob-report/
+
 # Allow source code data directory
 !src/data/
 .agents/

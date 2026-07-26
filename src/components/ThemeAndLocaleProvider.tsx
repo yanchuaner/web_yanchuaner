@@ -77,6 +77,8 @@ export function ThemeAndLocaleProvider({ children }: { children: React.ReactNode
   }, []);
 
   const setTheme = useCallback((newTheme: Theme) => {
+    document.documentElement.classList.add("theme-switching");
+    window.setTimeout(() => document.documentElement.classList.remove("theme-switching"), 620);
     setThemeState(newTheme);
     storeValue("theme", newTheme);
     if (newTheme === "dark") {
@@ -87,6 +89,8 @@ export function ThemeAndLocaleProvider({ children }: { children: React.ReactNode
   }, []);
 
   const toggleTheme = useCallback(() => {
+    document.documentElement.classList.add("theme-switching");
+    window.setTimeout(() => document.documentElement.classList.remove("theme-switching"), 620);
     setThemeState((prevTheme) => {
       const nextTheme = prevTheme === "light" ? "dark" : "light";
       storeValue("theme", nextTheme);

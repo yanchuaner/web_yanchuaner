@@ -33,7 +33,7 @@ export function PageHeader({
       >
         <div className="w-full min-w-0 sm:flex-1">
           {eyebrow ? (
-            <p className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-3 py-1 text-xs tracking-[0.18em] text-brand">
+            <p className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-3 py-1 text-xs text-brand">
               {EyebrowIcon ? <EyebrowIcon size={14} aria-hidden="true" /> : null}
               {eyebrow}
             </p>

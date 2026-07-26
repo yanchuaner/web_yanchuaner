@@ -102,6 +102,26 @@ async function main() {
     }),
   });
   check(story.response.status === 201 && story.body?.story?.status === "PENDING", "website story submission");
+  const pendingStories = await jsonRequest("/api/admin/stories/pending", {
+    headers: { Cookie: adminCookie },
+  });
+  check(
+    pendingStories.response.ok &&
+      pendingStories.body?.stories?.some((item) => item.id === story.body.story.id),
+    "submitted story enters moderation queue",
+  );
+  const reviewedStory = await jsonRequest(
+    `/api/admin/stories/${story.body.story.id}/review`,
+    {
+      method: "PATCH",
+      headers: { Origin: baseUrl, Cookie: adminCookie },
+      body: JSON.stringify({ status: "PUBLISHED" }),
+    },
+  );
+  check(
+    reviewedStory.response.ok && reviewedStory.body?.story?.status === "PUBLISHED",
+    "administrator publishes submitted story",
+  );
 
   const verifiedToken = await devLogin(ids.verified);
   const me = await jsonRequest("/api/mp/auth/me", { headers: bearer(verifiedToken) });

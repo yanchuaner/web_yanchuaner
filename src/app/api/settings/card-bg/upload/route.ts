@@ -9,6 +9,7 @@ import {
   isImageMime,
   processToCard16x9,
 } from "@/lib/image-pipeline";
+import { getClientIp, rateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -17,6 +18,21 @@ const CARD_PUBLIC_PATH = path.join(process.cwd(), "public", "card.jpg");
 export async function POST(req: NextRequest) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
+
+  const uploadLimit = await rateLimit(
+    `admin-card-background:${getClientIp(req)}`,
+    5,
+    5 * 60_000,
+  );
+  if (!uploadLimit.ok) {
+    return NextResponse.json(
+      { error: "上传过于频繁，请稍后再试" },
+      {
+        status: 429,
+        headers: { "Retry-After": String(uploadLimit.retryAfter) },
+      },
+    );
+  }
 
   let formData: FormData;
   try {

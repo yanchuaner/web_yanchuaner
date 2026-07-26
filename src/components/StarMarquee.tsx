@@ -12,7 +12,7 @@ const StarMarquee = memo(function StarMarquee() {
     <div className="mt-6 rounded-2xl border border-info/20 bg-surface/60 p-4 relative backdrop-blur-md">
       <div className="flex items-center gap-2 mb-4 text-info">
         <MessageSquareText size={18} />
-        <h3 className="text-sm font-semibold tracking-wider font-mono">共鸣星海 · STAR MESSAGES</h3>
+        <h3 className="text-sm font-semibold font-mono">共鸣星海 · STAR MESSAGES</h3>
       </div>
       
       {/* Marquee viewport */}

@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useThemeAndLocale } from "../ThemeAndLocaleProvider";
-import { Monitor, Radio, Tv } from "lucide-react";
+import { Radio, Tv } from "lucide-react";
 import { themeRgb } from "@/lib/theme-color";
+import { cn } from "./cn";
 
 interface TVChannel {
   id: number;
@@ -17,7 +18,7 @@ const CHANNELS: TVChannel[] = [
   { id: 3, nameKey: "tv.channels.communityName", contentKey: "tv.channels.communityContent" },
 ];
 
-export default function ChannelTV() {
+export default function ChannelTV({ tone = "default" }: { tone?: "default" | "narrative" }) {
   const { t, theme } = useThemeAndLocale();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const switchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -161,9 +162,15 @@ export default function ChannelTV() {
   };
 
   const activeChannel = CHANNELS[activeChannelIdx];
+  const narrative = tone === "narrative";
 
   return (
-    <div className="w-full max-w-lg mx-auto rounded-card border border-line bg-surface-muted/95 p-5 shadow-lg backdrop-blur-xl relative flex flex-col md:flex-row gap-5">
+    <div className={cn(
+      "relative mx-auto flex w-full max-w-lg flex-col gap-5 rounded-card border p-5 shadow-lg backdrop-blur-xl md:flex-row",
+      narrative
+        ? "border-narrative-route/20 bg-narrative-surface/90"
+        : "border-line bg-surface-muted/95",
+    )}>
 
       {/* CRT TV Screen Container */}
       <div className="flex-1 aspect-[4/3] rounded-lg border border-line bg-device-bg relative overflow-hidden shadow-inner flex flex-col">
@@ -189,12 +196,12 @@ export default function ChannelTV() {
           }`}
         >
           {/* Signal Indicator */}
-          <div className="absolute top-3 left-4 flex items-center gap-1.5 text-[9px] text-device-signal/70 uppercase tracking-widest select-none">
-            <span className="w-1.5 h-1.5 rounded-full bg-device-signal animate-pulse" />
+          <div className="absolute top-3 left-4 flex items-center gap-1.5 text-[9px] text-device-signal/70 uppercase select-none">
+            <span className="h-1.5 w-1.5 rounded-full bg-device-signal" />
             <span>{t("tv.signal")}</span>
           </div>
 
-          <h4 className="text-sm font-bold tracking-wider text-accent border-b border-line pb-2 mb-3">
+          <h4 className="text-sm font-bold text-accent border-b border-line pb-2 mb-3">
             {t(activeChannel.nameKey)}
           </h4>
           <p className="text-[11px] leading-relaxed text-device-fg/80 text-justify">
@@ -204,17 +211,28 @@ export default function ChannelTV() {
       </div>
 
       {/* Retro TV Control Panel (Knobs, Switchers) */}
-      <div className="w-full md:w-28 flex flex-col justify-between items-center bg-surface/40 p-3 rounded-lg border border-line gap-4">
+      <div className={cn(
+        "flex w-full flex-col items-center justify-between gap-4 rounded-lg border p-3 md:w-28",
+        narrative
+          ? "border-narrative-route/20 bg-narrative/55"
+          : "border-line bg-surface/40",
+      )}>
 
         {/* TV Grid Logo */}
         <div className="flex flex-col items-center gap-1">
-          <Tv size={20} className="text-brand" />
-          <span className="text-[9px] font-mono tracking-widest text-main/50 uppercase select-none">YZ-CRT-80</span>
+          <Tv size={20} className={narrative ? "text-narrative-route" : "text-brand"} />
+          <span className={cn(
+            "select-none font-mono text-[9px] uppercase",
+            narrative ? "text-narrative-muted" : "text-main/50",
+          )}>YZ-CRT-80</span>
         </div>
 
         {/* Channels Selector Knobs */}
         <div className="flex flex-col gap-2 w-full">
-          <span className="text-[8px] font-mono font-semibold tracking-wider text-main/40 uppercase text-center select-none">
+          <span className={cn(
+            "select-none text-center font-mono text-[8px] font-semibold uppercase",
+            narrative ? "text-narrative-muted" : "text-main/40",
+          )}>
             {t("tv.channelSelector")}
           </span>
           {CHANNELS.map((ch, idx) => (
@@ -222,10 +240,14 @@ export default function ChannelTV() {
               key={ch.id}
               onClick={() => switchChannel(idx)}
               disabled={!isOn}
-              className={`h-8 w-full rounded text-[10px] font-mono font-semibold tracking-wider transition-all cursor-pointer ${
+              className={`h-8 w-full rounded text-[10px] font-mono font-semibold transition-all cursor-pointer ${
                 activeChannelIdx === idx && isOn
-                  ? "bg-brand text-contrast shadow-md shadow-brand/20 border-brand"
-                  : "bg-surface border border-line text-main/60 hover:bg-brand/10 hover:text-brand"
+                  ? narrative
+                    ? "border-narrative-route bg-narrative-route text-contrast shadow-md"
+                    : "border-brand bg-brand text-contrast shadow-md shadow-brand/20"
+                  : narrative
+                    ? "border border-narrative-route/20 bg-narrative text-narrative-muted hover:bg-narrative-route/10 hover:text-narrative-route"
+                    : "border border-line bg-surface text-main/60 hover:bg-brand/10 hover:text-brand"
               } disabled:opacity-40 disabled:cursor-not-allowed`}
             >
               CH-{ch.id}
@@ -247,7 +269,10 @@ export default function ChannelTV() {
           >
             <Radio size={16} className={isOn ? "animate-spin-slow" : ""} />
           </button>
-          <span className="text-[8px] font-mono text-main/40 uppercase tracking-widest select-none">
+          <span className={cn(
+            "select-none font-mono text-[8px] uppercase",
+            narrative ? "text-narrative-muted" : "text-main/40",
+          )}>
             {isOn ? t("tv.powerOnStatus") : t("tv.powerOffStatus")}
           </span>
         </div>

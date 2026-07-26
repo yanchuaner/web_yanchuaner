@@ -12,6 +12,24 @@ export type RegistrationPolicyState = {
   accessCodeHint: string;
 };
 
+export function registrationIdentityState(accessCodeAccepted: boolean) {
+  return accessCodeAccepted
+    ? {
+        role: "ALUMNI" as const,
+        status: "VERIFIED" as const,
+        verificationStatus: "VERIFIED" as const,
+        verificationMethod: "INTERNAL_CODE" as const,
+        identityType: "ALUMNI" as const,
+      }
+    : {
+        role: "GUEST" as const,
+        status: "PENDING" as const,
+        verificationStatus: "PENDING" as const,
+        verificationMethod: "ADMIN_REVIEW" as const,
+        identityType: "ALUMNI" as const,
+      };
+}
+
 export function normalizeAccessCode(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }

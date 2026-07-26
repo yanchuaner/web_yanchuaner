@@ -4,7 +4,7 @@ export default function RadarNotFound() {
   return (
     <main className="flex min-h-screen items-center justify-center route-state-info px-4 text-main/60">
       <div className="max-w-xl rounded-3xl border border-info/20 bg-surface/60 p-8 text-center shadow-lg backdrop-blur-xl">
-        <p className="text-xs tracking-[0.2em] text-info">校友地图</p>
+        <p className="text-xs text-info">校友地图</p>
         <h1 className="mt-3 text-3xl font-semibold text-info">没有找到对应校友</h1>
         <p className="mt-3 text-sm leading-6 text-main/60">当前条件下没有匹配的校友信息。</p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">

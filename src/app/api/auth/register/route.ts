@@ -22,6 +22,7 @@ import {
   validGraduationClass,
 } from "@/lib/identity-fields";
 import {
+  registrationIdentityState,
   REGISTRATION_POLICY_ID,
   verifyRegistrationAccessCode,
 } from "@/lib/registration-policy";
@@ -111,13 +112,7 @@ export async function POST(req: NextRequest) {
           graduationClass: graduationClass || null,
           className: className || null,
           contact: contact || null,
-          role: accessCodeAccepted ? "ALUMNI" : "GUEST",
-          status: accessCodeAccepted ? "VERIFIED" : "PENDING",
-          verificationStatus: accessCodeAccepted ? "VERIFIED" : "PENDING",
-          verificationMethod: accessCodeAccepted
-            ? "INTERNAL_CODE"
-            : "ADMIN_REVIEW",
-          identityType: "ALUMNI",
+          ...registrationIdentityState(accessCodeAccepted),
           accountStatus: "ACTIVE",
           emailVerifyTokenHash: verification.hash,
           emailVerifyExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),

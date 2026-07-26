@@ -5,14 +5,20 @@ import { SecretStarfieldLink } from "./SecretStarfieldLink";
 import { useStickyHeader } from "@/hooks/useStickyHeader";
 import { cn } from "@/components/ui/cn";
 import ThemeAndLocaleSwitcher from "./ThemeAndLocaleSwitcher";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
   const visible = useStickyHeader();
+  const pathname = usePathname();
+  const isNarrativeHome = pathname === "/";
 
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 border-b border-line bg-surface/80 backdrop-blur-xl transition-transform duration-300",
+        "sticky top-0 z-50 border-b backdrop-blur-xl transition-[transform,background-color,border-color] duration-300",
+        isNarrativeHome
+          ? "site-header--narrative border-narrative-route/20 bg-narrative/90"
+          : "border-line bg-surface/80",
         visible ? "translate-y-0" : "-translate-y-full"
       )}
     >

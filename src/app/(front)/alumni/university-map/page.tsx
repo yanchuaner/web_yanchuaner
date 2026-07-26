@@ -196,7 +196,7 @@ export default function UniversityMapPage() {
                     <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10 shadow-sm border border-brand/20">
                       <Icon size={20} className="text-brand" />
                     </div>
-                    <p className="mt-3 text-xs uppercase tracking-wide text-brand-fg/50">{label}</p>
+                    <p className="mt-3 text-xs uppercase text-brand-fg/50">{label}</p>
                     <p className="font-heading mt-1 text-2xl font-bold text-main">{value}</p>
                   </div>
                 ))}

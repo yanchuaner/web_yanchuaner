@@ -72,7 +72,7 @@ export default function AlumniStoriesPage() {
       <GlassCard className="p-5 md:p-8">
         <header className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="inline-flex items-center gap-2 rounded-full border border-line bg-brand/10 px-3 py-1 text-xs tracking-[0.18em] text-brand">
+            <p className="inline-flex items-center gap-2 rounded-full border border-line bg-brand/10 px-3 py-1 text-xs text-brand">
               <Feather size={14} aria-hidden="true" />
               {t("storiesPage.eyebrow")}
             </p>
@@ -105,7 +105,7 @@ export default function AlumniStoriesPage() {
         </div>
 
         <div className="mt-6 rounded-card border border-line bg-surface/30 p-3 md:p-4">
-          <div className="mb-3 inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-brand">
+          <div className="mb-3 inline-flex items-center gap-2 text-xs uppercase text-brand">
             <Filter size={14} aria-hidden="true" />
             {t("storiesPage.filterLabel")}
           </div>

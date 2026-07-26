@@ -51,6 +51,15 @@ const config: Config = {
           stroke: "rgb(var(--map-stroke-rgb) / <alpha-value>)",
           fg: "rgb(var(--map-fg-rgb) / <alpha-value>)",
         },
+        narrative: {
+          DEFAULT: "rgb(var(--narrative-bg-rgb) / <alpha-value>)",
+          surface: "rgb(var(--narrative-surface-rgb) / <alpha-value>)",
+          route: "rgb(var(--narrative-route-rgb) / <alpha-value>)",
+          mark: "rgb(var(--narrative-mark-rgb) / <alpha-value>)",
+          "on-mark": "rgb(var(--narrative-on-mark-rgb) / <alpha-value>)",
+          fg: "rgb(var(--narrative-fg-rgb) / <alpha-value>)",
+          muted: "rgb(var(--narrative-muted-rgb) / <alpha-value>)",
+        },
         line: "var(--color-line)",           // 统一描边色（固定透明度）
         app: "var(--color-background)",      // 页面自适应背景色
         main: "rgb(var(--brand-fg-rgb) / <alpha-value>)", // 支持 text-main/70

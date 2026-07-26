@@ -2,10 +2,26 @@ import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import { requireAdmin } from '@/lib/admin-auth';
 import { processToCard16x9, MAX_UPLOAD_BYTES, isImageMime } from '@/lib/image-pipeline';
+import { getClientIp, rateLimit } from '@/lib/rate-limit';
 
 export async function POST(req: NextRequest) {
   const auth = await requireAdmin(req);
   if (auth) return auth;
+
+  const uploadLimit = await rateLimit(
+    `admin-upload:${getClientIp(req)}`,
+    30,
+    60_000,
+  );
+  if (!uploadLimit.ok) {
+    return NextResponse.json(
+      { error: '上传过于频繁，请稍后再试' },
+      {
+        status: 429,
+        headers: { 'Retry-After': String(uploadLimit.retryAfter) },
+      },
+    );
+  }
 
   try {
     const formData = await req.formData();
@@ -27,7 +43,7 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(bytes);
 
     // 生成可读文件名：时间戳-安全的文件名
-    const rawName = (file as any).name?.replace(/[^a-zA-Z0-9._\-一-鿿]/g, '_').replace(/_{2,}/g, '_') || 'upload';
+    const rawName = file.name?.replace(/[^a-zA-Z0-9._\-一-鿿]/g, '_').replace(/_{2,}/g, '_') || 'upload';
     const baseName = rawName.replace(/\.[^.]+$/, '');
     const filename = `${Date.now()}-${baseName}.jpg`; // 16:9 裁剪后始终输出 jpeg
 

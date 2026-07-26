@@ -24,7 +24,7 @@ npm run lint                   # ESLint 代码检查
 npm run build                  # 生产构建
 ```
 
-Windows 本地开发使用 SQLite `prisma/dev.db`。当前本地库可能已经包含真实校友数据，调试时不要在日志、截图、文档或 PR 中暴露个人信息。
+WSL Ubuntu 本地开发使用 SQLite `prisma/dev.db`。当前本地库可能已经包含真实校友数据，调试时不要在日志、截图、文档或 PR 中暴露个人信息。
 
 ---
 
@@ -48,7 +48,7 @@ npm run build
 | `npm run db:migrate:status` | 检查 migration 历史与数据库状态 | 发布前后检查 |
 | `npm run db:push` | 跳过 migration 历史直接同步 schema | 仅限可丢弃的本地实验库，生产禁止 |
 | `npm run seed` | 写入 Prisma 初始数据 | 新环境或明确需要补齐初始数据时执行 |
-| `npm run seed-all` | 写入全部演示/内容种子 | 仅用于明确的初始化或重建，不属于常规构建和发布步骤 |
+| `npm run seed-all` | 补齐白名单/故事文件与默认页面内容 | 仅用于明确初始化；稳定 ID 记录不会覆盖后台编辑 |
 
 **注意事项**：
 - 不要为了让构建通过而对生产数据库执行 migration、`db:push` 或 seed
@@ -70,7 +70,7 @@ npm run build
 | `SITE_NAME` | 站点名称（SEO） | 否 |
 | `RESEND_API_KEY` | Resend 邮件 API Key | 否（本地测试可跳过） |
 | `RESEND_FROM_EMAIL` | 发件人名称和邮箱（如 `燕中数字母港 <noreply@your.domain>`） | 否（本地测试可跳过） |
-| `REDIS_URL` | ioredis 连接地址（legacy 限流中间层） | 否（未配置时降级为内存限流） |
+| `REDIS_URL` | 自建 Redis 连接地址，用于缓存、OAuth 状态和限流 | staging/OAuth 必填；纯本地可降级 |
 | `UPSTASH_REDIS_REST_URL` | Upstash Redis REST URL（首选举手限流层） | 否（未配置时降级） |
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST Token（配合上面使用） | 否（未配置时降级） |
 | `ROOT_ADMIN_EMAIL` | 超级管理员唯一邮箱标识（默认 `yanchuaner@yanchuaner.cn`） | 否 |
@@ -80,7 +80,7 @@ npm run build
 
 **限流变量说明**：
 - **`UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`**：三级限流系统的首选层。配置后在认证接口（登录/注册/邮箱）上启用滑动窗口限流。前往 [Upstash Console](https://console.upstash.com) 创建实例后获取。不配置则自动降级到 ioredis → 内存限流。
-- **`REDIS_URL`**（legacy）：原有的 Redis 连接，在 Upstash 不可用时作为中间层回退。如果两者都不配置，系统使用内存 Map 限流（单进程有效，重启清零）。
+- **`REDIS_URL`**：自建 Redis 连接。认证与邮件限流在 Upstash 不可用时使用 Redis 有序集合执行滑动窗口；通用写接口使用带 TTL 的固定窗口。两者都不可用时才降级为进程内 Map（单进程有效，重启清零）。OAuth 授权码和跨实例缓存不允许用内存替代。
 
 **.env 文件管理原则**：
 - `.env` 不提交到 git（已在 `.gitignore` 中）
@@ -235,7 +235,7 @@ cp /var/www/alumni-site/data/prod.db "/var/www/alumni-site/backups/prod.db.$(dat
 ```
 请求 → Upstash Redis（生产推荐）
         ↓ 不可用/异常
-      ioredis（legacy Redis）
+      ioredis（自建 Redis）
         ↓ 不可用/异常
       内存 Map（单进程，重启清零）
 ```
@@ -271,6 +271,8 @@ const data = await getCachedOrFetch('api:alumni:map', 300, async () => {
 | `api:alumni:map` | 300 秒（5 分钟） | 校友地图数据（城市分布、人数） |
 | `admin:stats` | 60 秒 | 后台首页统计数据 |
 | `home:dashboard:stats` | 60 秒 | 前台首页仪表盘统计 |
+| `published:news:*` | 60 秒 | 已发布新闻列表与详情 |
+| `published:events:*` | 60 秒 | 已发布活动列表与详情；报名状态按用户实时查询 |
 
 **缓存行为**：如果 Redis 不可用，`getCachedOrFetch` 会直接执行 `fetchFn` 并返回结果，缓存写入失败静默忽略。这确保缓存层永远是可选的加速器，不是单点故障。
 
@@ -294,6 +296,8 @@ const data = await getCachedOrFetch('api:alumni:map', 300, async () => {
 | 网站活动报名 | 用户与 IP 组合 3 次/30 秒 |
 | 小程序活动报名 | 用户 20 次/小时，IP 50 次/小时 |
 | 小程序身份认证 | 用户 5 次/小时，IP 20 次/小时 |
+| 通用内容图片上传 | 管理员 IP 30 次/分钟 |
+| 校友卡背景上传 | 管理员 IP 5 次/5 分钟 |
 
 触发限流时，服务端输出 `[security] rate_limit_denied` 结构化日志，只记录业务类别、请求键哈希、后端类型和重试时间，不记录原始 IP、邮箱、用户 ID 或请求正文。
 
@@ -350,7 +354,7 @@ const updated = await prisma.$transaction(async (tx) => {
 | 脚本 | 用途 | 使用场景 |
 |------|------|----------|
 | `npm run seed` | Prisma 种子填充（幂等） | 初次填充白名单 + 故事基础数据 |
-| `npm run seed-all` | 全量种子脚本（白名单、页面内容、记忆、故事） | 首次部署或完全重置 |
+| `npm run seed-all` | 幂等种子脚本（白名单、故事、默认页面内容） | 首次部署或补齐缺项；不播种虚构记忆展品 |
 | `npm run create-admin` | 创建数据库管理员账号（交互式） | 首次部署或新增管理员 |
 | `npm run smoke` | 关键路径冒烟测试 | 验证健康检查、受保护路由、旧接口下线；配置 `SMOKE_*` 后额外验证管理员登录和后台 API |
 | `npm run fresh` | 清理构建产物后重新开发 | 遇到奇怪的缓存/构建问题 |
@@ -406,10 +410,12 @@ DATABASE_URL="file:/var/www/alumni-site/data/prod.db" node scripts/normalize_ide
 
 执行顺序：
 ```
-prisma/seed.ts  → seed_content_sections.js  → seed_memories.js
+prisma/seed.ts  → seed_content_sections.ts
 ```
 
-Prisma seed 负责当前结构的校友名册与故事数据，后续脚本补齐页面内容和记忆馆数据。旧的 `seed_whitelist.js` 与 `seed_stories.js` 已删除，禁止通过直接建表脚本恢复旧 schema。
+Prisma seed 负责当前结构的校友名册与故事数据，后续脚本补齐页面内容。两个脚本都通过 Prisma 访问迁移后的 schema；页面内容使用稳定 ID，只补齐缺失项，不覆盖后台已编辑内容。故事种子同样保留已有记录。旧的直接建表/清表脚本已删除，禁止恢复旧 schema 或在播种脚本中执行 `DELETE`。
+
+学校沿革、办学数据等事实性内容在正式发布前必须由运营人员逐条核实来源；预览阶段不得把测试新闻、活动或虚构校友故事写入正式数据库。
 
 ### 7.4 烟雾测试（`npm run smoke`）
 
@@ -441,14 +447,11 @@ node scripts/gen_cert_numbers.js
 - 后台 → 校友名单 → 编辑 → 证书编号输入框
 - 数据库 → `npx prisma studio` → WhitelistRoster → certificateNo 列
 
-### 7.6 燕中记忆管理（seed_memories.js）
+### 7.6 燕中记忆管理
 
 燕中记忆文化长廊使用数据库驱动，通过后台 `/admin/memories` 可视化维护。
 
-```bash
-# 初始化种子数据
-node scripts/seed_memories.js
-```
+记忆馆没有虚构的默认展品种子。首次上线后，由运营人员在后台依据已核实的真实校园素材创建展品；重复部署和 `npm run seed-all` 都不会改写记忆馆内容。
 
 **记忆展品数据结构**（`MemoryItem` 表）：
 - `title` / `subtitle` — 展品标题和副标题

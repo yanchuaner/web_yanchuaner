@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server";
+import { randomUUID } from "node:crypto";
 import getRedisClient from "@/lib/redis";
 import { Redis } from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
@@ -186,6 +187,74 @@ function emailLimiterMemory(key: string): LimiterResult {
   };
 }
 
+type RedisWindowResult = {
+  result: LimiterResult;
+  redisKey: string;
+  member: string | null;
+};
+
+const SLIDING_WINDOW_SCRIPT = `
+local redisKey = KEYS[1]
+local now = tonumber(ARGV[1])
+local windowMs = tonumber(ARGV[2])
+local limit = tonumber(ARGV[3])
+local member = ARGV[4]
+
+redis.call("ZREMRANGEBYSCORE", redisKey, "-inf", now - windowMs)
+local count = redis.call("ZCARD", redisKey)
+local accepted = 0
+if count < limit then
+  redis.call("ZADD", redisKey, now, member)
+  redis.call("PEXPIRE", redisKey, windowMs)
+  count = count + 1
+  accepted = 1
+end
+
+local oldest = redis.call("ZRANGE", redisKey, 0, 0, "WITHSCORES")
+local reset = now + windowMs
+if #oldest >= 2 then
+  reset = tonumber(oldest[2]) + windowMs
+end
+
+return { accepted, math.max(0, limit - count), reset }
+`;
+
+async function slidingWindowRedisLimit(
+  prefix: string,
+  key: string,
+  limit: number,
+  windowMs: number,
+): Promise<RedisWindowResult | null> {
+  const redis = getRedisClient();
+  if (!redis) return null;
+
+  const now = Date.now();
+  const redisKey = `ratelimit:${prefix}:${key}`;
+  const member = `${now}:${randomUUID()}`;
+  const raw = (await redis.eval(
+    SLIDING_WINDOW_SCRIPT,
+    1,
+    redisKey,
+    now,
+    windowMs,
+    limit,
+    member,
+  )) as [number, number, number];
+  const success = Number(raw[0]) === 1;
+  const reset = Number(raw[2]);
+
+  return {
+    redisKey,
+    member: success ? member : null,
+    result: {
+      success,
+      remaining: Number(raw[1]),
+      reset,
+      retryAfter: success ? 0 : Math.max(1, Math.ceil((reset - now) / 1000)),
+    },
+  };
+}
+
 // Exported Auth Limiter
 export const authLimiter: Limiter = {
   async limit(key: string): Promise<LimiterResult> {
@@ -202,6 +271,16 @@ export const authLimiter: Limiter = {
         console.error("Upstash authLimiter error, falling back to memory:", err);
       }
     }
+
+    try {
+      const redisResult = await slidingWindowRedisLimit("auth", key, 5, 60_000);
+      if (redisResult) {
+        return reportLimiterResult(key, redisResult.result, "redis");
+      }
+    } catch (err) {
+      console.error("ioredis authLimiter error, falling back to memory:", err);
+    }
+
     return reportLimiterResult(
       `auth:${key}`,
       slidingWindowMemoryLimit(`auth:${key}`, 5, 60_000),
@@ -243,6 +322,47 @@ export const emailLimiter: Limiter = {
         console.error("Upstash emailLimiter error, falling back to memory:", err);
       }
     }
+
+    try {
+      const dayResult = await slidingWindowRedisLimit(
+        "email-day",
+        key,
+        10,
+        86_400_000,
+      );
+      if (dayResult) {
+        if (!dayResult.result.success) {
+          return reportLimiterResult(key, dayResult.result, "redis");
+        }
+
+        const minuteResult = await slidingWindowRedisLimit(
+          "email-min",
+          key,
+          1,
+          60_000,
+        );
+        if (!minuteResult) {
+          throw new Error("Redis became unavailable during email rate limiting");
+        }
+        if (!minuteResult.result.success && dayResult.member) {
+          await getRedisClient()?.zrem(dayResult.redisKey, dayResult.member);
+          return reportLimiterResult(key, minuteResult.result, "redis");
+        }
+
+        return reportLimiterResult(key, {
+          success: true,
+          remaining: Math.min(
+            minuteResult.result.remaining,
+            dayResult.result.remaining,
+          ),
+          reset: Math.max(minuteResult.result.reset, dayResult.result.reset),
+          retryAfter: 0,
+        }, "redis");
+      }
+    } catch (err) {
+      console.error("ioredis emailLimiter error, falling back to memory:", err);
+    }
+
     return reportLimiterResult(
       `email:${key}`,
       emailLimiterMemory(key),

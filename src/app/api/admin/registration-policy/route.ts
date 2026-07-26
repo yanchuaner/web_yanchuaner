@@ -9,6 +9,7 @@ import {
   publicRegistrationPolicy,
   REGISTRATION_POLICY_ID,
   validAccessCode,
+  verifyRegistrationAccessCode,
 } from "@/lib/registration-policy";
 
 function responsePolicy(policy: {
@@ -75,6 +76,20 @@ export async function PATCH(req: NextRequest) {
     const current = await prisma.registrationPolicy.findUnique({
       where: { id: REGISTRATION_POLICY_ID },
     });
+    const hintMatchesCode = accessCode
+      ? accessCodeHint === accessCode
+      : current?.accessCodeHash
+        ? await verifyRegistrationAccessCode(accessCodeHint, {
+            ...current,
+            accessCodeEnabled: true,
+          })
+        : false;
+    if (hintMatchesCode) {
+      return NextResponse.json(
+        { error: "公开提示不能与内部口令相同" },
+        { status: 400 },
+      );
+    }
     if (accessCodeEnabled && !accessCode && !current?.accessCodeHash) {
       return NextResponse.json(
         { error: "启用前请先设置内部口令" },

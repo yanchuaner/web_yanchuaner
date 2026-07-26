@@ -77,7 +77,7 @@ export default async function AboutPage() {
                   <span className="text-xs font-bold text-brand">{(t.yearLabel || '').slice(2)}</span>
                 </div>
                 <div className="pt-2">
-                  <span className="text-xs font-bold text-brand/70 tracking-wider">{t.yearLabel || ''}</span>
+                  <span className="text-xs font-bold text-brand/70">{t.yearLabel || ''}</span>
                   <p className="mt-1 text-sm text-main/60 leading-relaxed">{t.description}</p>
                 </div>
               </div>

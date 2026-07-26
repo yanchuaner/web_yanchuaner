@@ -238,6 +238,7 @@ if (isUpstashConfigured) {
 }
 
 // Layer 2: ioredis (自建 Redis)
+// auth/email 使用有序集合 + Lua 保证滑动窗口原子性
 const redis = getRedisClient();  // 读取 REDIS_URL
 
 // Layer 3: Memory Map (进程内)
@@ -249,8 +250,9 @@ const localMemoryStore = new Map<string, number[]>();
 
 | 限流器 | 规则 | 存储 | 适用场景 |
 |--------|------|------|----------|
-| `authLimiter` | 5 次/分钟/IP | Upstash → Memory | 登录/注册/密码重置 |
-| `emailLimiter` | 1 次/分钟 + 10 次/天/IP | Upstash → Memory | 验证邮件发送 |
+| `authLimiter` | 5 次/分钟/IP | Upstash → ioredis → Memory | 登录/注册/密码重置 |
+| `emailLimiter` | 1 次/分钟 + 10 次/天/IP | Upstash → ioredis → Memory | 验证邮件发送 |
+| `rateLimit` | 路由自定义 | Upstash → ioredis → Memory | 投稿、报名、认证、上传等写接口 |
 
 ### 内存泄漏防护
 

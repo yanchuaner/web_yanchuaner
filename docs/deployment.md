@@ -1,6 +1,6 @@
 # 部署指南
 
-本文档记录本项目当前推荐的上线流程：Windows 本地开发，复制到 WSL/Linux 原生文件系统构建，再打包上传到服务器。生产运行使用 Next.js standalone、systemd、Nginx、Let's Encrypt 和 SQLite。每次发布前后可配合 [launch-checklist.md](launch-checklist.md) 核对。
+本文档记录本项目当前推荐的上线流程：在 WSL Ubuntu/Linux 原生文件系统开发和构建，再打包上传到服务器。生产运行使用 Next.js standalone、systemd、Nginx、Let's Encrypt、SQLite 与 Redis。每次发布前后可配合 [launch-checklist.md](launch-checklist.md) 核对。
 
 ## 1. 部署目录约定
 
@@ -33,26 +33,23 @@
 
 ## 3. 构建流程
 
-### 3.1 从 Windows 复制到 WSL
+### 3.1 确认 WSL 原生工作区
 
-在 WSL 终端中执行，复制到 WSL 原生文件系统后再构建：
+当前仓库应位于 WSL 原生文件系统，例如：
 
 ```bash
-rm -rf ~/web_yanchuaner
-cp -r "/mnt/c/Dev/yanchuaner/web_yanchuaner" ~/web_yanchuaner
-cd ~/web_yanchuaner
+cd /home/codeq/code/personal/yanchuaner/web_yanchuaner
+pwd
+npm run check:staging
 ```
 
-不要在 `/mnt/c/...` 下直接 `npm run build`。Windows 文件系统和 Linux 原生模块、符号链接、I/O 行为不同，容易得到不能在服务器运行的构建产物。
+不要在 `/mnt/c/...` 或 `/mnt/d/...` 下直接 `npm run build`，也不要调用 Windows 全局 Node/npm。Linux 原生模块、符号链接和文件权限必须在 WSL 原生文件系统中生成。
 
 ### 3.2 安装依赖并构建
 
 ```bash
-cd ~/web_yanchuaner
-
-# 删除 Windows 依赖，安装 Linux 原生依赖
-rm -rf node_modules
-npm ci
+cd /home/codeq/code/personal/yanchuaner/web_yanchuaner
+npm ci --no-audit --no-fund
 
 # 构建用 .env。不要复制生产 .env 到本地仓库提交。
 cat > .env << 'EOF'
@@ -399,7 +396,7 @@ sudo ss -lntp | grep -E '127.0.0.1:(3000|3001|4000)'
 
 预期三个端口各自只出现一个监听者。云安全组不得开放 `3000`、`3001`、`4000` 或 `5432`。
 
-2026 暑期暂时由少量受信任的校友会成员共用一个 Open WebUI 账号。网站 `/ai` 入口仍只对 `ROOT_ADMIN_EMAIL` 对应的网站超级管理员显示，其他成员直接访问 AI 域名；这不等于网站账号已经与 Open WebUI 完成统一身份集成。共享账号的聊天、图片、文件、额度和管理员权限全部共享，不得用于个人资料或其他敏感内容。长期开放前应改为独立普通账号或正式 SSO。
+主站已经实现面向燕中 AI 的独立 OIDC 客户端与 RS256 身份声明，Open WebUI 不应再以多人共用账号作为预览版方案。只有在 HTTPS 域名、独立客户端密钥、持久化签名密钥和真实 Redis 均配置后，并完成登录、角色同步、账号停用和错误回调验收，才能标记为环境已打通。配置未完成时 AI 域名应保持关闭或仅限管理员受控测试，不得开放共享管理员账号。
 
 ## 9. 备份
 

@@ -2,11 +2,8 @@ import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "./cn";
 
-type Variant = "primary" | "secondary" | "ghost" | "danger";
+type Variant = "primary" | "secondary" | "ghost" | "danger" | "narrative" | "narrative-outline";
 type Size = "sm" | "md";
-
-const FOCUS_RING =
-  "focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface-muted";
 
 const VARIANTS: Record<Variant, string> = {
   // CTA 绿，用于主要动作
@@ -18,6 +15,8 @@ const VARIANTS: Record<Variant, string> = {
   ghost: "text-brand hover:bg-brand/10",
   // 危险操作（删除等）
   danger: "text-danger hover:bg-danger/10 dark:text-danger",
+  narrative: "bg-narrative-mark text-narrative-on-mark shadow-sm hover:-translate-y-0.5 hover:opacity-90 hover:shadow-md",
+  "narrative-outline": "border border-narrative-route/45 bg-narrative/70 text-narrative-route hover:-translate-y-0.5 hover:bg-narrative-route/10 hover:shadow-md",
 };
 
 const SIZES: Record<Size, string> = {
@@ -26,11 +25,14 @@ const SIZES: Record<Size, string> = {
 };
 
 function classesFor(variant: Variant, size: Size, className?: string) {
+  const focusRing = variant === "narrative" || variant === "narrative-outline"
+    ? "focus:outline-none focus-visible:ring-2 focus-visible:ring-narrative-route focus-visible:ring-offset-2 focus-visible:ring-offset-narrative"
+    : "focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface-muted";
   return cn(
     "inline-flex min-h-[44px] items-center justify-center rounded-btn font-semibold transition-all duration-150 active:scale-[0.97] disabled:active:scale-100 cursor-pointer touch-manipulation disabled:cursor-not-allowed disabled:opacity-60",
     VARIANTS[variant],
     SIZES[size],
-    FOCUS_RING,
+    focusRing,
     className,
   );
 }
