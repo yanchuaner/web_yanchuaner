@@ -90,4 +90,4 @@ OAuth/OIDC 联合验收必须在 HTTPS staging 上进行，并配置独立客户
 RSA 签名密钥。本机 HTTP staging 已覆盖数据库、Redis、主站功能和 OAuth 提供方合约，
 但不作为真实跨域 SSO 已完成的结论。真实邮件闭环同样需要 Resend 凭据和已验证发件域名。
 
-截至当前工作区，`staging.yanchuaner.cn` 与 `api.yanchuaner.cn` 尚未完成 DNS 解析，真实邮件和三套下游 OAuth 凭据也未注入；因此严格门禁与跨域联合验收必须保持未通过，不能把本地合同结果升级为生产结论。
+当前暑期 staging 已为 `staging.yanchuaner.cn`、`api.yanchuaner.cn` 与 `ai.yanchuaner.cn` 配置 DNS、HTTPS 和三套隔离 OAuth 客户端。严格配置门禁、HTTPS 健康检查、OIDC discovery/JWKS 与 Open WebUI 登录重定向已通过；Resend 已接受不含用户数据的测试邮件。收件箱实际送达确认，以及使用隔离成员账号完成 API/Open WebUI 的授权、重复登录和角色同步回调，仍是外部验收项，不能由本机或配置检查替代。
