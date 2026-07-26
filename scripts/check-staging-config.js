@@ -13,7 +13,8 @@ function value(name) {
 }
 
 function looksPlaceholder(input) {
-  return /(?:replace|change-me|example\.(?:com|test)|<.+>)/i.test(input);
+  const normalized = input.trim();
+  return /(?:replace|change-me|example\.(?:com|test))/i.test(normalized) || /^<[^>]+>$/.test(normalized);
 }
 
 function requireSecret(name, minimumLength = 32) {
