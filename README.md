@@ -4,13 +4,17 @@
 
 当前前端提供亮色/暗色双主题与中英双语界面，首页以轻量 Canvas 星体、校友信号场和内容动效串联“重新连接、看见彼此、长期共建”的访问路径；移动端与减少动态效果偏好均有独立适配。
 
-线上站点：[https://yanchuaner.cn](https://yanchuaner.cn)
+稳定站点：[https://yanchuaner.cn](https://yanchuaner.cn)
+
+暑期预览验收：[https://staging.yanchuaner.cn](https://staging.yanchuaner.cn)
 
 仓库地址：[https://github.com/yanchuaner/web_yanchuaner](https://github.com/yanchuaner/web_yanchuaner)
 
 ## 2026 燕中生态暑期预览
 
 本项目是“2026 燕中生态暑期预览（Yanchuan Ecosystem Summer Preview）”的主站与唯一身份源。这次更新不以 `v2`、`v3` 作为叙事重点，而是首次把一主站、五个子域方向、小程序与 Agent 产品组织成可理解、可登录、可逐步验证的完整生态。
+
+当前新版先部署在 `staging.yanchuaner.cn`，用于真实 HTTPS、邮件、OAuth/OIDC、数据迁移和跨站回滚验收；`yanchuaner.cn` 暂时保留上一稳定版本。完成主站内容、普通成员跨站登录、账号停用同步、备份恢复和观察期门禁后，再以可回滚发布替换主域，不按暑假结束日期直接强切。
 
 暑期结束时，主站承担统一入口、成员认证、内容与运营后台；`ai.*`、`api.*`、`lab.*` 提供可实际体验的预览能力；`forum.*` 与 `birthday.*` 至少完成公开产品说明和可演示流程；微信小程序与 YCZX Code 作为跨端服务与 Agent 产品同步发布预览。正式版计划在大二上学期持续一个学期，根据真实成员反馈、成本、安全与运维数据打磨后发布。
 
