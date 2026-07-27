@@ -125,6 +125,16 @@ npm run create-admin
 | `BACKUP_DIR` | 备份目录，可选 |
 | `SMOKE_BASE_URL` / `SMOKE_USERNAME` / `SMOKE_PASSWORD` | 冒烟测试配置，可选 |
 
+真实 staging 发布前使用严格外部门禁；它会拒绝 localhost、空邮件凭据、缺失或复用的三套 OAuth 客户端，以及非 HTTPS 回调：
+
+```bash
+npm run check:staging:external
+npm run test:staging:https
+STAGING_EMAIL_TEST_RECIPIENT="your-address@example.com" npm run test:staging:email
+```
+
+邮件脚本会发送一封不含用户数据的验收邮件；确认收件箱实际收到后，才算邮件链路完成。当前仓库的 `.env.staging` 不包含真实外部凭据，严格门禁应保持失败。
+
 ## 项目结构
 
 ```text

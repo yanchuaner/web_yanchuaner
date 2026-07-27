@@ -145,6 +145,30 @@ test("light English authentication pages reflow without crowding", async ({ page
   expect(issues).toEqual([]);
 });
 
+test("English content shells stay localized and fit mobile layouts", async ({ page }, testInfo) => {
+  const issues = watchRuntimeIssues(page);
+  await setPreferences(page, { theme: "light", locale: "en", introSeen: true });
+  await page.goto("/login");
+  await page.getByLabel(/Username/i).fill("acceptance-alumni");
+  await page.getByLabel(/Password/i).fill(ACCEPTANCE_PASSWORD);
+  await page.getByRole("button", { name: /Sign in/i }).click();
+  await page.waitForURL(/\/$/, { timeout: 10_000 });
+
+  const shells = [
+    ["/students", "Student Resource Hub"],
+    ["/alumni/achievements", "Alumni Achievements"],
+    ["/alumni/memories", "Yan-Zhong Memories"],
+  ] as const;
+  for (const [pathname, heading] of shells) {
+    await page.goto(pathname);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(heading);
+    await expectNoHorizontalOverflow(page);
+    await screenshot(page, testInfo, `content-${pathname.slice(1).replaceAll("/", "-")}-light-en`, true);
+  }
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  expect(issues).toEqual([]);
+});
+
 test("admin story navigation has one selected item in both themes and locales", async ({ page }, testInfo) => {
   const issues = watchRuntimeIssues(page);
   await setPreferences(page, { theme: "dark", locale: "zh", introSeen: true });

@@ -6,11 +6,12 @@ import {
 } from "lucide-react";
 import prisma from "@/lib/db";
 import { PageShell, GlassCard, PageHeader, ButtonLink, EmptyState } from "@/components/ui";
+import { LocalizedText } from "@/components/LocalizedText";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "在校生资源站",
+  title: "在校生资源站 | Student Resource Hub",
   description: "燕中校友数字母港 — 面向在校生和家长的升学参考、大学观察、学习方法、学长问答与校友寄语汇总",
 };
 
@@ -30,8 +31,8 @@ export default async function StudentsPage() {
         <PageHeader
           eyebrow="STUDENTS"
           eyebrowIcon={BookOpen}
-          title="在校生资源站"
-          description="面向在校生和家长，整理升学参考、大学观察、学习方法、学长问答与校友寄语，帮助燕中人走出更适合自己的路。"
+          title={<LocalizedText translationKey="contentPages.students.title" />}
+          description={<LocalizedText translationKey="contentPages.students.description" />}
           className="mb-8"
         />
 
@@ -52,7 +53,7 @@ export default async function StudentsPage() {
                 <h3 className="font-heading mt-4 text-lg font-semibold text-brand-fg">{c.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-brand-fg/70">{c.description}</p>
                 <div className="mt-4 flex items-center gap-1 text-xs font-medium text-brand transition group-hover:gap-1.5">
-                  进入 <ChevronRight size={12} />
+                  <LocalizedText translationKey="contentPages.students.enter" /> <ChevronRight size={12} />
                 </div>
               </Link>
             );
@@ -60,7 +61,7 @@ export default async function StudentsPage() {
         </div>
 
         {cards.length === 0 && (
-          <EmptyState icon={BookOpen} title="在校生资源正在整理中，敬请期待。" />
+          <EmptyState icon={BookOpen} title={<LocalizedText translationKey="contentPages.students.empty" />} />
         )}
 
         <div className="mt-10 rounded-card border border-brand/10 bg-surface/50 p-5">
@@ -69,25 +70,25 @@ export default async function StudentsPage() {
               <Mail size={20} className="text-brand" />
             </div>
             <div>
-              <h3 className="font-heading text-base font-semibold text-brand-fg">补充内容或分享经验</h3>
+              <h3 className="font-heading text-base font-semibold text-brand-fg"><LocalizedText translationKey="contentPages.students.contributeTitle" /></h3>
               <p className="mt-1.5 text-sm leading-6 text-brand-fg/70">
-                欢迎校友通过{" "}
+                <LocalizedText translationKey="contentPages.students.contributePrefix" />{" "}
                 <Link href="/alumni/stories" className="text-brand underline hover:text-brand-soft transition-colors">
-                  燕中故事
+                  <LocalizedText translationKey="contentPages.students.storiesLink" />
                 </Link>{" "}
-                分享你的大学经历或给学弟学妹的建议。也欢迎通过{" "}
+                <LocalizedText translationKey="contentPages.students.contributeMiddle" />{" "}
                 <Link href="/contact" className="text-brand underline hover:text-brand-soft transition-colors">
-                  联系我们
+                  <LocalizedText translationKey="contentPages.students.contactLink" />
                 </Link>{" "}
-                提供资料。
+                <LocalizedText translationKey="contentPages.students.contributeSuffix" />
               </p>
             </div>
           </div>
         </div>
 
         <div className="mt-6 flex flex-wrap gap-3">
-          <ButtonLink href="/" variant="secondary">返回首页</ButtonLink>
-          <ButtonLink href="/contact" variant="ghost">联系我们</ButtonLink>
+          <ButtonLink href="/" variant="secondary"><LocalizedText translationKey="common.backHome" /></ButtonLink>
+          <ButtonLink href="/contact" variant="ghost"><LocalizedText translationKey="contentPages.students.contactLink" /></ButtonLink>
         </div>
       </GlassCard>
     </PageShell>

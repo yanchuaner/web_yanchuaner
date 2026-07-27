@@ -45,6 +45,9 @@ npm run smoke
 - [ ] 本地 `prisma/dev.db` 可能是真实数据，测试脚本不要打印完整姓名、邮箱、手机号、token 或密码哈希。
 - [ ] 触碰 schema、数据清洗、导入、批量更新前先备份数据库。
 - [ ] 生产发布前备份 `/var/www/alumni-site/data/prod.db` 和 `/var/www/alumni-site/uploads`。
+- [ ] 真实 staging 已通过 `npm run check:staging:external`，且没有使用 localhost、示例发件地址或复用 OAuth 凭据。
+- [ ] `npm run test:staging:https` 已验证 DNS、证书、健康检查和安全响应头。
+- [ ] `npm run test:staging:email` 已发送并在收件箱实际收到验收邮件。
 - [ ] `public/uploads/` 是运行时目录，不提交；目录缺失时上传接口会自动创建。
 
 ## 4. WSL/Linux 构建

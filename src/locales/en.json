@@ -285,6 +285,45 @@
       "contributeSuffix": "page. Information is published after confirmation.",
       "privacyNote": "To protect privacy, unverified phone numbers, email addresses, and other sensitive contact details are not published."
     },
+    "students": {
+      "title": "Student Resource Hub",
+      "description": "Guides, university observations, study methods, senior Q&A, and alumni notes for current students and families.",
+      "empty": "Student resources are being prepared.",
+      "contributeTitle": "Share a resource or experience",
+      "contributePrefix": "Alumni can share university experiences or advice for younger students through",
+      "storiesLink": "Yan-Zhong Stories",
+      "contributeMiddle": "or send material through",
+      "contactLink": "Contact Us",
+      "contributeSuffix": ".",
+      "enter": "Open resource"
+    },
+    "achievements": {
+      "title": "Alumni Achievements",
+      "description": "A record of growth in study, research, careers, entrepreneurship, and public service.",
+      "back": "Return Home",
+      "filterLabel": "Filter achievement categories",
+      "all": "All",
+      "empty": "No published alumni achievements yet.",
+      "alumniFallback": "Yan-Zhong Alumni",
+      "categories": {
+        "ACADEMIC": "Further Study",
+        "RESEARCH": "Research",
+        "CAREER": "Career",
+        "ENTREPRENEURSHIP": "Entrepreneurship",
+        "PUBLIC_SERVICE": "Public Service",
+        "OTHER": "Other"
+      }
+    },
+    "memories": {
+      "eyebrow": "MEMORY GALLERY",
+      "title": "Yan-Zhong Memories · Culture Gallery",
+      "description": "Campus scenes, privacy-protected graduation photos, and records curated by the community.",
+      "back": "Return Home",
+      "empty": "No memory exhibits yet",
+      "emptyDescription": "The gallery is being prepared by administrators.",
+      "imagePending": "IMAGE PENDING",
+      "noImage": "No image yet; waiting for an upload"
+    },
     "storyDetail": {
       "back": "Back to Stories",
       "eyebrow": "Alumni Stories",

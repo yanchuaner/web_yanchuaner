@@ -5,11 +5,12 @@ import prisma from "@/lib/db";
 import fs from "node:fs";
 import path from "node:path";
 import { PageShell, GlassCard, EmptyState, ButtonLink } from "@/components/ui";
+import { LocalizedText } from "@/components/LocalizedText";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "燕中记忆",
+  title: "燕中记忆 | Yan-Zhong Memories",
   description: "燕川中学校园风景、毕业合影与时代记录 — 燕中校友数字母港文化记忆展区",
 };
 
@@ -64,24 +65,24 @@ export default async function AlumniMemoriesPage() {
           <div>
             <p className="inline-flex items-center gap-2 rounded-full border border-line bg-brand/10 px-3 py-1 text-xs text-brand">
               <Camera size={14} />
-              MEMORY GALLERY
+              <LocalizedText translationKey="contentPages.memories.eyebrow" />
             </p>
-            <h1 className="font-heading mt-3 text-3xl font-bold text-brand-fg md:text-4xl">燕中记忆 · 文化长廊</h1>
+            <h1 className="font-heading mt-3 text-3xl font-bold text-brand-fg md:text-4xl"><LocalizedText translationKey="contentPages.memories.title" /></h1>
             <p className="mt-2 max-w-3xl text-sm leading-7 text-brand-fg/70 md:text-base">
-              校园风景、毕业合照（打码版）与年代记录，由管理员维护更新。
+              <LocalizedText translationKey="contentPages.memories.description" />
             </p>
           </div>
 
           <ButtonLink href="/" variant="secondary">
-            返回指挥中心
+            <LocalizedText translationKey="contentPages.memories.back" />
           </ButtonLink>
         </header>
 
         {memoryItems.length === 0 ? (
           <EmptyState
             icon={Camera}
-            title="暂无记忆展品"
-            description="管理员正在整理中，敬请期待..."
+            title={<LocalizedText translationKey="contentPages.memories.empty" />}
+            description={<LocalizedText translationKey="contentPages.memories.emptyDescription" />}
             className="mt-8"
           />
         ) : (
@@ -108,7 +109,7 @@ export default async function AlumniMemoriesPage() {
 
                     {!item.hasImage ? (
                       <div className="absolute inset-0 flex items-center justify-center px-3 text-center text-xs font-semibold text-brand/70">
-                        IMAGE PENDING
+                        <LocalizedText translationKey="contentPages.memories.imagePending" />
                       </div>
                     ) : null}
 
@@ -119,7 +120,7 @@ export default async function AlumniMemoriesPage() {
 
                     {!item.hasImage && (
                       <div className="absolute bottom-3 left-3 right-3 rounded-btn border border-line bg-surface/90 px-3 py-2 text-[11px] text-brand-fg/50 shadow-sm backdrop-blur-sm">
-                        暂无图片，等待管理员上传
+                        <LocalizedText translationKey="contentPages.memories.noImage" />
                       </div>
                     )}
                   </div>

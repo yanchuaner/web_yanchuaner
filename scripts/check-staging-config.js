@@ -6,13 +6,15 @@ const envPath = resolve(process.cwd(), process.argv[2] || ".env.staging");
 const env = parse(readFileSync(envPath, "utf8"));
 const errors = [];
 const pending = [];
+const requireExternal = process.argv.includes("--require-external") || env.STAGING_REQUIRE_EXTERNAL === "true";
 
 function value(name) {
   return env[name]?.trim() || "";
 }
 
 function looksPlaceholder(input) {
-  return /(?:replace|change-me|example\.(?:com|test)|<.+>)/i.test(input);
+  const normalized = input.trim();
+  return /(?:replace|change-me|example\.(?:com|test))/i.test(normalized) || /^<[^>]+>$/.test(normalized);
 }
 
 function requireSecret(name, minimumLength = 32) {
@@ -37,6 +39,9 @@ if (!siteUrl || siteUrl !== appUrl) {
 try {
   const parsedSiteUrl = new URL(siteUrl);
   const loopback = ["localhost", "127.0.0.1"].includes(parsedSiteUrl.hostname);
+  if (requireExternal && loopback) {
+    errors.push("真实 staging 必须使用可公开解析的独立 HTTPS 域名");
+  }
   if (!loopback && parsedSiteUrl.protocol !== "https:") {
     errors.push("非本机 staging 必须使用 HTTPS");
   }
@@ -60,7 +65,9 @@ try {
 }
 
 if (!value("RESEND_API_KEY")) {
-  pending.push("邮件服务：等待 Resend API Key 与已验证发件域名");
+  const message = "邮件服务：等待 Resend API Key 与已验证发件域名";
+  if (requireExternal) errors.push(message);
+  else pending.push(message);
 } else if (looksPlaceholder(value("RESEND_FROM_EMAIL"))) {
   errors.push("配置 RESEND_API_KEY 后必须使用真实且已验证的发件地址");
 }
@@ -81,7 +88,9 @@ const oauthFields = [
 ];
 const configuredOauthFields = oauthFields.filter((name) => value(name));
 if (configuredOauthFields.length === 0) {
-  pending.push("生态 OAuth：等待 HTTPS 域名与 API/AI 客户端配置");
+  const message = "生态 OAuth：等待 HTTPS 域名与 API/AI 客户端配置";
+  if (requireExternal) errors.push(message);
+  else pending.push(message);
 } else {
   const missingOauthFields = oauthFields.filter((name) => !value(name));
   if (missingOauthFields.length > 0) {
@@ -92,10 +101,42 @@ if (configuredOauthFields.length === 0) {
       errors.push(`${name} 必须使用至少 32 位的非示例随机值`);
     }
   }
+  const clientIds = [
+    value("YANCHUANER_OAUTH_CLIENT_ID"),
+    value("YANCHUANER_AI_OAUTH_CLIENT_ID"),
+    value("YANCHUANER_AI_WEB_OAUTH_CLIENT_ID"),
+  ].filter(Boolean);
+  if (new Set(clientIds).size !== clientIds.length) {
+    errors.push("API、Open WebUI 与自主 AI Web 必须使用不同的 OAuth client ID");
+  }
+  const clientSecrets = [
+    value("YANCHUANER_OAUTH_CLIENT_SECRET"),
+    value("YANCHUANER_AI_OAUTH_CLIENT_SECRET"),
+    value("YANCHUANER_AI_WEB_OAUTH_CLIENT_SECRET"),
+  ].filter(Boolean);
+  if (new Set(clientSecrets).size !== clientSecrets.length) {
+    errors.push("三个 OAuth 消费端不得复用 client secret");
+  }
+  if (value("YANCHUANER_OAUTH_SIGNING_KEY").length < 256 || looksPlaceholder(value("YANCHUANER_OAUTH_SIGNING_KEY"))) {
+    errors.push("YANCHUANER_OAUTH_SIGNING_KEY 必须是持久化的 RSA 私钥");
+  }
+  if (value("YANCHUANER_OAUTH_ISSUER") && value("YANCHUANER_OAUTH_ISSUER") !== siteUrl) {
+    errors.push("YANCHUANER_OAUTH_ISSUER 必须与 SITE_URL 完全一致");
+  }
+  if (requireExternal) {
+    for (const name of oauthFields.filter((item) => item.endsWith("_REDIRECT_URI") || item.endsWith("_INTERNAL_URL"))) {
+      try {
+        if (new URL(value(name)).protocol !== "https:") errors.push(`${name} 必须使用 HTTPS`);
+      } catch {
+        errors.push(`${name} 不是有效 URL`);
+      }
+    }
+  }
 }
 
 console.log(`Staging config: ${envPath}`);
 console.log(errors.length === 0 ? "Core + Redis: ready" : "Core + Redis: invalid");
+console.log(`External release gate: ${requireExternal ? "required" : "advisory"}`);
 for (const item of pending) console.log(`Pending external dependency: ${item}`);
 for (const item of errors) console.error(`Config error: ${item}`);
 
