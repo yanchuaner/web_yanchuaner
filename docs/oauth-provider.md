@@ -59,6 +59,16 @@ Open WebUI 与自主 AI Web 即使部署在同一域名，也不得复用 client
 
 开发环境的发现文档为容器返回可达的 `host.docker.internal` Token/UserInfo 地址，但授权端点和回调保持浏览器可访问的 `localhost` 地址。生产环境两者均应使用正式 HTTPS 域名。
 
+## 当前预览部署
+
+截至 2026-07-27，暑期预览身份提供方运行在 `https://staging.yanchuaner.cn`，`yanchuaner.cn` 仍保留上一稳定版本，尚未执行主域切换。主站管理员的同一 `sub` 已完成两条真实 HTTPS 回调：Open WebUI 复用原管理员记录及其数据，New API 复用原 root、服务 Token、额度与流水；两个子站均未再创建第二个活跃管理员。
+
+New API 的密码登录与密码注册保持关闭，登录页只显示“燕中统一身份”。Open WebUI 的本地密码接口返回 403，持久化配置必须同时保持 `ui.enable_login_form=false` 与 `oauth.auto_redirect=true`；仅修改 Compose 环境变量不足以覆盖历史数据库中的旧值。主站生产库和 staging 库中无业务引用的 `teacher`、`test` 种子账号已在一致性备份后删除，真实成员账号不参与该清理。
+
+登录成功后恢复 `/api/oauth/authorize` 请求时必须使用浏览器顶层文档导航，不能交给 Next.js 客户端路由处理。授权端点会 302 到不同子域的 callback；客户端 RSC fetch 会先触发无意义的 CORS 失败和重复授权码请求，随后才回退为页面导航。
+
+本次管理员验收不能替代普通成员验收。切换主域前仍须覆盖普通在校生、校友和教师的首次登录、重复登录、角色变化、主站停用后拒绝，以及备份恢复后的同一主体复用。
+
 ## 验证
 
 ```bash

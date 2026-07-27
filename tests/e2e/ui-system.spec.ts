@@ -145,6 +145,51 @@ test("light English authentication pages reflow without crowding", async ({ page
   expect(issues).toEqual([]);
 });
 
+test("OAuth login handoff uses a document navigation", async ({ page }) => {
+  await setPreferences(page, { theme: "dark", locale: "zh", introSeen: true });
+  await page.route("**/api/auth/login", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ success: true, role: "admin" }),
+    });
+  });
+  await page.route("**/api/auth/me", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        user: {
+          id: "oauth-admin",
+          username: "oauth-admin",
+          name: "OAuth Admin",
+          email: "oauth-admin@example.invalid",
+          emailVerified: new Date(0).toISOString(),
+          graduationClass: null,
+          className: null,
+          status: "VERIFIED",
+          role: "ADMIN",
+        },
+      }),
+    });
+  });
+
+  let usedDocumentNavigation = false;
+  await page.route("**/api/oauth/authorize?**", async (route) => {
+    usedDocumentNavigation ||= route.request().isNavigationRequest();
+    await route.abort();
+  });
+
+  const authorizationPath =
+    "/api/oauth/authorize?client_id=test-client&redirect_uri=https%3A%2F%2Fexample.invalid%2Fcallback&response_type=code&state=test-state";
+  await page.goto(`/login?redirect=${encodeURIComponent(authorizationPath)}`);
+  await page.getByLabel(/用户名|Username/i).fill("oauth-admin");
+  await page.getByLabel(/密码|Password/i).fill("unused-password");
+  await page.getByRole("button", { name: /登录|Sign in/i }).click();
+
+  await expect.poll(() => usedDocumentNavigation).toBe(true);
+});
+
 test("English content shells stay localized and fit mobile layouts", async ({ page }, testInfo) => {
   const issues = watchRuntimeIssues(page);
   await setPreferences(page, { theme: "light", locale: "en", introSeen: true });

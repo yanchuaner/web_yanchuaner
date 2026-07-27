@@ -75,7 +75,13 @@ export default function LoginPage() {
 
       const fallback = data.role === "admin" ? "/admin" : "/";
       await refresh();
-      router.push(safeRedirect(searchParams.get("redirect"), fallback));
+      const destination = safeRedirect(searchParams.get("redirect"), fallback);
+      // OAuth authorization can redirect across origins, so it must be a document navigation.
+      if (destination.startsWith("/api/oauth/authorize?")) {
+        window.location.assign(destination);
+        return;
+      }
+      router.push(destination);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : t("auth.login.failed"));
