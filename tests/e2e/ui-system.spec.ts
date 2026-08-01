@@ -25,7 +25,7 @@ function watchRuntimeIssues(page: Page) {
   page.on("console", (message) => {
     if (
       message.type() === "error" &&
-      !/status of 401 \(Unauthorized\)/.test(message.text())
+      !/status of 401 (?:\(Unauthorized\)|\(\))/.test(message.text())
     ) {
       issues.push(`console: ${message.text()}`);
     }
