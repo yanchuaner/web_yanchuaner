@@ -9,14 +9,17 @@
 | 路径 | 用途 |
 | --- | --- |
 | `/var/www/alumni-site/app` | 当前运行中的 standalone 应用 |
-| `/var/www/alumni-site/app.old` | 上一次版本，用于快速回滚 |
+| `/var/www/alumni-site/app.rollback-*` | 上一次稳定版本，只保留一个观察期回滚副本 |
 | `/var/www/alumni-site/.env` | 生产环境变量，部署时软链接到 `app/.env` |
 | `/var/www/alumni-site/data/prod.db` | 生产 SQLite 数据库 |
 | `/var/www/alumni-site/uploads` | 生产上传文件目录，对外映射为 `/uploads/` |
 | `/var/www/alumni-site/backups` | 部署前临时备份 |
 | `/var/backups/alumni-site` | 定时备份目录 |
+| `/opt/yanchuaner/web_yanchuaner-production` | 生产专用 Redis Compose 与受限环境文件 |
 
 `public/uploads/` 不再作为仓库内容提交。应用上传接口会在目录不存在时自动创建，但生产环境仍应提前创建 `/var/www/alumni-site/uploads` 并授予服务用户写权限。
+
+截至 2026-08-01，生产 Redis 使用固定摘要镜像并只监听 `127.0.0.1:6379`；受限环境文件权限必须为 `600`。主域切换前后数据库、上传目录、运行配置和下游数据均保存在 `/var/www/alumni-site/backups/cutover-20260801T141017Z`，本地经 SHA-256 复核的最新 SQLite 快照由被 Git 忽略的 `.tmp/production-latest.db` 指向。备份与单个回滚版本在观察期结束前不参与常规清理。
 
 ## 2. 环境要求
 
@@ -210,6 +213,7 @@ ssh root@<服务器IP>
 set -e
 
 DATE=$(date +%Y%m%d-%H%M%S)
+ROLLBACK_DIR="/var/www/alumni-site/app.rollback-$DATE"
 
 mkdir -p /var/www/alumni-site/backups
 if [ -f /var/www/alumni-site/data/prod.db ]; then
@@ -225,9 +229,8 @@ cd /tmp
 rm -rf /tmp/deploy
 tar -xzf deploy.tar.gz
 
-rm -rf /var/www/alumni-site/app.old
 if [ -d /var/www/alumni-site/app ]; then
-  mv /var/www/alumni-site/app /var/www/alumni-site/app.old
+  mv /var/www/alumni-site/app "$ROLLBACK_DIR"
 fi
 mv /tmp/deploy /var/www/alumni-site/app
 
@@ -258,12 +261,14 @@ curl -s http://127.0.0.1:3000/api/health
 systemctl stop alumni-site
 rm -rf /var/www/alumni-site/app.broken
 mv /var/www/alumni-site/app /var/www/alumni-site/app.broken
-mv /var/www/alumni-site/app.old /var/www/alumni-site/app
+mv /var/www/alumni-site/app.rollback-<部署时间> /var/www/alumni-site/app
 systemctl start alumni-site
 curl -s http://127.0.0.1:3000/api/health
 ```
 
 Prisma migration 是前向执行，不要用 `migrate resolve` 伪装回滚。如果 schema 已经写入不兼容变更，需要同时从部署前备份恢复数据库。恢复生产数据库前先停止服务，并保留当前损坏现场备份。
+
+每次发布只保留一个已核验的 `app.rollback-*`。新版本通过观察期后，先确认目录对应上一稳定提交且数据库备份可恢复，再精确删除更旧的回滚目录；不要使用通配符批量删除。
 
 ## 7. systemd
 

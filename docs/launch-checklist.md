@@ -75,7 +75,7 @@ npm run build
 ## 5. 服务器发布
 
 - [ ] 停服务前已完成数据库和上传目录备份。
-- [ ] 新版本部署到 `/var/www/alumni-site/app`，旧版本保留为 `/var/www/alumni-site/app.old`。
+- [ ] 新版本部署到 `/var/www/alumni-site/app`，旧版本保留为唯一的时间戳目录 `/var/www/alumni-site/app.rollback-*`。
 - [ ] `/var/www/alumni-site/app/.env` 软链接到 `/var/www/alumni-site/.env`。
 - [ ] `/var/www/alumni-site/app/public/uploads` 指向 `/var/www/alumni-site/uploads`。
 - [ ] 既有生产库首次纳管 migration 时，已在生产副本核对 schema diff，且差异只有预期增量。
