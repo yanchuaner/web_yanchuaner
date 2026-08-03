@@ -151,7 +151,9 @@ PRAGMA busy_timeout = 5000;       // 5 秒忙等超时
 
 这是最安全的方式。登录 `/admin` 后通过图形界面管理新闻、活动、校友名单等。所有修改即时生效，无需重启服务。
 
-公众号长文归档使用 `prisma/data/curated-wechat-articles.json` 和 `npm run import:curated`。数据文件只保留经审核的正文、摘要、分类和公开原文链接，不保存抓取 HTML、二维码、群号或个人联系方式。导入器只创建缺失记录，不覆盖后台已经编辑的同 ID 内容。
+公众号长文归档使用版本化清单 `prisma/data/curated-wechat-articles.json`、独立正文 `prisma/data/curated-wechat/*.md` 和 `npm run import:curated`。清单保存标题、摘要、分类、公开原文链接、投放位置和受保护的旧资讯治理策略；每篇正文单独审阅，仓库不保存抓取 HTML、二维码、群号或个人联系方式。导入器只创建缺失记录，不覆盖后台已经编辑的同 ID 内容。
+
+当前数据集版本为 `2`，包含 19 篇公众号文章。两条历史资讯只有在仍为已发布状态且“标题 + 换行 + 正文”的 SHA-256 与清单完全一致时才会转为草稿，并写入 `curated-legacy-archive` 审计记录；只要管理员改过标题、正文或状态，导入器就原样保留。修改源文件后先运行 `npm run test:content-operations`，再在生产数据库副本上连续执行两次导入验证幂等性。
 
 封面属于运行时资产，不提交 Git。执行导入时通过 `CURATED_CONTENT_ASSET_DIR` 指向待发布 WebP，通过 `UPLOAD_DIR` 指向当前环境上传目录。生产执行还必须同时提供 `CURATED_CONTENT_ALLOW_PRODUCTION=true` 和 `CURATED_CONTENT_BACKUP_PATH=<本次唯一的已验证 SQLite 快照>`；缺少任一条件会拒绝写入。
 

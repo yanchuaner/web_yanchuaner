@@ -4,11 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Upload } from "lucide-react";
+import { Eye, PencilLine, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { useAdminLocalize } from "@/components/admin/AdminLocalizedText";
+import { MarkdownContent } from "@/components/content/MarkdownContent";
 import { useThemeAndLocale } from "@/components/ThemeAndLocaleProvider";
-import { DEFAULT_NEWS_CATEGORY, NEWS_CATEGORIES } from "@/lib/news";
+import { DEFAULT_NEWS_CATEGORY, isPreoptimizedNewsImage, NEWS_CATEGORIES } from "@/lib/news";
 
 export type NewsEditorValue = {
   title: string;
@@ -50,6 +51,7 @@ export function NewsEditorForm({
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [contentView, setContentView] = useState<"EDIT" | "PREVIEW">("EDIT");
   const editing = method === "PUT";
 
   const update = <K extends keyof NewsEditorValue>(key: K, value: NewsEditorValue[K]) => {
@@ -143,10 +145,42 @@ export function NewsEditorForm({
             <span className="mb-1.5 block text-sm font-medium text-main">{localize("原文链接")}</span>
             <input type="url" value={form.sourceUrl} onChange={(event) => update("sourceUrl", event.target.value)} className="input w-full" maxLength={500} />
           </label>
-          <label className="block lg:col-span-2">
-            <span className="mb-1.5 block text-sm font-medium text-main">{localize("正文")} *</span>
-            <textarea value={form.content} onChange={(event) => update("content", event.target.value)} className="input min-h-80 w-full font-mono text-sm leading-6" maxLength={20000} />
-          </label>
+          <fieldset className="lg:col-span-2">
+            <legend className="sr-only">{localize("正文")}</legend>
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
+              <span className="text-sm font-medium text-main">{localize("正文")} *</span>
+              <div className="flex items-center gap-3">
+                <span className="text-xs tabular-nums text-main/45">{form.content.length.toLocaleString()} / 20,000 {localize("字符")}</span>
+                <div className="grid grid-cols-2 rounded-btn border border-line bg-surface p-1" role="group" aria-label={localize("正文视图")}>
+                  <button
+                    type="button"
+                    onClick={() => setContentView("EDIT")}
+                    aria-pressed={contentView === "EDIT"}
+                    className={`inline-flex min-h-9 items-center justify-center gap-1.5 rounded-btn px-3 text-xs transition ${contentView === "EDIT" ? "bg-brand text-contrast" : "text-main/65 hover:text-main"}`}
+                  >
+                    <PencilLine size={14} /> {localize("编辑")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setContentView("PREVIEW")}
+                    aria-pressed={contentView === "PREVIEW"}
+                    className={`inline-flex min-h-9 items-center justify-center gap-1.5 rounded-btn px-3 text-xs transition ${contentView === "PREVIEW" ? "bg-brand text-contrast" : "text-main/65 hover:text-main"}`}
+                  >
+                    <Eye size={14} /> {localize("预览")}
+                  </button>
+                </div>
+              </div>
+            </div>
+            {contentView === "EDIT" ? (
+              <textarea aria-label={localize("正文")} value={form.content} onChange={(event) => update("content", event.target.value)} className="input min-h-80 w-full font-mono text-sm leading-6" maxLength={20000} />
+            ) : (
+              <div className="min-h-80 border-y border-line bg-surface-muted/30 px-1 py-5" role="region" aria-label={localize("正文预览")}>
+                {form.content.trim() ? (
+                  form.contentFormat === "MARKDOWN" ? <MarkdownContent content={form.content} /> : <div className="whitespace-pre-wrap text-sm leading-7 text-main/75">{form.content}</div>
+                ) : <p className="text-sm text-main/45">{localize("暂无正文内容")}</p>}
+              </div>
+            )}
+          </fieldset>
         </div>
 
         <div>
@@ -161,7 +195,7 @@ export function NewsEditorForm({
           {form.imageUrl ? (
             <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
               <div className="relative aspect-video w-full max-w-60 overflow-hidden rounded-card border border-line">
-                <Image src={form.imageUrl} alt={localize("封面预览")} fill sizes="240px" className="object-cover" />
+                <Image src={form.imageUrl} alt={localize("封面预览")} fill unoptimized={isPreoptimizedNewsImage(form.imageUrl)} sizes="240px" className="object-cover" />
               </div>
               <button type="button" onClick={() => update("imageUrl", "")} className="min-h-10 rounded-btn border border-danger/25 bg-danger/10 px-3 text-xs text-danger transition hover:bg-danger/20">
                 {localize("移除封面")}

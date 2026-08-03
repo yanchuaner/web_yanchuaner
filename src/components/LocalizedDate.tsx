@@ -6,10 +6,23 @@ import { useThemeAndLocale } from "@/components/ThemeAndLocaleProvider";
 type DateStyle = "date" | "dateTime" | "event" | "time";
 
 const styles: Record<DateStyle, Intl.DateTimeFormatOptions> = {
-  date: { year: "numeric", month: "short", day: "numeric" },
-  dateTime: { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" },
-  event: { month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" },
-  time: { hour: "2-digit", minute: "2-digit" },
+  date: { year: "numeric", month: "short", day: "numeric", timeZone: "Asia/Shanghai" },
+  dateTime: {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Asia/Shanghai",
+  },
+  event: {
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Asia/Shanghai",
+  },
+  time: { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Shanghai" },
 };
 
 export function LocalizedDate({ value, style = "date" }: { value: string | Date; style?: DateStyle }) {

@@ -10,6 +10,7 @@ import { useDialogA11y } from '@/hooks/useDialogA11y';
 import { AdminPagination } from '@/components/admin/AdminPagination';
 import { useAdminLocalize } from '@/components/admin/AdminLocalizedText';
 import { useThemeAndLocale } from '@/components/ThemeAndLocaleProvider';
+import { getNewsCategory, NEWS_CATEGORIES } from '@/lib/news';
 
 const PAGE_SIZE = 20;
 
@@ -19,17 +20,21 @@ type NewsItem = {
   status: string;
   publishedAt: string | null;
   updatedAt: string;
+  category: string;
+  contentFormat: string;
+  sourceName: string | null;
 };
 
 const statusLabel: Record<string, string> = { DRAFT: '草稿', PUBLISHED: '已发布' };
 
 export default function AdminNewsPage() {
   const localize = useAdminLocalize();
-  const { locale } = useThemeAndLocale();
+  const { locale, t } = useThemeAndLocale();
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [search, setSearch] = useState('');
   const [deleting, setDeleting] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<NewsItem | null>(null);
@@ -54,6 +59,7 @@ export default function AdminNewsPage() {
         offset: String((page - 1) * PAGE_SIZE),
       });
       if (statusFilter !== 'ALL') params.set('status', statusFilter);
+      if (categoryFilter !== 'ALL') params.set('category', categoryFilter);
       const res = await fetch(`/api/admin/news?${params}`);
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
@@ -91,7 +97,7 @@ export default function AdminNewsPage() {
   useEffect(() => {
     fetchNews();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, statusFilter]);
+  }, [page, statusFilter, categoryFilter]);
 
   const statusBadge = (s: string) => {
     const map: Record<string, string> = {
@@ -139,7 +145,16 @@ export default function AdminNewsPage() {
             </button>
           ))}
         </div>
-        <div className="relative ml-auto">
+        <select
+          value={categoryFilter}
+          onChange={(event) => { setCategoryFilter(event.target.value); setPage(1); }}
+          className="input min-h-10 w-full text-sm sm:w-auto"
+          aria-label={localize('按分类筛选')}
+        >
+          <option value="ALL">{localize('全部分类')}</option>
+          {NEWS_CATEGORIES.map((category) => <option key={category.value} value={category.value}>{t(category.labelKey)}</option>)}
+        </select>
+        <div className="relative ml-auto w-full sm:w-auto">
           <label htmlFor="search-input" className="sr-only">{localize('搜索新闻标题')}</label>
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-main/40" />
           <input
@@ -148,7 +163,7 @@ export default function AdminNewsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={localize('搜索新闻标题...')}
-            className="input w-48 py-1.5 pl-8 pr-3 text-sm"
+            className="input w-full py-1.5 pl-8 pr-3 text-sm sm:w-48"
           />
         </div>
       </div>
@@ -184,7 +199,12 @@ export default function AdminNewsPage() {
             <tbody className="divide-y divide-brand/5">
               {filteredNews.map((item) => (
                 <tr key={item.id} className="text-main/70 transition hover:bg-brand/5">
-                  <td className="px-4 py-3 font-medium text-main">{item.title}</td>
+                  <td className="px-4 py-3 font-medium text-main">
+                    <span className="block">{item.title}</span>
+                    <span className="mt-1 block text-xs font-normal text-main/45">
+                      {t(getNewsCategory(item.category).labelKey)} · {item.contentFormat === 'MARKDOWN' ? 'Markdown' : localize('纯文本')}{item.sourceName ? ` · ${item.sourceName}` : ''}
+                    </span>
+                  </td>
                   <td className="px-4 py-3">{statusBadge(item.status)}</td>
                   <td className="px-4 py-3 hidden sm:table-cell">{new Date(item.updatedAt).toLocaleString(locale === 'en' ? 'en-US' : 'zh-CN', { timeZone: 'Asia/Shanghai' })}</td>
                   <td className="px-4 py-3">

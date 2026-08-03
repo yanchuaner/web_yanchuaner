@@ -4,6 +4,8 @@
 
 当前前端提供亮色/暗色双主题与中英双语界面，首页以轻量 Canvas 星体、校友信号场和内容动效串联“重新连接、看见彼此、长期共建”的访问路径；移动端与减少动态效果偏好均有独立适配。
 
+通用界面、认证提示与服务说明支持中英双语；公众号归档、校友故事等中文原生内容保留原文表达，不为形式完整强制生成英文译文。
+
 稳定站点：[https://yanchuaner.cn](https://yanchuaner.cn)
 
 暑期预览验收：[https://staging.yanchuaner.cn](https://staging.yanchuaner.cn)
@@ -45,11 +47,16 @@
 | [![手机端星体信息](docs/assets/screenshots/home-entrance-mobile.webp)](docs/assets/screenshots/home-entrance-mobile.webp) | [![亮色英文注册](docs/assets/screenshots/register-light-en.webp)](docs/assets/screenshots/register-light-en.webp) | [![亮色英文故事审核](docs/assets/screenshots/admin-stories-light-en.webp)](docs/assets/screenshots/admin-stories-light-en.webp) |
 | 44px 触控目标，点按暂停并逐字显示含义 | 独立日间纹理，长英文无横向溢出 | 故事审核与燕中故事保持唯一选中状态 |
 
+| 分类资讯 | 手机 Markdown 长文 | 后台编辑预览 |
+| --- | --- | --- |
+| [![暗色分类资讯](docs/assets/screenshots/news-dark.webp)](docs/assets/screenshots/news-dark.webp) | [![手机 Markdown 文章](docs/assets/screenshots/news-article-mobile.webp)](docs/assets/screenshots/news-article-mobile.webp) | [![后台 Markdown 预览](docs/assets/screenshots/admin-news-markdown.webp)](docs/assets/screenshots/admin-news-markdown.webp) |
+| 六类内容按语义分组，封面与摘要用于快速扫描 | 中文正文保留公众号原意，标题、列表与引用自适应排版 | 编辑与预览复用前台渲染器，导入后仍可逐篇维护 |
+
 ## 当前状态
 
 | 维度 | 状态 |
 | --- | --- |
-| 前台体验 | Next.js App Router、移动端优先、亮暗双主题、中英双语；首页、学校介绍、燕中生态、隐私说明与星空体验公开 |
+| 前台体验 | Next.js App Router、移动端优先、亮暗双主题、通用界面中英双语；首页、学校介绍、燕中生态、隐私说明与星空体验公开 |
 | 校友功能 | 星空通讯录、大学城市地图、电子校友纪念卡、燕中故事、校友成就、燕中记忆、基础身份修正 |
 | 个人中心 | 查看认证状态，维护个人资料，提交/追踪故事，查看/取消活动报名，修改密码 |
 | 后台管理 | 分类资讯与 Markdown 正文、活动与报名、校友名册、资料修正、故事审核、成就墙、记忆馆、教师频道、页面内容、注册策略与用户审核 |
@@ -173,6 +180,8 @@ prisma/
 ├── schema.prisma
 ├── seed.ts
 └── data/
+    ├── curated-wechat-articles.json # 公众号归档元数据、投放位置与旧资讯治理策略
+    └── curated-wechat/              # 19 篇独立 Markdown 正文，可逐篇审阅
 
 docs/
 ├── architecture.md

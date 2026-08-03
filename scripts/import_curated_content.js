@@ -14,7 +14,18 @@ const NEWS_CATEGORIES = new Set([
   "SEASONAL",
 ]);
 const dataPath = path.resolve(process.cwd(), "prisma/data/curated-wechat-articles.json");
-const data = JSON.parse(fs.readFileSync(dataPath, "utf8"));
+const dataDirectory = path.dirname(dataPath);
+const rawData = JSON.parse(fs.readFileSync(dataPath, "utf8"));
+const data = {
+  ...rawData,
+  articles: rawData.articles.map((article) => {
+    const contentPath = path.resolve(dataDirectory, article.contentFile || "");
+    if (!isInsideDirectory(dataDirectory, contentPath) || !fs.existsSync(contentPath)) {
+      throw new Error(`Missing or unsafe Markdown source: ${article.id}`);
+    }
+    return { ...article, content: fs.readFileSync(contentPath, "utf8").trim() };
+  }),
+};
 const databaseUrl = process.env.DATABASE_URL || "";
 const uploadDir = path.resolve(process.env.UPLOAD_DIR || path.join(process.cwd(), "public/uploads"));
 const assetDir = process.env.CURATED_CONTENT_ASSET_DIR
@@ -75,16 +86,22 @@ function assertProductionBackup() {
 }
 
 function assertDataset() {
-  if (data.version !== 1 || !Array.isArray(data.articles) || data.articles.length !== 19) {
+  if (data.version !== 2 || !Array.isArray(data.articles) || data.articles.length !== 19) {
     throw new Error("Unexpected curated dataset version or article count");
   }
+  if (!Array.isArray(data.legacyNews) || data.legacyNews.length !== 2) {
+    throw new Error("Unexpected legacy news policy count");
+  }
   const ids = new Set();
-  const privateContact = /微信号[:：]|QQ\s*\d{5,}|SPACE\s*\d{5,}|投稿邮箱|校友交流群|群二维码|1\d{10}/i;
+  const privateContact = /微信号[:：]|QQ\s*\d{5,}|SPACE\s*\d{5,}|投稿邮箱|校友交流群|群二维码|1\d{10}|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/i;
   for (const article of data.articles) {
     if (ids.has(article.id)) throw new Error(`Duplicate article id: ${article.id}`);
     ids.add(article.id);
     if (!article.id.startsWith("wechat-") || !article.title || !article.content) {
       throw new Error(`Invalid article: ${article.id}`);
+    }
+    if (!/^curated-wechat\/[a-z0-9][a-z0-9-]*\.md$/.test(article.contentFile)) {
+      throw new Error(`Invalid Markdown source path: ${article.id}`);
     }
     if (article.title.length > 120 || article.summary.length > 500 || article.content.length > 20_000) {
       throw new Error(`Article exceeds limits: ${article.id}`);
@@ -99,6 +116,15 @@ function assertDataset() {
     }
     if (Number.isNaN(new Date(article.publishedAt).getTime())) {
       throw new Error(`Invalid publish date: ${article.id}`);
+    }
+  }
+  const legacyIds = new Set();
+  for (const policy of data.legacyNews) {
+    if (legacyIds.has(policy.id)) throw new Error(`Duplicate legacy policy: ${policy.id}`);
+    legacyIds.add(policy.id);
+    if (policy.action !== "ARCHIVE" || policy.digestAlgorithm !== "sha256"
+      || !/^[a-f0-9]{64}$/.test(policy.expectedDigest) || !policy.reason) {
+      throw new Error(`Invalid legacy policy: ${policy.id}`);
     }
   }
 }
@@ -145,6 +171,7 @@ function importContent() {
     if (!admin) throw new Error(`Active administrator not found: ${adminUsername}`);
 
     const findNews = db.prepare('SELECT "id" FROM "News" WHERE "id" = ?');
+    const findLegacyNews = db.prepare('SELECT "id", "title", "content", "status" FROM "News" WHERE "id" = ?');
     const findContentSection = db.prepare('SELECT "id" FROM "ContentSection" WHERE "id" = ?');
     const findMemory = db.prepare('SELECT "id" FROM "MemoryItem" WHERE "id" = ?');
     const insertNews = db.prepare(`
@@ -157,6 +184,12 @@ function importContent() {
       INSERT INTO "AuditLog" ("id", "action", "targetType", "targetId", "adminId", "after", "createdAt")
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
+    const insertLegacyAudit = db.prepare(`
+      INSERT INTO "AuditLog" (
+        "id", "action", "targetType", "targetId", "adminId", "before", "after", "createdAt"
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    const archiveLegacyNews = db.prepare('UPDATE "News" SET "status" = ?, "updatedAt" = ? WHERE "id" = ?');
     const insertContentSection = db.prepare(`
       INSERT INTO "ContentSection" (
         "id", "page", "title", "description", "icon", "href", "actionLabel", "sortOrder", "createdAt", "updatedAt"
@@ -170,7 +203,38 @@ function importContent() {
     `);
 
     const runImport = db.transaction(() => {
-      const counts = { newsCreated: 0, newsPreserved: 0, studentCreated: 0, teacherCreated: 0, memoryCreated: 0 };
+      const counts = {
+        newsCreated: 0,
+        newsPreserved: 0,
+        legacyArchived: 0,
+        legacyPreserved: 0,
+        studentCreated: 0,
+        teacherCreated: 0,
+        memoryCreated: 0,
+      };
+      for (const policy of data.legacyNews) {
+        const existing = findLegacyNews.get(policy.id);
+        const digest = existing
+          ? crypto.createHash("sha256").update(`${existing.title}\n${existing.content}`).digest("hex")
+          : null;
+        if (!existing || existing.status !== "PUBLISHED" || digest !== policy.expectedDigest) {
+          counts.legacyPreserved += 1;
+          continue;
+        }
+        const now = new Date().toISOString();
+        archiveLegacyNews.run("DRAFT", now, policy.id);
+        insertLegacyAudit.run(
+          crypto.randomUUID(),
+          "curated-legacy-archive",
+          "News",
+          policy.id,
+          admin.id,
+          JSON.stringify({ title: existing.title, status: existing.status, contentDigest: digest }),
+          JSON.stringify({ status: "DRAFT", reason: policy.reason }),
+          now,
+        );
+        counts.legacyArchived += 1;
+      }
       for (const article of data.articles) {
         const now = new Date().toISOString();
         if (findNews.get(article.id)) {

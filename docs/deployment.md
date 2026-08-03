@@ -265,12 +265,12 @@ DATABASE_URL="file:/var/www/alumni-site/data/prod.db" \
 UPLOAD_DIR="/var/www/alumni-site/uploads" \
 CURATED_CONTENT_ASSET_DIR="/tmp/yanchuan-curated-assets" \
 CURATED_CONTENT_ALLOW_PRODUCTION=true \
-CURATED_CONTENT_BACKUP_PATH="/var/www/alumni-site/backups/prod.db.<timestamp>.pre-curated-import" \
+CURATED_CONTENT_BACKUP_PATH="<本批次唯一且已通过 quick_check 的数据库快照>" \
 CURATED_IMPORT_ADMIN_USERNAME="<管理员用户名>" \
 npm run import:curated
 ```
 
-命令使用生产 standalone 已包含的 SQLite 驱动，不要求服务器安装 `tsx`。它不会覆盖同 ID 的文章或频道入口。导入结束后再启动 `alumni-site`，检查资讯、在校生、教师和记忆页面，确认无误后删除服务器临时资产目录；运行时 `/var/www/alumni-site/uploads` 与唯一数据库快照按正常保留策略管理。
+命令使用生产 standalone 已包含的 SQLite 驱动，不要求服务器安装 `tsx`。它不会覆盖同 ID 的文章或频道入口。版本 2 数据集中每篇正文来自 `prisma/data/curated-wechat/*.md`；历史资讯只有在状态与 SHA-256 均符合清单策略时才会归档，管理员修改过的记录保持不变，归档动作写入审计日志。导入结束后再启动 `alumni-site`，检查资讯、在校生、教师和记忆页面，确认无误后删除服务器临时资产目录；运行时 `/var/www/alumni-site/uploads` 与唯一数据库快照按正常保留策略管理。
 
 ## 6. 回滚
 

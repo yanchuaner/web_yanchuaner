@@ -13,6 +13,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
+    const category = searchParams.get("category");
 
     // 强校验分页参数，防御 NaN / 负数
     const rawLimit = parseInt(searchParams.get("limit") || "50", 10);
@@ -21,7 +22,9 @@ export async function GET(req: NextRequest) {
     const rawOffset = parseInt(searchParams.get("offset") || "0", 10);
     const offset = Number.isInteger(rawOffset) && rawOffset >= 0 ? rawOffset : 0;
 
-    const where = status ? { status } : {};
+    const where: { status?: string; category?: string } = {};
+    if (status && ["DRAFT", "PUBLISHED"].includes(status)) where.status = status;
+    if (category && isNewsCategory(category)) where.category = category;
 
     const [news, total] = await Promise.all([
       prisma.news.findMany({
