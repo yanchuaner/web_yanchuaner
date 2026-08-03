@@ -10,6 +10,9 @@ const newsListSelect = {
   title: true,
   summary: true,
   imageUrl: true,
+  category: true,
+  sourceName: true,
+  sourceUrl: true,
   publishedAt: true,
   createdAt: true,
 } satisfies Prisma.NewsSelect;
@@ -17,6 +20,7 @@ const newsListSelect = {
 const newsDetailSelect = {
   ...newsListSelect,
   content: true,
+  contentFormat: true,
   updatedAt: true,
 } satisfies Prisma.NewsSelect;
 

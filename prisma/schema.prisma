@@ -186,17 +186,22 @@ model Post {
 }
 
 model News {
-  id          String    @id @default(uuid())
-  title       String
-  summary     String?
-  content     String
-  imageUrl    String?
-  status      String    @default("DRAFT")
-  publishedAt DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id            String    @id @default(uuid())
+  title         String
+  summary       String?
+  content       String
+  imageUrl      String?
+  category      String    @default("ALUMNI_UPDATE")
+  sourceName    String?
+  sourceUrl     String?
+  contentFormat String    @default("PLAIN")
+  status        String    @default("DRAFT")
+  publishedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   @@index([status])
+  @@index([status, category])
 }
 
 model Event {
@@ -245,6 +250,7 @@ model MemoryItem {
   imagePath   String   @default("")
   imageAlt    String   @default("")
   icon        String   @default("camera")
+  href        String?
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

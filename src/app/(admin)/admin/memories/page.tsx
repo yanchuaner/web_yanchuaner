@@ -22,6 +22,7 @@ type MemoryItem = {
   imagePath: string;
   imageAlt: string;
   icon: string;
+  href: string | null;
   sortOrder: number;
 };
 
@@ -32,6 +33,7 @@ const emptyForm = {
   imagePath: '',
   imageAlt: '',
   icon: 'camera',
+  href: '',
 };
 
 export default function AdminMemoriesPage() {
@@ -64,6 +66,7 @@ export default function AdminMemoriesPage() {
       imagePath: item.imagePath,
       imageAlt: item.imageAlt,
       icon: item.icon,
+      href: item.href || '',
     });
     setEditingId(item.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -240,6 +243,18 @@ export default function AdminMemoriesPage() {
               })}
             </div>
           </div>
+          <div>
+            <label htmlFor="href" className="mb-1 block text-sm font-medium text-brand-fg">{localize('跳转链接（可选）')}</label>
+            <input
+              id="href"
+              type="text"
+              value={form.href}
+              onChange={(e) => setForm({ ...form, href: e.target.value })}
+              className="input w-full"
+              placeholder="/news/article-id"
+              disabled={saving}
+            />
+          </div>
         </div>
         <div className="mt-4 flex gap-3">
           <button
@@ -278,7 +293,7 @@ export default function AdminMemoriesPage() {
                 </div>
                 <p className="mt-0.5 text-xs text-main/60">{item.subtitle || localize('无副标题')}</p>
                 <p className="mt-0.5 text-xs text-main/60 truncate">
-                  {localize('图片')}: {item.imagePath || localize('未设置')} · {localize('排序')}: {item.sortOrder}
+                  {localize('图片')}: {item.imagePath || localize('未设置')} · {localize('排序')}: {item.sortOrder}{item.href ? ` · ${localize('含链接')}` : ''}
                 </p>
               </div>
               <div className="flex items-center gap-1">

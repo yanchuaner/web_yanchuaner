@@ -36,12 +36,16 @@ export type MpNewsListItem = {
   title: string;
   summary: string | null;
   imageUrl: string | null;
+  category: string;
+  sourceName: string | null;
+  sourceUrl: string | null;
   publishedAt: MpNullableIsoDateString;
   createdAt: MpIsoDateString;
 };
 
 export type MpNewsDetail = MpNewsListItem & {
   content: string;
+  contentFormat: "PLAIN" | "MARKDOWN";
   updatedAt: MpIsoDateString;
 };
 

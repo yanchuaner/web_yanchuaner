@@ -241,7 +241,7 @@ ln -sfn /var/www/alumni-site/uploads /var/www/alumni-site/app/public/uploads
 chown -R www-data:www-data /var/www/alumni-site/app /var/www/alumni-site/uploads /var/www/alumni-site/backups
 
 cd /var/www/alumni-site/app
-npm install prisma@7.8.0 --omit=dev
+npm install prisma@7.9.0 --omit=dev
 DATABASE_URL="file:/var/www/alumni-site/data/prod.db" npx prisma migrate deploy
 DATABASE_URL="file:/var/www/alumni-site/data/prod.db" npx prisma migrate status
 
@@ -254,6 +254,23 @@ curl -s http://127.0.0.1:3000/api/health
 ```
 
 如果生产后台曾通过“校友纪念卡默认背景”上传替换过 `public/card.jpg`，发布新包可能会用仓库内的 `public/card.jpg` 覆盖当前版本。上线前请确认是否需要保留该文件，或上线后重新在后台上传。
+
+### 5.1 发布审核后的公众号内容
+
+内容批次先在生产数据库副本上执行 migration 和两次导入，确认第二次结果全部为 preserved。正式写入前使用 SQLite 在线备份 API 生成**一份**本批次快照并通过 `PRAGMA quick_check`；如果内容随同新版本发布，直接复用第 5 节的 `prod.db.$DATE.pre-deploy`，不要再生成第二份同批次数据库备份。应用保持停止状态、migration 完成后，将已预优化的 WebP 放入独立临时目录并执行：
+
+```bash
+NODE_ENV=production \
+DATABASE_URL="file:/var/www/alumni-site/data/prod.db" \
+UPLOAD_DIR="/var/www/alumni-site/uploads" \
+CURATED_CONTENT_ASSET_DIR="/tmp/yanchuan-curated-assets" \
+CURATED_CONTENT_ALLOW_PRODUCTION=true \
+CURATED_CONTENT_BACKUP_PATH="<本批次唯一且已通过 quick_check 的数据库快照>" \
+CURATED_IMPORT_ADMIN_USERNAME="<管理员用户名>" \
+npm run import:curated
+```
+
+命令使用生产 standalone 已包含的 SQLite 驱动，不要求服务器安装 `tsx`。它不会覆盖同 ID 的文章或频道入口。版本 2 数据集中每篇正文来自 `prisma/data/curated-wechat/*.md`；历史资讯只有在状态与 SHA-256 均符合清单策略时才会归档，管理员修改过的记录保持不变，归档动作写入审计日志。导入结束后再启动 `alumni-site`，检查资讯、在校生、教师和记忆页面，确认无误后删除服务器临时资产目录；运行时 `/var/www/alumni-site/uploads` 与唯一数据库快照按正常保留策略管理。
 
 ## 6. 回滚
 

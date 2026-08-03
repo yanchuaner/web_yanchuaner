@@ -3,7 +3,7 @@ import prisma from '@/lib/db';
 import { requireAdmin } from '@/lib/admin-auth';
 import { renameToCategoryPath } from '@/lib/memories';
 import { readJsonBody } from '@/lib/auth-utils';
-import { isSafeLocalImagePath, normalizeOptionalText } from '@/lib/content-safety';
+import { isSafeInternalHref, isSafeLocalImagePath, normalizeOptionalText } from '@/lib/content-safety';
 import { getRouteId, type IdRouteParams } from '@/lib/route-params';
 
 export async function PUT(
@@ -28,6 +28,7 @@ export async function PUT(
       imageAlt?: unknown;
       icon?: unknown;
       sortOrder?: unknown;
+      href?: unknown;
     }>(req, 16384); // 16KB limit
 
     const title = body.title !== undefined ? normalizeOptionalText(body.title) : undefined;
@@ -36,6 +37,7 @@ export async function PUT(
     const imagePath = body.imagePath !== undefined ? normalizeOptionalText(body.imagePath) : undefined;
     const imageAlt = body.imageAlt !== undefined ? normalizeOptionalText(body.imageAlt) : undefined;
     const icon = body.icon !== undefined ? normalizeOptionalText(body.icon) : undefined;
+    const href = body.href !== undefined ? normalizeOptionalText(body.href) : undefined;
 
     if (body.title !== undefined && (!title || title.length > 100)) {
       return NextResponse.json({ error: '标题不能为空且不超过100字' }, { status: 400 });
@@ -58,6 +60,9 @@ export async function PUT(
     if (icon !== undefined && icon.length > 50) {
       return NextResponse.json({ error: '图标不超过50字' }, { status: 400 });
     }
+    if (href !== undefined && !isSafeInternalHref(href)) {
+      return NextResponse.json({ error: '跳转链接仅支持站内路径' }, { status: 400 });
+    }
 
     const newIcon = icon !== undefined ? icon || 'camera' : existing.icon;
     const newSortOrder = typeof body.sortOrder === 'number' ? body.sortOrder : existing.sortOrder;
@@ -72,6 +77,7 @@ export async function PUT(
         ...(imagePath !== undefined && { imagePath: newImagePath }),
         ...(imageAlt !== undefined && { imageAlt }),
         ...(icon !== undefined && { icon: newIcon }),
+        ...(href !== undefined && { href: href || null }),
         ...(typeof body.sortOrder === 'number' && { sortOrder: newSortOrder }),
       },
     });

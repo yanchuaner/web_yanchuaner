@@ -1,0 +1,370 @@
+{
+  "version": 2,
+  "sourceName": "燕中校友汇",
+  "articles": [
+    {
+      "id": "wechat-freshman-life",
+      "slug": "freshman-life",
+      "title": "大一新生最全避坑干货大全（生活篇）",
+      "summary": "从宿舍生活、实用好物到校园资源，整理大一新生最常遇到的生活问题与避坑建议。",
+      "category": "STUDENT_GUIDE",
+      "contentFormat": "MARKDOWN",
+      "imageUrl": "/uploads/wechat-freshman-life.webp",
+      "sourceName": "燕中校友汇",
+      "sourceUrl": "https://mp.weixin.qq.com/s/-TOhsWsGZpbXzwVS1aIOYw",
+      "publishedAt": "2026-08-02T07:00:00.000Z",
+      "placements": {
+        "student": [
+          "大学生活避坑指南",
+          "从住宿、消费到校园资源，提前处理大一生活中的高频问题。",
+          "Sparkles",
+          100
+        ]
+      },
+      "contentFile": "curated-wechat/freshman-life.md"
+    },
+    {
+      "id": "wechat-freshman-study",
+      "slug": "freshman-study",
+      "title": "大一新生最全避坑干货大全（学习篇）",
+      "summary": "聚焦课程、绩点、竞赛、社团和成长节奏，帮助新生建立大学学习与发展框架。",
+      "category": "STUDENT_GUIDE",
+      "contentFormat": "MARKDOWN",
+      "imageUrl": "/uploads/wechat-freshman-study.webp",
+      "sourceName": "燕中校友汇",
+      "sourceUrl": "https://mp.weixin.qq.com/s/mBOUTzHM1ksEwWHv8gtaIg",
+      "publishedAt": "2026-07-26T04:00:00.000Z",
+      "placements": {
+        "student": [
+          "大学学习避坑指南",
+          "理解课程、绩点、竞赛与成长节奏，建立自己的学习框架。",
+          "BookOpen",
+          101
+        ]
+      },
+      "contentFile": "curated-wechat/freshman-study.md"
+    },
+    {
+      "id": "wechat-summer-tips",
+      "slug": "summer-tips",
+      "title": "如何享受暑假 | 小妙招助你一臂之力！",
+      "summary": "从行动、兴趣和自我管理出发，让暑假从空想回到可以完成的小目标。",
+      "category": "STUDENT_GUIDE",
+      "contentFormat": "MARKDOWN",
+      "imageUrl": "/uploads/wechat-summer-tips.webp",
+      "sourceName": "燕中校友汇",
+      "sourceUrl": "https://mp.weixin.qq.com/s/f4BGrDmHO7fYm1SgWm7KhA",
+      "publishedAt": "2026-07-19T11:49:52.000Z",
+      "placements": {
+        "student": [
+          "暑假行动指南",
+          "把计划拆成可以开始、可以完成的小目标。",
+          "Rocket",
+          102
+        ]
+      },
+      "contentFile": "curated-wechat/summer-tips.md"
+    },
+    {
+      "id": "wechat-yan-garden-memory",
+      "slug": "yan-garden-memory",
+      "title": "燕园拾光：拼凑起燕中的记忆碎片",
+      "summary": "通过校友镜头与文字，拼起燕川中学校园里熟悉而鲜活的记忆碎片。",
+      "category": "CAMPUS_MEMORY",
+      "contentFormat": "MARKDOWN",
+      "imageUrl": "/uploads/wechat-yan-garden-memory.webp",
+      "sourceName": "燕中校友汇",
+      "sourceUrl": "https://mp.weixin.qq.com/s/nC_2fcsS36Dyd9aCq6QZEQ",
+      "publishedAt": "2026-07-12T04:01:00.000Z",
+      "placements": {
+        "memory": [
+          "燕园拾光",
+          "校园影像",
+          "燕中校园里的熟悉角落与记忆碎片。",
+          "landmark",
+          10
+        ]
+      },
+      "contentFile": "curated-wechat/yan-garden-memory.md"
+    },
+    {
+      "id": "wechat-alumni-handbook",
+      "slug": "alumni-handbook",
+      "title": "校友专属手册：燕中校友会业务汇总",
+      "summary": "汇总校友会各平台与服务板块，帮助校友快速找到投稿、联络与参与入口。",
+      "category": "ALUMNI_UPDATE",
+      "contentFormat": "MARKDOWN",
+      "imageUrl": "/uploads/wechat-alumni-handbook.webp",
+      "sourceName": "燕中校友汇",
+      "sourceUrl": "https://mp.weixin.qq.com/s/I0xAf8wrWBNe6Hrr1M3FFA",
+      "publishedAt": "2026-07-05T09:00:00.000Z",
+      "placements": {},
+      "contentFile": "curated-wechat/alumni-handbook.md"
+    },
+    {
+      "id": "wechat-alumni-travel",
+      "slug": "alumni-travel",
+      "title": "旅行特辑 | 跟着校友，漫游四方",
+      "summary": "跟随燕中校友的脚步看见不同城市与风景，记录旅途中的发现与同行。",
+      "category": "ALUMNI_STORY",
+      "contentFormat": "MARKDOWN",
+      "imageUrl": "/uploads/wechat-alumni-travel.webp",
+      "sourceName": "燕中校友汇",
+      "sourceUrl": "https://mp.weixin.qq.com/s/m2-2FbZic4AS4ZYFOTviOg",
+      "publishedAt": "2026-06-28T09:00:00.000Z",
+      "placements": {},
+      "contentFile": "curated-wechat/alumni-travel.md"
+    },
+    {
+      "id": "wechat-summer-solstice",
+      "slug": "summer-solstice",
+      "title": "6.21 I 节与气相交，在仲夏的长日",
+      "summary": "端午、父亲节与夏至相逢，在仲夏最长的白日里感受节气与思念。",
+      "category": "SEASONAL",
+      "contentFormat": "MARKDOWN",
+      "imageUrl": "/uploads/wechat-summer-solstice.webp",
+      "sourceName": "燕中校友汇",
+      "sourceUrl": "https://mp.weixin.qq.com/s/rgsJqkpVszRL0qff4AwN8A",
+      "publishedAt": "2026-06-21T10:09:45.000Z",
+      "placements": {},
+      "contentFile": "curated-wechat/summer-solstice.md"
+    },
+    {
+      "id": "wechat-class-26-message",
+      "slug": "class-26-message",
+      "title": "致26届：少年收笔入鞘，校友提灯迎归",
+      "summary": "写给2026届毕业生的欢迎信：高考是序章，燕中校友共同体在下一程接力。",
+      "category": "ALUMNI_UPDATE",
+      "contentFormat": "MARKDOWN",
+      "imageUrl": "/uploads/wechat-class-26-message.webp",
+      "sourceName": "燕中校友汇",
+      "sourceUrl": "https://mp.weixin.qq.com/s/KjGiCBhin-BQGR-pdGMNVA",
+      "publishedAt": "2026-06-14T09:00:00.000Z",
+      "placements": {},
+      "contentFile": "curated-wechat/class-26-message.md"
+    },
+    {
+      "id": "wechat-gaokao-2026",
+      "slug": "gaokao-2026",
+      "title": "红花上枝头，金榜题嘉名 | 祝燕川中学2026届同学高考顺利",
+      "summary": "以校园红花与真挚祝福，为燕川中学2026届同学送上高考寄语。",
+      "category": "SEASONAL",
+      "contentFormat": "MARKDOWN",
+      "imageUrl": "/uploads/wechat-gaokao-2026.webp",
+      "sourceName": "燕中校友汇",
+      "sourceUrl": "https://mp.weixin.qq.com/s/NriUShYqVewnlhhkqCGI5w",
+      "publishedAt": "2026-06-06T13:21:06.000Z",
+      "placements": {},
+      "contentFile": "curated-wechat/gaokao-2026.md"
+    },
+    {
+      "id": "wechat-teacher-521",
+      "slug": "teacher-521",
+      "title": "521 · 燕中 | 比520爱你多一点，比那年夏天更懂您一些",
+      "summary": "校友以书信、回忆与校园影像致敬师长，延续毕业后仍然温暖的师生联结。",
+      "category": "TEACHER_VOICE",
+      "contentFormat": "MARKDOWN",
+      "imageUrl": "/uploads/wechat-teacher-521.webp",
+      "sourceName": "燕中校友汇",
+      "sourceUrl": "https://mp.weixin.qq.com/s/8WszKmwI6z3DdSWP89v6iQ",
+      "publishedAt": "2026-05-21T12:02:53.000Z",
+      "placements": {
+        "teacher": [
+          "写给师长与母校",
+          "从校友视角延续毕业后的师生联结。",
+          "Heart",
+          101
+        ]
+      },
+      "contentFile": "curated-wechat/teacher-521.md"
+    },
+    {
+      "id": "wechat-campus-food",
+      "slug": "campus-food",
+      "title": "517我要吃 | 味蕾时光机：燕中校友，那些舌尖上的青春",
+      "summary": "从高中食堂到大学食街，用味觉串起校友共同经历的青春记忆。",
+      "category": "CAMPUS_MEMORY",
+      "contentFormat": "MARKDOWN",
+      "imageUrl": "/uploads/wechat-campus-food.webp",
+      "sourceName": "燕中校友汇",
+      "sourceUrl": "https://mp.weixin.qq.com/s/eCrzKfkrFuyO_UgyQFZH-g",
+      "publishedAt": "2026-05-17T12:02:00.000Z",
+      "placements": {
+        "memory": [
+          "舌尖上的青春",
+          "味觉记忆",
+          "从高中食堂到大学食街，味道仍能带我们回到燕中。",
+          "camera",
+          11
+        ]
+      },
+      "contentFile": "curated-wechat/campus-food.md"
+    },
+    {
+      "id": "wechat-may-fourth",
+      "slug": "may-fourth",
+      "title": "五四特辑·我唯一要做的，就是",
+      "summary": "在五四青年节重新审视行动、选择与成长，写给仍在寻找方向的年轻人。",
+      "category": "SEASONAL",
+      "contentFormat": "MARKDOWN",
+      "imageUrl": "/uploads/wechat-may-fourth.webp",
+      "sourceName": "燕中校友汇",
+      "sourceUrl": "https://mp.weixin.qq.com/s/JqYs_M4YUeMQyMO18arYQw",
+      "publishedAt": "2026-05-04T01:00:00.000Z",
+      "placements": {},
+      "contentFile": "curated-wechat/may-fourth.md"
+    },
+    {
+      "id": "wechat-university-map",
+      "slug": "university-map",
+      "title": "大学地图加载中……这份“科学导航”请收好",
+      "summary": "用更科学的方法理解专业、能力与大学生活，为升学后的选择提供可执行的导航。",
+      "category": "STUDENT_GUIDE",
+      "contentFormat": "MARKDOWN",
+      "imageUrl": "/uploads/wechat-university-map.webp",
+      "sourceName": "燕中校友汇",
+      "sourceUrl": "https://mp.weixin.qq.com/s/9bdCulpJ7CNQmdfB7K764w",
+      "publishedAt": "2026-05-03T01:00:00.000Z",
+      "placements": {
+        "student": [
+          "大学科学导航",
+          "用能力地图理解专业选择、大学生活与长期发展。",
+          "MapPin",
+          103
+        ]
+      },
+      "contentFile": "curated-wechat/university-map.md"
+    },
+    {
+      "id": "wechat-teacher-message",
+      "slug": "teacher-message",
+      "title": "燕中师长寄语——贺校友会成立满月",
+      "summary": "燕中师长寄语校友会成立满月，回应青年校友对母校、成长与联结的期待。",
+      "category": "TEACHER_VOICE",
+      "contentFormat": "MARKDOWN",
+      "imageUrl": "/uploads/wechat-teacher-message.webp",
+      "sourceName": "燕中校友汇",
+      "sourceUrl": "https://mp.weixin.qq.com/s/0X5my-4casiU1jPyJWOUlg",
+      "publishedAt": "2026-04-26T03:00:00.000Z",
+      "placements": {
+        "teacher": [
+          "燕中师长寄语",
+          "师长写给校友会与燕中人的成长寄语。",
+          "MessageSquare",
+          100
+        ]
+      },
+      "contentFile": "curated-wechat/teacher-message.md"
+    },
+    {
+      "id": "wechat-senior-memory",
+      "slug": "senior-memory",
+      "title": "梦回高三｜那年盛夏，我们奔赴同一场青春",
+      "summary": "重返高三的教室、操场与夏日，把共同奔赴高考的青春写成一封集体回信。",
+      "category": "CAMPUS_MEMORY",
+      "contentFormat": "MARKDOWN",
+      "imageUrl": "/uploads/wechat-senior-memory.webp",
+      "sourceName": "燕中校友汇",
+      "sourceUrl": "https://mp.weixin.qq.com/s/dbQ-Mb35BqejX0Hl2HnihA",
+      "publishedAt": "2026-04-19T03:00:00.000Z",
+      "placements": {
+        "memory": [
+          "梦回高三",
+          "盛夏与高考",
+          "重返教室、操场与共同奔赴的那段青春。",
+          "house",
+          12
+        ]
+      },
+      "contentFile": "curated-wechat/senior-memory.md"
+    },
+    {
+      "id": "wechat-memory-second",
+      "slug": "memory-second",
+      "title": "燕中记忆：那些年，我们一起走过的燕川校园（第二期）",
+      "summary": "由校友投稿串起网课、教室与校园片段，收录第二期燕中共同记忆。",
+      "category": "CAMPUS_MEMORY",
+      "contentFormat": "MARKDOWN",
+      "imageUrl": "/uploads/wechat-memory-second.webp",
+      "sourceName": "燕中校友汇",
+      "sourceUrl": "https://mp.weixin.qq.com/s/fTZ6wOKzHj3Qx8DSmHHrMQ",
+      "publishedAt": "2026-04-12T07:00:00.000Z",
+      "placements": {
+        "memory": [
+          "燕中记忆·第二期",
+          "校友共创",
+          "网课、教室与校园片段组成的第二辑记忆。",
+          "camera",
+          14
+        ]
+      },
+      "contentFile": "curated-wechat/memory-second.md"
+    },
+    {
+      "id": "wechat-memory-first",
+      "slug": "memory-first",
+      "title": "燕中记忆：那些年，我们一起走过的燕中校园（第一期）",
+      "summary": "从课堂、研学、宿舍到校园一隅，保存第一期属于燕中人的青春照片与故事。",
+      "category": "CAMPUS_MEMORY",
+      "contentFormat": "MARKDOWN",
+      "imageUrl": "/uploads/wechat-memory-first.webp",
+      "sourceName": "燕中校友汇",
+      "sourceUrl": "https://mp.weixin.qq.com/s/HoVzLmdNZzFpYm9SuPAfuw",
+      "publishedAt": "2026-04-05T12:00:33.000Z",
+      "placements": {
+        "memory": [
+          "燕中记忆·第一期",
+          "校友共创",
+          "课堂、研学、宿舍与校园一隅的共同记录。",
+          "camera",
+          13
+        ]
+      },
+      "contentFile": "curated-wechat/memory-first.md"
+    },
+    {
+      "id": "wechat-alumni-launch",
+      "slug": "alumni-launch",
+      "title": "燕中首届校友会点火起航：2025届，我们的征途是星辰大海！",
+      "summary": "回望首届毕业生的拓荒时光，记录燕川中学校友会的成立与出发。",
+      "category": "ALUMNI_UPDATE",
+      "contentFormat": "MARKDOWN",
+      "imageUrl": "/uploads/wechat-alumni-launch.webp",
+      "sourceName": "燕中校友汇",
+      "sourceUrl": "https://mp.weixin.qq.com/s/kP_7tvO_HXPtE-FDFLQGiQ",
+      "publishedAt": "2026-03-22T08:30:00.000Z",
+      "placements": {},
+      "contentFile": "curated-wechat/alumni-launch.md"
+    },
+    {
+      "id": "wechat-team-intro",
+      "slug": "team-intro",
+      "title": "《首届校友会班底曝光：8个\"不务正业\"的大学生》",
+      "summary": "认识首届校友会8位创始成员与4个职能小组，看见组织背后的真实日常与分工。",
+      "category": "ALUMNI_UPDATE",
+      "contentFormat": "MARKDOWN",
+      "imageUrl": "/uploads/wechat-team-intro.webp",
+      "sourceName": "燕中校友汇",
+      "sourceUrl": "https://mp.weixin.qq.com/s/9OpT2xL7ALXly9FAfQZfzA",
+      "publishedAt": "2026-03-29T05:59:00.000Z",
+      "placements": {},
+      "contentFile": "curated-wechat/team-intro.md"
+    }
+  ],
+  "legacyNews": [
+    {
+      "id": "02c0f555-7556-4c9e-a5ed-0f580265b304",
+      "digestAlgorithm": "sha256",
+      "expectedDigest": "5558e0bfc4837904aaba99abeaf380754578e0ada154f784c4ea20c8bcfcc511",
+      "action": "ARCHIVE",
+      "reason": "内容缺少摘要与可核验来源，且包含已失效的第三方入群引导。"
+    },
+    {
+      "id": "c31d6a74-22ba-443b-8504-f0b00a2daa71",
+      "digestAlgorithm": "sha256",
+      "expectedDigest": "ba39ea172ac6331774fd1f3c98de84ac09d2c4ef6768bffd6f9cc9a683427e6a",
+      "action": "ARCHIVE",
+      "reason": "内容缺少可核验来源并与已审核的高考主题推文重复。"
+    }
+  ]
+}

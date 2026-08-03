@@ -3,7 +3,7 @@ import prisma from '@/lib/db';
 import { requireAdmin } from '@/lib/admin-auth';
 import { renameToCategoryPath } from '@/lib/memories';
 import { readJsonBody } from '@/lib/auth-utils';
-import { isSafeLocalImagePath, normalizeOptionalText } from '@/lib/content-safety';
+import { isSafeInternalHref, isSafeLocalImagePath, normalizeOptionalText } from '@/lib/content-safety';
 
 export async function GET(req: NextRequest) {
   const auth = await requireAdmin(req);
@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
       imagePath?: unknown;
       imageAlt?: unknown;
       icon?: unknown;
+      href?: unknown;
     }>(req, 16384); // 16KB limit
 
     const title = normalizeOptionalText(body.title);
@@ -41,6 +42,7 @@ export async function POST(req: NextRequest) {
     const imagePath = normalizeOptionalText(body.imagePath);
     const imageAlt = normalizeOptionalText(body.imageAlt);
     const icon = normalizeOptionalText(body.icon) || "camera";
+    const href = normalizeOptionalText(body.href);
 
     if (!title) {
       return NextResponse.json({ error: '标题不能为空' }, { status: 400 });
@@ -66,6 +68,9 @@ export async function POST(req: NextRequest) {
     if (icon.length > 50) {
       return NextResponse.json({ error: '图标不超过50字' }, { status: 400 });
     }
+    if (!isSafeInternalHref(href)) {
+      return NextResponse.json({ error: '跳转链接仅支持站内路径' }, { status: 400 });
+    }
 
     const maxSort = await prisma.memoryItem.findFirst({
       orderBy: { sortOrder: 'desc' },
@@ -82,6 +87,7 @@ export async function POST(req: NextRequest) {
         imagePath,
         imageAlt,
         icon,
+        href: href || null,
         sortOrder,
       },
     });

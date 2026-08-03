@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { getAuthenticatedUser, requireAdmin } from "@/lib/admin-auth";
 import { readJsonBody } from "@/lib/auth-utils";
-import { isSafeLocalImagePath, normalizeOptionalText } from "@/lib/content-safety";
+import { isSafeArticleSourceUrl, isSafeLocalImagePath, normalizeOptionalText } from "@/lib/content-safety";
 import { invalidateCachePrefix } from "@/lib/cache";
+import { DEFAULT_NEWS_CATEGORY, isNewsCategory, isNewsContentFormat } from "@/lib/news";
 
 export async function GET(req: NextRequest) {
   const auth = await requireAdmin(req);
@@ -12,6 +13,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
+    const category = searchParams.get("category");
 
     // 强校验分页参数，防御 NaN / 负数
     const rawLimit = parseInt(searchParams.get("limit") || "50", 10);
@@ -20,7 +22,9 @@ export async function GET(req: NextRequest) {
     const rawOffset = parseInt(searchParams.get("offset") || "0", 10);
     const offset = Number.isInteger(rawOffset) && rawOffset >= 0 ? rawOffset : 0;
 
-    const where = status ? { status } : {};
+    const where: { status?: string; category?: string } = {};
+    if (status && ["DRAFT", "PUBLISHED"].includes(status)) where.status = status;
+    if (category && isNewsCategory(category)) where.category = category;
 
     const [news, total] = await Promise.all([
       prisma.news.findMany({
@@ -53,6 +57,10 @@ export async function POST(req: NextRequest) {
       summary?: unknown;
       content?: unknown;
       imageUrl?: unknown;
+      category?: unknown;
+      sourceName?: unknown;
+      sourceUrl?: unknown;
+      contentFormat?: unknown;
       status?: unknown;
       publishedAt?: unknown;
     }>(req, 524288); // 512KB limit
@@ -61,6 +69,10 @@ export async function POST(req: NextRequest) {
     const summary = normalizeOptionalText(body.summary);
     const content = normalizeOptionalText(body.content);
     const imageUrl = normalizeOptionalText(body.imageUrl);
+    const category = normalizeOptionalText(body.category) || DEFAULT_NEWS_CATEGORY;
+    const sourceName = normalizeOptionalText(body.sourceName);
+    const sourceUrl = normalizeOptionalText(body.sourceUrl);
+    const contentFormat = normalizeOptionalText(body.contentFormat) || "PLAIN";
     const status = normalizeOptionalText(body.status);
 
     if (!title) {
@@ -84,11 +96,26 @@ export async function POST(req: NextRequest) {
     if (!isSafeLocalImagePath(imageUrl)) {
       return NextResponse.json({ error: "封面图片仅支持站内上传路径" }, { status: 400 });
     }
+    if (!isNewsCategory(category)) {
+      return NextResponse.json({ error: "无效的新闻分类" }, { status: 400 });
+    }
+    if (sourceName.length > 100) {
+      return NextResponse.json({ error: "来源名称不超过100字" }, { status: 400 });
+    }
+    if (!isSafeArticleSourceUrl(sourceUrl)) {
+      return NextResponse.json({ error: "原文链接仅支持微信公众号文章" }, { status: 400 });
+    }
+    if (!isNewsContentFormat(contentFormat)) {
+      return NextResponse.json({ error: "无效的正文格式" }, { status: 400 });
+    }
     if (status && !["DRAFT", "PUBLISHED"].includes(status)) {
       return NextResponse.json({ error: "无效的状态值" }, { status: 400 });
     }
 
     let publishedAt = body.publishedAt ? new Date(String(body.publishedAt)) : null;
+    if (publishedAt && Number.isNaN(publishedAt.getTime())) {
+      return NextResponse.json({ error: "无效的发布时间" }, { status: 400 });
+    }
     if (status === "PUBLISHED" && !publishedAt) {
       publishedAt = new Date();
     }
@@ -100,6 +127,10 @@ export async function POST(req: NextRequest) {
           summary: summary || null,
           content,
           imageUrl: imageUrl || null,
+          category,
+          sourceName: sourceName || null,
+          sourceUrl: sourceUrl || null,
+          contentFormat,
           status: status || "DRAFT",
           publishedAt,
         },
