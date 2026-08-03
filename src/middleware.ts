@@ -118,6 +118,54 @@ function normalizeOrigin(value: string | null) {
   }
 }
 
+function getRequestOrigin(req: NextRequest) {
+  const host = (
+    req.headers.get("x-forwarded-host") || req.headers.get("host")
+  )?.split(",", 1)[0]?.trim();
+  const forwardedProto = req.headers
+    .get("x-forwarded-proto")
+    ?.split(",", 1)[0]
+    ?.trim()
+    .toLowerCase();
+  const protocol = forwardedProto === "http" || forwardedProto === "https"
+    ? forwardedProto
+    : req.nextUrl.protocol.replace(":", "");
+  const forwardedOrigin = host
+    ? normalizeOrigin(`${protocol}://${host}`)
+    : null;
+
+  return forwardedOrigin || req.nextUrl.origin;
+}
+
+function isLoopbackOrigin(value: string) {
+  try {
+    const hostname = new URL(value).hostname;
+    return hostname === "localhost"
+      || hostname === "127.0.0.1"
+      || hostname === "[::1]";
+  } catch {
+    return false;
+  }
+}
+
+function getExternalOrigin(req: NextRequest) {
+  const configuredOrigin = normalizeOrigin(
+    process.env.APP_URL || process.env.SITE_URL || null,
+  );
+  const requestOrigin = getRequestOrigin(req);
+
+  // Local acceptance uses localhost in APP_URL but 127.0.0.1 as its browser base.
+  // Keep those loopback origins aligned while production remains canonical.
+  if (configuredOrigin && !isLoopbackOrigin(configuredOrigin)) {
+    return configuredOrigin;
+  }
+  return requestOrigin || configuredOrigin || req.nextUrl.origin;
+}
+
+function getRedirectUrl(req: NextRequest, pathname: string) {
+  return new URL(pathname, getExternalOrigin(req));
+}
+
 function getAllowedOrigins(req: NextRequest) {
   const allowed = new Set<string>();
   allowed.add(req.nextUrl.origin);
@@ -206,12 +254,12 @@ export async function middleware(req: NextRequest) {
 
   if (pathname === "/admin/login") {
     if (payload?.role === "admin") {
-      return NextResponse.redirect(new URL("/admin", req.url));
+      return NextResponse.redirect(getRedirectUrl(req, "/admin"));
     }
     if (payload?.role === "user") {
-      return NextResponse.redirect(new URL("/me", req.url));
+      return NextResponse.redirect(getRedirectUrl(req, "/me"));
     }
-    const url = new URL("/login", req.url);
+    const url = getRedirectUrl(req, "/login");
     url.searchParams.set("redirect", "/admin");
     return NextResponse.redirect(url);
   }
@@ -224,7 +272,7 @@ export async function middleware(req: NextRequest) {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const url = new URL("/login", req.url);
+    const url = getRedirectUrl(req, "/login");
     url.searchParams.set("redirect", `${pathname}${search}`);
     return NextResponse.redirect(url);
   }
@@ -232,7 +280,7 @@ export async function middleware(req: NextRequest) {
   if (pathname.startsWith("/admin") && payload.role !== "admin") {
     return pathname.startsWith("/api/")
       ? NextResponse.json({ error: "Forbidden" }, { status: 403 })
-      : NextResponse.redirect(new URL("/me", req.url));
+      : NextResponse.redirect(getRedirectUrl(req, "/me"));
   }
   return next();
 }
