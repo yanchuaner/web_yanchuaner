@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { Camera, House, Landmark, LibraryBig, Mountain, Trees } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Camera, House, Landmark, LibraryBig, Mountain, Trees } from "lucide-react";
 import prisma from "@/lib/db";
 import fs from "node:fs";
 import path from "node:path";
 import { PageShell, GlassCard, EmptyState, ButtonLink } from "@/components/ui";
 import { LocalizedText } from "@/components/LocalizedText";
+import { isPreoptimizedNewsImage } from "@/lib/news";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +27,7 @@ type MemoryItem = {
   imageAlt: string;
   icon: MemoryIcon;
   hasImage: boolean;
+  href: string | null;
 };
 
 function pickIcon(iconName: MemoryIcon) {
@@ -89,17 +92,15 @@ export default async function AlumniMemoriesPage() {
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {memoryItems.map((item) => {
               const Icon = pickIcon(item.icon as MemoryIcon);
-              return (
-                <article
-                  key={item.id}
-                  className="group overflow-hidden rounded-card border border-line bg-surface/40 backdrop-blur-md transition hover:-translate-y-1 hover:bg-surface/60 hover:shadow-md"
-                >
+              const card = (
+                <article className="h-full overflow-hidden rounded-card border border-line bg-surface/40 backdrop-blur-md transition group-hover:-translate-y-1 group-hover:border-brand/30 group-hover:bg-surface/60 group-hover:shadow-md">
                   <div className="relative aspect-video overflow-hidden border-b border-line bg-brand/5">
                     {item.hasImage ? (
                       <Image
                         src={item.imagePath}
                         alt={item.imageAlt || item.title}
                         fill
+                        unoptimized={isPreoptimizedNewsImage(item.imagePath)}
                         sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                         className="object-cover opacity-90 transition duration-500 group-hover:scale-105 group-hover:opacity-100"
                       />
@@ -128,8 +129,14 @@ export default async function AlumniMemoriesPage() {
                   <div className="p-4 md:p-5">
                     <h2 className="font-heading text-lg font-semibold text-brand">{item.title}</h2>
                     <p className="mt-2 text-sm leading-6 text-brand-fg/70">{item.description}</p>
+                    {item.href ? <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-brand"><LocalizedText translationKey="contentPages.memories.readAction" /> <ArrowRight size={13} /></span> : null}
                   </div>
                 </article>
+              );
+              return item.href ? (
+                <Link key={item.id} href={item.href} className="group block rounded-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">{card}</Link>
+              ) : (
+                <div key={item.id} className="group">{card}</div>
               );
             })}
           </div>

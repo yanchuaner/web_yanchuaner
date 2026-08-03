@@ -4,11 +4,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ArrowLeft, Calendar } from "lucide-react";
+import { ArrowLeft, Calendar, ExternalLink } from "lucide-react";
 import prisma from "@/lib/db";
 import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 import { LocalizedText } from "@/components/LocalizedText";
 import { LocalizedDate } from "@/components/LocalizedDate";
+import { MarkdownContent } from "@/components/content/MarkdownContent";
+import { getNewsCategory, isPreoptimizedNewsImage } from "@/lib/news";
 
 const SITE_URL = process.env.SITE_URL || "https://yanchuaner.cn";
 
@@ -51,17 +53,21 @@ export default async function NewsDetailPage({ params }: { params: IdRouteParams
 
   return (
     <section className="mx-auto w-full max-w-3xl px-4 py-12 md:px-8">
-      <div className="glass-card-base p-6 md:p-8">
+      <article className="glass-card-base overflow-hidden">
+        <div className="p-6 md:p-8">
         <Link href="/news" className="mb-6 inline-flex items-center gap-1 text-sm text-brand transition hover:text-main cursor-pointer transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface-muted">
           <ArrowLeft size={14} /> <LocalizedText translationKey="contentPages.news.back" />
         </Link>
 
-        {article.publishedAt && (
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-3 py-1 text-xs text-brand">
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <span className="inline-flex min-h-7 items-center rounded-full border border-brand/20 bg-brand/10 px-3 text-xs text-brand">
+            <LocalizedText translationKey={getNewsCategory(article.category).labelKey} />
+          </span>
+          {article.publishedAt ? <span className="inline-flex min-h-7 items-center gap-2 rounded-full border border-line bg-surface/70 px-3 text-xs text-main/55">
             <Calendar size={12} />
             <LocalizedDate value={article.publishedAt} />
-          </div>
-        )}
+          </span> : null}
+        </div>
 
         <h1 className="font-heading text-2xl font-bold text-main md:text-3xl">{article.title}</h1>
         {article.summary && <p className="mt-3 text-sm leading-7 text-main/60 md:text-base">{article.summary}</p>}
@@ -73,18 +79,30 @@ export default async function NewsDetailPage({ params }: { params: IdRouteParams
               alt={article.title}
               fill
               priority
+              unoptimized={isPreoptimizedNewsImage(article.imageUrl)}
               sizes="(max-width: 768px) 100vw, 768px"
               className="object-cover"
             />
           </div>
         ) : null}
 
-        <div className="mt-8 border-t border-brand/10 pt-6">
-          <div className="max-w-none text-sm leading-7 text-main/60 md:text-base whitespace-pre-wrap">
-            {article.content}
-          </div>
+        <div className="mt-8 border-t border-line pt-6">
+          {article.contentFormat === "MARKDOWN" ? (
+            <MarkdownContent content={article.content} />
+          ) : (
+            <div className="whitespace-pre-wrap text-sm leading-8 text-main/70 md:text-base">{article.content}</div>
+          )}
         </div>
-      </div>
+        </div>
+        {article.sourceUrl ? (
+          <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-line bg-surface-muted/55 px-6 py-4 text-sm md:px-8">
+            <span className="text-main/50"><LocalizedText translationKey="contentPages.news.source" />：{article.sourceName || "燕中校友会"}</span>
+            <a href={article.sourceUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center gap-1.5 text-brand transition hover:text-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
+              <LocalizedText translationKey="contentPages.news.originalAction" /> <ExternalLink size={14} />
+            </a>
+          </footer>
+        ) : null}
+      </article>
     </section>
   );
 }

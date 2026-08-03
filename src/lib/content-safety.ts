@@ -16,3 +16,20 @@ export function isSafeLocalImagePath(value: string) {
   );
 }
 
+export function isSafeInternalHref(value: string) {
+  if (!value) return true;
+  if (value.length > 254 || CONTROL_CHARS.test(value)) return false;
+  return value.startsWith("/") && !value.startsWith("//") && !value.includes("\\") && !value.includes("..");
+}
+
+export function isSafeArticleSourceUrl(value: string) {
+  if (!value) return true;
+  if (value.length > 500 || CONTROL_CHARS.test(value)) return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && url.hostname === "mp.weixin.qq.com" && url.pathname.startsWith("/s/");
+  } catch {
+    return false;
+  }
+}
+

@@ -52,7 +52,7 @@
 | 前台体验 | Next.js App Router、移动端优先、亮暗双主题、中英双语；首页、学校介绍、燕中生态、隐私说明与星空体验公开 |
 | 校友功能 | 星空通讯录、大学城市地图、电子校友纪念卡、燕中故事、校友成就、燕中记忆、基础身份修正 |
 | 个人中心 | 查看认证状态，维护个人资料，提交/追踪故事，查看/取消活动报名，修改密码 |
-| 后台管理 | 新闻、活动与报名、校友名册、资料修正、故事审核、成就墙、记忆馆、教师频道、页面内容、注册策略与用户审核 |
+| 后台管理 | 分类资讯与 Markdown 正文、活动与报名、校友名册、资料修正、故事审核、成就墙、记忆馆、教师频道、页面内容、注册策略与用户审核 |
 | 生态身份 | 主站作为唯一身份源，为燕中 API 与燕中 AI 签发短效 OAuth/OIDC 身份；已认证在校生、校友、教师及管理员可按角色进入 |
 | 安全边界 | httpOnly cookie、HMAC-SHA256 token、sessionVersion 会话失效、同源写入校验、接口限流、请求体大小限制 |
 | 数据库 | Prisma 7 + SQLite WAL，本地默认 `prisma/dev.db`，生产默认 `/var/www/alumni-site/data/prod.db` |
@@ -69,7 +69,7 @@
 | 地图 | Leaflet + react-leaflet |
 | 主题 / 国际化 | CSS 语义变量 + Tailwind `darkMode: "class"` + React Context，中英双语 |
 | 视觉动效 | 原生 Canvas 2D，不依赖 Three.js；视口外、后台页和减少动态效果时自动停帧 |
-| 图片处理 | Sharp，上传后统一裁切/重编码 |
+| 内容与图片 | Markdown 安全渲染；Sharp 统一裁切/重编码，预优化 WebP 直接提供 |
 | 图标 | lucide-react |
 | 邮件 | Resend，可选 |
 | 限流/缓存 | Upstash Redis / ioredis / 内存降级 |
@@ -212,6 +212,7 @@ docs/
 | `npm run db:push` | 直接同步 schema，仅限一次性本地实验库，生产禁用 |
 | `npm run seed` | 执行 Prisma 幂等种子 |
 | `npm run seed-all` | 执行 Prisma seed，再以稳定 ID 补齐缺失的页面内容；不覆盖后台编辑，不写入虚构记忆展品 |
+| `npm run import:curated` | 导入已审核的公众号内容与跨频道入口；已有稳定 ID 记录保持不变 |
 | `npm run create-admin` | 创建管理员账号 |
 | `npm run normalize-identity-fields` | 清洗届别/班级历史后缀，支持 `-- --dry-run` |
 

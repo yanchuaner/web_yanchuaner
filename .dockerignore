@@ -23,6 +23,9 @@ prod.db-wal
 .eslintrc.json
 .npmrc
 scripts
+!scripts/
+scripts/*
+!scripts/import_curated_content.js
 docs
 .agents
 .github

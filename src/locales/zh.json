@@ -260,11 +260,22 @@
       "back": "返回活动列表"
     },
     "news": {
-      "title": "新闻公告",
-      "description": "学校动态、校友公告与平台进展。",
+      "title": "燕中资讯",
+      "description": "从在校生指南到校园记忆，收录燕中校友会持续整理的真实内容。",
       "empty": "暂无公告",
       "readAction": "阅读全文",
-      "back": "返回新闻列表"
+      "back": "返回资讯列表",
+      "articles": "篇",
+      "source": "内容来源",
+      "originalAction": "阅读公众号原文",
+      "categories": {
+        "studentGuide": "在校生指南",
+        "campusMemory": "燕中记忆",
+        "alumniStory": "校友故事",
+        "teacherVoice": "师长声音",
+        "alumniUpdate": "校友会动态",
+        "seasonal": "校园节气"
+      }
     },
     "contact": {
       "title": "联系我们",
@@ -322,7 +333,8 @@
       "empty": "暂无记忆展品",
       "emptyDescription": "管理员正在整理中，敬请期待。",
       "imagePending": "影像待补",
-      "noImage": "暂无图片，等待管理员上传"
+      "noImage": "暂无图片，等待管理员上传",
+      "readAction": "阅读完整故事"
     },
     "storyDetail": {
       "back": "返回故事列表",

@@ -260,11 +260,22 @@
       "back": "Back to Events"
     },
     "news": {
-      "title": "News & Announcements",
-      "description": "School updates, alumni announcements, and platform progress.",
+      "title": "Yan-Zhong Journal",
+      "description": "Official alumni association features, guides, memories, and community updates.",
       "empty": "No announcements yet",
       "readAction": "Read More",
-      "back": "Back to News"
+      "back": "Back to Journal",
+      "articles": "articles",
+      "source": "Source",
+      "originalAction": "Read on WeChat",
+      "categories": {
+        "studentGuide": "Student Guides",
+        "campusMemory": "School Memories",
+        "alumniStory": "Alumni Stories",
+        "teacherVoice": "Teachers' Voices",
+        "alumniUpdate": "Association Updates",
+        "seasonal": "Campus Seasons"
+      }
     },
     "contact": {
       "title": "Contact Us",
@@ -322,7 +333,8 @@
       "empty": "No memory exhibits yet",
       "emptyDescription": "The gallery is being prepared by administrators.",
       "imagePending": "IMAGE PENDING",
-      "noImage": "No image yet; waiting for an upload"
+      "noImage": "No image yet; waiting for an upload",
+      "readAction": "Read the full story"
     },
     "storyDetail": {
       "back": "Back to Stories",
