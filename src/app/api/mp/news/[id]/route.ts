@@ -3,6 +3,7 @@ import { authenticateMpRequest } from "@/lib/mp-auth";
 import { MP_ERROR_CODES, mpError, mpSuccess } from "@/lib/mp-api";
 import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 import { getPublishedNews } from "@/lib/published-content";
+import { canViewMemberNews } from "@/lib/news";
 
 export async function GET(
   req: NextRequest,
@@ -13,7 +14,9 @@ export async function GET(
 
   try {
     const id = await getRouteId(params);
-    const news = await getPublishedNews(id);
+    const news = await getPublishedNews(id, {
+      includeMember: canViewMemberNews(auth.auth.user),
+    });
     if (!news) {
       return mpError(MP_ERROR_CODES.NOT_FOUND, "新闻不存在", 404);
     }

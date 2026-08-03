@@ -4,7 +4,7 @@ import { getAuthenticatedUser, requireAdmin } from "@/lib/admin-auth";
 import { readJsonBody } from "@/lib/auth-utils";
 import { isSafeArticleSourceUrl, isSafeLocalImagePath, normalizeOptionalText } from "@/lib/content-safety";
 import { invalidateCachePrefix } from "@/lib/cache";
-import { DEFAULT_NEWS_CATEGORY, isNewsCategory, isNewsContentFormat } from "@/lib/news";
+import { DEFAULT_NEWS_CATEGORY, DEFAULT_NEWS_VISIBILITY, isNewsCategory, isNewsContentFormat, isNewsVisibility } from "@/lib/news";
 
 export async function GET(req: NextRequest) {
   const auth = await requireAdmin(req);
@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
     const category = searchParams.get("category");
+    const visibility = searchParams.get("visibility");
 
     // 强校验分页参数，防御 NaN / 负数
     const rawLimit = parseInt(searchParams.get("limit") || "50", 10);
@@ -22,9 +23,10 @@ export async function GET(req: NextRequest) {
     const rawOffset = parseInt(searchParams.get("offset") || "0", 10);
     const offset = Number.isInteger(rawOffset) && rawOffset >= 0 ? rawOffset : 0;
 
-    const where: { status?: string; category?: string } = {};
+    const where: { status?: string; category?: string; visibility?: string } = {};
     if (status && ["DRAFT", "PUBLISHED"].includes(status)) where.status = status;
     if (category && isNewsCategory(category)) where.category = category;
+    if (visibility && isNewsVisibility(visibility)) where.visibility = visibility;
 
     const [news, total] = await Promise.all([
       prisma.news.findMany({
@@ -62,6 +64,7 @@ export async function POST(req: NextRequest) {
       sourceUrl?: unknown;
       contentFormat?: unknown;
       status?: unknown;
+      visibility?: unknown;
       publishedAt?: unknown;
     }>(req, 524288); // 512KB limit
 
@@ -74,6 +77,7 @@ export async function POST(req: NextRequest) {
     const sourceUrl = normalizeOptionalText(body.sourceUrl);
     const contentFormat = normalizeOptionalText(body.contentFormat) || "PLAIN";
     const status = normalizeOptionalText(body.status);
+    const visibility = normalizeOptionalText(body.visibility) || DEFAULT_NEWS_VISIBILITY;
 
     if (!title) {
       return NextResponse.json({ error: "标题不能为空" }, { status: 400 });
@@ -111,6 +115,9 @@ export async function POST(req: NextRequest) {
     if (status && !["DRAFT", "PUBLISHED"].includes(status)) {
       return NextResponse.json({ error: "无效的状态值" }, { status: 400 });
     }
+    if (!isNewsVisibility(visibility)) {
+      return NextResponse.json({ error: "无效的可见范围" }, { status: 400 });
+    }
 
     let publishedAt = body.publishedAt ? new Date(String(body.publishedAt)) : null;
     if (publishedAt && Number.isNaN(publishedAt.getTime())) {
@@ -132,6 +139,7 @@ export async function POST(req: NextRequest) {
           sourceUrl: sourceUrl || null,
           contentFormat,
           status: status || "DRAFT",
+          visibility,
           publishedAt,
         },
       });
@@ -144,6 +152,7 @@ export async function POST(req: NextRequest) {
           after: JSON.stringify({
             title: created.title,
             status: created.status,
+            visibility: created.visibility,
             publishedAt: created.publishedAt,
           }),
         },

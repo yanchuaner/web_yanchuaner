@@ -158,6 +158,10 @@ if (story.authorId !== currentUserId) {
 
 ## 4. Token 安全设计
 
+### 新闻可见范围
+
+新闻的访问边界由 `News.status` 与 `News.visibility` 共同决定：只有已发布且 `visibility=PUBLIC` 的记录会出现在游客页面、首页动态和公开新闻 API 中；`MEMBER` 记录只对有效会话中的认证校友（`role=ALUMNI`、`status=VERIFIED`）和管理员开放。页面层对成员新闻跳转登录，API 层对无权限详情返回 `401`，避免依赖中间件作为唯一防线。
+
 ### 格式
 
 ```

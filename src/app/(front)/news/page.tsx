@@ -4,11 +4,12 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Calendar, Newspaper } from "lucide-react";
-import prisma from "@/lib/db";
 import { EmptyState, PageHeader, PageShell } from "@/components/ui";
 import { LocalizedDate } from "@/components/LocalizedDate";
 import { LocalizedText } from "@/components/LocalizedText";
-import { getNewsCategory, isPreoptimizedNewsImage, NEWS_CATEGORIES } from "@/lib/news";
+import { getPageUser } from "@/lib/admin-auth";
+import { canViewMemberNews, getNewsCategory, isPreoptimizedNewsImage, NEWS_CATEGORIES } from "@/lib/news";
+import { listPublishedNews } from "@/lib/published-content";
 
 export const metadata: Metadata = {
   title: "燕中资讯",
@@ -16,18 +17,8 @@ export const metadata: Metadata = {
 };
 
 export default async function NewsPage() {
-  const news = await prisma.news.findMany({
-    where: { status: "PUBLISHED" },
-    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
-    select: {
-      id: true,
-      title: true,
-      summary: true,
-      imageUrl: true,
-      category: true,
-      publishedAt: true,
-    },
-  });
+  const user = await getPageUser();
+  const { items: news } = await listPublishedNews(1, 100, { includeMember: canViewMemberNews(user) });
   const groups = NEWS_CATEGORIES.map((category) => ({
     ...category,
     items: news.filter((item) => getNewsCategory(item.category).value === category.value),

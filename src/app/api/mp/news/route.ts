@@ -3,6 +3,7 @@ import { authenticateMpRequest } from "@/lib/mp-auth";
 import { MP_ERROR_CODES, mpError, mpSuccess } from "@/lib/mp-api";
 import { parseMpPagination, toMpPagination } from "@/lib/mp-pagination";
 import { listPublishedNews } from "@/lib/published-content";
+import { canViewMemberNews } from "@/lib/news";
 
 export async function GET(req: NextRequest) {
   const auth = await authenticateMpRequest(req);
@@ -12,7 +13,9 @@ export async function GET(req: NextRequest) {
     const { page, pageSize } = parseMpPagination(
       new URL(req.url).searchParams,
     );
-    const { items, total } = await listPublishedNews(page, pageSize);
+    const { items, total } = await listPublishedNews(page, pageSize, {
+      includeMember: canViewMemberNews(auth.auth.user),
+    });
 
     return mpSuccess({
       items: items.map((item) => ({

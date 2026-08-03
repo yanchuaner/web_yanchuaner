@@ -152,7 +152,7 @@ function prepareAssets() {
 function assertMigratedSchema(db) {
   const newsColumns = new Set(db.prepare('PRAGMA table_info("News")').all().map((column) => column.name));
   const memoryColumns = new Set(db.prepare('PRAGMA table_info("MemoryItem")').all().map((column) => column.name));
-  for (const column of ["category", "sourceName", "sourceUrl", "contentFormat"]) {
+  for (const column of ["category", "sourceName", "sourceUrl", "contentFormat", "visibility"]) {
     if (!newsColumns.has(column)) throw new Error(`Database migration is missing News.${column}`);
   }
   if (!memoryColumns.has("href")) throw new Error("Database migration is missing MemoryItem.href");
@@ -176,9 +176,9 @@ function importContent() {
     const findMemory = db.prepare('SELECT "id" FROM "MemoryItem" WHERE "id" = ?');
     const insertNews = db.prepare(`
       INSERT INTO "News" (
-        "id", "title", "summary", "content", "imageUrl", "category", "sourceName", "sourceUrl",
-        "contentFormat", "status", "publishedAt", "createdAt", "updatedAt"
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      "id", "title", "summary", "content", "imageUrl", "category", "sourceName", "sourceUrl",
+        "contentFormat", "status", "visibility", "publishedAt", "createdAt", "updatedAt"
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     const insertAudit = db.prepare(`
       INSERT INTO "AuditLog" ("id", "action", "targetType", "targetId", "adminId", "after", "createdAt")
@@ -251,6 +251,7 @@ function importContent() {
             article.sourceUrl,
             article.contentFormat,
             "PUBLISHED",
+            article.visibility || "PUBLIC",
             new Date(article.publishedAt).toISOString(),
             now,
             now,

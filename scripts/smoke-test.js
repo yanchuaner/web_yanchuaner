@@ -44,7 +44,21 @@ async function main() {
   const loginPage = await request("/login");
   record("login_page_is_available", loginPage.status === 200, String(loginPage.status));
 
-  const privatePage = await request("/news");
+  const publicNewsPage = await request("/news");
+  record(
+    "guest_public_news_page_available",
+    publicNewsPage.status === 200,
+    String(publicNewsPage.status),
+  );
+
+  const publicNewsApi = await request("/api/news");
+  record(
+    "guest_public_news_api_available",
+    publicNewsApi.status === 200,
+    String(publicNewsApi.status),
+  );
+
+  const privatePage = await request("/me");
   record(
     "guest_private_page_redirects",
     [302, 307, 308].includes(privatePage.status) &&
@@ -52,7 +66,7 @@ async function main() {
     `${privatePage.status} ${privatePage.headers.get("location") || ""}`,
   );
 
-  const privateApi = await request("/api/news");
+  const privateApi = await request("/api/me/profile");
   record(
     "guest_private_api_rejected",
     privateApi.status === 401,

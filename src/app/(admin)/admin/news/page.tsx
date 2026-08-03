@@ -10,7 +10,7 @@ import { useDialogA11y } from '@/hooks/useDialogA11y';
 import { AdminPagination } from '@/components/admin/AdminPagination';
 import { useAdminLocalize } from '@/components/admin/AdminLocalizedText';
 import { useThemeAndLocale } from '@/components/ThemeAndLocaleProvider';
-import { getNewsCategory, NEWS_CATEGORIES } from '@/lib/news';
+import { getNewsCategory, NEWS_CATEGORIES, NEWS_VISIBILITIES } from '@/lib/news';
 
 const PAGE_SIZE = 20;
 
@@ -23,6 +23,7 @@ type NewsItem = {
   category: string;
   contentFormat: string;
   sourceName: string | null;
+  visibility: string;
 };
 
 const statusLabel: Record<string, string> = { DRAFT: '草稿', PUBLISHED: '已发布' };
@@ -35,6 +36,7 @@ export default function AdminNewsPage() {
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [visibilityFilter, setVisibilityFilter] = useState('ALL');
   const [search, setSearch] = useState('');
   const [deleting, setDeleting] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<NewsItem | null>(null);
@@ -60,6 +62,7 @@ export default function AdminNewsPage() {
       });
       if (statusFilter !== 'ALL') params.set('status', statusFilter);
       if (categoryFilter !== 'ALL') params.set('category', categoryFilter);
+      if (visibilityFilter !== 'ALL') params.set('visibility', visibilityFilter);
       const res = await fetch(`/api/admin/news?${params}`);
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
@@ -97,7 +100,7 @@ export default function AdminNewsPage() {
   useEffect(() => {
     fetchNews();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, statusFilter, categoryFilter]);
+  }, [page, statusFilter, categoryFilter, visibilityFilter]);
 
   const statusBadge = (s: string) => {
     const map: Record<string, string> = {
@@ -107,6 +110,15 @@ export default function AdminNewsPage() {
     return (
       <span className={`inline-block rounded-full border px-2.5 py-0.5 text-xs ${map[s] || ''}`}>
         {localize(statusLabel[s] || s)}
+      </span>
+    );
+  };
+
+  const visibilityBadge = (value: string) => {
+    const isPublic = value === 'PUBLIC';
+    return (
+      <span className={`inline-block rounded-full border px-2.5 py-0.5 text-xs ${isPublic ? 'border-brand/25 bg-brand/10 text-brand' : 'border-line bg-surface/60 text-main/60'}`}>
+        {localize(isPublic ? '公开内容' : '认证成员')}
       </span>
     );
   };
@@ -154,6 +166,15 @@ export default function AdminNewsPage() {
           <option value="ALL">{localize('全部分类')}</option>
           {NEWS_CATEGORIES.map((category) => <option key={category.value} value={category.value}>{t(category.labelKey)}</option>)}
         </select>
+        <select
+          value={visibilityFilter}
+          onChange={(event) => { setVisibilityFilter(event.target.value); setPage(1); }}
+          className="input min-h-10 w-full text-sm sm:w-auto"
+          aria-label={localize('按可见范围筛选')}
+        >
+          <option value="ALL">{localize('全部可见范围')}</option>
+          {NEWS_VISIBILITIES.map((visibility) => <option key={visibility.value} value={visibility.value}>{localize(visibility.label)}</option>)}
+        </select>
         <div className="relative ml-auto w-full sm:w-auto">
           <label htmlFor="search-input" className="sr-only">{localize('搜索新闻标题')}</label>
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-main/40" />
@@ -192,6 +213,7 @@ export default function AdminNewsPage() {
               <tr>
                 <th className="px-4 py-3 font-medium">{localize('标题')}</th>
                 <th className="px-4 py-3 font-medium">{localize('状态')}</th>
+                <th className="px-4 py-3 font-medium">{localize('可见范围')}</th>
                 <th className="px-4 py-3 font-medium hidden sm:table-cell">{localize('更新时间')}</th>
                 <th className="px-4 py-3 font-medium">{localize('操作')}</th>
               </tr>
@@ -206,6 +228,7 @@ export default function AdminNewsPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">{statusBadge(item.status)}</td>
+                  <td className="px-4 py-3">{visibilityBadge(item.visibility)}</td>
                   <td className="px-4 py-3 hidden sm:table-cell">{new Date(item.updatedAt).toLocaleString(locale === 'en' ? 'en-US' : 'zh-CN', { timeZone: 'Asia/Shanghai' })}</td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">

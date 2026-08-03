@@ -54,7 +54,7 @@ async function main() {
   check(health.ok, "health endpoint", `${health.status}`);
 
   const guestNews = await request("/news");
-  check([302, 307, 308].includes(guestNews.status), "guest page redirects to login");
+  check(guestNews.ok, "guest page can read public news", `${guestNews.status}`);
 
   const adminLogin = await jsonRequest("/api/auth/login", {
     method: "POST",

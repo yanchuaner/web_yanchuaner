@@ -196,12 +196,14 @@ model News {
   sourceUrl     String?
   contentFormat String    @default("PLAIN")
   status        String    @default("DRAFT")
+  visibility    String    @default("MEMBER")
   publishedAt   DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   @@index([status])
   @@index([status, category])
+  @@index([status, visibility, category])
 }
 
 model Event {

@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { useAdminLocalize } from "@/components/admin/AdminLocalizedText";
 import { MarkdownContent } from "@/components/content/MarkdownContent";
 import { useThemeAndLocale } from "@/components/ThemeAndLocaleProvider";
-import { DEFAULT_NEWS_CATEGORY, isPreoptimizedNewsImage, NEWS_CATEGORIES } from "@/lib/news";
+import { DEFAULT_NEWS_CATEGORY, DEFAULT_NEWS_VISIBILITY, isPreoptimizedNewsImage, NEWS_CATEGORIES, NEWS_VISIBILITIES } from "@/lib/news";
 
 export type NewsEditorValue = {
   title: string;
@@ -21,6 +21,7 @@ export type NewsEditorValue = {
   sourceUrl: string;
   contentFormat: "PLAIN" | "MARKDOWN";
   status: "DRAFT" | "PUBLISHED";
+  visibility: "PUBLIC" | "MEMBER";
 };
 
 const EMPTY_VALUE: NewsEditorValue = {
@@ -33,6 +34,7 @@ const EMPTY_VALUE: NewsEditorValue = {
   sourceUrl: "",
   contentFormat: "PLAIN",
   status: "DRAFT",
+  visibility: DEFAULT_NEWS_VISIBILITY,
 };
 
 export function NewsEditorForm({
@@ -210,6 +212,16 @@ export function NewsEditorForm({
             <option value="DRAFT">{localize("草稿")}</option>
             <option value="PUBLISHED">{localize("已发布")}</option>
           </select>
+        </label>
+
+        <label className="block max-w-sm">
+          <span className="mb-1.5 block text-sm font-medium text-main">{localize("可见范围")}</span>
+          <select value={form.visibility} onChange={(event) => update("visibility", event.target.value as NewsEditorValue["visibility"])} className="input w-full">
+            {NEWS_VISIBILITIES.map((visibility) => (
+              <option key={visibility.value} value={visibility.value}>{localize(visibility.label)}</option>
+            ))}
+          </select>
+          <span className="mt-1.5 block text-xs leading-5 text-main/45">{localize("公开内容无需登录；认证成员内容仅向已认证校友与管理员开放")}</span>
         </label>
 
         <div className="flex flex-wrap gap-3">
