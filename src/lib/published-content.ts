@@ -13,6 +13,7 @@ const newsListSelect = {
   category: true,
   sourceName: true,
   sourceUrl: true,
+  visibility: true,
   publishedAt: true,
   createdAt: true,
 } satisfies Prisma.NewsSelect;
@@ -48,12 +49,15 @@ const eventDetailSelect = {
   status: true,
 } satisfies Prisma.EventSelect;
 
-export async function listPublishedNews(page: number, pageSize: number) {
+export async function listPublishedNews(page: number, pageSize: number, options: { includeMember?: boolean } = {}) {
+  const includeMember = options.includeMember ?? false;
   const cached = await getCachedOrFetch(
-    `published:news:list:${page}:${pageSize}`,
+    `published:news:list:${includeMember ? "all" : "public"}:${page}:${pageSize}`,
     PUBLISHED_CONTENT_TTL_SECONDS,
     async () => {
-      const where = { status: "PUBLISHED" };
+      const where = includeMember
+        ? { status: "PUBLISHED" }
+        : { status: "PUBLISHED", visibility: "PUBLIC" };
       const [items, total] = await Promise.all([
         prisma.news.findMany({
           where,
@@ -84,13 +88,16 @@ export async function listPublishedNews(page: number, pageSize: number) {
   };
 }
 
-export async function getPublishedNews(id: string) {
+export async function getPublishedNews(id: string, options: { includeMember?: boolean } = {}) {
+  const includeMember = options.includeMember ?? false;
   const cached = await getCachedOrFetch(
-    `published:news:detail:${id}`,
+    `published:news:detail:${includeMember ? "all" : "public"}:${id}`,
     PUBLISHED_CONTENT_TTL_SECONDS,
     async () => {
       const item = await prisma.news.findFirst({
-        where: { id, status: "PUBLISHED" },
+        where: includeMember
+          ? { id, status: "PUBLISHED" }
+          : { id, status: "PUBLISHED", visibility: "PUBLIC" },
         select: newsDetailSelect,
       });
       return item

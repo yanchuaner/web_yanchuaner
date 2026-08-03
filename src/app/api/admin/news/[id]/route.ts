@@ -5,7 +5,7 @@ import { readJsonBody } from "@/lib/auth-utils";
 import { isSafeArticleSourceUrl, isSafeLocalImagePath, normalizeOptionalText } from "@/lib/content-safety";
 import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 import { invalidateCachePrefix } from "@/lib/cache";
-import { isNewsCategory, isNewsContentFormat } from "@/lib/news";
+import { isNewsCategory, isNewsContentFormat, isNewsVisibility } from "@/lib/news";
 
 export async function GET(
   req: NextRequest,
@@ -55,6 +55,7 @@ export async function PUT(
       sourceUrl?: unknown;
       contentFormat?: unknown;
       status?: unknown;
+      visibility?: unknown;
       publishedAt?: unknown;
     }>(req, 524288); // 512KB limit
 
@@ -67,6 +68,7 @@ export async function PUT(
     const sourceUrl = normalizeOptionalText(body.sourceUrl);
     const contentFormat = normalizeOptionalText(body.contentFormat) || existing.contentFormat;
     const status = normalizeOptionalText(body.status);
+    const visibility = normalizeOptionalText(body.visibility) || existing.visibility;
 
     if (!title) {
       return NextResponse.json({ error: "标题不能为空" }, { status: 400 });
@@ -104,6 +106,9 @@ export async function PUT(
     if (status && !["DRAFT", "PUBLISHED"].includes(status)) {
       return NextResponse.json({ error: "无效的状态值" }, { status: 400 });
     }
+    if (!isNewsVisibility(visibility)) {
+      return NextResponse.json({ error: "无效的可见范围" }, { status: 400 });
+    }
 
     let publishedAt = existing.publishedAt;
     if (body.publishedAt !== undefined) {
@@ -134,6 +139,7 @@ export async function PUT(
           sourceUrl: sourceUrl || null,
           contentFormat,
           status: status || existing.status,
+          visibility,
           publishedAt,
         },
       });
@@ -146,11 +152,13 @@ export async function PUT(
           before: JSON.stringify({
             title: existing.title,
             status: existing.status,
+            visibility: existing.visibility,
             publishedAt: existing.publishedAt,
           }),
           after: JSON.stringify({
             title: updated.title,
             status: updated.status,
+            visibility: updated.visibility,
             publishedAt: updated.publishedAt,
           }),
         },
@@ -201,6 +209,7 @@ export async function DELETE(
           before: JSON.stringify({
             title: existing.title,
             status: existing.status,
+            visibility: existing.visibility,
             publishedAt: existing.publishedAt,
           }),
         },

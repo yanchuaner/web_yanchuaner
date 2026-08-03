@@ -3,21 +3,29 @@ export const revalidate = 60;
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowLeft, Calendar, ExternalLink } from "lucide-react";
 import prisma from "@/lib/db";
+import { getPageUser } from "@/lib/admin-auth";
+import { getPublishedNews } from "@/lib/published-content";
 import { getRouteId, type IdRouteParams } from "@/lib/route-params";
 import { LocalizedText } from "@/components/LocalizedText";
 import { LocalizedDate } from "@/components/LocalizedDate";
 import { MarkdownContent } from "@/components/content/MarkdownContent";
-import { getNewsCategory, isPreoptimizedNewsImage } from "@/lib/news";
+import { canViewMemberNews, getNewsCategory, isPreoptimizedNewsImage } from "@/lib/news";
 
 const SITE_URL = process.env.SITE_URL || "https://yanchuaner.cn";
 
 export async function generateMetadata({ params }: { params: IdRouteParams }): Promise<Metadata> {
   const id = await getRouteId(params);
+  const user = await getPageUser();
   const article = await prisma.news.findFirst({
-    where: { id, status: "PUBLISHED" },
+    where: {
+      id,
+      status: "PUBLISHED",
+      ...(canViewMemberNews(user) ? {} : { visibility: "PUBLIC" }),
+    },
     select: { title: true, summary: true, imageUrl: true },
   });
 
@@ -43,11 +51,14 @@ export async function generateMetadata({ params }: { params: IdRouteParams }): P
 
 export default async function NewsDetailPage({ params }: { params: IdRouteParams }) {
   const id = await getRouteId(params);
-  const article = await prisma.news.findFirst({
-    where: { id, status: "PUBLISHED" },
-  });
+  const user = await getPageUser();
+  const includeMember = canViewMemberNews(user);
+  let article = await getPublishedNews(id, { includeMember });
 
   if (!article) {
+    if (!includeMember && await getPublishedNews(id, { includeMember: true })) {
+      redirect(`/login?redirect=${encodeURIComponent(`/news/${id}`)}`);
+    }
     notFound();
   }
 

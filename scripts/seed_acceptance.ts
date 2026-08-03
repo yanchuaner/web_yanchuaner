@@ -147,6 +147,7 @@ async function main() {
       summary: "用于隔离环境全流程验收",
       content: "这是一条不包含真实个人信息的验收新闻。",
       status: "PUBLISHED",
+      visibility: "PUBLIC",
       publishedAt: new Date(),
     },
     update: {
@@ -154,6 +155,7 @@ async function main() {
       summary: "用于隔离环境全流程验收",
       content: "这是一条不包含真实个人信息的验收新闻。",
       status: "PUBLISHED",
+      visibility: "PUBLIC",
       publishedAt: new Date(),
     },
   });

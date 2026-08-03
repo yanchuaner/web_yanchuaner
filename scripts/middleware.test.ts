@@ -13,7 +13,7 @@ test.afterEach(() => {
   else process.env.SITE_URL = originalSiteUrl;
 });
 
-test("unauthenticated redirects use the configured external origin", async () => {
+test("public news pages bypass the session gate", async () => {
   process.env.APP_URL = "https://yanchuaner.cn";
   const request = new NextRequest("http://localhost:3000/news", {
     headers: {
@@ -25,11 +25,19 @@ test("unauthenticated redirects use the configured external origin", async () =>
 
   const response = await middleware(request);
 
+  assert.equal(response.status, 200);
+});
+
+test("unauthenticated protected pages still use the configured external origin", async () => {
+  process.env.APP_URL = "https://yanchuaner.cn";
+  const request = new NextRequest("http://localhost:3000/me", {
+    headers: { host: "localhost:3000" },
+  });
+
+  const response = await middleware(request);
+
   assert.equal(response.status, 307);
-  assert.equal(
-    response.headers.get("location"),
-    "https://yanchuaner.cn/login?redirect=%2Fnews",
-  );
+  assert.equal(response.headers.get("location"), "https://yanchuaner.cn/login?redirect=%2Fme");
 });
 
 test("proxy headers provide the external origin when no URL is configured", async () => {
@@ -54,7 +62,7 @@ test("proxy headers provide the external origin when no URL is configured", asyn
 
 test("loopback APP_URL follows the browser base in local acceptance", async () => {
   process.env.APP_URL = "http://localhost:3000";
-  const request = new NextRequest("http://127.0.0.1:3000/news", {
+  const request = new NextRequest("http://127.0.0.1:3000/me", {
     headers: {
       host: "127.0.0.1:3000",
       "x-forwarded-host": "127.0.0.1:3000",
@@ -66,6 +74,6 @@ test("loopback APP_URL follows the browser base in local acceptance", async () =
 
   assert.equal(
     response.headers.get("location"),
-    "http://127.0.0.1:3000/login?redirect=%2Fnews",
+    "http://127.0.0.1:3000/login?redirect=%2Fme",
   );
 });

@@ -16,9 +16,16 @@ import {
 } from "../src/lib/content-safety";
 import {
   isNewsCategory,
+  isNewsVisibility,
   isPreoptimizedNewsImage,
   NEWS_CATEGORIES,
 } from "../src/lib/news";
+
+test("news visibility values stay within the public/member contract", () => {
+  assert.equal(isNewsVisibility("PUBLIC"), true);
+  assert.equal(isNewsVisibility("MEMBER"), true);
+  assert.equal(isNewsVisibility("PRIVATE"), false);
+});
 
 test("content image paths only allow normalized local assets", () => {
   assert.equal(isSafeLocalImagePath("/uploads/news-cover.webp"), true);

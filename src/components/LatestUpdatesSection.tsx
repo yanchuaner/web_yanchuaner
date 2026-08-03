@@ -13,7 +13,7 @@ type UpdateItem = {
 async function getLatestUpdates(): Promise<UpdateItem[]> {
   const [news, events] = await Promise.all([
     prisma.news.findMany({
-      where: { status: "PUBLISHED" },
+      where: { status: "PUBLISHED", visibility: "PUBLIC" },
       select: { id: true, title: true, publishedAt: true },
       orderBy: { publishedAt: "desc" },
       take: 3,

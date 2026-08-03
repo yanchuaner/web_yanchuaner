@@ -11,6 +11,23 @@ export type NewsCategory = (typeof NEWS_CATEGORIES)[number]["value"];
 
 export const DEFAULT_NEWS_CATEGORY: NewsCategory = "ALUMNI_UPDATE";
 
+export const NEWS_VISIBILITIES = [
+  { value: "PUBLIC", label: "公开内容" },
+  { value: "MEMBER", label: "认证成员" },
+] as const;
+
+export type NewsVisibility = (typeof NEWS_VISIBILITIES)[number]["value"];
+
+export const DEFAULT_NEWS_VISIBILITY: NewsVisibility = "MEMBER";
+
+export function isNewsVisibility(value: string): value is NewsVisibility {
+  return NEWS_VISIBILITIES.some((visibility) => visibility.value === value);
+}
+
+export function canViewMemberNews(user: { role: string; status: string } | null | undefined) {
+  return Boolean(user && (user.role === "ADMIN" || (user.role === "ALUMNI" && user.status === "VERIFIED")));
+}
+
 export function isNewsCategory(value: string): value is NewsCategory {
   return NEWS_CATEGORIES.some((category) => category.value === value);
 }

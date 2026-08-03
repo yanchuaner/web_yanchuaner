@@ -48,6 +48,18 @@ const PUBLIC_MP_APIS = new Set([
 
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
+function isPublicNewsPath(pathname: string) {
+  return pathname === "/news" || pathname.startsWith("/news/");
+}
+
+function isPublicNewsApiPath(pathname: string) {
+  return pathname === "/api/news" || pathname.startsWith("/api/news/");
+}
+
+function isPublicApiPath(pathname: string) {
+  return PUBLIC_APIS.has(pathname) || isPublicNewsApiPath(pathname);
+}
+
 function base64UrlToBytes(value: string) {
   const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
   const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
@@ -193,7 +205,7 @@ function requiresSameOriginCheck(req: NextRequest, pathname: string) {
     pathname.startsWith("/api/") &&
     !pathname.startsWith("/api/mp/") &&
     MUTATING_METHODS.has(req.method.toUpperCase()) &&
-    !PUBLIC_APIS.has(pathname)
+    !isPublicApiPath(pathname)
   );
 }
 
@@ -223,7 +235,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  if (PUBLIC_APIS.has(pathname) || PUBLIC_MP_APIS.has(pathname)) {
+  if (isPublicApiPath(pathname) || PUBLIC_MP_APIS.has(pathname)) {
     return next();
   }
 
@@ -264,7 +276,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (PUBLIC_PAGES.has(pathname)) {
+  if (PUBLIC_PAGES.has(pathname) || isPublicNewsPath(pathname)) {
     return next();
   }
 

@@ -30,6 +30,7 @@ export default function AdminNewsEditPage() {
           sourceUrl: article.sourceUrl || "",
           contentFormat: article.contentFormat === "MARKDOWN" ? "MARKDOWN" : "PLAIN",
           status: article.status === "PUBLISHED" ? "PUBLISHED" : "DRAFT",
+          visibility: article.visibility === "PUBLIC" ? "PUBLIC" : "MEMBER",
         });
       })
       .catch((fetchError) => setError(fetchError instanceof Error ? fetchError.message : localize("获取新闻失败")));
