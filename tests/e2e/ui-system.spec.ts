@@ -145,6 +145,29 @@ test("light English authentication pages reflow without crowding", async ({ page
   expect(issues).toEqual([]);
 });
 
+test("public news stays accessible after client hydration", async ({ page }) => {
+  const issues = watchRuntimeIssues(page);
+  await setPreferences(page, { theme: "dark", locale: "zh", introSeen: true });
+
+  await page.goto("/news");
+  await expect(page).toHaveURL(/\/news$/);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("燕中资讯");
+  await page.waitForTimeout(1_000);
+  await expect(page).toHaveURL(/\/news$/);
+
+  const firstArticle = page.locator('article a[href^="/news/"]').first();
+  if (await firstArticle.count()) {
+    const href = await firstArticle.getAttribute("href");
+    expect(href).toMatch(/^\/news\/.+/);
+    await page.goto(href!);
+    await expect(page).toHaveURL(new RegExp(`${href}$`));
+    await expect(page.getByRole("heading", { level: 1 })).not.toContainText("页面未找到");
+    await page.waitForTimeout(1_000);
+    await expect(page).toHaveURL(new RegExp(`${href}$`));
+  }
+  expect(issues).toEqual([]);
+});
+
 test("OAuth login handoff uses a document navigation", async ({ page }) => {
   await setPreferences(page, { theme: "dark", locale: "zh", introSeen: true });
   await page.route("**/api/auth/login", async (route) => {
