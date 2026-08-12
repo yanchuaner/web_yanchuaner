@@ -361,6 +361,8 @@
 
 所有操作均记录到 AuditLog 表，与业务变更在同一事务中写入。
 
+其中 `approve-alumni`、`reject-alumni`、`disable-account`、`enable-account`、`logout-all-sessions`、`grant-admin` 与 `revoke-admin` 会在同一事务写入 `IdentityEvent` 队列，并以 HMAC 签名推送到 `IDENTITY_EVENT_WEBHOOK_URLS` 配置的接收端；推送失败保留重试，可执行 `npm run retry-identity-events` 手动补推。
+
 > [!IMPORTANT]
 > **超级管理员 (Root Admin) 防越权机制**
 > - 超级管理员唯一邮箱标识由 `ROOT_ADMIN_EMAIL` 配置；未配置时使用项目默认值。

@@ -74,6 +74,8 @@ npm run build
 | `UPSTASH_REDIS_REST_URL` | Upstash Redis REST URL（首选举手限流层） | 否（未配置时降级） |
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST Token（配合上面使用） | 否（未配置时降级） |
 | `ROOT_ADMIN_EMAIL` | 超级管理员唯一邮箱标识（默认 `yanchuaner@yanchuaner.cn`） | 否 |
+| `IDENTITY_EVENT_WEBHOOK_URLS` | 跨站身份事件接收地址（逗号分隔，如 API/AI 的 `/api/yancore/identity-events`） | 否（未配置则不做跨站撤销推送） |
+| `IDENTITY_EVENT_WEBHOOK_SECRET` | 身份事件 HMAC 签名密钥，至少 32 字符，需与子站接收端一致 | 否（未配置则不做跨站撤销推送） |
 | `PORT` | 服务端口（默认 3000） | 否 |
 | `UPLOAD_DIR` | 文件上传目录；为空时默认 `public/uploads/`，生产推荐 `/var/www/alumni-site/uploads` | 否 |
 | `BACKUP_DIR` | 备份目录 | 否 |
@@ -111,7 +113,9 @@ npm run create-admin
 
 ### 管理员后台管理
 
-管理员可在后台 `/admin/users` 审核校友身份、停用/恢复账号、强制注销全部会话、提升/撤销管理员权限。所有敏感操作记录到 AuditLog。
+管理员可在后台 `/admin/users` 审核校友身份、停用/恢复账号、强制注销全部会话、提升/撤销管理员权限。所有敏感操作记录到 AuditLog；停用、恢复、强制退出和角色变化会同时写入 `IdentityEvent` 队列，以 HMAC 签名推送到已配置的跨站接收端，使 API/AI 的存量 grant 与 Token 立即撤销。
+
+若某次推送失败，事件会保留在 `FAILED` 状态并按退避时间重试；运维可执行 `npm run retry-identity-events` 手动补推。
 
 ---
 
