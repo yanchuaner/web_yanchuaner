@@ -163,7 +163,7 @@ npm run build          # 生产构建
 
 ## 许可证
 
-通过提交 PR，即表示你同意你的贡献以 [MIT License](LICENSE) 授权。
+通过提交 PR，即表示你同意你的贡献以 [AGPL-3.0](LICENSE) 授权。
 
 ## 致谢
 
