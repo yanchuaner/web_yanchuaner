@@ -145,6 +145,26 @@ test("light English authentication pages reflow without crowding", async ({ page
   expect(issues).toEqual([]);
 });
 
+test("public news stays accessible after client hydration", async ({ page }) => {
+  const issues = watchRuntimeIssues(page);
+  await setPreferences(page, { theme: "dark", locale: "zh", introSeen: true });
+
+  await page.goto("/news");
+  await expect(page).toHaveURL(/\/news$/);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("燕中资讯");
+  await page.waitForTimeout(1_000);
+  await expect(page).toHaveURL(/\/news$/);
+
+  await page.goto("/news/wechat-freshman-life");
+  await expect(page).toHaveURL(/\/news\/wechat-freshman-life$/);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "大一新生最全避坑干货大全（生活篇）",
+  );
+  await page.waitForTimeout(1_000);
+  await expect(page).toHaveURL(/\/news\/wechat-freshman-life$/);
+  expect(issues).toEqual([]);
+});
+
 test("OAuth login handoff uses a document navigation", async ({ page }) => {
   await setPreferences(page, { theme: "dark", locale: "zh", introSeen: true });
   await page.route("**/api/auth/login", async (route) => {
