@@ -8,6 +8,11 @@ import {
 } from "@/lib/email";
 import { upsertRosterEntry } from "@/lib/roster";
 import { getRouteId, type IdRouteParams } from "@/lib/route-params";
+import {
+  deliverPendingIdentityEvents,
+  identityEventNameForAction,
+  queueIdentityEvent,
+} from "@/lib/identity-events";
 
 type ActionName =
   | "approve-alumni"
@@ -215,6 +220,16 @@ export async function POST(
                     ? { role: "ADMIN", sessionVersion: { increment: 1 } }
                     : { role: target.status === "VERIFIED" ? "ALUMNI" : "GUEST", sessionVersion: { increment: 1 } };
       const result = await tx.user.update({ where: { id: target.id }, data });
+      const identityEvent = identityEventNameForAction(action);
+      if (identityEvent) {
+        await queueIdentityEvent(tx, {
+          userId: result.id,
+          event: identityEvent,
+          role: result.role,
+          accountStatus: result.accountStatus,
+          status: result.status,
+        });
+      }
       await tx.auditLog.create({
         data: {
           action,
@@ -227,6 +242,11 @@ export async function POST(
       });
       return result;
     });
+    try {
+      await deliverPendingIdentityEvents();
+    } catch (error) {
+      console.error("Identity event delivery error:", error);
+    }
     return NextResponse.json({ user: updated });
   } catch (error: any) {
     console.error("Admin users action error:", error);

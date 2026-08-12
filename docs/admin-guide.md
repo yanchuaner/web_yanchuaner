@@ -336,6 +336,8 @@ npm run create-admin
 | 重发验证邮件 | `resend-verification` | 管理员代为触发邮箱验证邮件 |
 | 发送密码重置邮件 | `send-reset-password` | 管理员代为触发密码重置邮件 |
 
+除重发验证邮件与发送密码重置邮件外，其余操作都会在同一事务写入 `IdentityEvent` 队列，并以 HMAC 签名推送到跨站接收端；API 收到停用/角色变化事件后会立即撤销该用户存量 grant 与 Token，自主 AI Web 随后清除已失效会话。
+
 ### 11.5 Root Admin 安全防护（重要）
 
 系统内置三层防护，确保管理员之间的操作安全：
