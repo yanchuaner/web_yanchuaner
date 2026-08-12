@@ -27,6 +27,16 @@ test("news visibility values stay within the public/member contract", () => {
   assert.equal(isNewsVisibility("PRIVATE"), false);
 });
 
+test("public news routes are not blocked by a layout-level alumni guard", async () => {
+  const layout = await readFile(
+    path.join(process.cwd(), "src/app/(front)/news/layout.tsx"),
+    "utf8",
+  );
+
+  assert.doesNotMatch(layout, /requirePage(?:User|Alumni|Admin)/);
+  assert.doesNotMatch(layout, /robots\s*:\s*\{\s*index\s*:\s*false/);
+});
+
 test("content image paths only allow normalized local assets", () => {
   assert.equal(isSafeLocalImagePath("/uploads/news-cover.webp"), true);
   assert.equal(isSafeLocalImagePath("/card.jpg"), true);
