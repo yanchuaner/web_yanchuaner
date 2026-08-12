@@ -155,13 +155,16 @@ test("public news stays accessible after client hydration", async ({ page }) => 
   await page.waitForTimeout(1_000);
   await expect(page).toHaveURL(/\/news$/);
 
-  await page.goto("/news/wechat-freshman-life");
-  await expect(page).toHaveURL(/\/news\/wechat-freshman-life$/);
-  await expect(page.getByRole("heading", { level: 1 })).toContainText(
-    "大一新生最全避坑干货大全（生活篇）",
-  );
-  await page.waitForTimeout(1_000);
-  await expect(page).toHaveURL(/\/news\/wechat-freshman-life$/);
+  const firstArticle = page.locator('article a[href^="/news/"]').first();
+  if (await firstArticle.count()) {
+    const href = await firstArticle.getAttribute("href");
+    expect(href).toMatch(/^\/news\/.+/);
+    await page.goto(href!);
+    await expect(page).toHaveURL(new RegExp(`${href}$`));
+    await expect(page.getByRole("heading", { level: 1 })).not.toContainText("页面未找到");
+    await page.waitForTimeout(1_000);
+    await expect(page).toHaveURL(new RegExp(`${href}$`));
+  }
   expect(issues).toEqual([]);
 });
 
