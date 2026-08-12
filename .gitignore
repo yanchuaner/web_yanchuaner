@@ -32,7 +32,6 @@ prod.db-wal
 .opencode/
 .vscode/
 .idea/
-AGENTS.md
 
 # Generated code
 /src/generated/prisma
